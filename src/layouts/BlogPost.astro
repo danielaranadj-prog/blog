@@ -1,9 +1,10 @@
 ---
-// Component Imports
+// 1. IMPORTS
 import BaseHead from '../components/BaseHead.astro';
 import BlogHeader from '../components/BlogHeader.astro';
 import Footer from '../components/Footer.astro';
 
+// 2. DATOS DE AUTORES
 import type { Author } from '../data/authors';
 import { AUTHORS, DEFAULT_AUTHOR } from '../data/authors';
 
@@ -12,9 +13,7 @@ const {
   frontmatter = {},
 } = Astro.props;
 
-/* -----------------------------
-   DATOS DEL POST
------------------------------ */
+// 3. LÓGICA DEL POST
 const post = {
   title: frontmatter.title || content.title,
   description: frontmatter.description || content.description,
@@ -22,17 +21,11 @@ const post = {
   heroImage: frontmatter.heroImage || content.heroImage,
   heroImageLink: frontmatter.heroImageLink || content.heroImageLink,
   alt: frontmatter.alt || content.alt || frontmatter.title,
-
-  // slug del autor desde markdown
   authorSlug: frontmatter.author,
 };
 
-/* -----------------------------
-   AUTOR (DINÁMICO + FALLBACK)
------------------------------ */
-const author: Author =
-  (post.authorSlug && AUTHORS[post.authorSlug]) || DEFAULT_AUTHOR;
-
+// 4. AUTOR Y URL
+const author: Author = (post.authorSlug && AUTHORS[post.authorSlug]) || DEFAULT_AUTHOR;
 const finalImage = post.heroImage || post.heroImageLink;
 const permalink = Astro.url.href;
 ---
@@ -47,8 +40,8 @@ const permalink = Astro.url.href;
   />
 
   <style>
+    /* VARIABLES GLOBALES */
     :root {
-      /* MODO CLARO */
       --brand-blue: #75AADB;
       --accent-gold: #F4B942;
       --page-bg: #F8F9FA;
@@ -61,7 +54,6 @@ const permalink = Astro.url.href;
 
     @media (prefers-color-scheme: dark) {
       :root {
-        /* MODO OSCURO */
         --page-bg: #0f172a;
         --card-bg: #1e293b;
         --text-main: #f1f5f9;
@@ -93,13 +85,13 @@ const permalink = Astro.url.href;
     }
 
     main {
-      background: var(--card-bg); /* Cambiado de #fff */
+      background: var(--card-bg);
       border-radius: 16px;
       border: 1px solid var(--card-border);
       overflow: hidden;
     }
 
-    /* HERO */
+    /* HERO IMAGE */
     .hero {
       width: 100%;
       height: 420px;
@@ -141,9 +133,10 @@ const permalink = Astro.url.href;
       margin: 0 auto;
       font-size: 1.05rem;
       line-height: 1.8;
-      color: var(--text-prose); /* Usando variable */
+      color: var(--text-prose);
     }
 
+    /* Estilos globales dentro del contenido del post */
     .prose :global(img) {
       max-width: 100%;
       height: auto;
@@ -162,7 +155,7 @@ const permalink = Astro.url.href;
         color: var(--text-prose);
     }
 
-    /* FIRMA */
+    /* FIRMA DEL AUTOR AL PIE */
     .signature {
       margin-top: 4rem;
       padding-top: 2rem;
@@ -195,14 +188,14 @@ const permalink = Astro.url.href;
     }
 
     .widget {
-      background: var(--card-bg); /* Cambiado de #fff */
+      background: var(--card-bg);
       border: 1px solid var(--card-border);
       border-radius: 16px;
       padding: 1.5rem;
       color: var(--text-main);
     }
 
-    /* AUTOR SIDEBAR */
+    /* WIDGET AUTOR SIDEBAR */
     .author {
       text-align: center;
     }
@@ -302,7 +295,6 @@ const permalink = Astro.url.href;
       </main>
 
       <aside>
-
         <div class="widget author">
           <img src={author.image} alt={author.name} />
           <h3>{author.name}</h3>
@@ -332,7 +324,6 @@ const permalink = Astro.url.href;
             loading="lazy"
           />
         </div>
-
       </aside>
 
     </div>

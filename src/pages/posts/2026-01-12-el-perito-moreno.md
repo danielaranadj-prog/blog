@@ -1,13 +1,14 @@
 ---
-title: El perito Moreno
+title: El Perito Moreno
 description: ""
-publishDate: 2026-01-12T06:37:21.592Z
+publishDate: 2026-01-12T07:50:19.991Z
+author: default
 heroImage: ""
-author: Daniel Arana
+heroImageLink: https://turismoelcalafate.com/wp-content/uploads/2024/03/glaciar-perito-moreno-2-Turismo-en-El-Calafate.jpg
 tags: []
-layout: ""
-heroImageLink: "https://www.civitatis.com/f/argentina/el-calafate/big/barco-glaciar-perito-moreno.jpg"
+layout: ../../layouts/BlogPost.astro
 ---
+
 # 🧊 Glaciar Perito Moreno: Guía Informativa
 
 El **Glaciar Perito Moreno** es una de las maravillas naturales más impactantes del mundo. Se localiza en el departamento Lago Argentino de la provincia de Santa Cruz, en la región de la Patagonia argentina.

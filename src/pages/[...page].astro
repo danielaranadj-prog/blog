@@ -20,8 +20,11 @@ export async function getStaticPaths({ paginate }) {
 
 const { page, popularPosts } = Astro.props;
 
-let title = 'Tu blog viajero - InstanteTrips';
-let description = 'Vive la magia del destino: sabores, paisajes y momentos únicos. Evita los errores de novato con estrategias reales.';
+// --- CORRECCIÓN: USO DE VARIABLES GLOBALES ---
+// Usamos SITE.title y SITE.description (definidos en config.ts)
+// para que el navegador y Google lean el nombre nuevo correctamente.
+let title = SITE.title;
+let description = SITE.description;
 let permalink = 'https://blog.instantetrips.com/';
 ---
 
@@ -73,7 +76,6 @@ let permalink = 'https://blog.instantetrips.com/';
             }
 
             /* --- SOLUCIÓN PARA IMÁGENES Y LÍNEAS NEGRAS --- */
-            /* Forzamos al contenedor de la imagen dentro del componente a no tener fondo y no cortar la imagen */
             .post-item-wrapper :global(.post-preview__img-container), 
             .post-item-wrapper :global(picture),
             .post-item-wrapper :global(div) {
@@ -83,8 +85,8 @@ let permalink = 'https://blog.instantetrips.com/';
 
             .post-item-wrapper :global(img) {
                 width: 100% !important;
-                height: 220px !important; /* Altura fija para consistencia */
-                object-fit: cover !important; /* Llena el espacio centrando la imagen */
+                height: 220px !important;
+                object-fit: cover !important;
                 object-position: center !important;
                 display: block !important;
                 margin: 0 !important;
@@ -257,10 +259,22 @@ let permalink = 'https://blog.instantetrips.com/';
                                 </div>
                             </section>
 
-                            <nav class="pagination-wrapper">
-                                {page.url.prev ? <a href={page.url.prev} class="nav-btn">← Anterior</a> : <div style="width: 120px;"></div>}
+                           <nav class="pagination-wrapper">
+                                {/* BOTÓN ANTERIOR: Si estamos en página 2 o más, mostramos el botón a la fuerza */}
+                                {page.currentPage > 1 ? (
+                                    <a href={page.url.prev || '/'} class="nav-btn">← Anterior</a>
+                                ) : (
+                                    <div class="spacer"></div>
+                                )}
+
                                 <span class="page-count">{page.currentPage} / {page.lastPage}</span>
-                                {page.url.next ? <a href={page.url.next} class="nav-btn">Siguiente →</a> : <div style="width: 120px;"></div>}
+
+                                {/* BOTÓN SIGUIENTE */}
+                                {page.url.next ? (
+                                    <a href={page.url.next} class="nav-btn">Siguiente →</a>
+                                ) : (
+                                    <div class="spacer"></div>
+                                )}
                             </nav>
                         </div>
 

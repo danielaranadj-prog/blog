@@ -24,7 +24,8 @@
         {
           "title": "Descripción (SEO)",
           "name": "description",
-          "type": "string"
+          "type": "string",
+          "rows": 3
         },
         {
           "title": "Fecha de Publicación",
@@ -34,31 +35,42 @@
           "isPublishDate": true
         },
         {
-          "title": "Imagen de Portada",
+          "title": "Autor (Slug)",
+          "name": "author",
+          "type": "string",
+          "default": "default",
+          "description": "Debe coincidir con src/data/authors.ts"
+        },
+        
+        /* --- IMÁGENES --- */
+        {
+          "title": "A) Imagen de Portada (Local)",
           "name": "heroImage",
           "type": "image",
           "isPreviewImage": true
         },
         {
-          "title": "Autor",
-          "name": "author",
+          "title": "B) O Pega un Link Externo",
+          "name": "heroImageLink",
           "type": "string",
-          "default": "Daniel Arana"
+          "description": "Pega aquí una URL si no usas imagen local."
         },
+        
         {
           "title": "Categorías",
           "name": "tags",
-          "type": "tags"
+          "type": "tags",
+          "default": []
         },
+
+        /* --- CORRECCIÓN: CAMPO LAYOUT VISIBLE --- */
         {
-          "title": "layout",
+          "title": "Diseño (NO BORRAR)",
           "name": "layout",
-          "type": "string"
-        },
-        {
-          "title": "heroImageLink",
-          "name": "heroImageLink",
-          "type": "image"
+          "type": "string",
+          "default": "../../layouts/BlogPost.astro",
+          "hidden": false,
+          "description": "Esto conecta el estilo visual. No lo borres."
         }
       ]
     }
