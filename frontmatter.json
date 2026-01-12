@@ -1,0 +1,66 @@
+{
+  "$schema": "https://frontmatter.codes/frontmatter.schema.json",
+  "frontMatter.framework.id": "astro",
+  "frontMatter.preview.host": "http://localhost:4321",
+  "frontMatter.content.publicFolder": "public",
+  "frontMatter.content.pageFolders": [
+    {
+      "title": "Mis Viajes",
+      "path": "[[workspace]]/src/pages/posts"
+    }
+  ],
+  "frontMatter.taxonomy.contentTypes": [
+    {
+      "name": "default",
+      "pageBundle": false,
+      "previewPath": null,
+      "fields": [
+        {
+          "title": "Título del Viaje",
+          "name": "title",
+          "type": "string",
+          "single": true
+        },
+        {
+          "title": "Descripción (SEO)",
+          "name": "description",
+          "type": "string"
+        },
+        {
+          "title": "Fecha de Publicación",
+          "name": "publishDate",
+          "type": "datetime",
+          "default": "{{now}}",
+          "isPublishDate": true
+        },
+        {
+          "title": "Imagen de Portada",
+          "name": "heroImage",
+          "type": "image",
+          "isPreviewImage": true
+        },
+        {
+          "title": "Autor",
+          "name": "author",
+          "type": "string",
+          "default": "Daniel Arana"
+        },
+        {
+          "title": "Categorías",
+          "name": "tags",
+          "type": "tags"
+        },
+        {
+          "title": "layout",
+          "name": "layout",
+          "type": "string"
+        },
+        {
+          "title": "heroImageLink",
+          "name": "heroImageLink",
+          "type": "image"
+        }
+      ]
+    }
+  ]
+}

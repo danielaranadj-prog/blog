@@ -1,0 +1,179 @@
+---
+export interface Props {
+	post: any;
+}
+
+const { post } = Astro.props;
+
+// LÓGICA INTELIGENTE DE IMAGEN
+const portada = post.frontmatter.heroImage || post.frontmatter.heroImageLink;
+---
+
+<article class="post-card">
+	<a href={post.url} class="card-link">
+		
+		<div class="image-container">
+			{portada ? (
+				<img 
+					src={portada} 
+					alt={post.frontmatter.title} 
+					loading="lazy"
+				/>
+			) : (
+				<div class="no-image-placeholder"></div>
+			)}
+		</div>
+
+		<div class="card-content">
+			<header>
+				<time datetime={post.frontmatter.publishDate}>
+					{new Date(post.frontmatter.publishDate).toLocaleDateString('es-ES', {
+						year: 'numeric',
+						month: 'short',
+						day: 'numeric',
+					})}
+				</time>
+				<h2 class="title">{post.frontmatter.title}</h2>
+			</header>
+
+            <p class="description">{post.frontmatter.description}</p>
+		</div>
+	</a>
+</article>
+
+<style>
+    /* --- VARIABLES DE COLOR --- */
+    :root {
+        --card-bg: #161f29;
+        --card-border: rgba(255, 255, 255, 0.05);
+        --text-title: #f1f5f9;
+        --text-desc: #cbd5e1;
+        --text-date: #94a3b8;
+        --shadow-hover: rgba(0,0,0,0.5);
+    }
+
+    @media (prefers-color-scheme: light) {
+        :root {
+            --card-bg: #ffffff;
+            --card-border: #e2e8f0;
+            --text-title: #1a202c;
+            --text-desc: #4a5568;
+            --text-date: #718096;
+            --shadow-hover: rgba(0,0,0,0.15);
+        }
+    }
+
+	/* --- ESTRUCTURA TARJETA --- */
+	.post-card {
+		background-color: var(--card-bg);
+		border: 1px solid var(--card-border);
+		border-radius: 12px;
+		overflow: hidden;
+		transition: transform 0.2s ease, box-shadow 0.2s ease, border-color 0.2s ease;
+        display: flex;
+        flex-direction: column;
+        height: 100%;
+        position: relative; 
+	}
+
+	.post-card:hover {
+		transform: translateY(-4px);
+		box-shadow: 0 10px 20px var(--shadow-hover);
+		border-color: var(--accent-gold, #F4B942);
+        z-index: 10; 
+	}
+
+	.card-link {
+		text-decoration: none;
+		color: inherit;
+        display: flex;
+        flex-direction: column;
+        flex-grow: 1;
+	}
+
+	/* --- IMAGEN MEJORADA --- */
+	.image-container {
+		width: 100%;
+		height: 160px; 
+		background-color: #0b1116; /* Este color solo se ve si la imagen falla */
+		overflow: hidden;
+        flex-shrink: 0; 
+        border-bottom: 1px solid var(--card-border);
+        /* Asegura que la imagen no tenga espacios fantasma abajo */
+        display: flex; 
+	}
+
+	.image-container img {
+		width: 100%;
+		height: 100%;
+        
+        /* ¡¡¡ESTA ES LA LÍNEA MÁGICA QUE QUITA LOS BORDES NEGROS!!! */
+		object-fit: cover;
+        /* ------------------------------------------------------- */
+        
+        object-position: center; /* Centra la imagen antes de cortar */
+        transition: transform 0.5s ease;
+        display: block; 
+	}
+    
+    .post-card:hover img {
+        transform: scale(1.05);
+    }
+
+	.no-image-placeholder {
+		width: 100%;
+		height: 100%;
+		background: linear-gradient(135deg, #ccc 0%, #eee 100%);
+        opacity: 0.1;
+	}
+
+	/* --- TEXTO MEJORADO (Tipografía Fluida) --- */
+	.card-content {
+		padding: 1.2rem;
+        flex-grow: 1; 
+        display: flex;
+        flex-direction: column;
+	}
+
+	time {
+		font-size: 0.75rem;
+		color: var(--text-date);
+		text-transform: uppercase;
+		font-weight: 600;
+		letter-spacing: 0.5px;
+		margin-bottom: 0.5rem;
+		display: block;
+	}
+
+	.title {
+		font-size: clamp(1rem, 2.5vw, 1.25rem);
+		font-weight: 800;
+		color: var(--text-title);
+		margin: 0 0 0.5rem 0;
+		line-height: 1.3;
+        display: -webkit-box;
+		-webkit-line-clamp: 3;
+		-webkit-box-orient: vertical;
+		overflow: hidden;
+	}
+
+	.description {
+        display: none; 
+		font-size: clamp(0.85rem, 2vw, 0.95rem);
+		color: var(--text-desc);
+		line-height: 1.5;
+        margin-top: 0.5rem;
+	}
+
+    /* --- RESPONSIVE: ESCRITORIO --- */
+    @media (min-width: 768px) {
+        .image-container { height: 180px; }
+        
+        .description {
+            display: -webkit-box; 
+            -webkit-line-clamp: 3;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+        }
+    }
+</style>

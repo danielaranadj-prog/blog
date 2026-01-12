@@ -1,0 +1,82 @@
+---
+import BaseHead from '../components/BaseHead.astro';
+import BlogHeader from '../components/BlogHeader.astro';
+import Footer from '../components/Footer.astro'; // Importamos el footer nuevo si ya lo hiciste
+
+let title = '404 - Perdido en el Mapa';
+let description = 'Parece que te has desviado de la ruta. Regresa al inicio para seguir viajando.';
+---
+
+<html lang="es">
+	<head>
+		<BaseHead title={title} description={description} permalink={Astro.site.href} />
+        <style>
+             @import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;800&display=swap');
+             
+             body {
+                font-family: 'Montserrat', sans-serif;
+                margin: 0;
+                background-color: #F8F9FA;
+                color: #2D3748;
+                display: flex;
+                flex-direction: column;
+                min-height: 100vh;
+             }
+             .error-container {
+                flex: 1;
+                display: flex;
+                flex-direction: column;
+                align-items: center;
+                justify-content: center;
+                text-align: center;
+                padding: 2rem;
+             }
+             h1 {
+                font-size: clamp(3rem, 10vw, 8rem);
+                font-weight: 800;
+                color: #75AADB; /* Azul Marca */
+                margin: 0;
+                line-height: 1;
+             }
+             h2 {
+                font-size: 1.5rem;
+                margin-top: 1rem;
+                margin-bottom: 1rem;
+             }
+             p {
+                max-width: 500px;
+                color: #718096;
+                margin-bottom: 2rem;
+                line-height: 1.6;
+             }
+             .btn-home {
+                background-color: #F4B942; /* Dorado Acento */
+                color: #ffffff;
+                padding: 1rem 2rem;
+                border-radius: 50px;
+                text-decoration: none;
+                font-weight: 700;
+                transition: transform 0.2s;
+                box-shadow: 0 4px 10px rgba(244, 185, 66, 0.3);
+             }
+             .btn-home:hover {
+                transform: translateY(-3px);
+             }
+        </style>
+	</head>
+	<body>
+		<BlogHeader />
+        
+        <div class="error-container">
+            <h1>404</h1>
+            <h2>¡Ups! Te saliste de la ruta.</h2>
+            <p>
+                Parece que la página que buscas tomó un vuelo sin escalas a la dimensión desconocida. 
+                No te preocupes, el viaje continúa.
+            </p>
+            <a href="/" class="btn-home">← Volver al Inicio</a>
+        </div>
+
+        <Footer />
+	</body>
+</html>

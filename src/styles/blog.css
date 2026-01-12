@@ -1,0 +1,133 @@
+/* blog.css - VERSIÓN MAESTRA (ADAPTABLE Y SEGURA) */
+
+/* 1. EL CEREBRO DE LOS COLORES (Variables) */
+/* Aquí definimos qué colores usar en cada modo */
+:root {
+  /* --- MODO OSCURO (Tu marca original "Argentina Dark") --- */
+  --bg-body: #0b1116;       /* Fondo Negro Profundo */
+  --text-main: #f1f5f9;     /* Texto Blanco Hueso (Súper legible) */
+  --text-muted: #94a3b8;    /* Gris medio para detalles */
+  --accent-gold: #F4B942;   /* Dorado Sol de Mayo */
+  --accent-blue: #75AADB;   /* Celeste Bandera */
+  --card-bg: rgba(255, 255, 255, 0.05); /* Fondo tarjetas/citas */
+  --code-bg: #0d1117;       /* Fondo para bloques de código */
+  
+  --font-body: 'Montserrat', sans-serif;
+}
+
+/* --- MODO CLARO (Si el usuario tiene el cel en modo día) --- */
+@media (prefers-color-scheme: light) {
+  :root {
+    --bg-body: #ffffff;       /* Fondo Blanco */
+    --text-main: #1e293b;     /* Texto Gris Oscuro (Casi negro) */
+    --text-muted: #64748b;    
+    --accent-blue: #2563eb;   /* Un azul más fuerte para que se vea bien en blanco */
+    --accent-gold: #d97706;   /* Un dorado más oscurito para contraste */
+    --card-bg: #f1f5f9;       /* Fondo gris muy clarito para citas */
+    --code-bg: #1e293b;       /* Código sigue siendo oscuro para contraste */
+  }
+}
+
+/* 2. BASE DEL CUERPO (Transiciones suaves) */
+body {
+  background-color: var(--bg-body);
+  color: var(--text-main);
+  font-family: var(--font-body);
+  transition: background-color 0.3s ease, color 0.3s ease;
+  margin: 0; padding: 0;
+}
+
+/* 3. CONTENEDOR PRINCIPAL DEL ARTÍCULO */
+article {
+  max-width: 65ch; /* Mantenemos tu ancho ideal */
+  margin: 0 auto;
+  padding: 1rem;
+}
+
+/* 4. TIPOGRAFÍA DE LECTURA */
+p {
+  font-size: 1.15rem; /* Un pelín más grande para comodidad */
+  line-height: 1.8;
+  margin-bottom: 1.5rem;
+  font-weight: 400;
+  
+  /* AQUÍ ESTÁ EL CAMBIO CLAVE: Usamos variable, no color fijo */
+  color: var(--text-main); 
+}
+
+/* 5. ENCABEZADOS DENTRO DEL POST (H2, H3) */
+article h2 {
+  font-size: 1.8rem;
+  font-weight: 700;
+  color: var(--accent-gold); /* Dorado inteligente */
+  margin-top: 3rem;
+  margin-bottom: 1rem;
+  border-bottom: 1px solid rgba(244, 185, 66, 0.3);
+  padding-bottom: 0.5rem;
+}
+
+article h3 {
+  font-size: 1.4rem;
+  font-weight: 600;
+  color: var(--accent-blue); /* Celeste inteligente */
+  margin-top: 2rem;
+  margin-bottom: 0.8rem;
+}
+
+/* 6. CITAS Y DESTACADOS */
+blockquote {
+  border-left: 4px solid var(--accent-gold);
+  background: var(--card-bg); /* Fondo se adapta a luz/oscuridad */
+  margin: 2rem 0;
+  padding: 1rem 1.5rem;
+  font-style: italic;
+  color: var(--text-main);
+  border-radius: 0 8px 8px 0;
+}
+
+/* 7. LISTAS */
+ul, ol {
+  margin-bottom: 1.5rem;
+  padding-left: 1.5rem;
+}
+
+li {
+  margin-bottom: 0.5rem;
+  color: var(--text-main); /* Se adapta */
+}
+
+li::marker {
+  color: var(--accent-blue);
+}
+
+/* 8. ENLACES DENTRO DEL TEXTO */
+article a {
+  color: var(--accent-blue);
+  text-decoration: underline;
+  text-decoration-thickness: 1px;
+  text-underline-offset: 4px;
+}
+
+article a:hover {
+  color: var(--accent-gold);
+}
+
+/* 9. IMÁGENES (CON TU CORRECCIÓN DE TAMAÑO) */
+article img {
+  max-width: 100%;  /* Esto es vital, lo conservamos */
+  height: auto;
+  display: block;
+  border-radius: 8px;
+  box-shadow: 0 4px 20px rgba(0,0,0,0.2); /* Sombra más suave */
+  margin: 2rem 0;
+}
+
+/* 10. CÓDIGO TÉCNICO */
+pre {
+  background-color: var(--code-bg);
+  padding: 1rem;
+  border-radius: 8px;
+  overflow-x: auto;
+  border: 1px solid rgba(255,255,255,0.1);
+  color: #fff; /* El código siempre se ve bien en blanco sobre oscuro */
+}

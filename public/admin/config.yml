@@ -1,0 +1,87 @@
+backend:
+  name: git-gateway
+  branch: latest
+
+media_folder: "public/assets/blog"
+public_folder: "/assets/blog"
+
+collections:
+  # =========================
+  # BLOG POSTS
+  # =========================
+  - name: "posts"
+    label: "Blog Posts"
+    label_singular: "Blog Post"
+    folder: "src/pages/posts"
+    create: true
+    delete: true
+    fields:
+      - { label: "Post Title", name: "title", widget: "string" }
+
+      - {
+          label: "Publish Date",
+          name: "publishDate",
+          widget: "datetime",
+          format: "YYYY-MM-DD",
+          date_format: "YYYY-MM-DD",
+          time_format: false
+        }
+
+      # AUTOR (slug, no nombre)
+      - {
+          label: "Autor",
+          name: "author",
+          widget: "select",
+          options:
+            - { label: "Daniel Arana", value: "daniel-arana" }
+            - { label: "Betzy Miramontes", value: "betzy-miramontes" }
+            - { label: "Edgar Arana", value: "edgar-arana" }
+            - { label: "Jonathan Arana", value: "jonathan-arana" }
+        }
+
+      - { label: "Description", name: "description", widget: "string", required: false }
+
+      # Imagen subida
+      - {
+          label: "Imagen de Portada (Subir Archivo)",
+          name: "heroImage",
+          widget: "image",
+          required: false
+        }
+
+      # Imagen por URL
+      - {
+          label: "O pegar Link de Internet",
+          name: "heroImageLink",
+          widget: "string",
+          required: false
+        }
+
+      - { label: "Post Body", name: "body", widget: "markdown" }
+
+      - {
+          label: "Layout",
+          name: "layout",
+          widget: "select",
+          default: "../../layouts/BlogPost.astro",
+          options: ["../../layouts/BlogPost.astro"]
+        }
+
+  # =========================
+  # AUTORES (DATA)
+  # =========================
+  - name: "authors"
+    label: "Autores"
+    files:
+      - file: "src/data/authors.yml"
+        label: "Lista de autores"
+        name: "authors"
+        fields:
+          - label: "Autores"
+            name: "authors"
+            widget: "list"
+            fields:
+              - { label: "Slug", name: "slug", widget: "string" }
+              - { label: "Nombre", name: "name", widget: "string" }
+              - { label: "Bio", name: "bio", widget: "text" }
+              - { label: "Imagen", name: "image", widget: "string" }

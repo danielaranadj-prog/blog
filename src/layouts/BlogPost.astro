@@ -1,0 +1,343 @@
+---
+// Component Imports
+import BaseHead from '../components/BaseHead.astro';
+import BlogHeader from '../components/BlogHeader.astro';
+import Footer from '../components/Footer.astro';
+
+import type { Author } from '../data/authors';
+import { AUTHORS, DEFAULT_AUTHOR } from '../data/authors';
+
+const {
+  content = {},
+  frontmatter = {},
+} = Astro.props;
+
+/* -----------------------------
+   DATOS DEL POST
+----------------------------- */
+const post = {
+  title: frontmatter.title || content.title,
+  description: frontmatter.description || content.description,
+  publishDate: frontmatter.publishDate || content.publishDate,
+  heroImage: frontmatter.heroImage || content.heroImage,
+  heroImageLink: frontmatter.heroImageLink || content.heroImageLink,
+  alt: frontmatter.alt || content.alt || frontmatter.title,
+
+  // slug del autor desde markdown
+  authorSlug: frontmatter.author,
+};
+
+/* -----------------------------
+   AUTOR (DINÁMICO + FALLBACK)
+----------------------------- */
+const author: Author =
+  (post.authorSlug && AUTHORS[post.authorSlug]) || DEFAULT_AUTHOR;
+
+const finalImage = post.heroImage || post.heroImageLink;
+const permalink = Astro.url.href;
+---
+
+<html lang="es">
+<head>
+  <BaseHead
+    title={post.title}
+    description={post.description}
+    permalink={permalink}
+    image={finalImage}
+  />
+
+  <style>
+    :root {
+      /* MODO CLARO */
+      --brand-blue: #75AADB;
+      --accent-gold: #F4B942;
+      --page-bg: #F8F9FA;
+      --card-bg: #ffffff;
+      --text-main: #2D3748;
+      --text-muted: #718096;
+      --text-prose: #4A5568;
+      --card-border: #E2E8F0;
+    }
+
+    @media (prefers-color-scheme: dark) {
+      :root {
+        /* MODO OSCURO */
+        --page-bg: #0f172a;
+        --card-bg: #1e293b;
+        --text-main: #f1f5f9;
+        --text-muted: #94a3b8;
+        --text-prose: #cbd5e1;
+        --card-border: #334155;
+      }
+    }
+
+    body {
+      margin: 0;
+      background: var(--page-bg);
+      font-family: 'Montserrat', sans-serif;
+      color: var(--text-main);
+      transition: background 0.3s ease, color 0.3s ease;
+    }
+
+    .container {
+      max-width: 1900px;
+      margin: 0 auto;
+      padding: 0 1.5rem;
+    }
+
+    .layout {
+      display: flex;
+      flex-direction: column;
+      gap: 3rem;
+      margin-top: 2rem;
+    }
+
+    main {
+      background: var(--card-bg); /* Cambiado de #fff */
+      border-radius: 16px;
+      border: 1px solid var(--card-border);
+      overflow: hidden;
+    }
+
+    /* HERO */
+    .hero {
+      width: 100%;
+      height: 420px;
+      object-fit: cover;
+      margin-bottom: -0.25rem;
+    }
+
+    /* CONTENIDO */
+    .content {
+      padding: 1.5rem 1.75rem 2.5rem;
+    }
+
+    .back {
+      display: inline-block;
+      margin-bottom: 0.75rem;
+      font-weight: 700;
+      color: var(--brand-blue);
+      text-decoration: none;
+    }
+
+    h1 {
+      font-size: clamp(2rem, 4vw, 3rem);
+      font-weight: 800;
+      margin: 0 0 0.75rem;
+      line-height: 1.15;
+      color: var(--text-main);
+    }
+
+    .meta {
+      font-size: 0.75rem;
+      color: var(--text-muted);
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      margin-bottom: 0.5rem;
+    }
+
+    .prose {
+      max-width: 780px;
+      margin: 0 auto;
+      font-size: 1.05rem;
+      line-height: 1.8;
+      color: var(--text-prose); /* Usando variable */
+    }
+
+    .prose :global(img) {
+      max-width: 100%;
+      height: auto;
+      border-radius: 12px;
+      margin: 2.25rem auto;
+      display: block;
+    }
+
+    .prose :global(h2), .prose :global(h3) {
+      margin-top: 3rem;
+      color: var(--brand-blue);
+      font-weight: 800;
+    }
+
+    .prose :global(p), .prose :global(li) {
+        color: var(--text-prose);
+    }
+
+    /* FIRMA */
+    .signature {
+      margin-top: 4rem;
+      padding-top: 2rem;
+      border-top: 1px solid var(--card-border);
+      text-align: center;
+    }
+
+    .signature img {
+      width: 64px;
+      height: 64px;
+      border-radius: 50%;
+      object-fit: cover;
+      margin-bottom: 0.75rem;
+    }
+
+    .signature p {
+      font-size: 0.95rem;
+      color: var(--text-muted);
+      margin: 0;
+    }
+
+    .signature strong {
+      color: var(--text-main);
+    }
+
+    aside {
+      display: flex;
+      flex-direction: column;
+      gap: 1.5rem;
+    }
+
+    .widget {
+      background: var(--card-bg); /* Cambiado de #fff */
+      border: 1px solid var(--card-border);
+      border-radius: 16px;
+      padding: 1.5rem;
+      color: var(--text-main);
+    }
+
+    /* AUTOR SIDEBAR */
+    .author {
+      text-align: center;
+    }
+
+    .author img {
+      width: 110px;
+      height: 110px;
+      border-radius: 50%;
+      object-fit: cover;
+      margin-bottom: 0.75rem;
+    }
+
+    .author h3 {
+      margin: 0;
+      font-size: 1.1rem;
+      font-weight: 800;
+      color: var(--text-main);
+    }
+
+    .author p {
+      font-size: 0.9rem;
+      color: var(--text-muted);
+      line-height: 1.4;
+      margin-top: 0.5rem;
+    }
+
+    .widget h4 {
+      font-size: 0.75rem;
+      color: var(--brand-blue);
+      letter-spacing: 1px;
+      text-transform: uppercase;
+      margin-bottom: 0.75rem;
+      font-weight: 800;
+    }
+
+    .related p {
+      font-size: 0.9rem;
+      color: var(--text-muted);
+    }
+
+    @media (min-width: 1024px) {
+      .layout {
+        flex-direction: row;
+        align-items: flex-start;
+      }
+
+      main {
+        flex: 1;
+      }
+
+      aside {
+        width: 320px;
+        position: sticky;
+        top: 2rem;
+      }
+
+      .content {
+        padding: 2.5rem 4rem 4rem;
+      }
+    }
+  </style>
+</head>
+
+<body>
+  <BlogHeader />
+
+  <div class="container">
+    <div class="layout">
+
+      <main>
+        {finalImage && (
+          <img
+            src={finalImage}
+            alt={post.alt}
+            class="hero"
+            loading="eager"
+          />
+        )}
+
+        <div class="content">
+          <a href="/" class="back">← Volver al blog</a>
+
+          <div class="meta">{post.publishDate}</div>
+          <h1>{post.title}</h1>
+
+          <div class="prose">
+            <slot />
+          </div>
+
+          <div class="signature">
+            <img src={author.image} alt={author.name} />
+            <p>
+              Este artículo fue escrito por <strong>{author.name}</strong><br />
+            </p>
+          </div>
+        </div>
+      </main>
+
+      <aside>
+
+        <div class="widget author">
+          <img src={author.image} alt={author.name} />
+          <h3>{author.name}</h3>
+          <p>{author.bio}</p>
+        </div>
+
+        <div class="widget">
+          <h4>Nuestra promesa</h4>
+          <p>
+            Viajar mejor, con criterio, diseño y decisiones inteligentes.
+            Sin humo. Sin postureo.
+          </p>
+        </div>
+
+        <div class="widget related">
+          <h4>Artículos relacionados</h4>
+          <p>
+            Contenido que conecta ideas, destinos y decisiones.
+            Muy pronto.
+          </p>
+        </div>
+
+        <div class="widget" style="padding:0; border:none; background: transparent;">
+          <img
+            src="https://placehold.co/300x250/F4B942/ffffff?text=PUBLICIDAD"
+            style="width:100%; border-radius:12px;"
+            loading="lazy"
+          />
+        </div>
+
+      </aside>
+
+    </div>
+  </div>
+
+  <Footer />
+</body>
+</html>

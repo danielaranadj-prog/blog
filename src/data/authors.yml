@@ -1,0 +1,19 @@
+- slug: daniel-arana
+  name: Daniel Arana
+  bio: Director de arte y viajero obsesivo del detalle. Aquí comparto lo que las guías no te cuentan.
+  image: /assets/autores/daniel-arana.jpg
+
+- slug: betzy-miramontes
+  name: Betzy Miramontes
+  bio: Exploradora gastronómica y storyteller. Viajar también se come.
+  image: /assets/autores/betzy-miramontes.jpg
+
+- slug: edgar-arana
+  name: Edgar Arana
+  bio: Amante de las rutas largas, la logística y los viajes bien planeados.
+  image: /assets/autores/edgar-arana.jpg
+
+- slug: jonathan-arana
+  name: Jonathan Arana
+  bio: Fotógrafo de viajes. Buscando historias en cada encuadre.
+  image: /assets/autores/jonathan-arana.jpg
