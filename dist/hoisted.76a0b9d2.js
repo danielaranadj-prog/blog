@@ -1,0 +1,1 @@
+import"./chunks/BlogHeader.astro_astro_type_script_index_0_lang.5f8019d6.js";const r=new IntersectionObserver(t=>{t.forEach(e=>{e.isIntersecting&&e.target.classList.add("visible")})},{threshold:.1}),s=document.getElementById("signature");s&&r.observe(s);

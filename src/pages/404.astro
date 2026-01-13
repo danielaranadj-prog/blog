@@ -1,28 +1,46 @@
 ---
 import BaseHead from '../components/BaseHead.astro';
 import BlogHeader from '../components/BlogHeader.astro';
-import Footer from '../components/Footer.astro'; // Importamos el footer nuevo si ya lo hiciste
+import Footer from '../components/Footer.astro';
+import { SITE } from '../config';
 
-let title = '404 - Perdido en el Mapa';
-let description = 'Parece que te has desviado de la ruta. Regresa al inicio para seguir viajando.';
+let title = '404 - Ruta no encontrada';
+let description = 'Parece que te has desviado. Regresa al inicio para seguir viajando.';
 ---
 
 <html lang="es">
-	<head>
-		<BaseHead title={title} description={description} permalink={Astro.site.href} />
+   <head>
+      <BaseHead title={title} description={description} permalink={Astro.site?.href || '/'} />
         <style>
-             @import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;800&display=swap');
-             
+             /* Reutilizamos las variables para consistencia total */
+             :root {
+                --brand-blue: #75AADB;
+                --accent-gold: #F4B942;
+                --page-bg: #F8F9FA;
+                --text-main: #2D3748;
+                --text-muted: #718096;
+             }
+
+             @media (prefers-color-scheme: dark) {
+                :root {
+                    --page-bg: #0f172a;
+                    --text-main: #f1f5f9;
+                    --text-muted: #94a3b8;
+                }
+             }
+
              body {
                 font-family: 'Montserrat', sans-serif;
                 margin: 0;
-                background-color: #F8F9FA;
-                color: #2D3748;
+                background-color: var(--page-bg);
+                color: var(--text-main);
                 display: flex;
                 flex-direction: column;
                 min-height: 100vh;
+                transition: background 0.3s ease, color 0.3s ease;
              }
-             .error-container {
+
+             .error-main {
                 flex: 1;
                 display: flex;
                 flex-direction: column;
@@ -30,53 +48,90 @@ let description = 'Parece que te has desviado de la ruta. Regresa al inicio para
                 justify-content: center;
                 text-align: center;
                 padding: 2rem;
+                position: relative;
+                overflow: hidden;
              }
+
+             /* El 404 gigante de fondo (Estilo Editorial) */
+             .huge-404 {
+                font-size: clamp(8rem, 25vw, 20rem);
+                font-weight: 900;
+                color: var(--text-main);
+                opacity: 0.05; /* Muy sutil */
+                line-height: 0.8;
+                position: absolute;
+                z-index: 0;
+                user-select: none;
+                pointer-events: none;
+             }
+
+             .content-wrapper {
+                z-index: 1; /* Encima del número gigante */
+                max-width: 600px;
+             }
+
              h1 {
-                font-size: clamp(3rem, 10vw, 8rem);
+                font-size: clamp(2rem, 5vw, 3.5rem);
                 font-weight: 800;
-                color: #75AADB; /* Azul Marca */
-                margin: 0;
-                line-height: 1;
+                color: var(--text-main);
+                margin: 0 0 1rem;
+                line-height: 1.1;
+                text-transform: uppercase;
              }
-             h2 {
-                font-size: 1.5rem;
-                margin-top: 1rem;
-                margin-bottom: 1rem;
+
+             .highlight {
+                 color: var(--brand-blue);
              }
+
              p {
-                max-width: 500px;
-                color: #718096;
-                margin-bottom: 2rem;
+                font-family: 'IBM Plex Serif', serif; /* Toque elegante */
+                font-size: 1.1rem;
+                color: var(--text-muted);
+                margin-bottom: 2.5rem;
                 line-height: 1.6;
              }
+
              .btn-home {
-                background-color: #F4B942; /* Dorado Acento */
-                color: #ffffff;
-                padding: 1rem 2rem;
-                border-radius: 50px;
+                display: inline-block;
+                background-color: var(--accent-gold);
+                color: #1A202C; /* Texto oscuro para contraste en dorado */
+                padding: 1rem 2.5rem;
+                border-radius: 4px; /* Bordes un poco más rectos, más serios */
                 text-decoration: none;
                 font-weight: 700;
-                transition: transform 0.2s;
-                box-shadow: 0 4px 10px rgba(244, 185, 66, 0.3);
+                letter-spacing: 1px;
+                text-transform: uppercase;
+                font-size: 0.9rem;
+                transition: all 0.3s ease;
+                box-shadow: 0 4px 15px rgba(244, 185, 66, 0.4);
              }
+
              .btn-home:hover {
                 transform: translateY(-3px);
+                box-shadow: 0 6px 20px rgba(244, 185, 66, 0.6);
+                background-color: #e0a83b;
              }
         </style>
-	</head>
-	<body>
-		<BlogHeader />
+        <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Serif:ital,wght@0,400;0,600;1,400&display=swap" rel="stylesheet">
+   </head>
+   <body>
+      <BlogHeader />
         
-        <div class="error-container">
-            <h1>404</h1>
-            <h2>¡Ups! Te saliste de la ruta.</h2>
-            <p>
-                Parece que la página que buscas tomó un vuelo sin escalas a la dimensión desconocida. 
-                No te preocupes, el viaje continúa.
-            </p>
-            <a href="/" class="btn-home">← Volver al Inicio</a>
-        </div>
+        <main class="error-main">
+            <div class="huge-404">404</div>
+
+            <div class="content-wrapper">
+                <h1>Parece que tomaste el <span class="highlight">tren equivocado</span>.</h1>
+                
+                <p>
+                    A veces perderse es la mejor parte del viaje, pero esta vez te has salido del mapa. 
+                    Esa página no existe (o se mudó a otro continente).
+                </p>
+                
+                <a href="/" class="btn-home">Regresar a terreno conocido</a>
+            </div>
+        </main>
 
         <Footer />
-	</body>
+   </body>
 </html>

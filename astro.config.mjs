@@ -2,14 +2,13 @@ import { defineConfig } from 'astro/config';
 import sitemap from '@astrojs/sitemap'; 
 
 export default defineConfig({
-  // 1. Pon el subdominio completo aquí
+  // 1. Tu dominio está perfecto
   site: 'https://blog.instantetrips.com',
   
-  // 2. BORRA o comenta la línea 'base'. 
-  // Al estar en un subdominio, la raíz es '/', no '/blog'
+  // 2. Base comentada (Correcto para subdominio)
   // base: '/blog', 
   
   integrations: [
-    // sitemap()
+    sitemap()  // <--- ¡LISTO! Sin las barras //
   ],
 });

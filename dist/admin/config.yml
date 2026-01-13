@@ -1,6 +1,6 @@
 backend:
   name: git-gateway
-  branch: latest
+  branch: main # ⚠️ Asegúrate de que tu rama se llame 'main' o 'master'. Si es 'master', cambia esto.
 
 media_folder: "public/assets/blog"
 public_folder: "/assets/blog"
@@ -16,22 +16,25 @@ collections:
     create: true
     delete: true
     fields:
-      - { label: "Post Title", name: "title", widget: "string" }
-
-      - {
-          label: "Publish Date",
-          name: "publishDate",
-          widget: "datetime",
-          format: "YYYY-MM-DD",
-          date_format: "YYYY-MM-DD",
-          time_format: false
+      # 1. INFORMACIÓN BÁSICA
+      - { label: "Título del Post", name: "title", widget: "string" }
+      
+      - { 
+          label: "Fecha de Publicación", 
+          name: "publishDate", 
+          widget: "datetime", 
+          format: "YYYY-MM-DD", 
+          date_format: "YYYY-MM-DD", 
+          time_format: false 
         }
 
-      # AUTOR (slug, no nombre)
+      # 2. AUTOR (Menú Desplegable)
+      # Estos valores ("value") deben coincidir exactamente con los de src/data/authors.ts
       - {
           label: "Autor",
           name: "author",
           widget: "select",
+          default: "daniel-arana",
           options:
             - { label: "Daniel Arana", value: "daniel-arana" }
             - { label: "Betzy Miramontes", value: "betzy-miramontes" }
@@ -39,49 +42,74 @@ collections:
             - { label: "Jonathan Arana", value: "jonathan-arana" }
         }
 
-      - { label: "Description", name: "description", widget: "string", required: false }
+      - { label: "Descripción Corta (SEO)", name: "description", widget: "text" }
 
-      # Imagen subida
+      # 3. IMÁGENES
       - {
-          label: "Imagen de Portada (Subir Archivo)",
+          label: "Imagen de Portada (Subir)",
           name: "heroImage",
           widget: "image",
-          required: false
+          required: false,
+          hint: "Sube una imagen desde tu computadora"
         }
 
-      # Imagen por URL
       - {
-          label: "O pegar Link de Internet",
+          label: "O pegar Link Externo",
           name: "heroImageLink",
           widget: "string",
-          required: false
+          required: false,
+          hint: "Si usas Unsplash o una imagen externa, pega el link aquí"
         }
 
-      - { label: "Post Body", name: "body", widget: "markdown" }
+      # 4. ETIQUETAS (Para los filtros)
+      - {
+          label: "Etiquetas (Tags)",
+          name: "tags",
+          widget: "list",
+          required: false,
+          hint: "Escribe etiquetas y presiona enter (ej: Europa, Comida, Trenes)"
+        }
 
+      # 5. REFERIDOS (LA CAJA DORADA)
+      - {
+          label: "--- SECCIÓN DE REFERIDOS (Opcional) ---",
+          name: "affiliateSeparator",
+          widget: "hidden",
+          default: "ignored"
+        }
+      
+      - {
+          label: "Link de Afiliado (URL)",
+          name: "affiliateLink",
+          widget: "string",
+          required: false,
+          hint: "Si dejas esto vacío, NO saldrá la caja dorada."
+        }
+        
+      - {
+          label: "Título de la Caja",
+          name: "affiliateTitle",
+          widget: "string",
+          required: false,
+          default: "Planea tu viaje aquí",
+          hint: "Ej: Reserva este tren nocturno"
+        }
+
+      - {
+          label: "Texto del Botón",
+          name: "affiliateText",
+          widget: "string",
+          required: false,
+          default: "Ver precios y disponibilidad"
+        }
+
+      # 6. CONTENIDO
+      - { label: "Cuerpo del Artículo", name: "body", widget: "markdown" }
+
+      # 7. SISTEMA (No tocar)
       - {
           label: "Layout",
           name: "layout",
-          widget: "select",
-          default: "../../layouts/BlogPost.astro",
-          options: ["../../layouts/BlogPost.astro"]
+          widget: "hidden",
+          default: "../../layouts/BlogPost.astro"
         }
-
-  # =========================
-  # AUTORES (DATA)
-  # =========================
-  - name: "authors"
-    label: "Autores"
-    files:
-      - file: "src/data/authors.yml"
-        label: "Lista de autores"
-        name: "authors"
-        fields:
-          - label: "Autores"
-            name: "authors"
-            widget: "list"
-            fields:
-              - { label: "Slug", name: "slug", widget: "string" }
-              - { label: "Nombre", name: "name", widget: "string" }
-              - { label: "Bio", name: "bio", widget: "text" }
-              - { label: "Imagen", name: "image", widget: "string" }

@@ -1,0 +1,136 @@
+---
+// src/components/AdBanner.astro
+
+interface Props {
+  position: 'header' | 'footer' | 'sidebar' | 'in-content';
+}
+
+const { position } = Astro.props;
+
+// --- CONFIGURACIÓN MAESTRA ---
+
+// 1. ¿ACTIVAR ADSENSE? (Pon true cuando ya tengas los códigos reales)
+const ENABLE_ADSENSE = false; 
+
+// 2. TU ID DE EDITOR (El mismo para todos)
+const AD_CLIENT_ID = "ca-pub-XXXXXXXXXXXXXXXX";
+
+// 3. TUS SLOTS (Aquí pegarás los números que te de Google para cada zona)
+const adSlots = {
+  header:      "1234567890", // Slot ID para el Banner Superior
+  footer:      "2345678901", // Slot ID para el Banner Inferior
+  sidebar:     "3456789012", // Slot ID para el Cuadrado Lateral
+  'in-content':"4567890123"  // Slot ID para dentro del post
+};
+
+// --- CONFIGURACIÓN DE PLACEHOLDERS (Modo Diseño) ---
+const placeholders = {
+  header: {
+    label: 'Publicidad - Top',
+    size: { width: '728px', height: '90px' },
+    img: 'https://placehold.co/728x90/75AADB/ffffff?text=Espacio+AdSense+Top',
+    styleClass: 'ad-horizontal'
+  },
+  footer: {
+    label: 'Publicidad - Footer',
+    size: { width: '728px', height: '90px' },
+    img: 'https://placehold.co/728x90/F4B942/1A202C?text=Espacio+AdSense+Footer',
+    styleClass: 'ad-horizontal'
+  },
+  sidebar: {
+    label: 'Anuncio',
+    size: { width: '300px', height: '250px' },
+    img: 'https://placehold.co/300x250/2D3748/ffffff?text=Sidebar+Ad',
+    styleClass: 'ad-square'
+  },
+  'in-content': {
+    label: 'Te podría interesar',
+    size: { width: '100%', height: 'auto' },
+    img: 'https://placehold.co/600x150/E2E8F0/2D3748?text=Anuncio+en+Articulo',
+    styleClass: 'ad-fluid'
+  }
+};
+
+const currentPlace = placeholders[position];
+const currentSlot = adSlots[position];
+---
+
+<div class={`ad-wrapper ${currentPlace.styleClass}`}>
+    <span class="ad-label">{currentPlace.label}</span>
+
+    {ENABLE_ADSENSE ? (
+        /* --- MODO ADSENSE REAL --- */
+        <div class="adsense-container">
+            <ins class="adsbygoogle"
+                style="display:block"
+                data-ad-client={AD_CLIENT_ID}
+                data-ad-slot={currentSlot}
+                data-ad-format="auto"
+                data-full-width-responsive="true">
+            </ins>
+            <script is:inline>
+                (adsbygoogle = window.adsbygoogle || []).push({});
+            </script>
+        </div>
+    ) : (
+        /* --- MODO PLACEHOLDER (DISEÑO) --- */
+        <img 
+            src={currentPlace.img} 
+            alt="Espacio Publicitario" 
+            class="ad-placeholder-img"
+            loading="lazy"
+        />
+    )}
+</div>
+
+<style>
+    .ad-wrapper {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        margin: 2rem 0;
+        width: 100%;
+        min-height: 100px; /* Evita saltos de layout (CLS) */
+    }
+
+    .ad-label {
+        font-family: 'Montserrat', sans-serif;
+        font-size: 0.6rem;
+        text-transform: uppercase;
+        color: #cbd5e0;
+        margin-bottom: 0.5rem;
+        letter-spacing: 1px;
+    }
+
+    /* Estilos Placeholder */
+    .ad-placeholder-img {
+        display: block;
+        border-radius: 4px;
+        max-width: 100%;
+        height: auto;
+        opacity: 0.8;
+    }
+
+    /* Estilos AdSense Container */
+    .adsense-container {
+        width: 100%;
+        background: rgba(0,0,0,0.02); /* Fondo sutil mientras carga */
+        min-height: 90px;
+    }
+
+    /* Variantes de Tamaño */
+    .ad-horizontal .adsense-container,
+    .ad-horizontal .ad-placeholder-img {
+        max-width: 728px;
+    }
+
+    .ad-square .adsense-container,
+    .ad-square .ad-placeholder-img {
+        max-width: 300px;
+    }
+
+    /* Ajuste Móvil */
+    @media (max-width: 768px) {
+        .ad-horizontal .adsense-container { max-width: 100%; }
+    }
+</style>

@@ -4,64 +4,187 @@ const today = new Date();
 
 <footer class="site-footer">
     <div class="footer-container">
-        <div class="footer-col">
+        
+        <div class="footer-col brand-col">
             <h3 class="footer-brand">INSTANTE TRIPS</h3>
+            <span class="divider">|</span>
             <p class="footer-desc">
-                Guías de viaje reales, sin filtros y directo al grano. 
+                Guías de viaje reales, sin filtros y directo al grano. Inspiración para viajeros curiosos.
             </p>
         </div>
 
-        <div class="footer-col">
+        <div class="footer-col nav-col">
             <h4 class="footer-title">Explorar</h4>
             <ul class="footer-links">
                 <li><a href="/">Inicio</a></li>
-                <li><a href="/404">Contacto</a></li>
+                <li><a href="/destinos">Destinos</a></li>
+                <li><a href="/manifiesto">Manifiesto</a></li> <li><a href="mailto:hola@instantetrips.com">Contacto</a></li>
             </ul>
         </div>
 
-        <div class="footer-col">
+        <div class="footer-col social-col">
             <h4 class="footer-title">Sígueme</h4>
-            <div class="social-links">
-                <a href="#" target="_blank">Instagram</a>
-                <a href="#" target="_blank">Twitter</a>
+            <div class="social-grid">
+                <a href="#" target="_blank" aria-label="Instagram">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="2" width="20" height="20" rx="5" ry="5"></rect><path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"></path><line x1="17.5" y1="6.5" x2="17.51" y2="6.5"></line></svg>
+                </a>
+                <a href="#" target="_blank" aria-label="Twitter">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M23 3a10.9 10.9 0 0 1-3.14 1.53 4.48 4.48 0 0 0-7.86 3v1A10.66 10.66 0 0 1 3 4s-4 9 5 13a11.64 11.64 0 0 1-7 2c9 5 20 0 20-11.5a4.5 4.5 0 0 0-.08-.83A7.72 7.72 0 0 0 23 3z"></path></svg>
+                </a>
+                <a href="#" target="_blank" aria-label="YouTube">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22.54 6.42a2.78 2.78 0 0 0-1.94-2C18.88 4 12 4 12 4s-6.88 0-8.6.46a2.78 2.78 0 0 0-1.94 2A29 29 0 0 0 1 11.75a29 29 0 0 0 .46 5.33A2.78 2.78 0 0 0 3.4 19c1.72.46 8.6.46 8.6.46s6.88 0 8.6-.46a2.78 2.78 0 0 0 1.94-2 29 29 0 0 0 .46-5.33 29 29 0 0 0-.46-5.33z"></path><polygon points="9.75 15.02 15.5 11.75 9.75 8.48 9.75 15.02"></polygon></svg>
+                </a>
             </div>
         </div>
+
+        <div class="footer-col newsletter-col">
+            <h4 class="footer-title">Suscríbete</h4>
+            <form class="newsletter-form" onsubmit="event.preventDefault();">
+                <input type="email" placeholder="Email..." required class="input-field" />
+                <button type="submit" class="submit-btn">→</button>
+            </form>
+        </div>
+
     </div>
-    <div class="copyright-bar">
-        &copy; {today.getFullYear()} Daniel Arana - Instante Trips.
+    
+    <div class="footer-bottom">
+        <div class="legal-links">
+            &copy; {today.getFullYear()} Instante Trips • 
+            <a href="/privacidad">Privacidad</a> • 
+            <a href="/terminos">Términos</a> • 
+            <a href="/cookies">Cookies</a>
+        </div>
+        <div class="made-with">
+            Hecho con <span style="color:#e25555;">❤</span> y mucho café.
+        </div>
     </div>
 </footer>
 
 <style>
+    /* --- CONFIGURACIÓN DE ÁREAS --- */
+    .brand-col      { grid-area: brand; }
+    .nav-col        { grid-area: nav; }
+    .social-col     { grid-area: social; }
+    .newsletter-col { grid-area: news; }
+
+    /* --- ESCRITORIO --- */
     .site-footer {
-        background-color: #2D3748;
+        background-color: #1A202C; 
         color: #E2E8F0;
-        padding: 4rem 0 2rem 0;
+        padding: 2.5rem 0 1rem 0; 
         margin-top: 4rem;
         border-top: 4px solid #F4B942;
         font-family: 'Montserrat', sans-serif;
+        font-size: 0.9rem;
     }
+
     .footer-container {
-        max-width: 1200px;
+        max-width: 1100px;
         margin: 0 auto;
         padding: 0 2rem;
         display: grid;
-        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-        gap: 3rem;
+        grid-template-columns: auto auto auto; 
+        grid-template-rows: auto auto;
+        grid-template-areas: 
+            "nav social news"
+            "brand brand brand";
+        justify-content: center; 
+        gap: 2rem; 
+        align-items: start;
+        padding-bottom: 2rem; /* Espacio antes de la barra inferior */
     }
-    .footer-brand { color: #ffffff; font-weight: 800; margin-bottom: 1rem; }
-    .footer-title { color: #75AADB; text-transform: uppercase; margin-bottom: 1.2rem; font-size: 0.9rem; }
-    .footer-links { list-style: none; padding: 0; }
-    .footer-links li { margin-bottom: 0.8rem; }
-    .footer-links a, .social-links a { color: #E2E8F0; text-decoration: none; }
+
+    /* Estilos Generales */
+    .footer-title { color: #F4B942; font-size: 0.75rem; font-weight: 800; text-transform: uppercase; margin-bottom: 0.8rem; letter-spacing: 1px; }
+    .footer-links { list-style: none; padding: 0; margin: 0; }
+    .footer-links li { margin-bottom: 0.3rem; }
+    .footer-links a { color: #CBD5E0; text-decoration: none; font-size: 0.85rem; transition: color 0.2s; }
     .footer-links a:hover { color: #F4B942; }
-    .social-links { display: flex; gap: 1.5rem; }
-    .copyright-bar {
-        text-align: center;
-        margin-top: 4rem;
-        padding-top: 2rem;
-        border-top: 1px solid rgba(255,255,255,0.1);
-        font-size: 0.8rem;
+
+    .social-col { display: flex; flex-direction: column; align-items: flex-start; }
+    .social-grid { display: flex; gap: 0.8rem; }
+    .social-grid a { 
+        color: #718096; background: rgba(255,255,255,0.05); width: 32px; height: 32px;
+        display: flex; align-items: center; justify-content: center; border-radius: 50%; transition: all 0.2s;
+    }
+    .social-grid a:hover { background: #F4B942; color: #1A202C; }
+
+    /* Newsletter */
+    .newsletter-col { text-align: left; min-width: 250px; }
+    .newsletter-form { display: flex; gap: 0; margin-top: 0.2rem; }
+    .input-field { 
+        flex: 1; padding: 0.5rem 0.8rem; border-radius: 4px 0 0 4px; border: 1px solid #2D3748; border-right: none; 
+        background: #2D3748; color: white; font-size: 0.85rem; min-width: 0; height: 36px; box-sizing: border-box;
+    }
+    .input-field:focus { outline: none; border-color: #F4B942; }
+    .submit-btn { 
+        background: #F4B942; color: #1A202C; border: none; border-radius: 0 4px 4px 0; cursor: pointer; 
+        padding: 0 1rem; font-weight: bold; font-size: 1.2rem; line-height: 1; transition: background 0.2s; height: 36px;
+    }
+    .submit-btn:hover { background: #e0a83b; }
+
+    /* Marca Abajo */
+    .brand-col {
+        text-align: center; border-top: 1px solid rgba(255,255,255,0.05); 
+        padding-top: 1.5rem; 
+        margin-top: 0.5rem;
+        display: flex; justify-content: center; align-items: center; gap: 1rem; flex-wrap: wrap; width: 100%;
+    }
+    .footer-brand { color: #F4B942; font-weight: 800; font-size: 1rem; margin: 0; text-transform: uppercase; letter-spacing: -0.5px; }
+    .divider { color: #444; font-size: 1.2rem; }
+    .footer-desc { color: #718096; font-size: 0.85rem; margin: 0; max-width: 600px; }
+
+    /* --- BARRA INFERIOR (LEGALES + AMOR) --- */
+    .footer-bottom {
+        max-width: 1100px;
+        margin: 0 auto;
+        padding: 1rem 2rem 0;
+        border-top: 1px solid rgba(255,255,255,0.05);
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        font-size: 0.75rem;
         color: #718096;
+    }
+
+    .legal-links a { color: #94a3b8; text-decoration: none; transition: color 0.2s; }
+    .legal-links a:hover { color: #F4B942; }
+
+    .made-with { font-weight: 500; }
+
+    /* --- MÓVIL --- */
+    @media (max-width: 768px) {
+        .footer-container { 
+            gap: 1rem 0.3rem; 
+            padding: 0 1.5rem 1rem; 
+            justify-content: space-between;
+        }
+
+        .footer-title { font-size: 0.65rem; margin-bottom: 0.4rem; }
+        .footer-links a { font-size: 0.75rem; }
+        
+        .social-grid { gap: 0.4rem; }
+        .social-grid a { width: 28px; height: 28px; }
+
+        .newsletter-col { min-width: 0; text-align: right; }
+        .newsletter-form { justify-content: flex-end; }
+        
+        .input-field {
+            width: 125px; 
+            flex: none; 
+            padding: 0.4rem; font-size: 0.75rem; height: 30px;
+        }
+        .submit-btn { padding: 0 0.6rem; font-size: 1rem; height: 30px; }
+
+        .brand-col { padding-top: 1rem; gap: 0.3rem; }
+        .footer-desc { font-size: 0.7rem; line-height: 1.2; padding: 0 0.5rem; }
+        
+        /* Ajuste barra inferior en móvil */
+        .footer-bottom {
+            flex-direction: column;
+            gap: 0.8rem;
+            text-align: center;
+            padding-bottom: 1rem;
+        }
     }
 </style>

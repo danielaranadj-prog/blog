@@ -1,0 +1,182 @@
+---
+import BaseHead from '../components/BaseHead.astro';
+import BlogHeader from '../components/BlogHeader.astro';
+import Footer from '../components/Footer.astro';
+import { SITE } from '../config';
+
+let title = "Manifiesto | " + SITE.title;
+let description = "No somos agencia. Somos viajeros reales compartiendo Trips & Tips.";
+let permalink = 'https://blog.instantetrips.com/manifiesto';
+---
+
+<html lang="es">
+<head>
+    <BaseHead {title} {description} {permalink} />
+    <style>
+        /* Estilos específicos para esta página de texto puro */
+        .manifesto-container {
+            max-width: 800px;
+            margin: 4rem auto;
+            padding: 0 1.5rem;
+        }
+
+        .manifesto-header {
+            text-align: center;
+            margin-bottom: 3rem;
+        }
+
+        .manifesto-title {
+            font-family: 'Montserrat', sans-serif;
+            font-size: clamp(2rem, 5vw, 3.5rem);
+            font-weight: 800;
+            color: var(--text-main);
+            margin-bottom: 1rem;
+            line-height: 1.1;
+            text-transform: uppercase;
+        }
+
+        .manifesto-subtitle {
+            font-size: 1.1rem;
+            color: var(--brand-blue);
+            font-family: 'IBM Plex Serif', serif;
+            font-style: italic;
+        }
+
+        .manifesto-content {
+            font-family: 'IBM Plex Serif', serif; 
+            font-size: 1.25rem;
+            line-height: 1.8;
+            color: var(--text-main);
+        }
+
+        .manifesto-content p {
+            margin-bottom: 2rem;
+        }
+
+        .highlight {
+            background: linear-gradient(120deg, rgba(244, 185, 66, 0.2) 0%, rgba(244, 185, 66, 0.2) 100%);
+            padding: 0 5px;
+            font-weight: 600;
+        }
+
+        /* --- FIRMA CON ANIMACIÓN --- */
+        .signature-block {
+            margin-top: 5rem; 
+            padding-top: 2rem;
+            border-top: 1px solid var(--card-border);
+            
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 1.5rem;
+            
+            /* Estado inicial para la animación */
+            opacity: 0;
+            transform: translateY(40px);
+            transition: opacity 1s ease-out, transform 1s cubic-bezier(0.2, 0.8, 0.2, 1);
+        }
+
+        .signature-block.visible {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        .signature-logo {
+            width: 80px; 
+            height: auto;
+        }
+
+        /* 👇 AQUÍ EDITAS EL ESTILO DE LA FIRMA 👇 */
+        .team-sig {
+            font-family: 'Montserrat', sans-serif; /* Tu fuente principal */
+            
+            /* GROSOR: 300 (Light), 400 (Normal), 500 (Medio), 600 (Bold) */
+            font-weight: 400; 
+            
+            /* MAYÚSCULAS: 'uppercase' (todo mayus), 'none' (normal) */
+            text-transform: none; 
+            
+            /* TAMAÑO Y COLOR */
+            font-size: 1rem;
+            color: var(--text-main); /* O usa var(--text-muted) para gris */
+            
+            /* ESPACIADO: Ajústalo si sientes las letras muy pegadas */
+            letter-spacing: 0.5px;
+        }
+
+        @media (prefers-color-scheme: dark) {
+            .highlight { background: linear-gradient(120deg, rgba(117, 170, 219, 0.2) 0%, rgba(117, 170, 219, 0.2) 100%); }
+            .logo-filter { filter: invert(1) brightness(2); }
+        }
+    </style>
+    <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Serif:ital,wght@0,400;0,600;1,400&display=swap" rel="stylesheet">
+</head>
+
+<body>
+    <BlogHeader />
+
+    <main class="manifesto-container">
+        
+        <div class="manifesto-header">
+            <h1 class="manifesto-title">NO VENDEMOS NADA.<br>VIAJAMOS.</h1>
+            <p class="manifesto-subtitle">Una declaración para el que no quiere ir a ciegas.</p>
+        </div>
+
+        <div class="manifesto-content">
+            <p>
+                Aclaremos esto primero: <strong>No somos una agencia.</strong> No te vamos a vender un tour, ni a prometerte el paquete "todo incluido" perfecto.
+            </p>
+
+            <p>
+                Nuestro propósito es más simple y, a la vez, más honesto: darte <strong>Trips & Tips</strong>.
+            </p>
+
+            <p>
+                Viajar a un lugar nuevo es fascinante, pero ir a ciegas puede ser aterrador (o muy caro). A veces investigamos durante horas, otras veces nos lanzamos a la aventura sin mapa. Y en ambos casos, <span class="highlight">nos hemos equivocado para que tú no tengas que hacerlo.</span>
+            </p>
+
+            <p>
+                Aquí contamos nuestras experiencias reales y nuestros errores. Esos detalles que hacen que llegues a tu destino sabiendo dónde pisar, qué comer y qué trampa de turista evitar.
+            </p>
+
+            <p>
+                Sabemos que existen dos tipos de personas: los que quieren que una agencia les resuelva la vida y los que necesitan sentir el pulso del lugar. 
+            </p>
+
+            <p>
+                Nosotros somos exploradores. Somos mochileros. <strong>Somos viajeros, no turistas.</strong>
+            </p>
+
+            <p>
+                Si eres de los que prefieren descubrir a que se lo cuenten, si buscas la verdad detrás de la postal... entonces estás en casa. <span class="highlight">Bienvenido a tu lugar.</span>
+            </p>
+        </div>
+
+        <div class="signature-block" id="signature">
+            <div class="team-sig">
+                El colectivo Instante Trips and Tips
+            </div>
+            <img src="/logo.svg" alt="Instante Trips" class="signature-logo logo-filter" />
+            
+        </div>
+
+    </main>
+
+    <Footer />
+
+    <script>
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    entry.target.classList.add('visible');
+                }
+            });
+        }, { threshold: 0.1 });
+
+        const signature = document.getElementById('signature');
+        if (signature) {
+            observer.observe(signature);
+        }
+    </script>
+</body>
+</html>

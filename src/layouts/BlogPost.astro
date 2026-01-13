@@ -3,9 +3,9 @@
 import BaseHead from '../components/BaseHead.astro';
 import BlogHeader from '../components/BlogHeader.astro';
 import Footer from '../components/Footer.astro';
+import AdBanner from '../components/AdBanner.astro';
 
 // 2. DATOS DE AUTORES
-import type { Author } from '../data/authors';
 import { AUTHORS, DEFAULT_AUTHOR } from '../data/authors';
 
 const {
@@ -21,13 +21,26 @@ const post = {
   heroImage: frontmatter.heroImage || content.heroImage,
   heroImageLink: frontmatter.heroImageLink || content.heroImageLink,
   alt: frontmatter.alt || content.alt || frontmatter.title,
-  authorSlug: frontmatter.author,
+  authorSlug: frontmatter.author, // Aquí leemos "daniel", "ana", etc.
+  
+  // Datos Referidos
+  affiliateTitle: frontmatter.affiliateTitle || content.affiliateTitle, 
+  affiliateLink: frontmatter.affiliateLink || content.affiliateLink,
+  affiliateText: frontmatter.affiliateText || "Reserva directa al mejor precio",
 };
 
-// 4. AUTOR Y URL
-const author: Author = (post.authorSlug && AUTHORS[post.authorSlug]) || DEFAULT_AUTHOR;
+// 4. SELECCIÓN DE AUTOR DINÁMICA
+// Buscamos el autor en el archivo. Si no existe, usamos el Default (Daniel)
+const author = (post.authorSlug && AUTHORS[post.authorSlug]) || DEFAULT_AUTHOR;
+
+// Fallbacks por si faltan datos en el archivo de autores
+const authorRole = author.role || "Colaborador"; 
+const authorBio = author.bio || "Viajero y narrador de historias en Instante Trips.";
+
 const finalImage = post.heroImage || post.heroImageLink;
 const permalink = Astro.url.href;
+const encodedUrl = encodeURIComponent(permalink);
+const encodedTitle = encodeURIComponent(post.title);
 ---
 
 <html lang="es">
@@ -61,6 +74,7 @@ const permalink = Astro.url.href;
         --text-prose: #cbd5e1;
         --card-border: #334155;
       }
+      .share-icon.logo-mode { filter: invert(1); }
     }
 
     body {
@@ -91,170 +105,114 @@ const permalink = Astro.url.href;
       overflow: hidden;
     }
 
-    /* HERO IMAGE */
-    .hero {
-      width: 100%;
-      height: 420px;
-      object-fit: cover;
-      margin-bottom: -0.25rem;
-    }
-
-    /* CONTENIDO */
-    .content {
-      padding: 1.5rem 1.75rem 2.5rem;
-    }
+    .hero { width: 100%; height: 420px; object-fit: cover; margin-bottom: -0.25rem; }
+    .content { padding: 1.5rem 1.75rem 2.5rem; }
 
     .back {
-      display: inline-block;
-      margin-bottom: 0.75rem;
-      font-weight: 700;
-      color: var(--brand-blue);
-      text-decoration: none;
+      display: inline-block; margin-bottom: 1.5rem; font-weight: 700; color: var(--brand-blue);
+      text-decoration: none; font-size: 0.85rem; text-transform: uppercase; letter-spacing: 1px;
     }
 
     h1 {
-      font-size: clamp(2rem, 4vw, 3rem);
-      font-weight: 800;
-      margin: 0 0 0.75rem;
-      line-height: 1.15;
-      color: var(--text-main);
+      font-size: clamp(2rem, 4vw, 3rem); font-weight: 800; margin: 0 0 1rem; line-height: 1.15; color: var(--text-main);
     }
 
-    .meta {
-      font-size: 0.75rem;
-      color: var(--text-muted);
-      text-transform: uppercase;
-      letter-spacing: 1px;
-      margin-bottom: 0.5rem;
+    /* HEADER DE AUTOR (MINI) */
+    .post-header-meta {
+      display: flex; align-items: center; gap: 1rem; margin-bottom: 2rem; padding-bottom: 1.5rem; border-bottom: 1px solid var(--card-border);
     }
+    .mini-author { display: flex; align-items: center; gap: 0.8rem; }
+    .mini-author img { width: 45px; height: 45px; border-radius: 50%; object-fit: cover; border: 2px solid var(--brand-blue); }
+    .author-info { display: flex; flex-direction: column; line-height: 1.2; }
+    .author-name { font-weight: 700; font-size: 0.95rem; color: var(--text-main); }
+    .publish-date { font-size: 0.75rem; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.5px; }
 
+    /* PROSE */
     .prose {
-      max-width: 780px;
-      margin: 0 auto;
-      font-size: 1.05rem;
-      line-height: 1.8;
-      color: var(--text-prose);
+      max-width: 780px; margin: 0 auto; font-size: 1.1rem; line-height: 1.8; color: var(--text-prose); font-family: 'IBM Plex Sans', sans-serif;
     }
+    .prose :global(img) { max-width: 100%; height: auto; border-radius: 12px; margin: 2.25rem auto; display: block; }
+    .prose :global(h2), .prose :global(h3) { margin-top: 3rem; color: var(--brand-blue); font-weight: 800; font-family: 'Montserrat', sans-serif; }
+    .prose :global(a) { color: var(--brand-blue); font-weight: 600; text-decoration: underline; text-decoration-thickness: 2px; }
 
-    /* Estilos globales dentro del contenido del post */
-    .prose :global(img) {
-      max-width: 100%;
-      height: auto;
-      border-radius: 12px;
-      margin: 2.25rem auto;
-      display: block;
+    /* TARJETA DE REFERIDO */
+    .affiliate-box {
+        margin: 2.5rem 0; padding: 1.5rem;
+        background: linear-gradient(135deg, rgba(244, 185, 66, 0.1) 0%, rgba(255,255,255,0) 100%);
+        border-left: 4px solid var(--accent-gold); border-radius: 8px;
+        display: flex; flex-direction: column; gap: 0.5rem;
     }
-
-    .prose :global(h2), .prose :global(h3) {
-      margin-top: 3rem;
-      color: var(--brand-blue);
-      font-weight: 800;
+    .affiliate-label { font-size: 0.7rem; text-transform: uppercase; letter-spacing: 1px; color: var(--text-muted); font-weight: 700; }
+    .affiliate-title { font-size: 1.1rem; font-weight: 800; color: var(--text-main); margin: 0; font-family: 'Montserrat', sans-serif; }
+    .affiliate-btn {
+        display: inline-block; margin-top: 0.5rem; background: var(--accent-gold); color: #1A202C;
+        padding: 0.6rem 1.2rem; text-decoration: none; font-weight: 700; border-radius: 6px;
+        align-self: flex-start; transition: transform 0.2s;
     }
+    .affiliate-btn:hover { transform: translateY(-2px); box-shadow: 0 4px 12px rgba(244, 185, 66, 0.3); }
 
-    .prose :global(p), .prose :global(li) {
-        color: var(--text-prose);
+    /* SHARE SECTION */
+    .share-section {
+      margin-top: 4rem; padding-top: 2rem; border-top: 1px solid var(--card-border);
+      display: flex; flex-direction: column; align-items: center; gap: 1.5rem;
     }
-
-    /* FIRMA DEL AUTOR AL PIE */
-    .signature {
-      margin-top: 4rem;
-      padding-top: 2rem;
-      border-top: 1px solid var(--card-border);
-      text-align: center;
+    .share-title { font-size: 0.8rem; text-transform: uppercase; letter-spacing: 2px; color: var(--text-muted); font-weight: 700; }
+    .share-buttons { display: flex; gap: 1rem; }
+    .share-btn {
+      display: flex; align-items: center; gap: 0.5rem; padding: 0.6rem 1.2rem; border-radius: 50px;
+      text-decoration: none; font-size: 0.85rem; font-weight: 700; transition: transform 0.2s, opacity 0.2s; color: white;
     }
+    .share-btn:hover { transform: translateY(-2px); opacity: 0.9; }
+    .btn-facebook { background-color: #1877F2; }
+    .btn-twitter { background-color: #000000; }
+    .btn-whatsapp { background-color: #25D366; }
+    @media (prefers-color-scheme: dark) { .btn-twitter { background-color: #ffffff; color: black; } }
 
-    .signature img {
-      width: 64px;
-      height: 64px;
-      border-radius: 50%;
-      object-fit: cover;
-      margin-bottom: 0.75rem;
+    /* SIDEBAR */
+    aside { display: flex; flex-direction: column; gap: 1.5rem; }
+    .widget { background: var(--card-bg); border: 1px solid var(--card-border); border-radius: 16px; padding: 1.5rem; color: var(--text-main); }
+    
+    /* AUTOR SIDEBAR (DINÁMICO) */
+    .author-widget { text-align: center; }
+    .author-widget img {
+      width: 110px; height: 110px; border-radius: 50%; object-fit: cover; margin-bottom: 0.75rem;
+      border: 3px solid var(--page-bg); box-shadow: 0 4px 12px rgba(0,0,0,0.1);
     }
-
-    .signature p {
-      font-size: 0.95rem;
-      color: var(--text-muted);
-      margin: 0;
+    .author-widget h3 { margin: 0; font-size: 1.1rem; font-weight: 800; color: var(--text-main); }
+    
+    .author-role {
+      font-size: 0.65rem; color: var(--brand-blue); text-transform: uppercase; letter-spacing: 1px; font-weight: 800; 
+      margin-bottom: 1rem; display: inline-block; border: 1px solid var(--brand-blue); padding: 4px 8px; border-radius: 20px;
     }
+    
+    .author-widget p { font-size: 0.9rem; color: var(--text-muted); line-height: 1.5; }
 
-    .signature strong {
-      color: var(--text-main);
+    /* API PLACEHOLDER */
+    .api-placeholder {
+        border: 2px dashed var(--card-border); background: rgba(0,0,0,0.02);
+        display: flex; flex-direction: column; align-items: center; justify-content: center;
+        text-align: center; min-height: 150px; color: var(--text-muted);
     }
+    .api-icon { opacity: 0.5; margin-bottom: 0.5rem; }
 
-    aside {
-      display: flex;
-      flex-direction: column;
-      gap: 1.5rem;
-    }
+    .widget h4 { font-size: 0.75rem; color: var(--brand-blue); letter-spacing: 1px; text-transform: uppercase; margin-bottom: 0.75rem; font-weight: 800; }
 
-    .widget {
-      background: var(--card-bg);
-      border: 1px solid var(--card-border);
-      border-radius: 16px;
-      padding: 1.5rem;
-      color: var(--text-main);
-    }
-
-    /* WIDGET AUTOR SIDEBAR */
-    .author {
-      text-align: center;
-    }
-
-    .author img {
-      width: 110px;
-      height: 110px;
-      border-radius: 50%;
-      object-fit: cover;
-      margin-bottom: 0.75rem;
-    }
-
-    .author h3 {
-      margin: 0;
-      font-size: 1.1rem;
-      font-weight: 800;
-      color: var(--text-main);
-    }
-
-    .author p {
-      font-size: 0.9rem;
-      color: var(--text-muted);
-      line-height: 1.4;
-      margin-top: 0.5rem;
-    }
-
-    .widget h4 {
-      font-size: 0.75rem;
-      color: var(--brand-blue);
-      letter-spacing: 1px;
-      text-transform: uppercase;
-      margin-bottom: 0.75rem;
-      font-weight: 800;
-    }
-
-    .related p {
-      font-size: 0.9rem;
-      color: var(--text-muted);
-    }
-
-    @media (min-width: 1024px) {
-      .layout {
-        flex-direction: row;
-        align-items: flex-start;
+   @media (min-width: 1024px) {
+      /* CORREGIDO: Usamos guiones (-), no mayúsculas */
+      .layout { 
+        flex-direction: row; 
+        align-items: flex-start; 
       }
-
-      main {
-        flex: 1;
+      
+      main { flex: 1; }
+      
+      aside { 
+        width: 320px; 
+        position: sticky; 
+        top: 2rem; 
       }
-
-      aside {
-        width: 320px;
-        position: sticky;
-        top: 2rem;
-      }
-
-      .content {
-        padding: 2.5rem 4rem 4rem;
-      }
+      
+      .content { padding: 2.5rem 4rem 4rem; }
     }
   </style>
 </head>
@@ -278,51 +236,71 @@ const permalink = Astro.url.href;
         <div class="content">
           <a href="/" class="back">← Volver al blog</a>
 
-          <div class="meta">{post.publishDate}</div>
           <h1>{post.title}</h1>
 
-          <div class="prose">
-            <slot />
+          <div class="post-header-meta">
+            <div class="mini-author">
+                <img src={author.image} alt={author.name} />
+                <div class="author-info">
+                    <span class="author-name">{author.name}</span>
+                    <span class="publish-date">{post.publishDate}</span>
+                </div>
+            </div>
           </div>
 
-          <div class="signature">
-            <img src={author.image} alt={author.name} />
-            <p>
-              Este artículo fue escrito por <strong>{author.name}</strong><br />
-            </p>
+          <div class="prose">
+            <AdBanner position="in-content" />
+
+            <slot />
+
+            {post.affiliateLink && (
+                <div class="affiliate-box">
+                    <span class="affiliate-label">Recomendación de {author.name.split(' ')[0]}</span>
+                    <p class="affiliate-title">{post.affiliateTitle || "Planea tu viaje aquí"}</p>
+                    <a href={post.affiliateLink} target="_blank" rel="noopener noreferrer" class="affiliate-btn">
+                        {post.affiliateText} →
+                    </a>
+                </div>
+            )}
+
+            <AdBanner position="in-content" />
           </div>
+
+          <div class="share-section">
+            <span class="share-title">¿Te sirvió? Compártelo con otro viajero</span>
+            <div class="share-buttons">
+                <a href={`https://www.facebook.com/sharer/sharer.php?u=${encodedUrl}`} target="_blank" class="share-btn btn-facebook">Facebook</a>
+                <a href={`https://twitter.com/intent/tweet?url=${encodedUrl}&text=${encodedTitle}`} target="_blank" class="share-btn btn-twitter">X</a>
+                <a href={`https://wa.me/?text=${encodedTitle} ${encodedUrl}`} target="_blank" class="share-btn btn-whatsapp">WhatsApp</a>
+            </div>
+          </div>
+
         </div>
       </main>
 
       <aside>
-        <div class="widget author">
+        
+        <div class="widget author-widget">
           <img src={author.image} alt={author.name} />
           <h3>{author.name}</h3>
-          <p>{author.bio}</p>
+          
+          <span class="author-role">{authorRole}</span>
+          
+          <p>{authorBio}</p>
         </div>
 
         <div class="widget">
-          <h4>Nuestra promesa</h4>
-          <p>
-            Viajar mejor, con criterio, diseño y decisiones inteligentes.
-            Sin humo. Sin postureo.
-          </p>
+            <h4>Planifica tu viaje</h4>
+            <div class="api-placeholder">
+                <div class="api-icon">✈️ 🏨 🗺️</div>
+                <p style="font-size:0.8rem; margin:0;">
+                    Próximamente: Buscador de vuelos y hoteles integrado.
+                </p>
+            </div>
         </div>
 
-        <div class="widget related">
-          <h4>Artículos relacionados</h4>
-          <p>
-            Contenido que conecta ideas, destinos y decisiones.
-            Muy pronto.
-          </p>
-        </div>
-
-        <div class="widget" style="padding:0; border:none; background: transparent;">
-          <img
-            src="https://placehold.co/300x250/F4B942/ffffff?text=PUBLICIDAD"
-            style="width:100%; border-radius:12px;"
-            loading="lazy"
-          />
+        <div class="widget" style="padding:0; border:none; background: transparent; text-align: center;">
+          <AdBanner position="sidebar" />
         </div>
       </aside>
 

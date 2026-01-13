@@ -1,76 +1,190 @@
 ---
 import { SITE } from '../config';
+
+// 👇 AQUÍ ESTÁ EL CAMBIO: Reemplazamos "Blog" por "Manifiesto"
+const navItems = [
+  { label: "Inicio", href: "/" },
+  { label: "Manifiesto", href: "/manifiesto" }, // <--- Nuevo link a nuestra filosofía
+  // { label: "Destinos", href: "/destinos" }, // (Opcional: Si no tienes página de destinos aún, puedes comentarla)
+  { label: "Contacto", href: "mailto:hola@instantetrips.com" },
+];
 ---
 
-<header class="wrapper">
-    <article>
-        <h1>
-            <a href="/">
-                <img src="/logo.svg" alt={SITE.title} class="logo" />
-            </a>
-        </h1>
-    </article>
+<header class="site-header" id="main-header">
+    <div class="header-container">
+        
+        <a href="/" class="logo-wrapper">
+            <img src="/logo.svg" alt={SITE.title || "Instante Trips"} class="logo" />
+        </a>
+
+        <nav class="desktop-nav">
+            <ul>
+                {navItems.map((item) => (
+                    <li>
+                        <a href={item.href} class="nav-link">{item.label}</a>
+                    </li>
+                ))}
+            </ul>
+        </nav>
+
+        <button id="mobile-menu-btn" aria-label="Abrir menú">
+            <span class="hamburger-line"></span>
+            <span class="hamburger-line"></span>
+            <span class="hamburger-line"></span>
+        </button>
+    </div>
+
+    <div id="mobile-menu" class="mobile-menu-container">
+        <nav>
+            <ul>
+                {navItems.map((item) => (
+                    <li>
+                        <a href={item.href} class="mobile-link">{item.label}</a>
+                    </li>
+                ))}
+            </ul>
+        </nav>
+    </div>
 </header>
 
+<script>
+    const btn = document.getElementById('mobile-menu-btn');
+    const menu = document.getElementById('mobile-menu');
+    if (btn && menu) {
+        btn.addEventListener('click', () => {
+            btn.classList.toggle('active');
+            menu.classList.toggle('active');
+        });
+    }
+</script>
+
 <style>
-    header {
-        padding-top: 1rem;
-        padding-bottom: 1rem;
-        height: 5rem;
-        background-color: var(--bg-body);
-        border-bottom: 1px solid rgba(255,255,255,0.05);
+    /* --- DEFINICIÓN DE VARIABLES LOCALES (Más robusto) --- */
+    .site-header {
+        /* MODO CLARO (Por defecto) */
+        --header-bg: rgba(255, 255, 255, 0.95);
+        --header-text: #2D3748;
+        --header-border: rgba(0,0,0,0.05);
+        --logo-filter: none; /* Logo original (negro) */
+        --hover-color: #F4B942;
+
+        position: sticky;
+        top: 0;
+        z-index: 1000;
+        width: 100%;
+        height: 70px;
+        
+        background: var(--header-bg);
+        border-bottom: 1px solid var(--header-border);
+        backdrop-filter: blur(12px); 
+        -webkit-backdrop-filter: blur(12px);
+        transition: all 0.3s ease;
     }
 
-    article {
-        display: flex;
-        align-items: center;
-        justify-content: space-between;
-        max-width: 65ch; 
+    /* --- MODO OSCURO (Sobrescribimos las variables AQUÍ) --- */
+    @media (prefers-color-scheme: dark) {
+        .site-header {
+            /* Fondo azul oscuro semitransparente */
+            --header-bg: rgba(15, 23, 42, 0.90); 
+            /* Texto blanco */
+            --header-text: #ffffff; 
+            --header-border: rgba(255,255,255,0.1);
+            /* Invertimos el logo negro a blanco */
+            --logo-filter: grayscale(100%) invert(100%) brightness(200%);
+        }
+    }
+
+    .header-container {
+        max-width: 1200px;
         margin: 0 auto;
-        padding: 0 1rem;
-    }
-
-    h1 {
-        margin: 0;
-        font-size: 1.5rem;
-        max-width: 100%;
+        padding: 0 2rem;
+        height: 100%;
         display: flex;
-        flex-grow: 1;
+        justify-content: space-between;
+        align-items: center;
     }
 
-    h1 a {
-        text-decoration: none;
-        display: inline-flex;
-        align-items: center;
-        color: var(--text-main);
-    }
+    /* --- LOGO --- */
+    .logo-wrapper { display: flex; align-items: center; }
     
-    /* --- CORRECCIÓN DEL LOGO --- */
     .logo {
-        height: 45px; 
+        height: 40px; 
         width: auto; 
         object-fit: contain;
-
-        /* 1. EL COLOR (Blanco nítido) */
-        filter: grayscale(100%) invert(100%);
-
-        /* 2. EL ANTÍDOTO PARA LA SOMBRA */
-        /* !important obliga al navegador a ignorar la sombra global */
+        /* APLICAMOS EL FILTRO DINÁMICO */
+        filter: var(--logo-filter);
+        /* Forzamos limpieza de estilos heredados */
         box-shadow: none !important; 
-        border-radius: 0 !important; /* También quitamos bordes redondeados por si acaso */
+        border-radius: 0 !important; 
+        background: none !important;
+        transition: filter 0.3s ease;
     }
 
-    /* --- MODO CLARO (LIGHT MODE) --- */
-    @media (prefers-color-scheme: light) {
-        .logo {
-            filter: none;
-        }
+    /* --- NAVEGACIÓN --- */
+    .desktop-nav ul {
+        display: flex; gap: 2.5rem; list-style: none; margin: 0; padding: 0;
     }
 
-    /* Ajuste para móviles */
-    @media (max-width: 32em) {
-        .logo {
-            height: 35px;
-        }
+    .nav-link {
+        text-decoration: none;
+        /* COLOR DINÁMICO */
+        color: var(--header-text); 
+        font-family: 'Montserrat', sans-serif;
+        font-weight: 700;
+        font-size: 0.85rem;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+        transition: color 0.2s;
+        position: relative;
+    }
+
+    .nav-link:hover { color: var(--hover-color); }
+    
+    /* Línea dorada al hover */
+    .nav-link::after {
+        content: ''; position: absolute; width: 0; height: 2px;
+        bottom: -4px; left: 0; background-color: var(--hover-color);
+        transition: width 0.3s;
+    }
+    .nav-link:hover::after { width: 100%; }
+
+    /* --- MÓVIL --- */
+    #mobile-menu-btn {
+        display: none; background: none; border: none; cursor: pointer;
+        flex-direction: column; gap: 6px; padding: 5px;
+    }
+    .hamburger-line {
+        width: 24px; height: 2px;
+        background-color: var(--header-text); /* Se adapta al modo */
+        transition: all 0.3s;
+    }
+
+    #mobile-menu-btn.active .hamburger-line:nth-child(1) { transform: rotate(45deg) translate(5px, 6px); }
+    #mobile-menu-btn.active .hamburger-line:nth-child(2) { opacity: 0; }
+    #mobile-menu-btn.active .hamburger-line:nth-child(3) { transform: rotate(-45deg) translate(5px, -6px); }
+
+    .mobile-menu-container {
+        position: absolute; top: 70px; left: 0; width: 100%;
+        background: var(--header-bg);
+        border-bottom: 1px solid var(--header-border);
+        backdrop-filter: blur(12px);
+        max-height: 0; overflow: hidden; transition: max-height 0.4s ease;
+    }
+    .mobile-menu-container.active { max-height: 300px; }
+    
+    .mobile-menu-container ul {
+        list-style: none; padding: 2rem; margin: 0;
+        display: flex; flex-direction: column; gap: 1.5rem; text-align: center;
+    }
+    .mobile-link {
+        color: var(--header-text); text-decoration: none;
+        font-family: 'Montserrat', sans-serif; font-weight: 700; font-size: 1rem;
+    }
+
+    @media (max-width: 768px) {
+        .desktop-nav { display: none; }
+        #mobile-menu-btn { display: flex; }
+        .header-container { padding: 0 1.5rem; }
+        .logo { height: 32px; }
     }
 </style>

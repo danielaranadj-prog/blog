@@ -1,0 +1,43 @@
+---
+import BaseHead from '../components/BaseHead.astro';
+import BlogHeader from '../components/BlogHeader.astro';
+import Footer from '../components/Footer.astro';
+import { SITE } from '../config';
+
+const { title } = Astro.props;
+---
+
+<html lang="es">
+<head>
+    <BaseHead title={title} description={`Información legal de ${SITE.title}`} permalink={Astro.url.href} />
+    <style>
+        .legal-container {
+            max-width: 800px;
+            margin: 4rem auto;
+            padding: 0 1.5rem;
+            font-family: 'IBM Plex Serif', serif;
+            color: var(--text-main);
+        }
+        h1 {
+            font-family: 'Montserrat', sans-serif;
+            font-size: 2.5rem;
+            margin-bottom: 2rem;
+            color: var(--text-main);
+        }
+        .legal-content :global(h2) { margin-top: 2rem; font-family: 'Montserrat', sans-serif; font-size: 1.5rem; }
+        .legal-content :global(p) { line-height: 1.8; margin-bottom: 1rem; color: var(--text-prose); }
+        .legal-content :global(ul) { margin-bottom: 1rem; padding-left: 1.5rem; }
+        .legal-content :global(li) { margin-bottom: 0.5rem; color: var(--text-prose); }
+    </style>
+</head>
+<body>
+    <BlogHeader />
+    <main class="legal-container">
+        <h1>{title}</h1>
+        <div class="legal-content">
+            <slot />
+        </div>
+    </main>
+    <Footer />
+</body>
+</html>

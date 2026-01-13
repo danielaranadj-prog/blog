@@ -1,10 +1,10 @@
 ---
 layout: ../../layouts/BlogPost.astro
 title: "Nueva York GRATIS: Sí, es posible (y no es solo parques)"
-publishDate: "2026-04-20"
-author: "Daniel Arana"
-description: "La ciudad más cara del mundo tiene secretos. Ferries, museos en horarios especiales y vistas de lujo sin pagar un centavo."
-heroImageLink: "https://images.unsplash.com/photo-1496442226666-8d4a0e62e6e9?auto=format&fit=crop&w=800&q=80"
+publishDate: 2026-04-20
+author: Daniel Arana
+description: La ciudad más cara del mundo tiene secretos. Ferries, museos en horarios especiales y vistas de lujo sin pagar un centavo.
+heroImageLink: https://upload.wikimedia.org/wikipedia/commons/4/47/New_york_times_square-terabass.jpg
 ---
 
 Nueva York te cobra hasta por respirar, pero si eres listo, puedes disfrutarla sin arruinarte.
