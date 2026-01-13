@@ -41,8 +41,6 @@
           "default": "default",
           "description": "Debe coincidir con src/data/authors.ts"
         },
-        
-        /* --- IMÁGENES --- */
         {
           "title": "A) Imagen de Portada (Local)",
           "name": "heroImage",
@@ -55,15 +53,12 @@
           "type": "string",
           "description": "Pega aquí una URL si no usas imagen local."
         },
-        
         {
           "title": "Categorías",
           "name": "tags",
           "type": "tags",
           "default": []
         },
-
-        /* --- CORRECCIÓN: CAMPO LAYOUT VISIBLE --- */
         {
           "title": "Diseño (NO BORRAR)",
           "name": "layout",
@@ -71,6 +66,21 @@
           "default": "../../layouts/BlogPost.astro",
           "hidden": false,
           "description": "Esto conecta el estilo visual. No lo borres."
+        },
+        {
+          "title": "affiliateTitle",
+          "name": "affiliateTitle",
+          "type": "string"
+        },
+        {
+          "title": "affiliateLink",
+          "name": "affiliateLink",
+          "type": "string"
+        },
+        {
+          "title": "affiliateText",
+          "name": "affiliateText",
+          "type": "string"
         }
       ]
     }

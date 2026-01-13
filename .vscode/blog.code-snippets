@@ -1,7 +1,6 @@
 {
-    "Nuevo Post Blog": {
-        "scope": "markdown",
-        "prefix": "newpost",
+    "Nuevo Post Blog (Oficial)": {
+        "prefix": "np",
         "body": [
             "---",
             "layout: \"../../layouts/BlogPost.astro\"",
@@ -9,27 +8,27 @@
             "description: \"${2:Descripción corta para SEO}\"",
             "publishDate: \"$CURRENT_YEAR-$CURRENT_MONTH-$CURRENT_DATE\"",
             "",
-            "# --- IMAGEN (Usa una u otra) ---",
-            "heroImage: \"${3:/assets/blog/imagen.jpg}\"",
-            "heroImageLink: \"${4:}\"",
+            "# --- AUTOR (Igualado con tu equipo) ---",
+            "author: \"${3|daniel-arana,betzy-miramontes,edgar-arana,jonathan-arana|}\"",
             "",
-            "# --- DATOS DEL AUTOR (Selecciona de la lista) ---",
-            "author: \"${5|daniel-arana,betzy-miramontes,edgar-arana,jonathan-arana|}\"",
+            "# --- IMÁGENES (Elige una) ---",
+            "heroImage: \"${4:/assets/blog/imagen.jpg}\"",
+            "heroImageLink: \"${5:}\"",
             "",
-            "# --- ETIQUETAS (Sepáralas con guiones) ---",
+            "# --- ETIQUETAS ---",
             "tags:",
             "  - ${6:Europa}",
             "  - ${7:Tips}",
             "",
-            "# --- REFERIDOS (Opcional - Borra si no usas) ---",
+            "# --- REFERIDOS (Caja Dorada) ---",
             "affiliateTitle: \"${8:Reserva aquí}\"",
             "affiliateLink: \"${9:}\"",
             "affiliateText: \"${10:Ver precios y disponibilidad}\"",
             "---",
             "",
             "## ${11:Empieza tu historia aquí...}",
-            "${0}"
+            "$0"
         ],
-        "description": "Plantilla completa para Blog Post con Tags y Referidos"
+        "description": "Frontmatter completo homologado con Astro"
     }
 }
