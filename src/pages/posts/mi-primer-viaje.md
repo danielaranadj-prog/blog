@@ -1,16 +1,17 @@
 ---
-layout: "../../layouts/BlogPost.astro"
-title: "Mi primer viaje a Madrid"
-description: "Un viaje lleno de aventuras, errores pero satisfaccion"
-publishDate: "2026-01-13"
-heroImage: "/assets/blog/imagen.jpg"
+layout: ../../layouts/BlogPost.astro
+title: Título del Artículo
+description: Descripción corta para SEO
+publishDate: 2026-01-13
+author: daniel-arana
+heroImage: null
 heroImageLink: ""
-author: "daniel-arana"
 tags:
   - Europa
-affiliateTitle: "Reserva aquí"
+  - Tips
+affiliateTitle: Reserva aquí
 affiliateLink: ""
-affiliateText: "Ver precios"
+affiliateText: Ver precios y disponibilidad
 ---
 
-## Empieza tu historia...
+## Empieza tu historia aquí...

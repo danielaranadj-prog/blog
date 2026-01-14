@@ -127,7 +127,7 @@ const encodedTitle = encodeURIComponent(post.title);
     .author-name { font-weight: 700; font-size: 0.95rem; color: var(--text-main); }
     .publish-date { font-size: 0.75rem; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.5px; }
 
-    /* PROSE */
+    /* PROSE (CUERPO DEL TEXTO) */
     .prose {
       max-width: 780px; margin: 0 auto; font-size: 1.1rem; line-height: 1.8; color: var(--text-prose); font-family: 'IBM Plex Sans', sans-serif;
     }
@@ -135,7 +135,43 @@ const encodedTitle = encodeURIComponent(post.title);
     .prose :global(h2), .prose :global(h3) { margin-top: 3rem; color: var(--brand-blue); font-weight: 800; font-family: 'Montserrat', sans-serif; }
     .prose :global(a) { color: var(--brand-blue); font-weight: 600; text-decoration: underline; text-decoration-thickness: 2px; }
 
-    /* TARJETA DE REFERIDO */
+    /* --- ESTILOS NUEVOS PARA EL EDITOR (INTEGRACIÓN) --- */
+    
+    /* 1. Botón de Referido (.btn-ref) - Estilo Dorado/Naranja */
+    .prose :global(.btn-ref) {
+      display: inline-block;
+      background: linear-gradient(135deg, #FFD700 0%, #FFA500 100%);
+      color: #000 !important; /* Texto negro forzoso */
+      font-weight: 800;
+      padding: 0.75rem 1.5rem;
+      border-radius: 8px;
+      text-decoration: none !important; /* Sin subrayado */
+      box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+      transition: transform 0.2s, box-shadow 0.2s;
+      margin: 1.5rem auto; /* Centrado vertical y horizontal */
+      border: 1px solid #eab308;
+      text-align: center;
+    }
+
+    .prose :global(.btn-ref:hover) {
+      transform: translateY(-2px);
+      box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.2);
+    }
+
+    /* 2. Videos de YouTube (Responsivos 16:9) */
+    .prose :global(iframe) {
+      width: 100%;
+      max-width: 100%;
+      aspect-ratio: 16 / 9; /* Mantiene proporción de TV */
+      height: auto; /* Sobrescribe altura fija */
+      border-radius: 12px;
+      margin: 2rem 0;
+      box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+    }
+    
+    /* ---------------------------------------------------- */
+
+    /* TARJETA DE REFERIDO (FRONTMATTER) */
     .affiliate-box {
         margin: 2.5rem 0; padding: 1.5rem;
         background: linear-gradient(135deg, rgba(244, 185, 66, 0.1) 0%, rgba(255,255,255,0) 100%);
@@ -198,7 +234,6 @@ const encodedTitle = encodeURIComponent(post.title);
     .widget h4 { font-size: 0.75rem; color: var(--brand-blue); letter-spacing: 1px; text-transform: uppercase; margin-bottom: 0.75rem; font-weight: 800; }
 
    @media (min-width: 1024px) {
-      /* CORREGIDO: Usamos guiones (-), no mayúsculas */
       .layout { 
         flex-direction: row; 
         align-items: flex-start; 

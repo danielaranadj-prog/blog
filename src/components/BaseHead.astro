@@ -5,25 +5,23 @@ export interface Props {
     title: string;
     description: string;
     permalink: string;
-    image?: string; /* Nueva propiedad para recibir la foto del post */
+    image?: string; /* Imagen específica del post */
 }
 
 const { title, description, permalink, image } = Astro.props;
 
-// LÓGICA INTELIGENTE:
-// Si el post trae foto, úsala. Si no, usa la genérica del blog.
-// (Recuerda subir una imagen 'social-default.jpg' a tu carpeta public)
+// LÓGICA DE IMAGEN SOCIAL:
+// Si el post trae imagen destacada, usa esa. Si no, usa la por defecto 'social-default.jpg'
 const socialImage = image || '/social-default.jpg'; 
 ---
 
 <meta charset="utf-8" />
-<meta name="viewport" content="width=device-width" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
 <link rel="icon" type="image/svg+xml" href="/logo.svg" />
 
 <title>{title}</title>
 <meta name="title" content={title} />
 <meta name="description" content={description} />
-
 <link rel="canonical" href={permalink} />
 
 <meta property="og:type" content="website" />
@@ -38,9 +36,12 @@ const socialImage = image || '/social-default.jpg';
 <meta property="twitter:description" content={description} />
 <meta property="twitter:image" content={new URL(socialImage, Astro.site)} />
 
-<link rel="preconnect" href="https://fonts.gstatic.com" />
-<link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;500;600;800&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono&family=IBM+Plex+Sans:wght@400;700&display=swap" />
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@400;700&family=Montserrat:wght@300;400;500;600;800&display=swap" rel="stylesheet">
 
-<script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-XXXXXXXXXXXXXXXX"
-     crossorigin="anonymous"></script>
+<script 
+    async 
+    src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-5650296070135561"
+    crossorigin="anonymous">
+</script>
