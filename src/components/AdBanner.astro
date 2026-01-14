@@ -9,56 +9,66 @@ const { position } = Astro.props;
 
 // --- CONFIGURACIÓN MAESTRA ---
 
-// 1. ¿ACTIVAR ADSENSE? (Pon true cuando ya tengas los códigos reales)
+// 1. ¿ACTIVAR ADSENSE? (Si está en true, mostramos anuncios reales)
 const ENABLE_ADSENSE = true; 
 
-// 2. TU ID DE EDITOR (El mismo para todos)
+// 2. TU ID DE EDITOR
 const AD_CLIENT_ID = "ca-pub-5650296070135561";
 
-// 3. TUS SLOTS (Aquí pegarás los números que te de Google para cada zona)
+// 3. TUS SLOTS (IDs reales de tus anuncios)
 const adSlots = {
-  header:      "1234567890", // Slot ID para el Banner Superior
-  footer:      "2345678901", // Slot ID para el Banner Inferior
-  sidebar:     "3456789012", // Slot ID para el Cuadrado Lateral
-  'in-content':"4567890123"  // Slot ID para dentro del post
+  // ✅ HEADER (Banner Superior)
+  header:      "2472256609", 
+
+  // ✅ FOOTER (Banner Inferior)
+  footer:      "8654521571", 
+
+  // ✅ SIDEBAR (Cuadrado Lateral - Nuevo)
+  sidebar:     "4305063089", 
+  
+  // Para dentro del contenido, usamos el del Sidebar que es flexible
+  'in-content':"4305063089"  
 };
 
-// --- CONFIGURACIÓN DE PLACEHOLDERS (Modo Diseño) ---
+// --- CONFIGURACIÓN DE PLACEHOLDERS (Se ven solo si AdSense falla o carga lento) ---
 const placeholders = {
   header: {
-    label: 'Publicidad - Top',
+    label: 'Publicidad',
     size: { width: '728px', height: '90px' },
-    img: 'https://placehold.co/728x90/75AADB/ffffff?text=Espacio+AdSense+Top',
+    img: 'https://placehold.co/728x90/75AADB/ffffff?text=Anuncio+Top',
     styleClass: 'ad-horizontal'
   },
   footer: {
-    label: 'Publicidad - Footer',
+    label: 'Publicidad',
     size: { width: '728px', height: '90px' },
-    img: 'https://placehold.co/728x90/F4B942/1A202C?text=Espacio+AdSense+Footer',
+    img: 'https://placehold.co/728x90/F4B942/1A202C?text=Anuncio+Footer',
     styleClass: 'ad-horizontal'
   },
   sidebar: {
-    label: 'Anuncio',
+    label: 'Publicidad',
     size: { width: '300px', height: '250px' },
-    img: 'https://placehold.co/300x250/2D3748/ffffff?text=Sidebar+Ad',
+    img: 'https://placehold.co/300x250/2D3748/ffffff?text=Anuncio+Lateral',
     styleClass: 'ad-square'
   },
   'in-content': {
     label: 'Te podría interesar',
     size: { width: '100%', height: 'auto' },
-    img: 'https://placehold.co/600x150/E2E8F0/2D3748?text=Anuncio+en+Articulo',
+    img: 'https://placehold.co/600x150/E2E8F0/2D3748?text=Publicidad',
     styleClass: 'ad-fluid'
   }
 };
 
 const currentPlace = placeholders[position];
 const currentSlot = adSlots[position];
+
+// Validamos que exista un slot real
+const showAdsense = ENABLE_ADSENSE && currentSlot;
 ---
 
 <div class={`ad-wrapper ${currentPlace.styleClass}`}>
     <span class="ad-label">{currentPlace.label}</span>
 
-    {ENABLE_ADSENSE ? (
+    {showAdsense ? (
         /* --- MODO ADSENSE REAL --- */
         <div class="adsense-container">
             <ins class="adsbygoogle"
@@ -74,12 +84,14 @@ const currentSlot = adSlots[position];
         </div>
     ) : (
         /* --- MODO PLACEHOLDER (DISEÑO) --- */
-        <img 
-            src={currentPlace.img} 
-            alt="Espacio Publicitario" 
-            class="ad-placeholder-img"
-            loading="lazy"
-        />
+        <div class="placeholder-container">
+            <img 
+                src={currentPlace.img} 
+                alt="Espacio Publicitario" 
+                class="ad-placeholder-img"
+                loading="lazy"
+            />
+        </div>
     )}
 </div>
 
@@ -102,7 +114,6 @@ const currentSlot = adSlots[position];
         letter-spacing: 1px;
     }
 
-    /* Estilos Placeholder */
     .ad-placeholder-img {
         display: block;
         border-radius: 4px;
@@ -111,11 +122,13 @@ const currentSlot = adSlots[position];
         opacity: 0.8;
     }
 
-    /* Estilos AdSense Container */
     .adsense-container {
         width: 100%;
         background: rgba(0,0,0,0.02); /* Fondo sutil mientras carga */
         min-height: 90px;
+        display: flex;
+        justify-content: center;
+        text-align: center;
     }
 
     /* Variantes de Tamaño */
@@ -127,6 +140,10 @@ const currentSlot = adSlots[position];
     .ad-square .adsense-container,
     .ad-square .ad-placeholder-img {
         max-width: 300px;
+    }
+    
+    .ad-fluid .adsense-container {
+        width: 100%;
     }
 
     /* Ajuste Móvil */
