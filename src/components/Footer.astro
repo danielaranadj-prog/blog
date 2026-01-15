@@ -137,23 +137,23 @@ const today = new Date();
         text-align: center; border-top: 1px solid rgba(255,255,255,0.05); 
         padding-top: 1.5rem; 
         margin-top: 0.5rem;
-        display: flex; justify-content: center; align-items: flex-start; /* Alineación ajustada */
+        display: flex; justify-content: center; align-items: flex-start; 
         gap: 1rem; flex-wrap: wrap; width: 100%;
     }
     
     .brand-text-wrapper {
         max-width: 600px;
-        text-align: left; /* Para que el texto se lea mejor */
+        text-align: left; 
     }
 
     .footer-brand { color: #F4B942; font-weight: 800; font-size: 1rem; margin: 0; text-transform: uppercase; letter-spacing: -0.5px; white-space: nowrap;}
     .divider { color: #444; font-size: 1.2rem; }
     .footer-desc { color: #718096; font-size: 0.85rem; margin: 0; margin-bottom: 0.5rem; }
     
-    /* ESTILO NUEVO: Disclaimer Legal */
+    /* Disclaimer Legal (Escritorio) */
     .legal-disclaimer {
-        font-size: 0.7rem; /* Letra pequeñita */
-        color: #58667a;    /* Color más apagado para no distraer */
+        font-size: 0.7rem; 
+        color: #58667a;    
         line-height: 1.3;
     }
 
@@ -175,43 +175,68 @@ const today = new Date();
 
     .made-with { font-weight: 500; }
 
-    /* --- MÓVIL --- */
+    /* --- 📱 OPTIMIZACIÓN MÓVIL SUPER COMPACTA --- */
     @media (max-width: 768px) {
-        /* ... tus estilos móviles existentes ... */
-        .footer-container { 
-            gap: 1rem 0.3rem; 
-            padding: 0 1.5rem 1rem; 
-            justify-content: space-between;
+        .site-footer {
+            padding: 1.5rem 0 1rem 0; 
         }
 
+        .footer-container { 
+            gap: 1rem 0.3rem; 
+            padding: 0 1.5rem 0; /* 🔥 CERO padding abajo para eliminar el hueco */
+            justify-content: space-between;
+            padding-bottom: 0.2rem; /* Mínimo respiro */
+        }
+
+        /* Títulos y links */
         .footer-title { font-size: 0.65rem; margin-bottom: 0.4rem; }
         .footer-links a { font-size: 0.75rem; }
         
+        /* Social & Newsletter */
         .social-grid { gap: 0.4rem; }
         .social-grid a { width: 28px; height: 28px; }
-
         .newsletter-col { min-width: 0; text-align: right; }
         .newsletter-form { justify-content: flex-end; }
-        
-        .input-field {
-            width: 125px; 
-            flex: none; 
-            padding: 0.4rem; font-size: 0.75rem; height: 30px;
-        }
+        .input-field { width: 125px; flex: none; padding: 0.4rem; font-size: 0.75rem; height: 30px; }
         .submit-btn { padding: 0 0.6rem; font-size: 1rem; height: 30px; }
 
-        /* Ajustes Brand en Móvil */
-        .brand-col { padding-top: 1rem; gap: 0.5rem; flex-direction: column; align-items: center; }
-        .brand-text-wrapper { text-align: center; } /* Centrado en móvil */
-        .divider { display: none; } /* Ocultamos la barra divisora en móvil para que se apile mejor */
+        /* BLOQUE DE MARCA */
+        .brand-col { 
+            padding-top: 0.8rem; 
+            margin-top: 0;
+            margin-bottom: 0; /* 🔥 Eliminamos margen inferior */
+            gap: 0.2rem; 
+            flex-direction: column; 
+            align-items: center; 
+        }
+        .brand-text-wrapper { text-align: center; } 
+        .divider { display: none; } 
         
-        .footer-desc { font-size: 0.7rem; line-height: 1.2; padding: 0; }
+        /* OCULTAR TAGLINE */
+        .footer-desc { display: none; }
         
+        /* DISCLAIMER COMPACTO */
+        .legal-disclaimer {
+            font-size: 0.6rem; 
+            line-height: 1.1;  
+            margin-top: 0.3rem;
+            margin-bottom: 0.5rem; /* Margen mínimo abajo */
+            opacity: 0.8;
+            max-width: 90%; 
+            margin-left: auto; margin-right: auto;
+        }
+        
+        /* BARRA INFERIOR (PEGADITA) */
         .footer-bottom {
             flex-direction: column;
-            gap: 0.8rem;
+            gap: 0.5rem;
             text-align: center;
             padding-bottom: 1rem;
+            padding-top: 0.2rem; /* 🔥 Muy pegadita al disclaimer */
+            border-top: none; /* Quitamos borde para que parezca un solo bloque */
+        }
+        .legal-links {
+            line-height: 1.4; 
         }
     }
 </style>

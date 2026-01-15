@@ -1,11 +1,12 @@
 ---
-// 1. IMPORTS
+// ==========================================
+// 🛡️ ZONA BLINDADA: IMPORTS Y CONFIGURACIÓN
+// 🔒 No mover el orden de estos imports.
+// ==========================================
 import BaseHead from '../components/BaseHead.astro';
 import BlogHeader from '../components/BlogHeader.astro';
 import Footer from '../components/Footer.astro';
 import AdBanner from '../components/AdBanner.astro';
-
-// 2. DATOS DE AUTORES
 import { AUTHORS, DEFAULT_AUTHOR } from '../data/authors';
 
 const {
@@ -13,7 +14,10 @@ const {
   frontmatter = {},
 } = Astro.props;
 
-// 3. LÓGICA DEL POST
+// ==========================================
+// 🛡️ ZONA BLINDADA: LÓGICA DE NEGOCIO
+// 🔒 Procesamiento de datos del post y autor
+// ==========================================
 const post = {
   title: frontmatter.title || content.title,
   description: frontmatter.description || content.description,
@@ -21,19 +25,16 @@ const post = {
   heroImage: frontmatter.heroImage || content.heroImage,
   heroImageLink: frontmatter.heroImageLink || content.heroImageLink,
   alt: frontmatter.alt || content.alt || frontmatter.title,
-  authorSlug: frontmatter.author, // Aquí leemos "daniel", "ana", etc.
+  authorSlug: frontmatter.author, 
   
-  // Datos Referidos
+  // Datos Referidos (Afiliados)
   affiliateTitle: frontmatter.affiliateTitle || content.affiliateTitle, 
   affiliateLink: frontmatter.affiliateLink || content.affiliateLink,
   affiliateText: frontmatter.affiliateText || "Reserva directa al mejor precio",
 };
 
-// 4. SELECCIÓN DE AUTOR DINÁMICA
-// Buscamos el autor en el archivo. Si no existe, usamos el Default (Daniel)
+// Selección de Autor (Fallback System)
 const author = (post.authorSlug && AUTHORS[post.authorSlug]) || DEFAULT_AUTHOR;
-
-// Fallbacks por si faltan datos en el archivo de autores
 const authorRole = author.role || "Colaborador"; 
 const authorBio = author.bio || "Viajero y narrador de historias en Instante Trips.";
 
@@ -41,6 +42,9 @@ const finalImage = post.heroImage || post.heroImageLink;
 const permalink = Astro.url.href;
 const encodedUrl = encodeURIComponent(permalink);
 const encodedTitle = encodeURIComponent(post.title);
+// ==========================================
+// 🔓 FIN ZONA LÓGICA
+// ==========================================
 ---
 
 <html lang="es">
@@ -53,7 +57,7 @@ const encodedTitle = encodeURIComponent(post.title);
   />
 
   <style>
-    /* VARIABLES GLOBALES */
+    /* 🛡️ ZONA BLINDADA: DESIGN SYSTEM CORE */
     :root {
       --brand-blue: #75AADB;
       --accent-gold: #F4B942;
@@ -76,6 +80,7 @@ const encodedTitle = encodeURIComponent(post.title);
       }
       .share-icon.logo-mode { filter: invert(1); }
     }
+    /* 🔓 FIN DESIGN SYSTEM */
 
     body {
       margin: 0;
@@ -122,52 +127,96 @@ const encodedTitle = encodeURIComponent(post.title);
       display: flex; align-items: center; gap: 1rem; margin-bottom: 2rem; padding-bottom: 1.5rem; border-bottom: 1px solid var(--card-border);
     }
     .mini-author { display: flex; align-items: center; gap: 0.8rem; }
-    .mini-author img { width: 45px; height: 45px; border-radius: 50%; object-fit: cover; border: 2px solid var(--brand-blue); }
-    .author-info { display: flex; flex-direction: column; line-height: 1.2; }
-    .author-name { font-weight: 700; font-size: 0.95rem; color: var(--text-main); }
-    .publish-date { font-size: 0.75rem; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.5px; }
-
-    /* PROSE (CUERPO DEL TEXTO) */
-    .prose {
-      max-width: 780px; margin: 0 auto; font-size: 1.1rem; line-height: 1.8; color: var(--text-prose); font-family: 'IBM Plex Sans', sans-serif;
-    }
-    .prose :global(img) { max-width: 100%; height: auto; border-radius: 12px; margin: 2.25rem auto; display: block; }
-    .prose :global(h2), .prose :global(h3) { margin-top: 3rem; color: var(--brand-blue); font-weight: 800; font-family: 'Montserrat', sans-serif; }
-    .prose :global(a) { color: var(--brand-blue); font-weight: 600; text-decoration: underline; text-decoration-thickness: 2px; }
-
-    /* --- ESTILOS NUEVOS PARA EL EDITOR (INTEGRACIÓN) --- */
     
-    /* 1. Botón de Referido (.btn-ref) - Estilo Dorado/Naranja */
-    .prose :global(.btn-ref) {
-      display: inline-block;
-      background: linear-gradient(135deg, #FFD700 0%, #FFA500 100%);
-      color: #000 !important; /* Texto negro forzoso */
-      font-weight: 800;
-      padding: 0.75rem 1.5rem;
-      border-radius: 8px;
-      text-decoration: none !important; /* Sin subrayado */
-      box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
-      transition: transform 0.2s, box-shadow 0.2s;
-      margin: 1.5rem auto; /* Centrado vertical y horizontal */
-      border: 1px solid #eab308;
-      text-align: center;
+    .mini-author img { width: 50px; height: 50px; border-radius: 50%; object-fit: cover; border: 2px solid var(--brand-blue); }
+    
+    .author-info { display: flex; flex-direction: column; line-height: 1.3; justify-content: center; }
+    
+    .author-label { font-size: 0.65rem; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.5px; font-weight: 700; }
+    
+    .author-name { font-weight: 700; font-size: 0.95rem; color: var(--text-main); }
+    .publish-date { font-size: 0.7rem; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.5px; }
+
+
+    /* ==========================================
+       🛡️ ZONA BLINDADA: FORMATO DE LECTURA (PROSE)
+       🔒 Ajuste Editorial Moderno: Espacios compactos y Links elegantes
+       ========================================== */
+    .prose {
+      max-width: 780px; 
+      margin: 0 auto; 
+      font-size: 1.125rem; /* 18px */
+      line-height: 1.4; 
+      color: var(--text-prose); 
+      font-family: 'IBM Plex Sans', sans-serif;
     }
 
-    .prose :global(.btn-ref:hover) {
-      transform: translateY(-2px);
-      box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.2);
-    }
+    /* PÁRRAFOS */
+    .prose :global(p) { margin-bottom: 1.25rem; }
 
-    /* 2. Videos de YouTube (Responsivos 16:9) */
+    /* IMÁGENES & VIDEOS */
+    .prose :global(img) { 
+        max-width: 100%; height: auto; border-radius: 12px; 
+        margin-top: 2rem; margin-bottom: 0.3rem; /* Pegado al crédito */
+        margin-left: auto; margin-right: auto; display: block; 
+    }
     .prose :global(iframe) {
-      width: 100%;
-      max-width: 100%;
-      aspect-ratio: 16 / 9; /* Mantiene proporción de TV */
-      height: auto; /* Sobrescribe altura fija */
-      border-radius: 12px;
-      margin: 2rem 0;
-      box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+        width: 100%; max-width: 100%; aspect-ratio: 16 / 9; height: auto; 
+        border-radius: 12px; margin-top: 2rem; margin-bottom: 0.3rem; 
+        box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
     }
+
+    /* CRÉDITOS (Texto pequeño) */
+    .prose :global(.credit-style) {
+        display: block; text-align: center; font-size: 0.85rem; color: var(--text-muted); 
+        margin-top: 0; 
+        margin-bottom: 1.5rem; /* Flujo compacto */
+        font-style: italic; line-height: 1.4;
+    }
+    .prose :global(.credit-style a) {
+        color: inherit !important; text-decoration: none !important; pointer-events: none; cursor: default;                  
+    }
+
+    /* TITULARES (H2, H3) - Estilo serio */
+    .prose :global(h2), .prose :global(h3) { 
+        margin-top: 2.5rem; margin-bottom: 1rem; 
+        color: var(--text-main); /* Gris oscuro, no azul */
+        font-weight: 800; font-family: 'Montserrat', sans-serif; line-height: 1.2;
+    }
+
+    /* LINKS (Editorial Suavizado) */
+    .prose :global(a):not(.btn-ref):not(.affiliate-btn) { 
+        color: var(--text-main); font-weight: 500; text-decoration: none; border-bottom: 2px solid var(--brand-blue); transition: all 0.2s ease;
+    }
+    .prose :global(a):not(.btn-ref):not(.affiliate-btn):hover { 
+        background-color: rgba(117, 170, 219, 0.15); color: #000; border-bottom-color: transparent;
+    }
+
+    /* --- 🔥 LISTAS ELEGANTES (Compactas e Indentadas) --- */
+    .prose :global(ul), .prose :global(ol) { 
+        margin-bottom: 1.5rem; 
+        padding-left: 2.5rem;  /* <--- Viñetas bien metidas a la derecha */
+    }
+    
+    .prose :global(li) { 
+        margin-bottom: 0.35rem; /* <--- Compacto: Menos salto entre líneas */
+        padding-left: 0.5rem;   
+    }
+
+    .prose :global(li::marker) {
+        color: var(--brand-blue);      
+        font-family: 'Montserrat', sans-serif; 
+        font-weight: 800;              
+        font-size: 1rem;               
+    }
+    /* ---------------------------------------------------- */
+
+    /* BOTÓN REFERIDO */
+    .prose :global(.btn-ref) {
+      display: inline-block; background: linear-gradient(135deg, #FFD700 0%, #FFA500 100%); color: #000 !important; font-weight: 800; padding: 0.75rem 1.5rem; border-radius: 8px; text-decoration: none !important; box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1); transition: transform 0.2s, box-shadow 0.2s; margin: 1.5rem auto; border: 1px solid #eab308; text-align: center;
+    }
+    .prose :global(.btn-ref:hover) { transform: translateY(-2px); box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.2); }
+    /* 🔓 FIN ZONA PROSE */
     
     /* ---------------------------------------------------- */
 
@@ -208,7 +257,7 @@ const encodedTitle = encodeURIComponent(post.title);
     aside { display: flex; flex-direction: column; gap: 1.5rem; }
     .widget { background: var(--card-bg); border: 1px solid var(--card-border); border-radius: 16px; padding: 1.5rem; color: var(--text-main); }
     
-    /* AUTOR SIDEBAR (DINÁMICO) */
+    /* AUTOR SIDEBAR */
     .author-widget { text-align: center; }
     .author-widget img {
       width: 110px; height: 110px; border-radius: 50%; object-fit: cover; margin-bottom: 0.75rem;
@@ -235,16 +284,13 @@ const encodedTitle = encodeURIComponent(post.title);
 
    @media (min-width: 1024px) {
       .layout { 
-        flex-direction: row; 
-        align-items: flex-start; 
+        flex-direction: row; align-items: flex-start; 
       }
       
       main { flex: 1; }
       
       aside { 
-        width: 320px; 
-        position: sticky; 
-        top: 2rem; 
+        width: 320px; position: sticky; top: 2rem; 
       }
       
       .content { padding: 2.5rem 4rem 4rem; }
@@ -277,6 +323,7 @@ const encodedTitle = encodeURIComponent(post.title);
             <div class="mini-author">
                 <img src={author.image} alt={author.name} />
                 <div class="author-info">
+                    <span class="author-label">Este artículo fue escrito por:</span>
                     <span class="author-name">{author.name}</span>
                     <span class="publish-date">{post.publishDate}</span>
                 </div>
