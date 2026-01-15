@@ -6,11 +6,18 @@ const today = new Date();
     <div class="footer-container">
         
         <div class="footer-col brand-col">
-            <h3 class="footer-brand">INSTANTE TRIPS</h3>
+            <h3 class="footer-brand">INSTANTE TRIPS™</h3>
             <span class="divider">|</span>
-            <p class="footer-desc">
-                Guías de viaje reales, sin filtros y directo al grano. Inspiración para viajeros curiosos.
-            </p>
+            <div class="brand-text-wrapper">
+                <p class="footer-desc">
+                    Guías de viaje reales, sin filtros y directo al grano. Inspiración para viajeros curiosos.
+                </p>
+                <p class="legal-disclaimer">
+                    <strong>Descargo de responsabilidad:</strong> Actuamos como intermediarios informativos. 
+                    No somos responsables de reservas, cancelaciones o servicios de terceros enlazados. 
+                    Los precios son referenciales.
+                </p>
+            </div>
         </div>
 
         <div class="footer-col nav-col">
@@ -18,7 +25,8 @@ const today = new Date();
             <ul class="footer-links">
                 <li><a href="/">Inicio</a></li>
                 <li><a href="/destinos">Destinos</a></li>
-                <li><a href="/manifiesto">Manifiesto</a></li> <li><a href="mailto:hola@instantetrips.com">Contacto</a></li>
+                <li><a href="/manifiesto">Manifiesto</a></li> 
+                <li><a href="mailto:hola@instantetrips.com">Contacto</a></li>
             </ul>
         </div>
 
@@ -49,10 +57,10 @@ const today = new Date();
     
     <div class="footer-bottom">
         <div class="legal-links">
-            &copy; {today.getFullYear()} Instante Trips • 
-            <a href="/privacidad">Privacidad</a> • 
-            <a href="/terminos">Términos</a> • 
-            <a href="/cookies">Cookies</a> •
+            &copy; {today.getFullYear()} Instante Trips™ • 
+            <a href="/legal/privacidad">Privacidad</a> • 
+            <a href="/legal/terminos">Términos</a> • 
+            <a href="/legal/privacidad#cookies">Cookies</a> •
             <a href="https://www.instantetrips.com/editor" target="_blank" rel="noopener noreferrer" style="opacity: 0.5;">Zona de editores</a>
         </div>
         <div class="made-with">
@@ -92,7 +100,7 @@ const today = new Date();
         justify-content: center; 
         gap: 2rem; 
         align-items: start;
-        padding-bottom: 2rem; /* Espacio antes de la barra inferior */
+        padding-bottom: 2rem; 
     }
 
     /* Estilos Generales */
@@ -124,18 +132,32 @@ const today = new Date();
     }
     .submit-btn:hover { background: #e0a83b; }
 
-    /* Marca Abajo */
+    /* Marca Abajo - AJUSTADO PARA CONTENER DISCLAIMER */
     .brand-col {
         text-align: center; border-top: 1px solid rgba(255,255,255,0.05); 
         padding-top: 1.5rem; 
         margin-top: 0.5rem;
-        display: flex; justify-content: center; align-items: center; gap: 1rem; flex-wrap: wrap; width: 100%;
+        display: flex; justify-content: center; align-items: flex-start; /* Alineación ajustada */
+        gap: 1rem; flex-wrap: wrap; width: 100%;
     }
-    .footer-brand { color: #F4B942; font-weight: 800; font-size: 1rem; margin: 0; text-transform: uppercase; letter-spacing: -0.5px; }
-    .divider { color: #444; font-size: 1.2rem; }
-    .footer-desc { color: #718096; font-size: 0.85rem; margin: 0; max-width: 600px; }
+    
+    .brand-text-wrapper {
+        max-width: 600px;
+        text-align: left; /* Para que el texto se lea mejor */
+    }
 
-    /* --- BARRA INFERIOR (LEGALES + AMOR) --- */
+    .footer-brand { color: #F4B942; font-weight: 800; font-size: 1rem; margin: 0; text-transform: uppercase; letter-spacing: -0.5px; white-space: nowrap;}
+    .divider { color: #444; font-size: 1.2rem; }
+    .footer-desc { color: #718096; font-size: 0.85rem; margin: 0; margin-bottom: 0.5rem; }
+    
+    /* ESTILO NUEVO: Disclaimer Legal */
+    .legal-disclaimer {
+        font-size: 0.7rem; /* Letra pequeñita */
+        color: #58667a;    /* Color más apagado para no distraer */
+        line-height: 1.3;
+    }
+
+    /* --- BARRA INFERIOR --- */
     .footer-bottom {
         max-width: 1100px;
         margin: 0 auto;
@@ -155,6 +177,7 @@ const today = new Date();
 
     /* --- MÓVIL --- */
     @media (max-width: 768px) {
+        /* ... tus estilos móviles existentes ... */
         .footer-container { 
             gap: 1rem 0.3rem; 
             padding: 0 1.5rem 1rem; 
@@ -177,10 +200,13 @@ const today = new Date();
         }
         .submit-btn { padding: 0 0.6rem; font-size: 1rem; height: 30px; }
 
-        .brand-col { padding-top: 1rem; gap: 0.3rem; }
-        .footer-desc { font-size: 0.7rem; line-height: 1.2; padding: 0 0.5rem; }
+        /* Ajustes Brand en Móvil */
+        .brand-col { padding-top: 1rem; gap: 0.5rem; flex-direction: column; align-items: center; }
+        .brand-text-wrapper { text-align: center; } /* Centrado en móvil */
+        .divider { display: none; } /* Ocultamos la barra divisora en móvil para que se apile mejor */
         
-        /* Ajuste barra inferior en móvil */
+        .footer-desc { font-size: 0.7rem; line-height: 1.2; padding: 0; }
+        
         .footer-bottom {
             flex-direction: column;
             gap: 0.8rem;

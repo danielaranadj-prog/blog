@@ -1,20 +1,26 @@
 ---
-// Component Imports
+// ==========================================
+// 🛡️ ZONA BLINDADA: IMPORTS Y LÓGICA DE SERVIDOR
+// 🔒 NO MODIFICAR SIN RESPALDO PREVIO
+// ==========================================
 import BaseHead from '../components/BaseHead.astro';
 import BlogHeader from '../components/BlogHeader.astro'; 
 import Hero from '../components/Hero.astro';            
 import BlogPostPreview from '../components/BlogPostPreview.astro';
 import Footer from '../components/Footer.astro';
 import AdBanner from '../components/AdBanner.astro'; 
+import CookieBanner from '../components/CookieBanner.astro'; // <-- ✅ NUEVO COMPONENTE AGREGADO
 import { SITE } from '../config';
 
-// --- MAGIA DE PAGINACIÓN (Astro) ---
+// 🔒 LÓGICA CRÍTICA DE PAGINACIÓN DE ASTRO
 export async function getStaticPaths({ paginate }) {
   let allPosts = await Astro.glob('./posts/*.md');
+  // Ordenar por fecha (Más reciente primero)
   allPosts = allPosts.sort((a, b) => new Date(b.frontmatter.publishDate).valueOf() - new Date(a.frontmatter.publishDate).valueOf());
+  
   const popularPosts = allPosts.slice(0, 3);
 
-  // --- LÓGICA DE ETIQUETAS DINÁMICAS ---
+  // Extracción de etiquetas únicas para el filtro
   const allTags = allPosts.flatMap(post => post.frontmatter.tags || []);
   const uniqueTags = [...new Set(allTags)];
   const displayTags = uniqueTags.slice(0, 15);
@@ -26,11 +32,13 @@ export async function getStaticPaths({ paginate }) {
 }
 
 const { page, popularPosts, displayTags } = Astro.props;
-
 let title = SITE.title;
 let description = SITE.description;
 let permalink = 'https://blog.instantetrips.com/';
 const isHomePage = page.currentPage === 1;
+// ==========================================
+// 🔓 FIN ZONA BLINDADA
+// ==========================================
 ---
 
 <html lang="es">
@@ -40,6 +48,9 @@ const isHomePage = page.currentPage === 1;
         <style>
             @import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;500;600;800&display=swap');
 
+            /* 🛡️ ZONA BLINDADA: VARIABLES GLOBALES (DESIGN SYSTEM)
+               🔒 Si cambias estos colores, se rompe la identidad visual en toda la página.
+            */
             :root {
                 --page-bg: #F8F9FA; 
                 --text-main: #2D3748;
@@ -61,13 +72,11 @@ const isHomePage = page.currentPage === 1;
                     --card-border: #334155;
                     --title-color: #ffffff;
                 }
-
-                /* --- FIX LOGO EN MODO OSCURO --- */
-                /* Invierte el color de negro a blanco para que resalte */
                 .profile-circle img {
                     filter: invert(1) brightness(2);
                 }
             }
+            /* 🔓 FIN ZONA BLINDADA DE VARIABLES */
 
             body {
                 background-color: var(--page-bg);
@@ -89,12 +98,14 @@ const isHomePage = page.currentPage === 1;
             .page-container { display: flex; flex-direction: column; gap: 2.5rem; }
             .main-content { width: 100%; min-width: 0; }
             
-            /* --- GRID LAYOUT --- */
+            /* 🛡️ ZONA BLINDADA: GRID RESPONSIVO
+               🔒 No tocar los breakpoints ni grid-template-columns. 
+            */
             .grid-layout { 
                 display: grid; 
                 grid-template-columns: 1fr; 
                 gap: 1rem; 
-                row-gap: 1rem; /* Espacio vertical ajustado */
+                row-gap: 1rem; 
             }
             .post-item-wrapper { height: 100%; display: flex; flex-direction: column; }
             .searchable-item { height: 100%; width: 100%; display: flex; flex-direction: column; }
@@ -102,6 +113,7 @@ const isHomePage = page.currentPage === 1;
             @media (min-width: 640px) { .grid-layout { grid-template-columns: repeat(2, 1fr); } }
             @media (min-width: 1280px) { .grid-layout { grid-template-columns: repeat(3, 1fr); } }
             @media (min-width: 1550px) { .grid-layout { grid-template-columns: repeat(4, 1fr); } }
+            /* 🔓 FIN ZONA GRID */
 
             @media (min-width: 1024px) {
                 .page-container { flex-direction: row; align-items: flex-start; }
@@ -136,7 +148,7 @@ const isHomePage = page.currentPage === 1;
             }
             .profile-circle img {
                 width: 100%; height: 100%; object-fit: contain; border-radius: 50%;
-                transition: filter 0.3s ease; /* Transición suave al cambiar de modo */
+                transition: filter 0.3s ease;
             }
 
             .widget-title {
@@ -234,7 +246,7 @@ const isHomePage = page.currentPage === 1;
                                     <p>Ups, no encontramos nada aquí. 🤷‍♂️</p>
                                 </div>
                             </div>
-                        </section>
+                            </section>
 
                         <div class="pagination-area">
                             <nav class="pagination-wrapper" aria-label="Navegación de páginas">
@@ -303,7 +315,6 @@ const isHomePage = page.currentPage === 1;
                                 ))}
                             </div>
                         </div>
-
                         <div class="sidebar-widget" style="text-align: center; border:none; background:transparent; box-shadow:none;">
                             <AdBanner position="sidebar" />
                         </div>
@@ -330,7 +341,13 @@ const isHomePage = page.currentPage === 1;
 
         <Footer />
         
+        <CookieBanner /> 
+        
         <script is:inline>
+            // ==========================================
+            // 🛡️ ZONA BLINDADA: CORE LOGIC SCRIPTS
+            // 🔒 La funcionalidad de búsqueda y filtrado depende de estos nombres exactos.
+            // ==========================================
             function searchPosts() {
                 let input = document.getElementById('searchInput').value.toLowerCase();
                 let wrappers = document.getElementsByClassName('post-item-wrapper');
@@ -368,6 +385,9 @@ const isHomePage = page.currentPage === 1;
                     searchPosts();
                 }
             }
+            // ==========================================
+            // 🔓 FIN ZONA BLINDADA SCRIPTS
+            // ==========================================
         </script>
     </body>
 </html>
