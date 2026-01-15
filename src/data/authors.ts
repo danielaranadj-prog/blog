@@ -38,7 +38,14 @@ export const AUTHORS: Record<string, Author> = {
     bio: 'Fotógrafo de viajes. Buscando historias en cada encuadre.',
     image: '/assets/autores/jonathan-arana.jpg',
   },
-};
+
+  'roberto-renteria': {
+    slug: 'roberto-renteria',
+    name: 'Roberto Renteria',
+    role: 'Escrito y Fotografo de viajes',
+    bio: 'Se encarga de generar contenido visual y editoria. ',
+    image: '/assets/autores/roberto-renteria.jpg',
+  },};
 
 // Fallback editorial (Por defecto tú)
 export const DEFAULT_AUTHOR = AUTHORS['daniel-arana'];
