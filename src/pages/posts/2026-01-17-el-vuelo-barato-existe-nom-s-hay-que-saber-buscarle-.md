@@ -1,6 +1,6 @@
 ---
 title: "El vuelo barato existe, nomás hay que saber buscarle ✈️"
-description: ""¿Cansado de ver que el de al lado pagó menos? Descubre cómo usar Google Flights y Skyscanner a tu favor. Te revelo mis 10 trucos de viajero para evitar las letras chiquitas y encontrar vuelos baratos de verdad.""
+description: ""¿Cansado de ver que el de al lado pagó menos? Descubre cómo usar Google Flights y Skyscanner a tu favor."
 publishDate: "2026-01-17"
 author: "daniel-arana"
 heroImage: "https://res.cloudinary.com/dbwdmu9k2/image/upload/v1768575545/IMG_0311_ujcimj.jpg"
