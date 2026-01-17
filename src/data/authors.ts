@@ -17,14 +17,6 @@ export const AUTHORS: Record<string, Author> = {
     email: 'danielaranadj@gmail.com',
   },
 
-  'betzy-miramontes': {
-    slug: 'betzy-miramontes',
-    name: 'Betzy Miramontes',
-    role: 'Food & Travel Editor',
-    bio: 'Exploradora gastronómica y storyteller. Viajar también se come.',
-    image: '/assets/autores/betzy-miramontes.jpg',
-  },
-
   'edgar-arana': {
     slug: 'edgar-arana',
     name: 'Edgar Arana',
