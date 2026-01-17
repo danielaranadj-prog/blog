@@ -33,14 +33,6 @@ export const AUTHORS: Record<string, Author> = {
     image: '/assets/autores/jonathan-arana.jpg',
   },
 
-  'roberto-renteria': {
-    slug: 'roberto-renteria',
-    name: 'Roberto Renteria',
-    role: 'Escrito y Fotografo de viajes',
-    bio: 'Se encarga de generar contenido visual y editoria. ',
-    image: '/assets/autores/roberto-renteria.jpg',
-  },
-
 };
 
 export const DEFAULT_AUTHOR = AUTHORS['daniel-arana'] || Object.values(AUTHORS)[0];
