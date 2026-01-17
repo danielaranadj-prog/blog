@@ -12,8 +12,8 @@ export const AUTHORS: Record<string, Author> = {
     slug: 'daniel-arana',
     name: 'Daniel Arana',
     role: 'Founder & Creative Director',
-    bio: 'Director Creativo y fundador de InstanteTrips.',
-    image: '/assets/autores/daniel-arana-1768646139740.jpg',
+    bio: 'Me encanta contar mis historias y experiencias viajando.',
+    image: '/assets/autores/daniel-arana-1768646203429.jpg',
     email: 'danielaranadj@gmail.com',
   },
 
