@@ -1,41 +1,51 @@
 ---
 /**
- * HotelWidget.astro
- * Widget de búsqueda de hoteles con Booking.com affiliate
- * Configuración desde Firestore
+ * FlightSearch.astro
+ * Widget de búsqueda de vuelos que redirige a Skyscanner
+ * con affiliate tracking
  */
-import { getBookingConfig } from '../lib/fetchAffiliates';
-
-const bookingConfig = await getBookingConfig();
-const affiliateId = bookingConfig.affiliateId;
-const isEnabled = bookingConfig.enabled;
 
 interface Props {
-  variant?: 'sidebar' | 'inline';
+  variant?: 'sidebar' | 'inline' | 'full';
+  affiliateId?: string;
+  defaultOrigin?: string;
   defaultDestination?: string;
 }
 
 const { 
   variant = 'sidebar', 
+  affiliateId = 'instante_trips',
+  defaultOrigin = '',
   defaultDestination = ''
 } = Astro.props;
 ---
 
-{isEnabled && (
-<div class={`hotel-widget ${variant}`}>
+<div class={`flight-widget ${variant}`}>
     <div class="widget-header">
-        <span class="widget-icon">🏨</span>
-        <h4>Buscar Hoteles</h4>
+        <span class="widget-icon">✈️</span>
+        <h4>Buscar Vuelos</h4>
     </div>
     
-    <form class="hotel-form" id="hotelSearchForm">
+    <form class="flight-form" id="flightSearchForm">
         <div class="input-group">
-            <label for="hotel-destination">Destino</label>
+            <label for="flight-origin">Origen</label>
             <input 
                 type="text" 
-                id="hotel-destination" 
+                id="flight-origin" 
+                name="origin" 
+                placeholder="Ciudad o aeropuerto"
+                value={defaultOrigin}
+                required
+            />
+        </div>
+        
+        <div class="input-group">
+            <label for="flight-destination">Destino</label>
+            <input 
+                type="text" 
+                id="flight-destination" 
                 name="destination" 
-                placeholder="Ciudad o hotel"
+                placeholder="¿A dónde viajas?"
                 value={defaultDestination}
                 required
             />
@@ -43,84 +53,73 @@ const {
         
         <div class="input-row">
             <div class="input-group half">
-                <label for="hotel-checkin">Check-in</label>
+                <label for="flight-date">Salida</label>
                 <input 
                     type="date" 
-                    id="hotel-checkin" 
-                    name="checkin"
+                    id="flight-date" 
+                    name="outbound"
                     required
                 />
             </div>
             <div class="input-group half">
-                <label for="hotel-checkout">Check-out</label>
+                <label for="flight-return">Regreso</label>
                 <input 
                     type="date" 
-                    id="hotel-checkout" 
-                    name="checkout"
-                    required
+                    id="flight-return" 
+                    name="inbound"
                 />
             </div>
         </div>
         
-        <div class="input-group">
-            <label for="hotel-guests">Huéspedes</label>
-            <select id="hotel-guests" name="guests">
-                <option value="1">1 adulto</option>
-                <option value="2" selected>2 adultos</option>
-                <option value="3">3 adultos</option>
-                <option value="4">4 adultos</option>
-            </select>
-        </div>
-        
-        <button type="submit" class="search-btn booking">
-            <span>Ver en Booking</span>
+        <button type="submit" class="search-btn">
+            <span>Buscar Vuelos</span>
             <span class="arrow">→</span>
         </button>
     </form>
     
     <p class="widget-note">
-        <span class="booking-logo">Booking.com</span> · Precios y disponibilidad
+        Buscamos en +700 aerolíneas
     </p>
 </div>
-)}
 
-<script is:inline define:vars={{ affiliateId }}>
-    document.getElementById('hotelSearchForm')?.addEventListener('submit', function(e) {
+<script is:inline>
+    document.getElementById('flightSearchForm')?.addEventListener('submit', function(e) {
         e.preventDefault();
         const form = e.target;
+        const origin = form.origin.value.trim();
         const destination = form.destination.value.trim();
-        const checkin = form.checkin.value;
-        const checkout = form.checkout.value;
-        const guests = form.guests.value;
+        const outbound = form.outbound.value;
+        const inbound = form.inbound.value;
         
-        // Formatear fechas para Booking
-        const checkinFormatted = checkin.replace(/-/g, '-');
-        const checkoutFormatted = checkout.replace(/-/g, '-');
+        // Construir URL de Skyscanner
+        let url = `https://www.skyscanner.com/transport/flights/${origin}/${destination}/${outbound.replace(/-/g, '')}`;
+        if (inbound) {
+            url += `/${inbound.replace(/-/g, '')}`;
+        }
+        url += '/?adultsv2=1&cabinclass=economy&childrenv2=&ref=home&preferdirects=false&outboundaltsenabled=false&inboundaltsenabled=false';
         
-        // Construir URL de Booking con affiliate
-        const url = `https://www.booking.com/searchresults.html?ss=${encodeURIComponent(destination)}&checkin=${checkinFormatted}&checkout=${checkoutFormatted}&group_adults=${guests}&no_rooms=1&aid=${affiliateId}`;
-        
+        // Abrir en nueva pestaña
         window.open(url, '_blank');
     });
 </script>
 
 <style>
-    .hotel-widget {
+    .flight-widget {
         background: var(--card-bg, #fff);
-        border: 1px solid var(--card-border, #E2E8F0);
+        border: 1px solid var(--border, #E2E8F0);
         border-radius: 16px;
         padding: 1.5rem;
         position: relative;
         overflow: hidden;
     }
     
-    .hotel-widget::before {
+    .flight-widget::before {
         content: '';
         position: absolute;
         inset: 0;
         border-radius: 16px;
         padding: 2px;
-        background: linear-gradient(135deg, #003580, #F4B942);
+        background: linear-gradient(135deg, var(--celeste, #75AADB), var(--gold, #F4B942));
         -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
         mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
         -webkit-mask-composite: xor;
@@ -129,7 +128,7 @@ const {
         transition: opacity 0.4s ease;
     }
     
-    .hotel-widget:hover::before {
+    .flight-widget:hover::before {
         opacity: 1;
     }
     
@@ -149,12 +148,12 @@ const {
         font-family: 'Montserrat', sans-serif;
         font-size: 1rem;
         font-weight: 800;
-        color: var(--text-main, #2D3748);
+        color: var(--title, #2D3748);
         text-transform: uppercase;
         letter-spacing: 0.5px;
     }
     
-    .hotel-form {
+    .flight-form {
         display: flex;
         flex-direction: column;
         gap: 0.75rem;
@@ -169,28 +168,31 @@ const {
     .input-group label {
         font-size: 0.7rem;
         font-weight: 600;
-        color: var(--text-muted, #718096);
+        color: var(--text-secondary, #718096);
         text-transform: uppercase;
         letter-spacing: 0.5px;
     }
     
-    .input-group input,
-    .input-group select {
+    .input-group input {
         padding: 0.75rem 1rem;
-        border: 1px solid var(--card-border, #E2E8F0);
+        border: 1px solid var(--border, #E2E8F0);
         border-radius: 8px;
         font-size: 0.9rem;
         font-family: 'Montserrat', sans-serif;
         background: var(--card-bg, #fff);
-        color: var(--text-main, #2D3748);
+        color: var(--text, #2D3748);
         transition: all 0.3s ease;
     }
     
-    .input-group input:focus,
-    .input-group select:focus {
+    .input-group input:focus {
         outline: none;
-        border-color: #003580;
-        box-shadow: 0 0 0 3px rgba(0, 53, 128, 0.15);
+        border-color: var(--celeste, #75AADB);
+        box-shadow: 0 0 0 3px rgba(117, 170, 219, 0.15);
+    }
+    
+    .input-group input::placeholder {
+        color: var(--text-secondary, #718096);
+        opacity: 0.7;
     }
     
     .input-row {
@@ -202,14 +204,14 @@ const {
         flex: 1;
     }
     
-    .search-btn.booking {
+    .search-btn {
         display: flex;
         align-items: center;
         justify-content: center;
         gap: 0.5rem;
         margin-top: 0.5rem;
         padding: 0.85rem 1.5rem;
-        background: linear-gradient(135deg, #003580, #00224F);
+        background: linear-gradient(135deg, var(--celeste, #75AADB), #5a9fd4);
         color: white;
         border: none;
         border-radius: 50px;
@@ -222,9 +224,9 @@ const {
         transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
     }
     
-    .search-btn.booking:hover {
+    .search-btn:hover {
         transform: translateY(-2px);
-        box-shadow: 0 8px 20px rgba(0, 53, 128, 0.35);
+        box-shadow: 0 8px 20px rgba(117, 170, 219, 0.35);
     }
     
     .search-btn .arrow {
@@ -238,24 +240,29 @@ const {
     .widget-note {
         margin: 0.75rem 0 0;
         font-size: 0.7rem;
-        color: var(--text-muted, #718096);
+        color: var(--text-secondary, #718096);
         text-align: center;
     }
     
-    .booking-logo {
-        font-weight: 700;
-        color: #003580;
+    /* Variante inline (más ancha) */
+    .flight-widget.inline {
+        max-width: 100%;
     }
     
+    .flight-widget.inline .flight-form {
+        flex-direction: row;
+        flex-wrap: wrap;
+    }
+    
+    .flight-widget.inline .input-group {
+        flex: 1;
+        min-width: 150px;
+    }
+
     @media (prefers-color-scheme: dark) {
-        .input-group input,
-        .input-group select {
+        .input-group input {
             background: rgba(255, 255, 255, 0.05);
-            border-color: var(--card-border, #334155);
-        }
-        
-        .booking-logo {
-            color: #4A90D9;
+            border-color: var(--border, #334155);
         }
     }
 </style>

@@ -1,27 +1,23 @@
 ---
 /**
- * HotelWidget.astro
+ * HotelWidget.astro para destinos_argentina
  * Widget de búsqueda de hoteles con Booking.com affiliate
- * Configuración desde Firestore
+ * Adaptado con CSS variables de destinos_argentina
  */
-import { getBookingConfig } from '../lib/fetchAffiliates';
-
-const bookingConfig = await getBookingConfig();
-const affiliateId = bookingConfig.affiliateId;
-const isEnabled = bookingConfig.enabled;
 
 interface Props {
   variant?: 'sidebar' | 'inline';
+  affiliateId?: string;
   defaultDestination?: string;
 }
 
 const { 
   variant = 'sidebar', 
+  affiliateId = '1234567', // Reemplazar con tu ID real de Booking
   defaultDestination = ''
 } = Astro.props;
 ---
 
-{isEnabled && (
 <div class={`hotel-widget ${variant}`}>
     <div class="widget-header">
         <span class="widget-icon">🏨</span>
@@ -82,7 +78,6 @@ const {
         <span class="booking-logo">Booking.com</span> · Precios y disponibilidad
     </p>
 </div>
-)}
 
 <script is:inline define:vars={{ affiliateId }}>
     document.getElementById('hotelSearchForm')?.addEventListener('submit', function(e) {
@@ -93,12 +88,7 @@ const {
         const checkout = form.checkout.value;
         const guests = form.guests.value;
         
-        // Formatear fechas para Booking
-        const checkinFormatted = checkin.replace(/-/g, '-');
-        const checkoutFormatted = checkout.replace(/-/g, '-');
-        
-        // Construir URL de Booking con affiliate
-        const url = `https://www.booking.com/searchresults.html?ss=${encodeURIComponent(destination)}&checkin=${checkinFormatted}&checkout=${checkoutFormatted}&group_adults=${guests}&no_rooms=1&aid=${affiliateId}`;
+        const url = `https://www.booking.com/searchresults.html?ss=${encodeURIComponent(destination)}&checkin=${checkin}&checkout=${checkout}&group_adults=${guests}&no_rooms=1&aid=${affiliateId}`;
         
         window.open(url, '_blank');
     });
@@ -107,7 +97,7 @@ const {
 <style>
     .hotel-widget {
         background: var(--card-bg, #fff);
-        border: 1px solid var(--card-border, #E2E8F0);
+        border: 1px solid var(--border, #E2E8F0);
         border-radius: 16px;
         padding: 1.5rem;
         position: relative;
@@ -120,7 +110,7 @@ const {
         inset: 0;
         border-radius: 16px;
         padding: 2px;
-        background: linear-gradient(135deg, #003580, #F4B942);
+        background: linear-gradient(135deg, #003580, var(--gold, #F4B942));
         -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
         mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
         -webkit-mask-composite: xor;
@@ -149,7 +139,7 @@ const {
         font-family: 'Montserrat', sans-serif;
         font-size: 1rem;
         font-weight: 800;
-        color: var(--text-main, #2D3748);
+        color: var(--title, #2D3748);
         text-transform: uppercase;
         letter-spacing: 0.5px;
     }
@@ -169,7 +159,7 @@ const {
     .input-group label {
         font-size: 0.7rem;
         font-weight: 600;
-        color: var(--text-muted, #718096);
+        color: var(--text-secondary, #718096);
         text-transform: uppercase;
         letter-spacing: 0.5px;
     }
@@ -177,12 +167,12 @@ const {
     .input-group input,
     .input-group select {
         padding: 0.75rem 1rem;
-        border: 1px solid var(--card-border, #E2E8F0);
+        border: 1px solid var(--border, #E2E8F0);
         border-radius: 8px;
         font-size: 0.9rem;
         font-family: 'Montserrat', sans-serif;
         background: var(--card-bg, #fff);
-        color: var(--text-main, #2D3748);
+        color: var(--text, #2D3748);
         transition: all 0.3s ease;
     }
     
@@ -238,7 +228,7 @@ const {
     .widget-note {
         margin: 0.75rem 0 0;
         font-size: 0.7rem;
-        color: var(--text-muted, #718096);
+        color: var(--text-secondary, #718096);
         text-align: center;
     }
     
@@ -251,7 +241,7 @@ const {
         .input-group input,
         .input-group select {
             background: rgba(255, 255, 255, 0.05);
-            border-color: var(--card-border, #334155);
+            border-color: var(--border, #334155);
         }
         
         .booking-logo {

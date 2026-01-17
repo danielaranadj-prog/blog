@@ -1,0 +1,193 @@
+---
+/**
+ * DestinationCTA.astro
+ * Componente CTA para insertar en posts del blog que enlaza a páginas de destinos en www
+ * 
+ * Uso en markdown/mdx:
+ * import DestinationCTA from '../../components/DestinationCTA.astro';
+ * <DestinationCTA destino="buenos-aires" pais="argentina" />
+ */
+interface Props {
+  destino: string;      // slug: "buenos-aires", "mendoza", etc.
+  pais?: string;        // "argentina", "mexico", "espana" (default: argentina)
+  titulo?: string;      // Título personalizado
+  descripcion?: string; // Descripción personalizada
+}
+
+const { 
+  destino, 
+  pais = "argentina",
+  titulo,
+  descripcion 
+} = Astro.props;
+
+// Mapeo de destinos a títulos amigables
+const destinosTitulos: Record<string, string> = {
+  "buenos-aires": "Buenos Aires",
+  "mendoza": "Mendoza",
+  "ushuaia": "Ushuaia",
+  "iguazu": "Cataratas del Iguazú",
+  "el-calafate": "El Calafate",
+  "el-chalten": "El Chaltén",
+};
+
+const paisEmojis: Record<string, string> = {
+  "argentina": "🇦🇷",
+  "mexico": "🇲🇽",
+  "espana": "🇪🇸",
+};
+
+const displayTitulo = titulo || `¿Vas a ${destinosTitulos[destino] || destino}?`;
+const displayDesc = descripcion || "Toda la info práctica que necesitas para tu viaje";
+const emoji = paisEmojis[pais] || "📍";
+const url = `https://www.instantetrips.com/destinos_${pais}/${destino}`;
+---
+
+<a href={url} target="_blank" rel="noopener" class="destination-cta">
+  <div class="cta-badge">
+    <span class="cta-emoji">{emoji}</span>
+    <span class="cta-label">Guía de Destino</span>
+  </div>
+  
+  <h3 class="cta-title">{displayTitulo}</h3>
+  <p class="cta-desc">{displayDesc}</p>
+  
+  <span class="cta-btn">
+    Ver guía completa
+    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+      <line x1="5" y1="12" x2="19" y2="12"></line>
+      <polyline points="12 5 19 12 12 19"></polyline>
+    </svg>
+  </span>
+</a>
+
+<style>
+  .destination-cta {
+    display: block;
+    margin: 2.5rem 0;
+    padding: 1.75rem;
+    background: linear-gradient(135deg, rgba(244, 185, 66, 0.08) 0%, rgba(117, 170, 219, 0.08) 100%);
+    border: 2px solid transparent;
+    border-radius: 16px;
+    text-decoration: none;
+    color: inherit;
+    position: relative;
+    overflow: hidden;
+    transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+
+  /* Animated gradient border */
+  .destination-cta::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    border-radius: 16px;
+    padding: 2px;
+    background: linear-gradient(135deg, #F4B942, #75AADB, #F4B942);
+    background-size: 200% 200%;
+    -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+    mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+    -webkit-mask-composite: xor;
+    mask-composite: exclude;
+    opacity: 0;
+    transition: opacity 0.4s ease;
+    animation: borderGlow 4s ease infinite;
+  }
+
+  .destination-cta:hover::before {
+    opacity: 1;
+  }
+
+  .destination-cta:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 12px 30px rgba(244, 185, 66, 0.15);
+  }
+
+  @keyframes borderGlow {
+    0% { background-position: 0% 50%; }
+    50% { background-position: 100% 50%; }
+    100% { background-position: 0% 50%; }
+  }
+
+  .cta-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 1rem;
+  }
+
+  .cta-emoji {
+    font-size: 1.5rem;
+  }
+
+  .cta-label {
+    font-size: 0.7rem;
+    font-weight: 800;
+    text-transform: uppercase;
+    letter-spacing: 1.5px;
+    color: #75AADB;
+    background: rgba(117, 170, 219, 0.12);
+    padding: 6px 12px;
+    border-radius: 20px;
+  }
+
+  .cta-title {
+    font-size: 1.4rem;
+    font-weight: 800;
+    margin: 0 0 0.5rem;
+    color: var(--text-main, #2D3748);
+    font-family: 'Montserrat', sans-serif;
+  }
+
+  .cta-desc {
+    font-size: 0.95rem;
+    color: var(--text-muted, #718096);
+    margin: 0 0 1.25rem;
+    line-height: 1.5;
+  }
+
+  .cta-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    background: linear-gradient(135deg, #F4B942 0%, #f0a500 100%);
+    color: #1A202C;
+    padding: 0.75rem 1.5rem;
+    border-radius: 50px;
+    font-size: 0.85rem;
+    font-weight: 700;
+    transition: all 0.3s ease;
+    box-shadow: 0 4px 15px rgba(244, 185, 66, 0.3);
+  }
+
+  .cta-btn svg {
+    transition: transform 0.3s ease;
+  }
+
+  .destination-cta:hover .cta-btn {
+    box-shadow: 0 6px 20px rgba(244, 185, 66, 0.4);
+  }
+
+  .destination-cta:hover .cta-btn svg {
+    transform: translateX(4px);
+  }
+
+  /* Dark mode */
+  @media (prefers-color-scheme: dark) {
+    .destination-cta {
+      background: linear-gradient(135deg, rgba(244, 185, 66, 0.05) 0%, rgba(117, 170, 219, 0.05) 100%);
+    }
+
+    .cta-title {
+      color: #f1f5f9;
+    }
+
+    .cta-desc {
+      color: #94a3b8;
+    }
+
+    .cta-label {
+      background: rgba(117, 170, 219, 0.2);
+    }
+  }
+</style>

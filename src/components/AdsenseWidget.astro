@@ -1,0 +1,78 @@
+---
+/**
+ * AdsenseWidget.astro
+ * Componente para mostrar anuncios de Google Adsense
+ * Configuración desde Firestore (centralizada)
+ */
+import { getAdsenseConfig } from '../lib/fetchAffiliates';
+
+const adsenseConfig = await getAdsenseConfig();
+const isEnabled = adsenseConfig.enabled;
+const publisherId = adsenseConfig.publisherId;
+const slots = adsenseConfig.slots;
+
+interface Props {
+  slot?: 'sidebar' | 'inline';
+  format?: 'auto' | 'rectangle' | 'horizontal' | 'vertical';
+  className?: string;
+}
+
+const { 
+  slot = 'inline',
+  format = 'auto',
+  className = ''
+} = Astro.props;
+
+const slotId = slot === 'sidebar' ? slots.sidebar : slots.inline;
+---
+
+{isEnabled && publisherId && slotId && (
+<div class={`adsense-container ${slot} ${className}`}>
+    <ins 
+        class="adsbygoogle"
+        style="display:block"
+        data-ad-client={publisherId}
+        data-ad-slot={slotId}
+        data-ad-format={format}
+        data-full-width-responsive="true"
+    ></ins>
+    <script is:inline>
+        (adsbygoogle = window.adsbygoogle || []).push({});
+    </script>
+</div>
+)}
+
+<style>
+    .adsense-container {
+        margin: 1.5rem 0;
+        min-height: 100px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background: var(--card-bg, #f8f9fa);
+        border-radius: 8px;
+        overflow: hidden;
+    }
+    
+    .adsense-container.sidebar {
+        min-height: 250px;
+    }
+    
+    .adsense-container.inline {
+        min-height: 90px;
+    }
+    
+    /* En desarrollo, mostrar placeholder */
+    .adsense-container:empty::before {
+        content: '📢 Espacio para anuncio';
+        color: var(--text-muted, #718096);
+        font-size: 0.75rem;
+        opacity: 0.5;
+    }
+    
+    @media (prefers-color-scheme: dark) {
+        .adsense-container {
+            background: rgba(255, 255, 255, 0.05);
+        }
+    }
+</style>

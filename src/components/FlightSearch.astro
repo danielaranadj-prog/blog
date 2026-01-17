@@ -2,17 +2,22 @@
 /**
  * FlightSearch.astro
  * Widget de búsqueda de vuelos que redirige a Skyscanner
- * con affiliate tracking
+ * con affiliate tracking desde Firestore
  */
+import { getSkyscannerConfig } from '../lib/fetchAffiliates';
+
+const skyscannerConfig = await getSkyscannerConfig();
+const affiliateTag = skyscannerConfig.affiliateTag;
+const isEnabled = skyscannerConfig.enabled;
 
 interface Props {
   variant?: 'sidebar' | 'inline' | 'full';
-  affiliateId?: string;
 }
 
-const { variant = 'sidebar', affiliateId = 'instante_trips' } = Astro.props;
+const { variant = 'sidebar' } = Astro.props;
 ---
 
+{isEnabled && (
 <div class={`flight-widget ${variant}`}>
     <div class="widget-header">
         <span class="widget-icon">✈️</span>
@@ -72,6 +77,7 @@ const { variant = 'sidebar', affiliateId = 'instante_trips' } = Astro.props;
         Buscamos en +700 aerolíneas
     </p>
 </div>
+)}
 
 <script is:inline>
     document.getElementById('flightSearchForm')?.addEventListener('submit', function(e) {
