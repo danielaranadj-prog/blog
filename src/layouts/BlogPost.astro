@@ -7,6 +7,9 @@ import BaseHead from '../components/BaseHead.astro';
 import BlogHeader from '../components/BlogHeader.astro';
 import Footer from '../components/Footer.astro';
 import AdBanner from '../components/AdBanner.astro';
+import FlightSearch from '../components/FlightSearch.astro';
+import HotelWidget from '../components/HotelWidget.astro';
+import ToursWidget from '../components/ToursWidget.astro';
 import { AUTHORS, DEFAULT_AUTHOR } from '../data/authors';
 
 const {
@@ -110,32 +113,133 @@ const encodedTitle = encodeURIComponent(post.title);
       overflow: hidden;
     }
 
-    .hero { width: 100%; height: 420px; object-fit: cover; margin-bottom: -0.25rem; }
-    .content { padding: 1.5rem 1.75rem 2.5rem; }
+    .hero { 
+      width: 100%; 
+      height: 450px; 
+      object-fit: cover; 
+      margin-bottom: -0.25rem;
+      animation: heroReveal 1s ease-out;
+    }
+
+    @keyframes heroReveal {
+      from { opacity: 0; transform: scale(1.05); }
+      to { opacity: 1; transform: scale(1); }
+    }
+
+    .content { 
+      padding: 1.5rem 1.75rem 2.5rem;
+      animation: fadeInUp 0.8s ease-out;
+    }
+
+    @keyframes fadeInUp {
+      from { opacity: 0; transform: translateY(20px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
 
     .back {
-      display: inline-block; margin-bottom: 1.5rem; font-weight: 700; color: var(--brand-blue);
-      text-decoration: none; font-size: 0.85rem; text-transform: uppercase; letter-spacing: 1px;
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      margin-bottom: 1.5rem; 
+      font-weight: 700; 
+      color: var(--brand-blue);
+      text-decoration: none; 
+      font-size: 0.85rem; 
+      text-transform: uppercase; 
+      letter-spacing: 1px;
+      padding: 0.5rem 1rem;
+      border-radius: 50px;
+      background: rgba(117, 170, 219, 0.1);
+      transition: all 0.3s ease;
+    }
+
+    .back:hover {
+      background: rgba(117, 170, 219, 0.2);
+      transform: translateX(-4px);
     }
 
     h1 {
-      font-size: clamp(2rem, 4vw, 3rem); font-weight: 800; margin: 0 0 1rem; line-height: 1.15; color: var(--text-main);
+      font-size: clamp(2rem, 4vw, 3rem); 
+      font-weight: 800; 
+      margin: 0 0 1.5rem; 
+      line-height: 1.15; 
+      color: var(--text-main);
     }
 
-    /* HEADER DE AUTOR (MINI) */
+    /* HEADER DE AUTOR (MINI) - PREMIUM */
     .post-header-meta {
-      display: flex; align-items: center; gap: 1rem; margin-bottom: 2rem; padding-bottom: 1.5rem; border-bottom: 1px solid var(--card-border);
+      display: flex; 
+      align-items: center; 
+      gap: 1rem; 
+      margin-bottom: 2rem; 
+      padding-bottom: 1.5rem; 
+      border-bottom: 2px solid transparent;
+      border-image: linear-gradient(90deg, var(--card-border), transparent) 1;
     }
-    .mini-author { display: flex; align-items: center; gap: 0.8rem; }
+    .mini-author { 
+      display: flex; 
+      align-items: center; 
+      gap: 0.8rem;
+      padding: 0.75rem;
+      border-radius: 12px;
+      transition: all 0.3s ease;
+    }
+    .mini-author:hover {
+      background: rgba(117, 170, 219, 0.08);
+    }
     
-    .mini-author img { width: 50px; height: 50px; border-radius: 50%; object-fit: cover; border: 2px solid var(--brand-blue); }
+    .mini-author img { 
+      width: 55px; 
+      height: 55px; 
+      border-radius: 50%; 
+      object-fit: cover; 
+      border: 3px solid var(--brand-blue);
+      box-shadow: 0 4px 12px rgba(117, 170, 219, 0.25);
+      transition: all 0.3s ease;
+    }
+    .mini-author:hover img {
+      transform: scale(1.05);
+      box-shadow: 0 6px 16px rgba(117, 170, 219, 0.35);
+    }
     
-    .author-info { display: flex; flex-direction: column; line-height: 1.3; justify-content: center; }
+    .author-info { 
+      display: flex; 
+      flex-direction: column; 
+      line-height: 1.4; 
+      justify-content: center; 
+    }
     
-    .author-label { font-size: 0.65rem; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.5px; font-weight: 700; }
+    .author-label { 
+      font-size: 0.65rem; 
+      color: var(--text-muted); 
+      text-transform: uppercase; 
+      letter-spacing: 0.5px; 
+      font-weight: 700; 
+    }
     
-    .author-name { font-weight: 700; font-size: 0.95rem; color: var(--text-main); }
-    .publish-date { font-size: 0.7rem; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.5px; }
+    .author-name { 
+      font-weight: 700; 
+      font-size: 1rem; 
+      color: var(--text-main);
+      transition: color 0.2s ease;
+    }
+    .mini-author:hover .author-name {
+      color: var(--brand-blue);
+    }
+    
+    .publish-date { 
+      font-size: 0.7rem; 
+      color: var(--text-muted); 
+      text-transform: uppercase; 
+      letter-spacing: 0.5px;
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+    }
+    .publish-date::before {
+      content: '📅';
+      font-size: 0.65rem;
+    }
 
 
     /* ==========================================
@@ -236,41 +340,151 @@ const encodedTitle = encodeURIComponent(post.title);
     }
     .affiliate-btn:hover { transform: translateY(-2px); box-shadow: 0 4px 12px rgba(244, 185, 66, 0.3); }
 
-    /* SHARE SECTION */
+    /* SHARE SECTION - PREMIUM */
     .share-section {
-      margin-top: 4rem; padding-top: 2rem; border-top: 1px solid var(--card-border);
-      display: flex; flex-direction: column; align-items: center; gap: 1.5rem;
+      margin-top: 4rem; 
+      padding-top: 2rem; 
+      border-top: 2px solid transparent;
+      border-image: linear-gradient(90deg, transparent, var(--card-border), var(--card-border), transparent) 1;
+      display: flex; 
+      flex-direction: column; 
+      align-items: center; 
+      gap: 1.5rem;
     }
-    .share-title { font-size: 0.8rem; text-transform: uppercase; letter-spacing: 2px; color: var(--text-muted); font-weight: 700; }
-    .share-buttons { display: flex; gap: 1rem; }
+    .share-title { 
+      font-size: 0.8rem; 
+      text-transform: uppercase; 
+      letter-spacing: 2px; 
+      color: var(--text-muted); 
+      font-weight: 700;
+    }
+    .share-buttons { 
+      display: flex; 
+      gap: 0.75rem; 
+    }
     .share-btn {
-      display: flex; align-items: center; gap: 0.5rem; padding: 0.6rem 1.2rem; border-radius: 50px;
-      text-decoration: none; font-size: 0.85rem; font-weight: 700; transition: transform 0.2s, opacity 0.2s; color: white;
+      display: flex; 
+      align-items: center; 
+      gap: 0.5rem; 
+      padding: 0.7rem 1.4rem; 
+      border-radius: 50px;
+      text-decoration: none; 
+      font-size: 0.8rem; 
+      font-weight: 700; 
+      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); 
+      color: white;
+      letter-spacing: 0.5px;
     }
-    .share-btn:hover { transform: translateY(-2px); opacity: 0.9; }
-    .btn-facebook { background-color: #1877F2; }
-    .btn-twitter { background-color: #000000; }
-    .btn-whatsapp { background-color: #25D366; }
-    @media (prefers-color-scheme: dark) { .btn-twitter { background-color: #ffffff; color: black; } }
+    .share-btn:hover { 
+      transform: translateY(-3px) scale(1.02); 
+    }
+    .btn-facebook { 
+      background: linear-gradient(135deg, #1877F2, #0d5bbf); 
+    }
+    .btn-facebook:hover {
+      box-shadow: 0 8px 20px rgba(24, 119, 242, 0.4);
+    }
+    .btn-twitter { 
+      background: linear-gradient(135deg, #000000, #333); 
+    }
+    .btn-twitter:hover {
+      box-shadow: 0 8px 20px rgba(0, 0, 0, 0.3);
+    }
+    .btn-whatsapp { 
+      background: linear-gradient(135deg, #25D366, #128C7E); 
+    }
+    .btn-whatsapp:hover {
+      box-shadow: 0 8px 20px rgba(37, 211, 102, 0.4);
+    }
+    @media (prefers-color-scheme: dark) { 
+      .btn-twitter { background: linear-gradient(135deg, #ffffff, #e0e0e0); color: black; } 
+    }
 
-    /* SIDEBAR */
-    aside { display: flex; flex-direction: column; gap: 1.5rem; }
-    .widget { background: var(--card-bg); border: 1px solid var(--card-border); border-radius: 16px; padding: 1.5rem; color: var(--text-main); }
+    /* SIDEBAR - PREMIUM */
+    aside { 
+      display: flex; 
+      flex-direction: column; 
+      gap: 1.5rem; 
+    }
+    .widget { 
+      background: var(--card-bg); 
+      border: 1px solid var(--card-border); 
+      border-radius: 16px; 
+      padding: 1.5rem; 
+      color: var(--text-main);
+      transition: all 0.3s ease;
+      position: relative;
+      overflow: hidden;
+    }
+    .widget::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      border-radius: 16px;
+      padding: 2px;
+      background: linear-gradient(135deg, var(--accent-gold), var(--brand-blue));
+      -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+      mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+      -webkit-mask-composite: xor;
+      mask-composite: exclude;
+      opacity: 0;
+      transition: opacity 0.4s ease;
+    }
+    .widget:hover::before {
+      opacity: 1;
+    }
+    .widget:hover {
+      transform: translateY(-3px);
+      box-shadow: 0 12px 25px rgba(0, 0, 0, 0.08);
+    }
     
     /* AUTOR SIDEBAR */
     .author-widget { text-align: center; }
     .author-widget img {
-      width: 110px; height: 110px; border-radius: 50%; object-fit: cover; margin-bottom: 0.75rem;
-      border: 3px solid var(--page-bg); box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+      width: 110px; 
+      height: 110px; 
+      border-radius: 50%; 
+      object-fit: cover; 
+      margin-bottom: 0.75rem;
+      border: 4px solid var(--page-bg); 
+      box-shadow: 0 8px 20px rgba(0,0,0,0.12);
+      transition: all 0.4s ease;
     }
-    .author-widget h3 { margin: 0; font-size: 1.1rem; font-weight: 800; color: var(--text-main); }
+    .author-widget:hover img {
+      transform: scale(1.05);
+      box-shadow: 0 12px 30px rgba(117, 170, 219, 0.25);
+    }
+    .author-widget h3 { 
+      margin: 0; 
+      font-size: 1.15rem; 
+      font-weight: 800; 
+      color: var(--text-main); 
+    }
     
     .author-role {
-      font-size: 0.65rem; color: var(--brand-blue); text-transform: uppercase; letter-spacing: 1px; font-weight: 800; 
-      margin-bottom: 1rem; display: inline-block; border: 1px solid var(--brand-blue); padding: 4px 8px; border-radius: 20px;
+      font-size: 0.65rem; 
+      color: var(--brand-blue); 
+      text-transform: uppercase; 
+      letter-spacing: 1px; 
+      font-weight: 800; 
+      margin-bottom: 1rem; 
+      display: inline-block; 
+      border: 1px solid var(--brand-blue); 
+      padding: 6px 12px; 
+      border-radius: 20px;
+      background: rgba(117, 170, 219, 0.08);
+      transition: all 0.3s ease;
+    }
+    .author-widget:hover .author-role {
+      background: var(--brand-blue);
+      color: white;
     }
     
-    .author-widget p { font-size: 0.9rem; color: var(--text-muted); line-height: 1.5; }
+    .author-widget p { 
+      font-size: 0.9rem; 
+      color: var(--text-muted); 
+      line-height: 1.6; 
+    }
 
     /* API PLACEHOLDER */
     .api-placeholder {
@@ -371,15 +585,11 @@ const encodedTitle = encodeURIComponent(post.title);
           <p>{authorBio}</p>
         </div>
 
-        <div class="widget">
-            <h4>Planifica tu viaje</h4>
-            <div class="api-placeholder">
-                <div class="api-icon">✈️ 🏨 🗺️</div>
-                <p style="font-size:0.8rem; margin:0;">
-                    Próximamente: Buscador de vuelos y hoteles integrado.
-                </p>
-            </div>
-        </div>
+        <FlightSearch variant="sidebar" />
+
+        <HotelWidget variant="sidebar" />
+
+        <ToursWidget variant="sidebar" />
 
         <div class="widget" style="padding:0; border:none; background: transparent; text-align: center;">
           <AdBanner position="sidebar" />

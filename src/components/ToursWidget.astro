@@ -1,0 +1,311 @@
+---
+/**
+ * ToursWidget.astro
+ * Widget de tours y actividades con GetYourGuide/Civitatis affiliate
+ */
+
+interface Props {
+  variant?: 'sidebar' | 'inline' | 'cards';
+  destination?: string;
+  showPopular?: boolean;
+  provider?: 'getyourguide' | 'civitatis';
+}
+
+const { 
+  variant = 'sidebar',
+  destination = '',
+  showPopular = true,
+  provider = 'civitatis' // Civitatis por defecto (mejor para mercado hispanohablante)
+} = Astro.props;
+
+// Configuración de providers
+const providers = {
+  getyourguide: {
+    name: 'GetYourGuide',
+    baseUrl: 'https://www.getyourguide.com/s/',
+    paramName: 'q',
+    affiliateParam: 'partner_id',
+    affiliateId: 'TUAFFILIATEID', // ⬅️ Reemplazar con tu ID
+    color: '#FF5722'
+  },
+  civitatis: {
+    name: 'Civitatis',
+    baseUrl: 'https://www.civitatis.com/es/',
+    paramName: '', // Civitatis usa slug en URL
+    affiliateParam: 'aid',
+    affiliateId: 'TUAFFILIATEID', // ⬅️ Reemplazar con tu ID
+    color: '#E31C5F'
+  }
+};
+
+const currentProvider = providers[provider];
+
+// Tours populares para mostrar por defecto
+const popularTours = [
+  { name: 'Madrid', emoji: '🇪🇸', slug: 'madrid' },
+  { name: 'Barcelona', emoji: '🏖️', slug: 'barcelona' },
+  { name: 'París', emoji: '🗼', slug: 'paris' },
+  { name: 'Roma', emoji: '🏛️', slug: 'rome' },
+  { name: 'Nueva York', emoji: '🗽', slug: 'new-york' },
+  { name: 'Tokio', emoji: '🗾', slug: 'tokyo' },
+];
+---
+
+<div class={`tours-widget ${variant}`} data-provider={provider}>
+    <div class="widget-header">
+        <span class="widget-icon">🎫</span>
+        <h4>Tours y Actividades</h4>
+    </div>
+    
+    <form class="tours-form" id="toursSearchForm">
+        <div class="input-group">
+            <label for="tours-destination">¿Qué ciudad visitas?</label>
+            <input 
+                type="text" 
+                id="tours-destination" 
+                name="destination" 
+                placeholder="Ej: Madrid, París, Roma..."
+                value={destination}
+            />
+        </div>
+        
+        <button type="submit" class="search-btn tours">
+            <span>Explorar en {currentProvider.name}</span>
+            <span class="arrow">→</span>
+        </button>
+    </form>
+    
+    {showPopular && (
+        <div class="popular-destinations">
+            <p class="section-label">Destinos populares</p>
+            <div class="destination-chips">
+                {popularTours.map(tour => (
+                    <a 
+                        href={provider === 'civitatis' 
+                            ? `https://www.civitatis.com/es/${tour.slug}/?aid=TUAFFILIATEID`
+                            : `https://www.getyourguide.com/s/?q=${tour.slug}&partner_id=TUAFFILIATEID`
+                        }
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        class="destination-chip"
+                    >
+                        <span class="chip-emoji">{tour.emoji}</span>
+                        <span class="chip-name">{tour.name}</span>
+                    </a>
+                ))}
+            </div>
+        </div>
+    )}
+    
+    <p class="widget-note">
+        Via {currentProvider.name} · Cancelación gratuita
+    </p>
+</div>
+
+<script is:inline>
+    document.getElementById('toursSearchForm')?.addEventListener('submit', function(e) {
+        e.preventDefault();
+        const destination = e.target.destination.value.trim().toLowerCase();
+        const widget = e.target.closest('.tours-widget');
+        const provider = widget?.dataset.provider || 'civitatis';
+        
+        if (destination) {
+            let url;
+            if (provider === 'civitatis') {
+                // Civitatis usa slug-ciudad directamente
+                url = `https://www.civitatis.com/es/${destination.replace(/\s+/g, '-')}/?aid=TUAFFILIATEID`;
+            } else {
+                // GetYourGuide usa búsqueda
+                url = `https://www.getyourguide.com/s/?q=${encodeURIComponent(destination)}&partner_id=TUAFFILIATEID`;
+            }
+            window.open(url, '_blank');
+        }
+    });
+</script>
+
+<style>
+    .tours-widget {
+        background: var(--card-bg, #fff);
+        border: 1px solid var(--card-border, #E2E8F0);
+        border-radius: 16px;
+        padding: 1.5rem;
+        position: relative;
+        overflow: hidden;
+    }
+    
+    .tours-widget::before {
+        content: '';
+        position: absolute;
+        inset: 0;
+        border-radius: 16px;
+        padding: 2px;
+        background: linear-gradient(135deg, #FF5722, #F4B942);
+        -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+        mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+        -webkit-mask-composite: xor;
+        mask-composite: exclude;
+        opacity: 0;
+        transition: opacity 0.4s ease;
+    }
+    
+    .tours-widget:hover::before {
+        opacity: 1;
+    }
+    
+    .widget-header {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        margin-bottom: 1.25rem;
+    }
+    
+    .widget-icon {
+        font-size: 1.5rem;
+    }
+    
+    .widget-header h4 {
+        margin: 0;
+        font-family: 'Montserrat', sans-serif;
+        font-size: 1rem;
+        font-weight: 800;
+        color: var(--text-main, #2D3748);
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+    }
+    
+    .tours-form {
+        display: flex;
+        flex-direction: column;
+        gap: 0.75rem;
+    }
+    
+    .input-group {
+        display: flex;
+        flex-direction: column;
+        gap: 0.25rem;
+    }
+    
+    .input-group label {
+        font-size: 0.7rem;
+        font-weight: 600;
+        color: var(--text-muted, #718096);
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+    }
+    
+    .input-group input {
+        padding: 0.75rem 1rem;
+        border: 1px solid var(--card-border, #E2E8F0);
+        border-radius: 8px;
+        font-size: 0.9rem;
+        font-family: 'Montserrat', sans-serif;
+        background: var(--card-bg, #fff);
+        color: var(--text-main, #2D3748);
+        transition: all 0.3s ease;
+    }
+    
+    .input-group input:focus {
+        outline: none;
+        border-color: #FF5722;
+        box-shadow: 0 0 0 3px rgba(255, 87, 34, 0.15);
+    }
+    
+    .search-btn.tours {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 0.5rem;
+        padding: 0.85rem 1.5rem;
+        background: linear-gradient(135deg, #FF5722, #E64A19);
+        color: white;
+        border: none;
+        border-radius: 50px;
+        font-family: 'Montserrat', sans-serif;
+        font-size: 0.85rem;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+        cursor: pointer;
+        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+    
+    .search-btn.tours:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 8px 20px rgba(255, 87, 34, 0.35);
+    }
+    
+    .search-btn .arrow {
+        transition: transform 0.3s ease;
+    }
+    
+    .search-btn:hover .arrow {
+        transform: translateX(4px);
+    }
+    
+    .popular-destinations {
+        margin-top: 1.25rem;
+        padding-top: 1rem;
+        border-top: 1px solid var(--card-border, #E2E8F0);
+    }
+    
+    .section-label {
+        font-size: 0.65rem;
+        font-weight: 600;
+        color: var(--text-muted, #718096);
+        text-transform: uppercase;
+        letter-spacing: 1px;
+        margin: 0 0 0.75rem;
+    }
+    
+    .destination-chips {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 0.5rem;
+    }
+    
+    .destination-chip {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.35rem;
+        padding: 0.4rem 0.75rem;
+        background: rgba(255, 87, 34, 0.08);
+        border: 1px solid rgba(255, 87, 34, 0.2);
+        border-radius: 50px;
+        font-size: 0.75rem;
+        font-weight: 600;
+        color: var(--text-main, #2D3748);
+        text-decoration: none;
+        transition: all 0.3s ease;
+    }
+    
+    .destination-chip:hover {
+        background: #FF5722;
+        color: white;
+        border-color: #FF5722;
+        transform: translateY(-2px);
+        box-shadow: 0 4px 12px rgba(255, 87, 34, 0.25);
+    }
+    
+    .chip-emoji {
+        font-size: 0.9rem;
+    }
+    
+    .widget-note {
+        margin: 1rem 0 0;
+        font-size: 0.7rem;
+        color: var(--text-muted, #718096);
+        text-align: center;
+    }
+    
+    @media (prefers-color-scheme: dark) {
+        .input-group input {
+            background: rgba(255, 255, 255, 0.05);
+            border-color: var(--card-border, #334155);
+        }
+        
+        .destination-chip {
+            background: rgba(255, 87, 34, 0.15);
+            border-color: rgba(255, 87, 34, 0.3);
+        }
+    }
+</style>

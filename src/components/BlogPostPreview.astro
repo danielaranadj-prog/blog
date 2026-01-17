@@ -36,94 +36,162 @@ const { post } = Astro.props;
 </article>
 
 <style>
+  /* === POST CARD - PREMIUM VISUAL UPGRADE === */
   .post-card {
     background: var(--card-bg, #fff);
     border: 1px solid var(--card-border, #eee);
-    border-radius: 8px;
+    border-radius: 16px;
     overflow: hidden;
-    transition: transform 0.2s ease, box-shadow 0.2s ease, border-color 0.2s;
+    transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
     display: flex;
     flex-direction: column;
     height: 100%;
+    position: relative;
+  }
+
+  /* Glow effect container */
+  .post-card::before {
+    content: '';
+    position: absolute;
+    inset: -2px;
+    border-radius: 18px;
+    background: linear-gradient(135deg, #F4B942, #75AADB, #F4B942);
+    background-size: 200% 200%;
+    opacity: 0;
+    z-index: -1;
+    transition: opacity 0.4s ease;
   }
 
   .post-card:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 8px 15px rgba(0,0,0,0.05);
-    border-color: #F4B942;
+    transform: translateY(-8px);
+    box-shadow: 
+      0 20px 40px rgba(0, 0, 0, 0.12),
+      0 8px 16px rgba(244, 185, 66, 0.15);
+    border-color: transparent;
   }
 
-  /* --- IMAGEN RESTAURADA --- */
+  .post-card:hover::before {
+    opacity: 1;
+    animation: borderGlow 3s linear infinite;
+  }
+
+  @keyframes borderGlow {
+    0% { background-position: 0% 50%; }
+    50% { background-position: 100% 50%; }
+    100% { background-position: 0% 50%; }
+  }
+
+  /* --- IMAGE WITH OVERLAY --- */
   .image-link {
     display: block;
     width: 100%;
-    /* Volvemos a 200px para que luzca bien */
     height: 200px; 
     overflow: hidden;
     flex-shrink: 0;
+    position: relative;
+  }
+
+  /* Gradient overlay on hover */
+  .image-link::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(
+      to top,
+      rgba(15, 23, 42, 0.7) 0%,
+      rgba(15, 23, 42, 0) 60%
+    );
+    opacity: 0;
+    transition: opacity 0.4s ease;
+  }
+
+  .post-card:hover .image-link::after {
+    opacity: 1;
   }
 
   .image-link img {
     width: 100%;
     height: 100%;
     object-fit: cover;
-    transition: transform 0.5s ease;
-    margin: 0; display: block;
+    transition: transform 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+    margin: 0; 
+    display: block;
   }
 
-  .post-card:hover .image-link img { transform: scale(1.05); }
+  .post-card:hover .image-link img { 
+    transform: scale(1.1); 
+  }
 
-  /* CONTENIDO */
+  /* CONTENT */
   .content {
-    padding: 1rem;
+    padding: 1.25rem;
     display: flex;
     flex-direction: column;
     flex-grow: 1;
+    background: var(--card-bg, #fff);
+    position: relative;
+    min-height: 180px; /* Altura mínima consistente */
   }
 
-  .meta-header { margin-bottom: 0.3rem; }
+  .meta-header { 
+    margin-bottom: 0.5rem; 
+  }
 
   time {
     font-size: 0.7rem;
-    color: #94a3b8;
+    color: #75AADB;
     text-transform: uppercase;
     font-weight: 700;
-    letter-spacing: 0.5px;
+    letter-spacing: 1px;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
   }
 
-  /* --- TÍTULO (EL AJUSTE QUE PEDISTE) --- */
+  time::before {
+    content: '📅';
+    font-size: 0.75rem;
+  }
+
+  /* --- TITLE --- */
   .title {
-    margin: 0 0 0.5rem 0;
-    /* Interlineado muy apretado para que no se vea disperso */
-    line-height: .7; 
+    margin: 0 0 0.75rem 0;
+    line-height: 1.3; 
   }
   
   .title a {
     text-decoration: none;
     color: var(--text-main, #2D3748);
-    font-size: 1rem;
-    font-weight: 650;
-    transition: color 0.2s;
+    font-size: 1.05rem;
+    font-weight: 700;
+    transition: all 0.3s ease;
+    display: inline;
+    background: linear-gradient(to right, #75AADB, #75AADB) no-repeat;
+    background-size: 0% 2px;
+    background-position: 0 100%;
   }
-  .title a:hover { color: #75AADB; }
 
-  /* DESCRIPCIÓN */
+  .title a:hover { 
+    color: #75AADB;
+    background-size: 100% 2px;
+  }
+
+  /* DESCRIPTION */
   .excerpt {
     font-size: 0.85rem;
-    color: #64748b;
-    /* Apretamos también el texto de descripción */
-    line-height: 1.4; 
-    margin-bottom: 0.8rem;
-	/* AGREGA ESTA LÍNEA: */
+    color: var(--text-muted, #64748b);
+    line-height: 1.5; 
+    margin-bottom: 1rem;
     text-align: justify;
-    
-    /* Mostramos hasta 3 líneas para aprovechar el espacio ganado */
     display: -webkit-box;
     -webkit-line-clamp: 3;
     -webkit-box-orient: vertical;
     overflow: hidden;
+    flex-grow: 1; /* Toma el espacio disponible */
+    min-height: 3.6em; /* 3 líneas mínimo */
   }
 
+  /* READ MORE - ENHANCED */
   .read-more {
     margin-top: auto;
     font-size: 0.75rem;
@@ -131,5 +199,37 @@ const { post } = Astro.props;
     color: #F4B942;
     text-decoration: none;
     text-transform: uppercase;
+    letter-spacing: 1px;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    transition: all 0.3s ease;
+  }
+
+  .read-more::after {
+    content: '→';
+    transition: transform 0.3s ease;
+  }
+
+  .read-more:hover {
+    color: #e0a83b;
+    gap: 10px;
+  }
+
+  .read-more:hover::after {
+    transform: translateX(4px);
+  }
+
+  /* === DARK MODE === */
+  @media (prefers-color-scheme: dark) {
+    .post-card {
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+    }
+    
+    .post-card:hover {
+      box-shadow: 
+        0 25px 50px rgba(0, 0, 0, 0.4),
+        0 0 30px rgba(244, 185, 66, 0.1);
+    }
   }
 </style>

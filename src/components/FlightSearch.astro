@@ -1,0 +1,259 @@
+---
+/**
+ * FlightSearch.astro
+ * Widget de búsqueda de vuelos que redirige a Skyscanner
+ * con affiliate tracking
+ */
+
+interface Props {
+  variant?: 'sidebar' | 'inline' | 'full';
+  affiliateId?: string;
+}
+
+const { variant = 'sidebar', affiliateId = 'instante_trips' } = Astro.props;
+---
+
+<div class={`flight-widget ${variant}`}>
+    <div class="widget-header">
+        <span class="widget-icon">✈️</span>
+        <h4>Buscar Vuelos</h4>
+    </div>
+    
+    <form class="flight-form" id="flightSearchForm">
+        <div class="input-group">
+            <label for="flight-origin">Origen</label>
+            <input 
+                type="text" 
+                id="flight-origin" 
+                name="origin" 
+                placeholder="Ciudad o aeropuerto"
+                required
+            />
+        </div>
+        
+        <div class="input-group">
+            <label for="flight-destination">Destino</label>
+            <input 
+                type="text" 
+                id="flight-destination" 
+                name="destination" 
+                placeholder="¿A dónde viajas?"
+                required
+            />
+        </div>
+        
+        <div class="input-row">
+            <div class="input-group half">
+                <label for="flight-date">Salida</label>
+                <input 
+                    type="date" 
+                    id="flight-date" 
+                    name="outbound"
+                    required
+                />
+            </div>
+            <div class="input-group half">
+                <label for="flight-return">Regreso</label>
+                <input 
+                    type="date" 
+                    id="flight-return" 
+                    name="inbound"
+                />
+            </div>
+        </div>
+        
+        <button type="submit" class="search-btn">
+            <span>Buscar Vuelos</span>
+            <span class="arrow">→</span>
+        </button>
+    </form>
+    
+    <p class="widget-note">
+        Buscamos en +700 aerolíneas
+    </p>
+</div>
+
+<script is:inline>
+    document.getElementById('flightSearchForm')?.addEventListener('submit', function(e) {
+        e.preventDefault();
+        const form = e.target;
+        const origin = form.origin.value.trim();
+        const destination = form.destination.value.trim();
+        const outbound = form.outbound.value;
+        const inbound = form.inbound.value;
+        
+        // Construir URL de Skyscanner
+        let url = `https://www.skyscanner.com/transport/flights/${origin}/${destination}/${outbound.replace(/-/g, '')}`;
+        if (inbound) {
+            url += `/${inbound.replace(/-/g, '')}`;
+        }
+        url += '/?adultsv2=1&cabinclass=economy&childrenv2=&ref=home&preferdirects=false&outboundaltsenabled=false&inboundaltsenabled=false';
+        
+        // Abrir en nueva pestaña
+        window.open(url, '_blank');
+    });
+</script>
+
+<style>
+    .flight-widget {
+        background: var(--card-bg, #fff);
+        border: 1px solid var(--card-border, #E2E8F0);
+        border-radius: 16px;
+        padding: 1.5rem;
+        position: relative;
+        overflow: hidden;
+    }
+    
+    .flight-widget::before {
+        content: '';
+        position: absolute;
+        inset: 0;
+        border-radius: 16px;
+        padding: 2px;
+        background: linear-gradient(135deg, #0EA5E9, #F4B942);
+        -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+        mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+        -webkit-mask-composite: xor;
+        mask-composite: exclude;
+        opacity: 0;
+        transition: opacity 0.4s ease;
+    }
+    
+    .flight-widget:hover::before {
+        opacity: 1;
+    }
+    
+    .widget-header {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        margin-bottom: 1.25rem;
+    }
+    
+    .widget-icon {
+        font-size: 1.5rem;
+    }
+    
+    .widget-header h4 {
+        margin: 0;
+        font-family: 'Montserrat', sans-serif;
+        font-size: 1rem;
+        font-weight: 800;
+        color: var(--text-main, #2D3748);
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+    }
+    
+    .flight-form {
+        display: flex;
+        flex-direction: column;
+        gap: 0.75rem;
+    }
+    
+    .input-group {
+        display: flex;
+        flex-direction: column;
+        gap: 0.25rem;
+    }
+    
+    .input-group label {
+        font-size: 0.7rem;
+        font-weight: 600;
+        color: var(--text-muted, #718096);
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+    }
+    
+    .input-group input {
+        padding: 0.75rem 1rem;
+        border: 1px solid var(--card-border, #E2E8F0);
+        border-radius: 8px;
+        font-size: 0.9rem;
+        font-family: 'Montserrat', sans-serif;
+        background: var(--card-bg, #fff);
+        color: var(--text-main, #2D3748);
+        transition: all 0.3s ease;
+    }
+    
+    .input-group input:focus {
+        outline: none;
+        border-color: #0EA5E9;
+        box-shadow: 0 0 0 3px rgba(14, 165, 233, 0.15);
+    }
+    
+    .input-group input::placeholder {
+        color: var(--text-muted, #718096);
+        opacity: 0.7;
+    }
+    
+    .input-row {
+        display: flex;
+        gap: 0.5rem;
+    }
+    
+    .input-group.half {
+        flex: 1;
+    }
+    
+    .search-btn {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 0.5rem;
+        margin-top: 0.5rem;
+        padding: 0.85rem 1.5rem;
+        background: linear-gradient(135deg, #0EA5E9, #0284C7);
+        color: white;
+        border: none;
+        border-radius: 50px;
+        font-family: 'Montserrat', sans-serif;
+        font-size: 0.85rem;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+        cursor: pointer;
+        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+    
+    .search-btn:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 8px 20px rgba(14, 165, 233, 0.35);
+    }
+    
+    .search-btn .arrow {
+        transition: transform 0.3s ease;
+    }
+    
+    .search-btn:hover .arrow {
+        transform: translateX(4px);
+    }
+    
+    .widget-note {
+        margin: 0.75rem 0 0;
+        font-size: 0.7rem;
+        color: var(--text-muted, #718096);
+        text-align: center;
+    }
+    
+    /* Variante inline (más ancha) */
+    .flight-widget.inline {
+        max-width: 100%;
+    }
+    
+    .flight-widget.inline .flight-form {
+        flex-direction: row;
+        flex-wrap: wrap;
+    }
+    
+    .flight-widget.inline .input-group {
+        flex: 1;
+        min-width: 150px;
+    }
+    
+    @media (prefers-color-scheme: dark) {
+        .input-group input {
+            background: rgba(255, 255, 255, 0.05);
+            border-color: var(--card-border, #334155);
+        }
+    }
+</style>

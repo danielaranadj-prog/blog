@@ -9,7 +9,8 @@ import Hero from '../components/Hero.astro';
 import BlogPostPreview from '../components/BlogPostPreview.astro';
 import Footer from '../components/Footer.astro';
 import AdBanner from '../components/AdBanner.astro'; 
-import CookieBanner from '../components/CookieBanner.astro'; // <-- ✅ NUEVO COMPONENTE AGREGADO
+import HotelWidget from '../components/HotelWidget.astro';
+import CookieBanner from '../components/CookieBanner.astro';
 import { SITE } from '../config';
 
 // 🔒 LÓGICA CRÍTICA DE PAGINACIÓN DE ASTRO
@@ -121,7 +122,7 @@ const isHomePage = page.currentPage === 1;
                 .sidebar { width: 300px; min-width: 300px; flex-shrink: 0; position: sticky; top: 85px; }
             }
 
-            /* --- SIDEBAR WIDGETS --- */
+            /* --- SIDEBAR WIDGETS - PREMIUM UPGRADE --- */
             .sidebar { display: flex; flex-direction: column; gap: 1.5rem; }
             
             .sidebar-widget {
@@ -130,6 +131,41 @@ const isHomePage = page.currentPage === 1;
                 padding: 1.5rem; 
                 border-radius: 16px; 
                 box-shadow: 0 4px 20px rgba(0,0,0,0.03);
+                position: relative;
+                overflow: hidden;
+                transition: all 0.4s ease;
+            }
+
+            .sidebar-widget::before {
+                content: '';
+                position: absolute;
+                inset: 0;
+                border-radius: 16px;
+                padding: 2px;
+                background: linear-gradient(135deg, #F4B942, #75AADB, #F4B942);
+                background-size: 200% 200%;
+                -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+                mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+                -webkit-mask-composite: xor;
+                mask-composite: exclude;
+                opacity: 0;
+                transition: opacity 0.4s ease;
+            }
+
+            .sidebar-widget:hover::before {
+                opacity: 1;
+                animation: borderGlow 3s linear infinite;
+            }
+
+            .sidebar-widget:hover {
+                transform: translateY(-3px);
+                box-shadow: 0 12px 30px rgba(0, 0, 0, 0.08);
+            }
+
+            @keyframes borderGlow {
+                0% { background-position: 0% 50%; }
+                50% { background-position: 100% 50%; }
+                100% { background-position: 0% 50%; }
             }
 
             /* WIDGET PERFIL */
@@ -159,25 +195,67 @@ const isHomePage = page.currentPage === 1;
                 display: flex; align-items: center; gap: 8px;
             }
 
-            /* Search */
+            /* Search - Enhanced */
             .search-input {
-                width: 100%; box-sizing: border-box; padding: 0.8rem 1rem; 
-                border: 1px solid var(--card-border); border-radius: 8px; 
-                font-family: inherit; font-size: 0.9rem;
-                background-color: var(--page-bg); color: var(--text-main); margin-bottom: 1rem;
-                transition: border-color 0.3s;
+                width: 100%; 
+                box-sizing: border-box; 
+                padding: 0.85rem 1.2rem; 
+                border: 2px solid var(--card-border); 
+                border-radius: 12px; 
+                font-family: inherit; 
+                font-size: 0.9rem;
+                background-color: var(--page-bg); 
+                color: var(--text-main); 
+                margin-bottom: 1rem;
+                transition: all 0.3s ease;
             }
-            .search-input:focus { outline: none; border-color: var(--brand-blue); }
+            .search-input:focus { 
+                outline: none; 
+                border-color: var(--brand-blue); 
+                box-shadow: 0 0 0 4px rgba(117, 170, 219, 0.15);
+                transform: translateY(-1px);
+            }
+            .search-input::placeholder {
+                color: var(--text-muted);
+                transition: opacity 0.3s ease;
+            }
+            .search-input:focus::placeholder {
+                opacity: 0.5;
+            }
 
-            /* Tags Cloud */
-            .tags-cloud { display: flex; flex-wrap: wrap; gap: 0.5rem; }
+            /* Tags Cloud - Premium */
+            .tags-cloud { display: flex; flex-wrap: wrap; gap: 0.6rem; }
             .cat-btn {
-                border: 1px solid var(--card-border); background: var(--page-bg); color: var(--text-muted);
-                padding: 0.4rem 0.8rem; border-radius: 20px; font-size: 0.7rem; font-weight: 600; 
-                cursor: pointer; text-transform: capitalize; transition: all 0.2s;
+                border: 1px solid var(--card-border); 
+                background: var(--page-bg); 
+                color: var(--text-muted);
+                padding: 0.5rem 1rem; 
+                border-radius: 25px; 
+                font-size: 0.7rem; 
+                font-weight: 700; 
+                cursor: pointer; 
+                text-transform: capitalize; 
+                transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+                position: relative;
+                overflow: hidden;
+            }
+            .cat-btn::before {
+                content: '';
+                position: absolute;
+                inset: 0;
+                background: linear-gradient(135deg, var(--brand-blue), var(--brand-gold));
+                opacity: 0;
+                transition: opacity 0.3s ease;
+                z-index: -1;
+            }
+            .cat-btn:hover::before, .cat-btn.active::before { 
+                opacity: 1;
             }
             .cat-btn:hover, .cat-btn.active { 
-                background: var(--brand-blue); color: white; border-color: var(--brand-blue); transform: translateY(-1px);
+                color: white; 
+                border-color: transparent; 
+                transform: translateY(-2px);
+                box-shadow: 0 4px 12px rgba(117, 170, 219, 0.3);
             }
 
             #no-results { display: none; text-align: center; padding: 3rem; color: var(--text-muted); }
@@ -315,6 +393,9 @@ const isHomePage = page.currentPage === 1;
                                 ))}
                             </div>
                         </div>
+
+                        <HotelWidget variant="sidebar" />
+
                         <div class="sidebar-widget" style="text-align: center; border:none; background:transparent; box-shadow:none;">
                             <AdBanner position="sidebar" />
                         </div>

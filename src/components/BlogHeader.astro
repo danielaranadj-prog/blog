@@ -4,8 +4,8 @@ import { SITE } from '../config';
 // 👇 AQUÍ ESTÁ EL CAMBIO: Reemplazamos "Blog" por "Manifiesto"
 const navItems = [
   { label: "Inicio", href: "/" },
-  { label: "Manifiesto", href: "/manifiesto" }, // <--- Nuevo link a nuestra filosofía
-  // { label: "Destinos", href: "/destinos" }, // (Opcional: Si no tienes página de destinos aún, puedes comentarla)
+  { label: "Destinos", href: "/destinos" },
+  { label: "Manifiesto", href: "/manifiesto" },
   { label: "Contacto", href: "mailto:hola@instantetrips.com" },
 ];
 ---
@@ -59,13 +59,13 @@ const navItems = [
 </script>
 
 <style>
-    /* --- DEFINICIÓN DE VARIABLES LOCALES (Más robusto) --- */
+    /* === HEADER - GLASSMORPHISM PREMIUM === */
     .site-header {
-        /* MODO CLARO (Por defecto) */
-        --header-bg: rgba(255, 255, 255, 0.95);
+        /* LIGHT MODE (Default) */
+        --header-bg: rgba(255, 255, 255, 0.85);
         --header-text: #2D3748;
-        --header-border: rgba(0,0,0,0.05);
-        --logo-filter: none; /* Logo original (negro) */
+        --header-border: rgba(0, 0, 0, 0.05);
+        --logo-filter: none;
         --hover-color: #F4B942;
 
         position: sticky;
@@ -76,20 +76,36 @@ const navItems = [
         
         background: var(--header-bg);
         border-bottom: 1px solid var(--header-border);
-        backdrop-filter: blur(12px); 
-        -webkit-backdrop-filter: blur(12px);
+        backdrop-filter: blur(20px) saturate(180%);
+        -webkit-backdrop-filter: blur(20px) saturate(180%);
         transition: all 0.3s ease;
     }
 
-    /* --- MODO OSCURO (Sobrescribimos las variables AQUÍ) --- */
+    /* Animated gradient border bottom */
+    .site-header::after {
+        content: '';
+        position: absolute;
+        bottom: 0;
+        left: 0;
+        right: 0;
+        height: 2px;
+        background: linear-gradient(90deg, transparent, #F4B942, #75AADB, #F4B942, transparent);
+        background-size: 200% 100%;
+        animation: borderFlow 4s linear infinite;
+        opacity: 0.7;
+    }
+
+    @keyframes borderFlow {
+        0% { background-position: 200% 0; }
+        100% { background-position: -200% 0; }
+    }
+
+    /* DARK MODE */
     @media (prefers-color-scheme: dark) {
         .site-header {
-            /* Fondo azul oscuro semitransparente */
-            --header-bg: rgba(15, 23, 42, 0.90); 
-            /* Texto blanco */
-            --header-text: #ffffff; 
-            --header-border: rgba(255,255,255,0.1);
-            /* Invertimos el logo negro a blanco */
+            --header-bg: rgba(15, 23, 42, 0.85);
+            --header-text: #ffffff;
+            --header-border: rgba(255, 255, 255, 0.08);
             --logo-filter: grayscale(100%) invert(100%) brightness(200%);
         }
     }
@@ -105,80 +121,151 @@ const navItems = [
     }
 
     /* --- LOGO --- */
-    .logo-wrapper { display: flex; align-items: center; }
+    .logo-wrapper { 
+        display: flex; 
+        align-items: center;
+    }
     
     .logo {
         height: 40px; 
         width: auto; 
         object-fit: contain;
-        /* APLICAMOS EL FILTRO DINÁMICO */
         filter: var(--logo-filter);
-        /* Forzamos limpieza de estilos heredados */
         box-shadow: none !important; 
         border-radius: 0 !important; 
         background: none !important;
-        transition: filter 0.3s ease;
+        transition: all 0.3s ease;
     }
 
-    /* --- NAVEGACIÓN --- */
+    .logo-wrapper:hover .logo {
+        filter: var(--logo-filter) drop-shadow(0 0 8px rgba(244, 185, 66, 0.5));
+        transform: scale(1.05);
+    }
+
+    /* --- NAVIGATION --- */
     .desktop-nav ul {
-        display: flex; gap: 2.5rem; list-style: none; margin: 0; padding: 0;
+        display: flex; 
+        gap: 2.5rem; 
+        list-style: none; 
+        margin: 0; 
+        padding: 0;
     }
 
     .nav-link {
         text-decoration: none;
-        /* COLOR DINÁMICO */
-        color: var(--header-text); 
+        color: var(--header-text);
         font-family: 'Montserrat', sans-serif;
         font-weight: 700;
         font-size: 0.85rem;
         text-transform: uppercase;
-        letter-spacing: 1px;
-        transition: color 0.2s;
+        letter-spacing: 1.5px;
+        transition: all 0.3s ease;
         position: relative;
+        padding: 0.5rem 0;
     }
 
-    .nav-link:hover { color: var(--hover-color); }
+    .nav-link:hover { 
+        color: var(--hover-color); 
+    }
     
-    /* Línea dorada al hover */
+    /* Animated underline */
     .nav-link::after {
-        content: ''; position: absolute; width: 0; height: 2px;
-        bottom: -4px; left: 0; background-color: var(--hover-color);
-        transition: width 0.3s;
+        content: ''; 
+        position: absolute; 
+        width: 0; 
+        height: 2px;
+        bottom: 0; 
+        left: 50%;
+        transform: translateX(-50%);
+        background: linear-gradient(90deg, #F4B942, #75AADB);
+        transition: width 0.3s ease;
+        border-radius: 2px;
     }
-    .nav-link:hover::after { width: 100%; }
 
-    /* --- MÓVIL --- */
+    .nav-link:hover::after { 
+        width: 100%; 
+    }
+
+    /* --- MOBILE --- */
     #mobile-menu-btn {
-        display: none; background: none; border: none; cursor: pointer;
-        flex-direction: column; gap: 6px; padding: 5px;
-    }
-    .hamburger-line {
-        width: 24px; height: 2px;
-        background-color: var(--header-text); /* Se adapta al modo */
-        transition: all 0.3s;
+        display: none; 
+        background: none; 
+        border: none; 
+        cursor: pointer;
+        flex-direction: column; 
+        gap: 6px; 
+        padding: 8px;
+        border-radius: 8px;
+        transition: background 0.3s ease;
     }
 
-    #mobile-menu-btn.active .hamburger-line:nth-child(1) { transform: rotate(45deg) translate(5px, 6px); }
-    #mobile-menu-btn.active .hamburger-line:nth-child(2) { opacity: 0; }
-    #mobile-menu-btn.active .hamburger-line:nth-child(3) { transform: rotate(-45deg) translate(5px, -6px); }
+    #mobile-menu-btn:hover {
+        background: rgba(244, 185, 66, 0.1);
+    }
+
+    .hamburger-line {
+        width: 24px; 
+        height: 2px;
+        background-color: var(--header-text);
+        transition: all 0.3s ease;
+        border-radius: 2px;
+    }
+
+    #mobile-menu-btn.active .hamburger-line:nth-child(1) { 
+        transform: rotate(45deg) translate(5px, 6px); 
+        background-color: #F4B942;
+    }
+    #mobile-menu-btn.active .hamburger-line:nth-child(2) { 
+        opacity: 0; 
+    }
+    #mobile-menu-btn.active .hamburger-line:nth-child(3) { 
+        transform: rotate(-45deg) translate(5px, -6px); 
+        background-color: #F4B942;
+    }
 
     .mobile-menu-container {
-        position: absolute; top: 70px; left: 0; width: 100%;
+        position: absolute; 
+        top: 70px; 
+        left: 0; 
+        width: 100%;
         background: var(--header-bg);
         border-bottom: 1px solid var(--header-border);
-        backdrop-filter: blur(12px);
-        max-height: 0; overflow: hidden; transition: max-height 0.4s ease;
+        backdrop-filter: blur(20px) saturate(180%);
+        -webkit-backdrop-filter: blur(20px) saturate(180%);
+        max-height: 0; 
+        overflow: hidden; 
+        transition: max-height 0.4s cubic-bezier(0.4, 0, 0.2, 1);
     }
-    .mobile-menu-container.active { max-height: 300px; }
+
+    .mobile-menu-container.active { 
+        max-height: 350px; 
+    }
     
     .mobile-menu-container ul {
-        list-style: none; padding: 2rem; margin: 0;
-        display: flex; flex-direction: column; gap: 1.5rem; text-align: center;
+        list-style: none; 
+        padding: 2rem; 
+        margin: 0;
+        display: flex; 
+        flex-direction: column; 
+        gap: 1.5rem; 
+        text-align: center;
     }
+
     .mobile-link {
-        color: var(--header-text); text-decoration: none;
-        font-family: 'Montserrat', sans-serif; font-weight: 700; font-size: 1rem;
+        color: var(--header-text); 
+        text-decoration: none;
+        font-family: 'Montserrat', sans-serif; 
+        font-weight: 700; 
+        font-size: 1rem;
+        transition: color 0.3s ease;
+        display: inline-block;
+        padding: 0.5rem 1rem;
+        border-radius: 8px;
+    }
+
+    .mobile-link:hover {
+        color: #F4B942;
+        background: rgba(244, 185, 66, 0.1);
     }
 
     @media (max-width: 768px) {
@@ -186,5 +273,9 @@ const navItems = [
         #mobile-menu-btn { display: flex; }
         .header-container { padding: 0 1.5rem; }
         .logo { height: 32px; }
+        
+        .site-header::after {
+            opacity: 0.5;
+        }
     }
 </style>

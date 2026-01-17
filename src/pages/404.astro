@@ -12,7 +12,7 @@ let description = 'Parece que te has desviado. Regresa al inicio para seguir via
    <head>
       <BaseHead title={title} description={description} permalink={Astro.site?.href || '/'} />
         <style>
-             /* Reutilizamos las variables para consistencia total */
+             /* === 404 PAGE - PREMIUM UPGRADE === */
              :root {
                 --brand-blue: #75AADB;
                 --accent-gold: #F4B942;
@@ -52,22 +52,60 @@ let description = 'Parece que te has desviado. Regresa al inicio para seguir via
                 overflow: hidden;
              }
 
-             /* El 404 gigante de fondo (Estilo Editorial) */
+             /* Background glow effect */
+             .error-main::before {
+                content: '';
+                position: absolute;
+                width: 600px;
+                height: 600px;
+                background: radial-gradient(circle, rgba(244, 185, 66, 0.15) 0%, transparent 70%);
+                border-radius: 50%;
+                z-index: 0;
+                animation: pulse 4s ease-in-out infinite;
+             }
+
+             @keyframes pulse {
+                0%, 100% { transform: scale(1); opacity: 0.5; }
+                50% { transform: scale(1.1); opacity: 0.8; }
+             }
+
+             /* El 404 gigante de fondo (Con gradiente animado) */
              .huge-404 {
-                font-size: clamp(8rem, 25vw, 20rem);
+                font-size: clamp(10rem, 30vw, 25rem);
                 font-weight: 900;
-                color: var(--text-main);
-                opacity: 0.05; /* Muy sutil */
                 line-height: 0.8;
                 position: absolute;
                 z-index: 0;
                 user-select: none;
                 pointer-events: none;
+                background: linear-gradient(
+                    135deg, 
+                    rgba(244, 185, 66, 0.15) 0%, 
+                    rgba(117, 170, 219, 0.15) 50%, 
+                    rgba(244, 185, 66, 0.15) 100%
+                );
+                background-size: 200% 200%;
+                -webkit-background-clip: text;
+                background-clip: text;
+                -webkit-text-fill-color: transparent;
+                animation: shimmer404 6s ease-in-out infinite;
+             }
+
+             @keyframes shimmer404 {
+                0% { background-position: 0% 50%; }
+                50% { background-position: 100% 50%; }
+                100% { background-position: 0% 50%; }
              }
 
              .content-wrapper {
-                z-index: 1; /* Encima del número gigante */
+                z-index: 1;
                 max-width: 600px;
+                animation: fadeInUp 1s ease-out;
+             }
+
+             @keyframes fadeInUp {
+                from { opacity: 0; transform: translateY(30px); }
+                to { opacity: 1; transform: translateY(0); }
              }
 
              h1 {
@@ -75,41 +113,84 @@ let description = 'Parece que te has desviado. Regresa al inicio para seguir via
                 font-weight: 800;
                 color: var(--text-main);
                 margin: 0 0 1rem;
-                line-height: 1.1;
+                line-height: 1.2;
                 text-transform: uppercase;
              }
 
              .highlight {
-                 color: var(--brand-blue);
+                 background: linear-gradient(135deg, var(--brand-blue), #4a89dc);
+                 -webkit-background-clip: text;
+                 background-clip: text;
+                 -webkit-text-fill-color: transparent;
              }
 
              p {
-                font-family: 'IBM Plex Serif', serif; /* Toque elegante */
-                font-size: 1.1rem;
+                font-family: 'IBM Plex Serif', serif;
+                font-size: 1.15rem;
                 color: var(--text-muted);
                 margin-bottom: 2.5rem;
-                line-height: 1.6;
+                line-height: 1.7;
+                max-width: 500px;
              }
 
              .btn-home {
-                display: inline-block;
-                background-color: var(--accent-gold);
-                color: #1A202C; /* Texto oscuro para contraste en dorado */
+                display: inline-flex;
+                align-items: center;
+                gap: 10px;
+                background: linear-gradient(135deg, var(--accent-gold) 0%, #FFA500 100%);
+                color: #1A202C;
                 padding: 1rem 2.5rem;
-                border-radius: 4px; /* Bordes un poco más rectos, más serios */
+                border-radius: 50px;
                 text-decoration: none;
                 font-weight: 700;
                 letter-spacing: 1px;
                 text-transform: uppercase;
-                font-size: 0.9rem;
-                transition: all 0.3s ease;
-                box-shadow: 0 4px 15px rgba(244, 185, 66, 0.4);
+                font-size: 0.85rem;
+                transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+                box-shadow: 0 4px 20px rgba(244, 185, 66, 0.4);
+                position: relative;
+                overflow: hidden;
+             }
+
+             .btn-home::before {
+                content: '';
+                position: absolute;
+                inset: 0;
+                background: linear-gradient(135deg, #FFA500 0%, var(--accent-gold) 100%);
+                opacity: 0;
+                transition: opacity 0.3s ease;
              }
 
              .btn-home:hover {
-                transform: translateY(-3px);
-                box-shadow: 0 6px 20px rgba(244, 185, 66, 0.6);
-                background-color: #e0a83b;
+                transform: translateY(-4px) scale(1.02);
+                box-shadow: 0 8px 30px rgba(244, 185, 66, 0.5);
+             }
+
+             .btn-home:hover::before {
+                opacity: 1;
+             }
+
+             .btn-home span {
+                position: relative;
+                z-index: 1;
+             }
+
+             .btn-home .arrow {
+                transition: transform 0.3s ease;
+             }
+
+             .btn-home:hover .arrow {
+                transform: translateX(4px);
+             }
+
+             /* Floating animation for subtle movement */
+             .content-wrapper {
+                animation: fadeInUp 1s ease-out, float 6s ease-in-out infinite 1s;
+             }
+
+             @keyframes float {
+                0%, 100% { transform: translateY(0); }
+                50% { transform: translateY(-10px); }
              }
         </style>
         <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Serif:ital,wght@0,400;0,600;1,400&display=swap" rel="stylesheet">
@@ -128,7 +209,10 @@ let description = 'Parece que te has desviado. Regresa al inicio para seguir via
                     Esa página no existe (o se mudó a otro continente).
                 </p>
                 
-                <a href="/" class="btn-home">Regresar a terreno conocido</a>
+                <a href="/" class="btn-home">
+                    <span>Regresar a terreno conocido</span>
+                    <span class="arrow">→</span>
+                </a>
             </div>
         </main>
 

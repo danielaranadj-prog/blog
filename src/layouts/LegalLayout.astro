@@ -11,21 +11,19 @@ const { title } = Astro.props;
 <head>
     <BaseHead title={title} description={`Información legal de ${SITE.title}`} permalink={Astro.url.href} />
     <style>
-        /* =========================================
-           🛡️ ZONA BLINDADA: VARIABLES GLOBALES
-           (Copiado del index para mantener consistencia)
-           ========================================= */
+        /* === LEGAL LAYOUT - PREMIUM UPGRADE === */
         @import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;500;600;800&display=swap');
         @import url('https://fonts.googleapis.com/css2?family=IBM+Plex+Serif:ital,wght@0,300;0,400;0,600;1,400&display=swap');
 
         :root {
             --page-bg: #F8F9FA; 
             --text-main: #2D3748;
-            --text-prose: #4A5568; /* Un poco más suave para lectura larga */
+            --text-prose: #4A5568;
             --text-muted: #718096;
             --brand-blue: #75AADB;
             --brand-gold: #F4B942;
             --card-bg: #FFFFFF;
+            --card-border: #E2E8F0;
         }
 
         @media (prefers-color-scheme: dark) {
@@ -35,6 +33,7 @@ const { title } = Astro.props;
                 --text-prose: #cbd5e1;
                 --text-muted: #94a3b8;
                 --card-bg: #1e293b;
+                --card-border: #334155;
             }
         }
 
@@ -44,54 +43,141 @@ const { title } = Astro.props;
             margin: 0;
             display: flex;
             flex-direction: column;
-            min-height: 100vh; /* Asegura que el footer se vaya al fondo */
+            min-height: 100vh;
+            transition: all 0.3s ease;
         }
 
-        /* Estilos del Contenedor Legal */
+        /* Contenedor Legal Premium */
         .legal-container {
             max-width: 800px;
             margin: 4rem auto;
             padding: 0 1.5rem;
-            font-family: 'IBM Plex Serif', serif; /* Serif para mejor lectura legal */
+            font-family: 'IBM Plex Serif', serif;
             color: var(--text-main);
-            flex: 1; /* Empuja el footer hacia abajo si hay poco texto */
+            flex: 1;
+            position: relative;
+        }
+
+        /* Decorative scale icon */
+        .legal-container::before {
+            content: '⚖️';
+            position: absolute;
+            top: -1rem;
+            left: 1.5rem;
+            font-size: 4rem;
+            opacity: 0.08;
+            pointer-events: none;
         }
 
         h1 {
             font-family: 'Montserrat', sans-serif;
-            font-size: 2.5rem;
-            margin-bottom: 2rem;
-            color: var(--text-main);
+            font-size: clamp(2rem, 5vw, 2.75rem);
+            margin-bottom: 2.5rem;
             font-weight: 800;
+            line-height: 1.2;
+            background: linear-gradient(
+                135deg, 
+                var(--text-main) 0%, 
+                var(--brand-blue) 50%, 
+                var(--text-main) 100%
+            );
+            background-size: 200% auto;
+            -webkit-background-clip: text;
+            background-clip: text;
+            -webkit-text-fill-color: transparent;
+            animation: shimmer 6s linear infinite, fadeInUp 0.8s ease-out;
         }
 
-        /* Estilos globales para el contenido inyectado (slot) */
-        .legal-content :global(h2) { 
-            margin-top: 2.5rem; 
-            margin-bottom: 1rem;
-            font-family: 'Montserrat', sans-serif; 
-            font-size: 1.5rem; 
-            font-weight: 600;
-            color: var(--text-main);
+        @keyframes shimmer {
+            0% { background-position: -200% center; }
+            100% { background-position: 200% center; }
         }
+
+        @keyframes fadeInUp {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* Estilos del contenido legal */
+        .legal-content {
+            animation: fadeInUp 0.8s ease-out 0.2s both;
+        }
+
+        .legal-content :global(h2) { 
+            margin-top: 3rem; 
+            margin-bottom: 1.25rem;
+            font-family: 'Montserrat', sans-serif; 
+            font-size: 1.4rem; 
+            font-weight: 700;
+            color: var(--text-main);
+            padding-left: 1rem;
+            border-left: 4px solid var(--brand-gold);
+            position: relative;
+        }
+
+        .legal-content :global(h2)::before {
+            content: '';
+            position: absolute;
+            left: 0;
+            top: 0;
+            bottom: 0;
+            width: 4px;
+            background: linear-gradient(180deg, var(--brand-gold), var(--brand-blue));
+            border-radius: 2px;
+        }
+
         .legal-content :global(p) { 
-            line-height: 1.8; 
-            margin-bottom: 1.2rem; 
+            line-height: 1.85; 
+            margin-bottom: 1.25rem; 
             color: var(--text-prose); 
             font-size: 1.1rem;
         }
+
         .legal-content :global(ul) { 
             margin-bottom: 1.5rem; 
-            padding-left: 1.5rem; 
+            padding-left: 1.5rem;
+            list-style: none;
         }
+
         .legal-content :global(li) { 
-            margin-bottom: 0.5rem; 
+            margin-bottom: 0.75rem; 
             color: var(--text-prose); 
-            line-height: 1.6;
+            line-height: 1.7;
+            position: relative;
+            padding-left: 1.5rem;
         }
+
+        .legal-content :global(li)::before {
+            content: '•';
+            position: absolute;
+            left: 0;
+            color: var(--brand-blue);
+            font-weight: bold;
+            font-size: 1.2rem;
+        }
+
         .legal-content :global(strong) {
             color: var(--text-main);
             font-weight: 600;
+            background: linear-gradient(120deg, rgba(244, 185, 66, 0.15) 0%, rgba(244, 185, 66, 0.15) 100%);
+            padding: 1px 4px;
+            border-radius: 3px;
+        }
+
+        @media (prefers-color-scheme: dark) {
+            .legal-content :global(strong) {
+                background: linear-gradient(120deg, rgba(117, 170, 219, 0.15) 0%, rgba(117, 170, 219, 0.15) 100%);
+            }
+        }
+
+        /* Back to home link at bottom */
+        .legal-content::after {
+            content: '';
+            display: block;
+            margin-top: 4rem;
+            padding-top: 2rem;
+            border-top: 2px solid transparent;
+            border-image: linear-gradient(90deg, var(--card-border), transparent) 1;
         }
     </style>
 </head>

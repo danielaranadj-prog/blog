@@ -1,0 +1,255 @@
+---
+/**
+ * HotelWidget.astro
+ * Widget de búsqueda de hoteles con Booking.com affiliate
+ */
+
+interface Props {
+  variant?: 'sidebar' | 'inline';
+  affiliateId?: string;
+  defaultDestination?: string;
+}
+
+const { 
+  variant = 'sidebar', 
+  affiliateId = '1234567', // Reemplazar con tu ID real
+  defaultDestination = ''
+} = Astro.props;
+---
+
+<div class={`hotel-widget ${variant}`}>
+    <div class="widget-header">
+        <span class="widget-icon">🏨</span>
+        <h4>Buscar Hoteles</h4>
+    </div>
+    
+    <form class="hotel-form" id="hotelSearchForm">
+        <div class="input-group">
+            <label for="hotel-destination">Destino</label>
+            <input 
+                type="text" 
+                id="hotel-destination" 
+                name="destination" 
+                placeholder="Ciudad o hotel"
+                value={defaultDestination}
+                required
+            />
+        </div>
+        
+        <div class="input-row">
+            <div class="input-group half">
+                <label for="hotel-checkin">Check-in</label>
+                <input 
+                    type="date" 
+                    id="hotel-checkin" 
+                    name="checkin"
+                    required
+                />
+            </div>
+            <div class="input-group half">
+                <label for="hotel-checkout">Check-out</label>
+                <input 
+                    type="date" 
+                    id="hotel-checkout" 
+                    name="checkout"
+                    required
+                />
+            </div>
+        </div>
+        
+        <div class="input-group">
+            <label for="hotel-guests">Huéspedes</label>
+            <select id="hotel-guests" name="guests">
+                <option value="1">1 adulto</option>
+                <option value="2" selected>2 adultos</option>
+                <option value="3">3 adultos</option>
+                <option value="4">4 adultos</option>
+            </select>
+        </div>
+        
+        <button type="submit" class="search-btn booking">
+            <span>Ver en Booking</span>
+            <span class="arrow">→</span>
+        </button>
+    </form>
+    
+    <p class="widget-note">
+        <span class="booking-logo">Booking.com</span> · Precios y disponibilidad
+    </p>
+</div>
+
+<script is:inline define:vars={{ affiliateId }}>
+    document.getElementById('hotelSearchForm')?.addEventListener('submit', function(e) {
+        e.preventDefault();
+        const form = e.target;
+        const destination = form.destination.value.trim();
+        const checkin = form.checkin.value;
+        const checkout = form.checkout.value;
+        const guests = form.guests.value;
+        
+        // Formatear fechas para Booking
+        const checkinFormatted = checkin.replace(/-/g, '-');
+        const checkoutFormatted = checkout.replace(/-/g, '-');
+        
+        // Construir URL de Booking con affiliate
+        const url = `https://www.booking.com/searchresults.html?ss=${encodeURIComponent(destination)}&checkin=${checkinFormatted}&checkout=${checkoutFormatted}&group_adults=${guests}&no_rooms=1&aid=${affiliateId}`;
+        
+        window.open(url, '_blank');
+    });
+</script>
+
+<style>
+    .hotel-widget {
+        background: var(--card-bg, #fff);
+        border: 1px solid var(--card-border, #E2E8F0);
+        border-radius: 16px;
+        padding: 1.5rem;
+        position: relative;
+        overflow: hidden;
+    }
+    
+    .hotel-widget::before {
+        content: '';
+        position: absolute;
+        inset: 0;
+        border-radius: 16px;
+        padding: 2px;
+        background: linear-gradient(135deg, #003580, #F4B942);
+        -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+        mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+        -webkit-mask-composite: xor;
+        mask-composite: exclude;
+        opacity: 0;
+        transition: opacity 0.4s ease;
+    }
+    
+    .hotel-widget:hover::before {
+        opacity: 1;
+    }
+    
+    .widget-header {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        margin-bottom: 1.25rem;
+    }
+    
+    .widget-icon {
+        font-size: 1.5rem;
+    }
+    
+    .widget-header h4 {
+        margin: 0;
+        font-family: 'Montserrat', sans-serif;
+        font-size: 1rem;
+        font-weight: 800;
+        color: var(--text-main, #2D3748);
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+    }
+    
+    .hotel-form {
+        display: flex;
+        flex-direction: column;
+        gap: 0.75rem;
+    }
+    
+    .input-group {
+        display: flex;
+        flex-direction: column;
+        gap: 0.25rem;
+    }
+    
+    .input-group label {
+        font-size: 0.7rem;
+        font-weight: 600;
+        color: var(--text-muted, #718096);
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+    }
+    
+    .input-group input,
+    .input-group select {
+        padding: 0.75rem 1rem;
+        border: 1px solid var(--card-border, #E2E8F0);
+        border-radius: 8px;
+        font-size: 0.9rem;
+        font-family: 'Montserrat', sans-serif;
+        background: var(--card-bg, #fff);
+        color: var(--text-main, #2D3748);
+        transition: all 0.3s ease;
+    }
+    
+    .input-group input:focus,
+    .input-group select:focus {
+        outline: none;
+        border-color: #003580;
+        box-shadow: 0 0 0 3px rgba(0, 53, 128, 0.15);
+    }
+    
+    .input-row {
+        display: flex;
+        gap: 0.5rem;
+    }
+    
+    .input-group.half {
+        flex: 1;
+    }
+    
+    .search-btn.booking {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 0.5rem;
+        margin-top: 0.5rem;
+        padding: 0.85rem 1.5rem;
+        background: linear-gradient(135deg, #003580, #00224F);
+        color: white;
+        border: none;
+        border-radius: 50px;
+        font-family: 'Montserrat', sans-serif;
+        font-size: 0.85rem;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+        cursor: pointer;
+        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+    
+    .search-btn.booking:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 8px 20px rgba(0, 53, 128, 0.35);
+    }
+    
+    .search-btn .arrow {
+        transition: transform 0.3s ease;
+    }
+    
+    .search-btn:hover .arrow {
+        transform: translateX(4px);
+    }
+    
+    .widget-note {
+        margin: 0.75rem 0 0;
+        font-size: 0.7rem;
+        color: var(--text-muted, #718096);
+        text-align: center;
+    }
+    
+    .booking-logo {
+        font-weight: 700;
+        color: #003580;
+    }
+    
+    @media (prefers-color-scheme: dark) {
+        .input-group input,
+        .input-group select {
+            background: rgba(255, 255, 255, 0.05);
+            border-color: var(--card-border, #334155);
+        }
+        
+        .booking-logo {
+            color: #4A90D9;
+        }
+    }
+</style>

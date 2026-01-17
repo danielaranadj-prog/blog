@@ -70,21 +70,35 @@ const today = new Date();
 </footer>
 
 <style>
-    /* --- CONFIGURACIÓN DE ÁREAS --- */
+    /* === FOOTER - PREMIUM UPGRADE === */
     .brand-col      { grid-area: brand; }
     .nav-col        { grid-area: nav; }
     .social-col     { grid-area: social; }
     .newsletter-col { grid-area: news; }
 
-    /* --- ESCRITORIO --- */
     .site-footer {
-        background-color: #1A202C; 
+        background: linear-gradient(180deg, #1A202C 0%, #0f1419 100%);
         color: #E2E8F0;
-        padding: 2.5rem 0 1rem 0; 
+        padding: 3rem 0 1rem 0; 
         margin-top: 4rem;
-        border-top: 4px solid #F4B942;
+        border-top: 3px solid;
+        border-image: linear-gradient(90deg, #F4B942, #75AADB, #F4B942) 1;
         font-family: 'Montserrat', sans-serif;
         font-size: 0.9rem;
+        position: relative;
+        overflow: hidden;
+    }
+
+    /* Subtle gradient glow */
+    .site-footer::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 50%;
+        transform: translateX(-50%);
+        width: 60%;
+        height: 1px;
+        background: linear-gradient(90deg, transparent, rgba(244, 185, 66, 0.5), transparent);
     }
 
     .footer-container {
@@ -111,12 +125,26 @@ const today = new Date();
     .footer-links a:hover { color: #F4B942; }
 
     .social-col { display: flex; flex-direction: column; align-items: flex-start; }
-    .social-grid { display: flex; gap: 0.8rem; }
+    .social-grid { display: flex; gap: 1rem; }
     .social-grid a { 
-        color: #718096; background: rgba(255,255,255,0.05); width: 32px; height: 32px;
-        display: flex; align-items: center; justify-content: center; border-radius: 50%; transition: all 0.2s;
+        color: #718096; 
+        background: rgba(255,255,255,0.05); 
+        width: 38px; 
+        height: 38px;
+        display: flex; 
+        align-items: center; 
+        justify-content: center; 
+        border-radius: 50%; 
+        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        border: 1px solid rgba(255, 255, 255, 0.1);
     }
-    .social-grid a:hover { background: #F4B942; color: #1A202C; }
+    .social-grid a:hover { 
+        background: linear-gradient(135deg, #F4B942, #FFA500); 
+        color: #1A202C; 
+        transform: translateY(-4px) scale(1.1);
+        box-shadow: 0 8px 20px rgba(244, 185, 66, 0.35);
+        border-color: transparent;
+    }
 
     /* Newsletter */
     .newsletter-col { text-align: left; min-width: 250px; }

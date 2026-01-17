@@ -1,0 +1,217 @@
+---
+/**
+ * RelatedPosts.astro
+ * Muestra posts relacionados basados en tags coincidentes
+ */
+
+interface Props {
+  currentSlug: string;
+  currentTags: string[];
+  limit?: number;
+}
+
+const { currentSlug, currentTags = [], limit = 3 } = Astro.props;
+
+// Obtener todos los posts
+const allPosts = await Astro.glob('../pages/posts/*.md');
+
+// Filtrar posts relacionados por tags
+const relatedPosts = allPosts
+  .filter(post => {
+    // Excluir el post actual
+    if (post.url?.includes(currentSlug)) return false;
+    
+    // Verificar si comparte tags
+    const postTags = post.frontmatter.tags || [];
+    const hasMatchingTag = postTags.some((tag: string) => 
+      currentTags.map(t => t.toLowerCase()).includes(tag.toLowerCase())
+    );
+    
+    return hasMatchingTag;
+  })
+  .slice(0, limit);
+
+// Si no hay suficientes relacionados, completar con los más recientes
+const remainingCount = limit - relatedPosts.length;
+if (remainingCount > 0) {
+  const recentPosts = allPosts
+    .filter(post => !post.url?.includes(currentSlug))
+    .filter(post => !relatedPosts.some(rp => rp.url === post.url))
+    .sort((a, b) => {
+      const dateA = new Date(a.frontmatter.publishDate || 0);
+      const dateB = new Date(b.frontmatter.publishDate || 0);
+      return dateB.getTime() - dateA.getTime();
+    })
+    .slice(0, remainingCount);
+  
+  relatedPosts.push(...recentPosts);
+}
+---
+
+{relatedPosts.length > 0 && (
+  <div class="related-posts">
+    <h3 class="related-title">
+      <span class="icon">📚</span>
+      Te puede interesar
+    </h3>
+    
+    <div class="related-grid">
+      {relatedPosts.map(post => (
+        <a href={post.url} class="related-card">
+          {post.frontmatter.heroImage && (
+            <div class="related-image">
+              <img 
+                src={post.frontmatter.heroImage} 
+                alt={post.frontmatter.title}
+                loading="lazy"
+              />
+            </div>
+          )}
+          <div class="related-content">
+            <h4>{post.frontmatter.title}</h4>
+            <span class="read-more">Leer artículo →</span>
+          </div>
+        </a>
+      ))}
+    </div>
+  </div>
+)}
+
+<style>
+  .related-posts {
+    margin-top: 4rem;
+    padding-top: 2.5rem;
+    border-top: 2px solid transparent;
+    border-image: linear-gradient(90deg, var(--card-border, #E2E8F0), transparent) 1;
+  }
+  
+  .related-title {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-family: 'Montserrat', sans-serif;
+    font-size: 1.1rem;
+    font-weight: 800;
+    color: var(--text-main, #2D3748);
+    margin: 0 0 1.5rem;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+  }
+  
+  .related-title .icon {
+    font-size: 1.3rem;
+  }
+  
+  .related-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: 1.25rem;
+  }
+  
+  .related-card {
+    display: flex;
+    flex-direction: column;
+    background: var(--card-bg, #fff);
+    border: 1px solid var(--card-border, #E2E8F0);
+    border-radius: 12px;
+    overflow: hidden;
+    text-decoration: none;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    position: relative;
+  }
+  
+  .related-card::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    border-radius: 12px;
+    padding: 2px;
+    background: linear-gradient(135deg, #F4B942, #75AADB);
+    -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+    mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+    -webkit-mask-composite: xor;
+    mask-composite: exclude;
+    opacity: 0;
+    transition: opacity 0.4s ease;
+    z-index: 1;
+  }
+  
+  .related-card:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 12px 24px rgba(0, 0, 0, 0.1);
+  }
+  
+  .related-card:hover::before {
+    opacity: 1;
+  }
+  
+  .related-image {
+    position: relative;
+    height: 140px;
+    overflow: hidden;
+  }
+  
+  .related-image img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transition: transform 0.5s ease;
+  }
+  
+  .related-card:hover .related-image img {
+    transform: scale(1.08);
+  }
+  
+  .related-content {
+    padding: 1rem;
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+  }
+  
+  .related-content h4 {
+    margin: 0;
+    font-family: 'Montserrat', sans-serif;
+    font-size: 0.95rem;
+    font-weight: 700;
+    color: var(--text-main, #2D3748);
+    line-height: 1.35;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+  }
+  
+  .read-more {
+    font-size: 0.75rem;
+    font-weight: 700;
+    color: var(--brand-blue, #75AADB);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    transition: all 0.3s ease;
+  }
+  
+  .related-card:hover .read-more {
+    color: var(--accent-gold, #F4B942);
+  }
+  
+  @media (max-width: 600px) {
+    .related-grid {
+      grid-template-columns: 1fr;
+    }
+    
+    .related-card {
+      flex-direction: row;
+    }
+    
+    .related-image {
+      width: 100px;
+      height: auto;
+      min-height: 80px;
+    }
+    
+    .related-content {
+      flex: 1;
+    }
+  }
+</style>
