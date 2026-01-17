@@ -1,9 +1,10 @@
 export type Author = {
   slug: string;
   name: string;
-  role: string; // <--- Nuevo campo importante
+  role: string;
   bio: string;
   image: string;
+  email?: string;
 };
 
 export const AUTHORS: Record<string, Author> = {
@@ -11,8 +12,9 @@ export const AUTHORS: Record<string, Author> = {
     slug: 'daniel-arana',
     name: 'Daniel Arana',
     role: 'Founder & Creative Director',
-    bio: 'Director de arte y viajero obsesivo del detalle. Aquí comparto lo que las guías no te cuentan.',
-    image: '/assets/autores/daniel-arana.jpg',
+    bio: 'Director Creativo y fundador de InstanteTrips.',
+    image: '/assets/autores/daniel-arana-1768646139740.jpg',
+    email: 'danielaranadj@gmail.com',
   },
 
   'betzy-miramontes': {
@@ -45,7 +47,8 @@ export const AUTHORS: Record<string, Author> = {
     role: 'Escrito y Fotografo de viajes',
     bio: 'Se encarga de generar contenido visual y editoria. ',
     image: '/assets/autores/roberto-renteria.jpg',
-  },};
+  },
 
-// Fallback editorial (Por defecto tú)
-export const DEFAULT_AUTHOR = AUTHORS['daniel-arana'];
+};
+
+export const DEFAULT_AUTHOR = AUTHORS['daniel-arana'] || Object.values(AUTHORS)[0];
