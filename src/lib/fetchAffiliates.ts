@@ -1,7 +1,7 @@
 /**
  * fetchAffiliates.ts
  * Helper para leer configuración de affiliates desde Firestore en build time
- * Usado por todos los sitios Astro (destinos_argentina, blog, etc.)
+ * Usado por todos los sitios Astro (argentina, blog, etc.)
  */
 
 import { initializeApp, getApps, deleteApp } from 'firebase/app';
