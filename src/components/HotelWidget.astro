@@ -2,13 +2,11 @@
 /**
  * HotelWidget.astro
  * Widget de búsqueda de hoteles con Booking.com affiliate
- * Configuración desde Firestore
+ * Siempre habilitado (control visual, no de Firestore)
  */
-import { getBookingConfig } from '../lib/fetchAffiliates';
 
-const bookingConfig = await getBookingConfig();
-const affiliateId = bookingConfig.affiliateId;
-const isEnabled = bookingConfig.enabled;
+// Affiliate ID hardcoded para evitar problemas de permisos Firestore durante build
+const affiliateId = '2424850';
 
 interface Props {
   variant?: 'sidebar' | 'inline';
@@ -21,7 +19,6 @@ const {
 } = Astro.props;
 ---
 
-{isEnabled && (
 <div class={`hotel-widget ${variant}`}>
     <div class="widget-header">
         <span class="widget-icon">🏨</span>
@@ -82,7 +79,6 @@ const {
         <span class="booking-logo">Booking.com</span> · Precios y disponibilidad
     </p>
 </div>
-)}
 
 <script is:inline define:vars={{ affiliateId }}>
     document.getElementById('hotelSearchForm')?.addEventListener('submit', function(e) {
