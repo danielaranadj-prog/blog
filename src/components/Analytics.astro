@@ -4,7 +4,9 @@
 
   async function logPageView() {
     // Basic bot detection
-    if (navigator.webdriver || window.location.hostname === 'localhost') return;
+    // Basic bot detection (Localhost allowed for testing)
+    // if (navigator.webdriver || window.location.hostname === 'localhost') return;
+    if (navigator.webdriver) return;
 
     try {
       const db = getFirestore(app);
