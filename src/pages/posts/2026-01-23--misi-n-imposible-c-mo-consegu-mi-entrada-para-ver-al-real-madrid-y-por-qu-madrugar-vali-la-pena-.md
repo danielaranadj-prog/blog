@@ -8,7 +8,7 @@ layout: "../../layouts/BlogPost.astro"
 tags: ["Real Madrid", "España", "Madrid", "Madrilista Premium", "Partido del Real Madrid", "Primer viaje a europa", "Entradas Real Madrid"]
 ---
 
- https://www.tiktok.com/@danygaran/video/7471763847049710854 ¿Te imaginas poner el despertador a las **2:55 de la madrugada**, no para ir al aeropuerto, sino para pelearte por una entrada con miles de fans del Real Madrid? ⏰💻
+ [https://www.tiktok.com/@danygaran/video/7471763847049710854 https://www.tiktok.com/@danygaran/video/7471763847049710854](https://www.tiktok.com/@danygaran/video/7471763847049710854) ¿Te imaginas poner el despertador a las **2:55 de la madrugada**, no para ir al aeropuerto, sino para pelearte por una entrada con miles de fans del Real Madrid? ⏰💻
 
 Pues ese fui yo.
 
