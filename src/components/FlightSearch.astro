@@ -9,21 +9,30 @@ interface Props {
   variant?: 'sidebar' | 'inline' | 'full';
 }
 
-const { variant = 'sidebar' } = Astro.props;
+const DEFAULT_TAG = 'instante_trips';
+
+interface Props {
+  variant?: 'sidebar' | 'inline' | 'full';
+  affiliateTag?: string;
+}
+
+const { 
+  variant = 'sidebar',
+  affiliateTag = DEFAULT_TAG
+} = Astro.props;
 ---
 
-<div class={`flight-widget ${variant}`}>
+<div class={`flight-widget ${variant}`} data-affiliate={affiliateTag}>
     <div class="widget-header">
         <span class="widget-icon">✈️</span>
         <h4>Buscar Vuelos</h4>
     </div>
     
-    <form class="flight-form" id="flightSearchForm">
+    <form class="flight-form">
         <div class="input-group">
-            <label for="flight-origin">Origen</label>
+            <label>Origen</label>
             <input 
                 type="text" 
-                id="flight-origin" 
                 name="origin" 
                 placeholder="Ciudad o aeropuerto"
                 required
@@ -31,10 +40,9 @@ const { variant = 'sidebar' } = Astro.props;
         </div>
         
         <div class="input-group">
-            <label for="flight-destination">Destino</label>
+            <label>Destino</label>
             <input 
                 type="text" 
-                id="flight-destination" 
                 name="destination" 
                 placeholder="¿A dónde viajas?"
                 required
@@ -43,19 +51,17 @@ const { variant = 'sidebar' } = Astro.props;
         
         <div class="input-row">
             <div class="input-group half">
-                <label for="flight-date">Salida</label>
+                <label>Salida</label>
                 <input 
                     type="date" 
-                    id="flight-date" 
                     name="outbound"
                     required
                 />
             </div>
             <div class="input-group half">
-                <label for="flight-return">Regreso</label>
+                <label>Regreso</label>
                 <input 
                     type="date" 
-                    id="flight-return" 
                     name="inbound"
                 />
             </div>
@@ -73,23 +79,27 @@ const { variant = 'sidebar' } = Astro.props;
 </div>
 
 <script is:inline>
-    document.getElementById('flightSearchForm')?.addEventListener('submit', function(e) {
-        e.preventDefault();
-        const form = e.target;
-        const origin = form.origin.value.trim();
-        const destination = form.destination.value.trim();
-        const outbound = form.outbound.value;
-        const inbound = form.inbound.value;
-        
-        // Construir URL de Skyscanner
-        let url = `https://www.skyscanner.com/transport/flights/${origin}/${destination}/${outbound.replace(/-/g, '')}`;
-        if (inbound) {
-            url += `/${inbound.replace(/-/g, '')}`;
-        }
-        url += '/?adultsv2=1&cabinclass=economy&childrenv2=&ref=home&preferdirects=false&outboundaltsenabled=false&inboundaltsenabled=false';
-        
-        // Abrir en nueva pestaña
-        window.open(url, '_blank');
+    document.querySelectorAll('.flight-widget .flight-form').forEach(form => {
+        form.addEventListener('submit', function(e) {
+            e.preventDefault();
+            const widget = e.target.closest('.flight-widget');
+            const affiliateTag = widget?.dataset.affiliate || 'instante_trips';
+            
+            const origin = e.target.querySelector('input[name="origin"]').value.trim();
+            const destination = e.target.querySelector('input[name="destination"]').value.trim();
+            const outbound = e.target.querySelector('input[name="outbound"]').value;
+            const inbound = e.target.querySelector('input[name="inbound"]').value;
+            
+            // Construir URL de Skyscanner
+            let url = `https://www.skyscanner.com/transport/flights/${origin}/${destination}/${outbound.replace(/-/g, '')}`;
+            if (inbound) {
+                url += `/${inbound.replace(/-/g, '')}`;
+            }
+            url += `/?adultsv2=1&cabinclass=economy&childrenv2=&ref=home&preferdirects=false&outboundaltsenabled=false&inboundaltsenabled=false&associateid=${affiliateTag}`;
+            
+            // Abrir en nueva pestaña
+            window.open(url, '_blank');
+        });
     });
 </script>
 

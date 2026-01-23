@@ -15,7 +15,8 @@ const {
   variant = 'sidebar',
   destination = '',
   showPopular = true,
-  provider = 'civitatis' // Civitatis por defecto (mejor para mercado hispanohablante)
+  provider = 'civitatis',
+  affiliateId = '12345'
 } = Astro.props;
 
 // Configuración de providers
@@ -25,7 +26,6 @@ const providers = {
     baseUrl: 'https://www.getyourguide.com/s/',
     paramName: 'q',
     affiliateParam: 'partner_id',
-    affiliateId: 'TUAFFILIATEID', // ⬅️ Reemplazar con tu ID
     color: '#FF5722'
   },
   civitatis: {
@@ -33,7 +33,6 @@ const providers = {
     baseUrl: 'https://www.civitatis.com/es/',
     paramName: '', // Civitatis usa slug en URL
     affiliateParam: 'aid',
-    affiliateId: 'TUAFFILIATEID', // ⬅️ Reemplazar con tu ID
     color: '#E31C5F'
   }
 };
@@ -51,18 +50,17 @@ const popularTours = [
 ];
 ---
 
-<div class={`tours-widget ${variant}`} data-provider={provider}>
+<div class={`tours-widget ${variant}`} data-provider={provider} data-affiliate={affiliateId}>
     <div class="widget-header">
         <span class="widget-icon">🎫</span>
         <h4>Tours y Actividades</h4>
     </div>
     
-    <form class="tours-form" id="toursSearchForm">
+    <form class="tours-form">
         <div class="input-group">
-            <label for="tours-destination">¿Qué ciudad visitas?</label>
+            <label>¿Qué ciudad visitas?</label>
             <input 
                 type="text" 
-                id="tours-destination" 
                 name="destination" 
                 placeholder="Ej: Madrid, París, Roma..."
                 value={destination}
@@ -82,8 +80,8 @@ const popularTours = [
                 {popularTours.map(tour => (
                     <a 
                         href={provider === 'civitatis' 
-                            ? `https://www.civitatis.com/es/${tour.slug}/?aid=TUAFFILIATEID`
-                            : `https://www.getyourguide.com/s/?q=${tour.slug}&partner_id=TUAFFILIATEID`
+                            ? `https://www.civitatis.com/es/${tour.slug}/?aid=${affiliateId}`
+                            : `https://www.getyourguide.com/s/?q=${tour.slug}&partner_id=${affiliateId}`
                         }
                         target="_blank"
                         rel="noopener noreferrer"
@@ -103,23 +101,29 @@ const popularTours = [
 </div>
 
 <script is:inline>
-    document.getElementById('toursSearchForm')?.addEventListener('submit', function(e) {
-        e.preventDefault();
-        const destination = e.target.destination.value.trim().toLowerCase();
-        const widget = e.target.closest('.tours-widget');
-        const provider = widget?.dataset.provider || 'civitatis';
-        
-        if (destination) {
-            let url;
-            if (provider === 'civitatis') {
-                // Civitatis usa slug-ciudad directamente
-                url = `https://www.civitatis.com/es/${destination.replace(/\s+/g, '-')}/?aid=TUAFFILIATEID`;
-            } else {
-                // GetYourGuide usa búsqueda
-                url = `https://www.getyourguide.com/s/?q=${encodeURIComponent(destination)}&partner_id=TUAFFILIATEID`;
+    // Usar delegación o listeners por clase para evitar IDs
+    document.querySelectorAll('.tours-widget .tours-form').forEach(form => {
+        form.addEventListener('submit', function(e) {
+            e.preventDefault();
+            const widget = e.target.closest('.tours-widget');
+            const destinationInput = e.target.querySelector('input[name="destination"]');
+            const destination = destinationInput ? destinationInput.value.trim().toLowerCase() : '';
+            
+            const provider = widget?.dataset.provider || 'civitatis';
+            const affiliateId = widget?.dataset.affiliate || '12345';
+            
+            if (destination) {
+                let url;
+                if (provider === 'civitatis') {
+                    // Civitatis usa slug-ciudad directamente
+                    url = `https://www.civitatis.com/es/${destination.replace(/\s+/g, '-')}/?aid=${affiliateId}`;
+                } else {
+                    // GetYourGuide usa búsqueda
+                    url = `https://www.getyourguide.com/s/?q=${encodeURIComponent(destination)}&partner_id=${affiliateId}`;
+                }
+                window.open(url, '_blank');
             }
-            window.open(url, '_blank');
-        }
+        });
     });
 </script>
 

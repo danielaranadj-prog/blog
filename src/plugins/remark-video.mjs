@@ -56,7 +56,7 @@ export function remarkVideo() {
                 node.type = 'html';
                 node.children = undefined;
                 node.value = `<div class="video-embed-wrapper tiktok-container" style="display: flex; justify-content: center; margin-top: 2rem; margin-bottom: 2rem;">
-                    <blockquote class="tiktok-embed" cite="${url}" data-video-id="${tiktokId}" style="max-width: 605px; min-width: 325px;">
+                    <blockquote class="tiktok-embed" cite="${url}" data-video-id="${tiktokId}" style="max-width: 605px; min-width: 325px; width: 100%;">
                         <section></section>
                     </blockquote>
                     <script async src="https://www.tiktok.com/embed.js"></script>

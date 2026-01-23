@@ -6,31 +6,33 @@
  */
 
 // Affiliate ID hardcoded para evitar problemas de permisos Firestore durante build
-const affiliateId = '2424850';
+// Se usa como fallback si no se pasa por props
+const DEFAULT_AID = '2424850';
 
 interface Props {
   variant?: 'sidebar' | 'inline';
   defaultDestination?: string;
+  affiliateId?: string;
 }
 
 const { 
   variant = 'sidebar', 
-  defaultDestination = ''
+  defaultDestination = '',
+  affiliateId = DEFAULT_AID
 } = Astro.props;
 ---
 
-<div class={`hotel-widget ${variant}`}>
+<div class={`hotel-widget ${variant}`} data-affiliate={affiliateId}>
     <div class="widget-header">
         <span class="widget-icon">🏨</span>
         <h4>Buscar Hoteles</h4>
     </div>
     
-    <form class="hotel-form" id="hotelSearchForm">
+    <form class="hotel-form">
         <div class="input-group">
-            <label for="hotel-destination">Destino</label>
+            <label>Destino</label>
             <input 
                 type="text" 
-                id="hotel-destination" 
                 name="destination" 
                 placeholder="Ciudad o hotel"
                 value={defaultDestination}
@@ -40,19 +42,17 @@ const {
         
         <div class="input-row">
             <div class="input-group half">
-                <label for="hotel-checkin">Check-in</label>
+                <label>Check-in</label>
                 <input 
                     type="date" 
-                    id="hotel-checkin" 
                     name="checkin"
                     required
                 />
             </div>
             <div class="input-group half">
-                <label for="hotel-checkout">Check-out</label>
+                <label>Check-out</label>
                 <input 
                     type="date" 
-                    id="hotel-checkout" 
                     name="checkout"
                     required
                 />
@@ -60,8 +60,8 @@ const {
         </div>
         
         <div class="input-group">
-            <label for="hotel-guests">Huéspedes</label>
-            <select id="hotel-guests" name="guests">
+            <label>Huéspedes</label>
+            <select name="guests">
                 <option value="1">1 adulto</option>
                 <option value="2" selected>2 adultos</option>
                 <option value="3">3 adultos</option>
@@ -80,23 +80,27 @@ const {
     </p>
 </div>
 
-<script is:inline define:vars={{ affiliateId }}>
-    document.getElementById('hotelSearchForm')?.addEventListener('submit', function(e) {
-        e.preventDefault();
-        const form = e.target;
-        const destination = form.destination.value.trim();
-        const checkin = form.checkin.value;
-        const checkout = form.checkout.value;
-        const guests = form.guests.value;
-        
-        // Formatear fechas para Booking
-        const checkinFormatted = checkin.replace(/-/g, '-');
-        const checkoutFormatted = checkout.replace(/-/g, '-');
-        
-        // Construir URL de Booking con affiliate
-        const url = `https://www.booking.com/searchresults.html?ss=${encodeURIComponent(destination)}&checkin=${checkinFormatted}&checkout=${checkoutFormatted}&group_adults=${guests}&no_rooms=1&aid=${affiliateId}`;
-        
-        window.open(url, '_blank');
+<script is:inline>
+    document.querySelectorAll('.hotel-widget .hotel-form').forEach(form => {
+        form.addEventListener('submit', function(e) {
+            e.preventDefault();
+            const widget = e.target.closest('.hotel-widget');
+            const affiliateId = widget?.dataset.affiliate || '2424850';
+            
+            const destination = e.target.querySelector('input[name="destination"]').value.trim();
+            const checkin = e.target.querySelector('input[name="checkin"]').value;
+            const checkout = e.target.querySelector('input[name="checkout"]').value;
+            const guests = e.target.querySelector('select[name="guests"]').value;
+            
+            // Formatear fechas para Booking
+            const checkinFormatted = checkin.replace(/-/g, '-');
+            const checkoutFormatted = checkout.replace(/-/g, '-');
+            
+            // Construir URL de Booking con affiliate
+            const url = `https://www.booking.com/searchresults.html?ss=${encodeURIComponent(destination)}&checkin=${checkinFormatted}&checkout=${checkoutFormatted}&group_adults=${guests}&no_rooms=1&aid=${affiliateId}`;
+            
+            window.open(url, '_blank');
+        });
     });
 </script>
 

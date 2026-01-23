@@ -12,11 +12,19 @@ import HotelWidget from '../components/HotelWidget.astro';
 import ToursWidget from '../components/ToursWidget.astro';
 import Analytics from '../components/Analytics.astro';
 import { AUTHORS, DEFAULT_AUTHOR } from '../data/authors';
+import { fetchAffiliates } from '../lib/fetchAffiliates'; // Import fetcher
 
 const {
   content = {},
   frontmatter = {},
 } = Astro.props;
+
+// Fetch Affiliates Config (Build time)
+const affiliatesConfig = await fetchAffiliates();
+const bookingId = affiliatesConfig?.booking?.affiliateId || '2424850';
+const skyscannerTag = affiliatesConfig?.skyscanner?.affiliateTag || 'instante_trips';
+const civitatisId = affiliatesConfig?.civitatis?.affiliateId || '12345';
+const toursProvider = affiliatesConfig?.civitatis?.enabled ? 'civitatis' : 'getyourguide';
 
 // ==========================================
 // 🛡️ ZONA BLINDADA: LÓGICA DE NEGOCIO
@@ -586,11 +594,11 @@ const encodedTitle = encodeURIComponent(post.title);
           <p>{authorBio}</p>
         </div>
 
-        <FlightSearch variant="sidebar" />
+        <FlightSearch variant="sidebar" affiliateTag={skyscannerTag} />
 
-        <HotelWidget variant="sidebar" />
+        <HotelWidget variant="sidebar" affiliateId={bookingId} />
 
-        <ToursWidget variant="sidebar" />
+        <ToursWidget variant="sidebar" affiliateId={civitatisId} provider={toursProvider} />
 
         <div class="widget" style="padding:0; border:none; background: transparent; text-align: center;">
           <AdBanner position="sidebar" />
