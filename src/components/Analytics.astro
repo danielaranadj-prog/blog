@@ -1,31 +1,32 @@
 <script>
-  import { getFirestore, collection, addDoc, serverTimestamp } from "firebase/firestore";
-  import { app } from "../firebase/client"; // Ensure this path matches your firebase init file
-
   async function logPageView() {
-    // Basic bot detection
-    // Basic bot detection (Localhost allowed for testing)
-    // if (navigator.webdriver || window.location.hostname === 'localhost') return;
+    // Bot detection
     if (navigator.webdriver) return;
 
     try {
-      const db = getFirestore(app);
-      await addDoc(collection(db, "analytics_events"), {
+      const payload = {
         type: "page_view",
         path: window.location.pathname,
         title: document.title,
         referrer: document.referrer || "",
-        timestamp: serverTimestamp(),
-        userAgent: navigator.userAgent,
         screenSize: `${window.innerWidth}x${window.innerHeight}`
+      };
+
+      // Send to Secure Backend (Vercel API)
+      await fetch('/api/analytics', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload)
       });
-      console.log("Analytics: Page view recorded");
+      
+      console.log("Analytics: Page view logged securely");
+
     } catch (e) {
       console.error("Analytics Error:", e);
     }
   }
 
-  // Run on load and on client-side navigation (if utilizing view transitions)
+  // Run on load and on client-side navigation
   logPageView();
   document.addEventListener('astro:page-load', logPageView);
 </script>

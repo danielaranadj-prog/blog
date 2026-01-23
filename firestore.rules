@@ -1,0 +1,30 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    
+    // Default: Deny all reads and writes unless explicitly allowed
+    match /{document=**} {
+      allow read, write: if false;
+    }
+
+    // Analytics Events: Deny all client-side writes. 
+    // Data should only be written by trusted server environments (e.g. Cloud Functions, Admin SDK)
+    match /analytics_events/{eventId} {
+      allow read: if false;
+      allow write: if false; // LOCKED DOWN
+    }
+
+    // Config: Allow public read for site configuration (Adsense, etc)
+    // Only allow writes by authenticated admins
+    match /config/{configId} {
+      allow read: if true;
+      allow write: if request.auth != null;
+    }
+    
+    // Posts: Public read. Auth required for write (CMS)
+    match /posts/{postId} {
+        allow read: if true;
+        allow write: if request.auth != null;
+    }
+  }
+}

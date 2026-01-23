@@ -88,9 +88,11 @@ const {
         const checkout = form.checkout.value;
         const guests = form.guests.value;
         
-        const url = `https://www.booking.com/searchresults.html?ss=${encodeURIComponent(destination)}&checkin=${checkin}&checkout=${checkout}&group_adults=${guests}&no_rooms=1&aid=${affiliateId}`;
+        const url = `https://www.booking.com/searchresults.html?ss=${encodeURIComponent(destination)}&checkin=${encodeURIComponent(checkin)}&checkout=${encodeURIComponent(checkout)}&group_adults=${encodeURIComponent(guests)}&no_rooms=1&aid=${encodeURIComponent(affiliateId)}`;
         
-        window.open(url, '_blank');
+        if (url.startsWith('http://') || url.startsWith('https://')) {
+            window.open(url, '_blank');
+        }
     });
 </script>
 

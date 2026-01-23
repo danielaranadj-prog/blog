@@ -91,14 +91,18 @@ const {
             const inbound = e.target.querySelector('input[name="inbound"]').value;
             
             // Construir URL de Skyscanner
-            let url = `https://www.skyscanner.com/transport/flights/${origin}/${destination}/${outbound.replace(/-/g, '')}`;
+            // Usamos encodeURIComponent para asegurar que ciudades con espacios o caracteres especiales no rompan el path
+            let url = `https://www.skyscanner.com/transport/flights/${encodeURIComponent(origin)}/${encodeURIComponent(destination)}/${encodeURIComponent(outbound.replace(/-/g, ''))}`;
+            
             if (inbound) {
-                url += `/${inbound.replace(/-/g, '')}`;
+                url += `/${encodeURIComponent(inbound.replace(/-/g, ''))}`;
             }
-            url += `/?adultsv2=1&cabinclass=economy&childrenv2=&ref=home&preferdirects=false&outboundaltsenabled=false&inboundaltsenabled=false&associateid=${affiliateTag}`;
+            url += `/?adultsv2=1&cabinclass=economy&childrenv2=&ref=home&preferdirects=false&outboundaltsenabled=false&inboundaltsenabled=false&associateid=${encodeURIComponent(affiliateTag)}`;
             
             // Abrir en nueva pestaña
-            window.open(url, '_blank');
+            if (url.startsWith('http://') || url.startsWith('https://')) {
+                window.open(url, '_blank');
+            }
         });
     });
 </script>

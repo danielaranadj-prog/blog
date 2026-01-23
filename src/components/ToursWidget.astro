@@ -115,13 +115,18 @@ const popularTours = [
             if (destination) {
                 let url;
                 if (provider === 'civitatis') {
-                    // Civitatis usa slug-ciudad directamente
-                    url = `https://www.civitatis.com/es/${destination.replace(/\s+/g, '-')}/?aid=${affiliateId}`;
+                    // Civitatis usa slug-ciudad directamente. Sanitizamos para path.
+                    // Reemplazar espacios por guiones y codificar para evitar path traversal
+                    const safeSlug = encodeURIComponent(destination.replace(/\s+/g, '-'));
+                    url = `https://www.civitatis.com/es/${safeSlug}/?aid=${encodeURIComponent(affiliateId)}`;
                 } else {
-                    // GetYourGuide usa búsqueda
-                    url = `https://www.getyourguide.com/s/?q=${encodeURIComponent(destination)}&partner_id=${affiliateId}`;
+                    // GetYourGuide usa búsqueda query param
+                    url = `https://www.getyourguide.com/s/?q=${encodeURIComponent(destination)}&partner_id=${encodeURIComponent(affiliateId)}`;
                 }
-                window.open(url, '_blank');
+                
+                if (url.startsWith('http://') || url.startsWith('https://')) {
+                    window.open(url, '_blank');
+                }
             }
         });
     });

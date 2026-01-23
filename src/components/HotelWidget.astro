@@ -97,9 +97,12 @@ const {
             const checkoutFormatted = checkout.replace(/-/g, '-');
             
             // Construir URL de Booking con affiliate
-            const url = `https://www.booking.com/searchresults.html?ss=${encodeURIComponent(destination)}&checkin=${checkinFormatted}&checkout=${checkoutFormatted}&group_adults=${guests}&no_rooms=1&aid=${affiliateId}`;
+            const url = `https://www.booking.com/searchresults.html?ss=${encodeURIComponent(destination)}&checkin=${encodeURIComponent(checkinFormatted)}&checkout=${encodeURIComponent(checkoutFormatted)}&group_adults=${encodeURIComponent(guests)}&no_rooms=1&aid=${encodeURIComponent(affiliateId)}`;
             
-            window.open(url, '_blank');
+            // Validate URL protocol to prevent javascript: usage (low risk here but good practice)
+            if (url.startsWith('http://') || url.startsWith('https://')) {
+                window.open(url, '_blank');
+            }
         });
     });
 </script>

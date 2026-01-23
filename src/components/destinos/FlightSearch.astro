@@ -92,14 +92,16 @@ const {
         const inbound = form.inbound.value;
         
         // Construir URL de Skyscanner
-        let url = `https://www.skyscanner.com/transport/flights/${origin}/${destination}/${outbound.replace(/-/g, '')}`;
+        let url = `https://www.skyscanner.com/transport/flights/${encodeURIComponent(origin)}/${encodeURIComponent(destination)}/${encodeURIComponent(outbound.replace(/-/g, ''))}`;
         if (inbound) {
-            url += `/${inbound.replace(/-/g, '')}`;
+            url += `/${encodeURIComponent(inbound.replace(/-/g, ''))}`;
         }
         url += '/?adultsv2=1&cabinclass=economy&childrenv2=&ref=home&preferdirects=false&outboundaltsenabled=false&inboundaltsenabled=false';
         
         // Abrir en nueva pestaña
-        window.open(url, '_blank');
+        if (url.startsWith('http://') || url.startsWith('https://')) {
+            window.open(url, '_blank');
+        }
     });
 </script>
 
