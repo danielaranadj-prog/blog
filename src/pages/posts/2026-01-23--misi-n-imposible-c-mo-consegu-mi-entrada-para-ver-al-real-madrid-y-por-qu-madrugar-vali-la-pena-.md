@@ -54,6 +54,4 @@ Haber conseguido la entrada fue solo el primer paso. Lo que viví después, al e
 
 En mi próximo post les contaré cada detalle de cómo es estar ahí, la acústica, la vista y la emoción de ver al equipo de mis amores. ¡Estén atentos!
 
-👇 **Mientras tanto, les dejo este video de cómo viví el proceso (¡y el resultado!):  
-  
-**
+👇 \*\*Mientras tanto, les dejo este video de cómo viví el proceso (¡y el resultado!): https://www.tiktok.com/@danygaran/video/7471763847049710854
