@@ -1,0 +1,29 @@
+<script>
+  import { getFirestore, collection, addDoc, serverTimestamp } from "firebase/firestore";
+  import { app } from "../firebase/client"; // Ensure this path matches your firebase init file
+
+  async function logPageView() {
+    // Basic bot detection
+    if (navigator.webdriver || window.location.hostname === 'localhost') return;
+
+    try {
+      const db = getFirestore(app);
+      await addDoc(collection(db, "analytics_events"), {
+        type: "page_view",
+        path: window.location.pathname,
+        title: document.title,
+        referrer: document.referrer || "",
+        timestamp: serverTimestamp(),
+        userAgent: navigator.userAgent,
+        screenSize: `${window.innerWidth}x${window.innerHeight}`
+      });
+      console.log("Analytics: Page view recorded");
+    } catch (e) {
+      console.error("Analytics Error:", e);
+    }
+  }
+
+  // Run on load and on client-side navigation (if utilizing view transitions)
+  logPageView();
+  document.addEventListener('astro:page-load', logPageView);
+</script>
