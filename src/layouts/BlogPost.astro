@@ -10,6 +10,7 @@ import AdBanner from '../components/AdBanner.astro';
 import FlightSearch from '../components/FlightSearch.astro';
 import HotelWidget from '../components/HotelWidget.astro';
 import ToursWidget from '../components/ToursWidget.astro';
+import Analytics from '../components/Analytics.astro';
 import { AUTHORS, DEFAULT_AUTHOR } from '../data/authors';
 
 const {
@@ -600,5 +601,6 @@ const encodedTitle = encodeURIComponent(post.title);
   </div>
 
   <Footer />
+  <Analytics />
 </body>
 </html>
