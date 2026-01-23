@@ -3,7 +3,7 @@ title: "¿Misión Imposible? Cómo conseguí mi entrada para ver al Real Madrid 
 description: "¿Quieres ver al Real Madrid en el Bernabéu? Te cuento mi experiencia comprando entradas desde Latinoamérica, por qué pagué el Madridista Premium y cómo evitar estafas en reventa."
 publishDate: "2026-01-23"
 author: "daniel-arana"
-heroImage: ""
+heroImage: "https://res.cloudinary.com/dbwdmu9k2/image/upload/v1768398416/espa%C3%B1a-madrid-estadio-bernabeu_takhrg.jpg"
 layout: "../../layouts/BlogPost.astro"
 tags: ["Real Madrid", "España", "Madrid", "Madrilista Premium", "Partido del Real Madrid", "Primer viaje a europa", "Entradas Real Madrid"]
 ---
@@ -57,4 +57,4 @@ En mi próximo post les contaré cada detalle de cómo es estar ahí, la acústi
 
 👇 **Mientras tanto, les dejo este video de cómo viví el proceso (¡y el resultado!):**
 
-> [@danygaran](https://www.tiktok.com/@danygaran?refer=embed "@danygaran") [#realmadrid](https://www.tiktok.com/tag/realmadrid?refer=embed "realmadrid") [#madrilista](https://www.tiktok.com/tag/madrilista?refer=embed "madrilista") [#dream](https://www.tiktok.com/tag/dream?refer=embed "dream") [#sueñohechorealidad](https://www.tiktok.com/tag/sue%C3%B1ohechorealidad?refer=embed "sueñohechorealidad") [#spain](https://www.tiktok.com/tag/spain?refer=embed "spain") [#mbappe](https://www.tiktok.com/tag/mbappe?refer=embed "mbappe") [#modric10](https://www.tiktok.com/tag/modric10?refer=embed "modric10") [♬ sonido original - Miguel Delgado](https://www.tiktok.com/music/sonido-original-7334729943255698181?refer=embed "♬ sonido original - Miguel Delgado")
+>
