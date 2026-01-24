@@ -16,61 +16,67 @@ Yo llegué pensando que era un destino "de lista" — uno de esos lugares que vi
 
 ![Canal de Beagle con montañas nevadas](https://images.unsplash.com/photo-1551711580-da97fa42c0e7?w=800&q=80)
 
----
+* * *
 
 ## ¿Cuándo ir a Ushuaia?
 
 | Temporada | Meses | Qué esperar |
-|-----------|-------|-------------|
+| --- | --- | --- |
 | **Alta (Verano)** | Dic - Mar | Días largos (20h de luz), 5-15°C, ideal para trekking |
 | **Media** | Oct-Nov, Abr | Menos turismo, paisajes de otoño/primavera |
 | **Baja (Invierno)** | May - Sep | Nieve, esquí, -5 a 3°C, días muy cortos |
 
 **Mi recomendación:** Enero-febrero si quieres trekking y días eternos. Julio-agosto si te interesa la nieve y el esquí en Cerro Castor.
 
----
+* * *
 
 ## Qué hacer en Ushuaia (mi top 5)
 
-### 1. Navegación por el Canal de Beagle 🚢
+### 1\. Navegación por el Canal de Beagle 🚢
+
 **Imperdible.** Ves lobos marinos, cormoranes, el Faro Les Eclaireurs (el "falso" faro del fin del mundo) y paisajes de postal.
 
-- Duración: 3-4 horas
-- Precio: $40-80 USD según el barco
-- Tip: Lleva mucha ropa, en el agua hace MUCHO más frío
+-   Duración: 3-4 horas
+-   Precio: $40-80 USD según el barco
+-   Tip: Lleva mucha ropa, en el agua hace MUCHO más frío
 
-### 2. Parque Nacional Tierra del Fuego 🌲
+### 2\. Parque Nacional Tierra del Fuego 🌲
+
 El parque más austral del mundo. Tiene senderos para todos los niveles.
 
 **Senderos recomendados:**
-- **Senda Costera** (6.5 km) — Vistas al canal, bosques de lengas
-- **Laguna Negra** (1 km) — Fácil, paisaje de turberas
-- **Hito XXIV** — La frontera con Chile, foto obligada
 
-### 3. Tren del Fin del Mundo 🚂
+-   **Senda Costera** (6.5 km) — Vistas al canal, bosques de lengas
+-   **Laguna Negra** (1 km) — Fácil, paisaje de turberas
+-   **Hito XXIV** — La frontera con Chile, foto obligada
+
+### 3\. Tren del Fin del Mundo 🚂
+
 Muy turístico pero con historia interesante (era el tren de los presos de la cárcel). Recorre parte del parque nacional.
 
-- ¿Vale la pena? Si tienes tiempo y presupuesto, sí
-- Precio: $70-100 USD según la clase
+-   ¿Vale la pena? Si tienes tiempo y presupuesto, sí
+-   Precio: $70-100 USD según la clase
 
-### 4. Glaciar Martial ❄️
+### 4\. Glaciar Martial ❄️
+
 A 7 km del centro. Puedes subir en aerosilla (si funciona) o caminando.
 
-- La vista de Ushuaia desde arriba es increíble
-- En invierno hay pistas de esquí de fondo
+-   La vista de Ushuaia desde arriba es increíble
+-   En invierno hay pistas de esquí de fondo
 
-### 5. Excursión a la Pingüinera 🐧
+### 5\. Excursión a la Pingüinera 🐧
+
 De octubre a marzo puedes ver colonias de pingüinos Magallánicos en Isla Martillo.
 
-- Precio: $100-150 USD (incluye navegación)
-- Solo se observa desde el barco (no se desembarca)
+-   Precio: $100-150 USD (incluye navegación)
+-   Solo se observa desde el barco (no se desembarca)
 
----
+* * *
 
 ## Presupuesto real (2026)
 
 | Concepto | Precio |
-|----------|--------|
+| --- | --- |
 | Vuelo Buenos Aires ↔ Ushuaia | $100-250 USD |
 | Hostal por noche | $25-40 USD |
 | Hotel medio | $80-150 USD |
@@ -81,16 +87,16 @@ De octubre a marzo puedes ver colonias de pingüinos Magallánicos en Isla Marti
 **Total 3 días (mochilero):** ~$350-450 USD  
 **Total 3 días (cómodo):** ~$600-900 USD
 
----
+* * *
 
 ## Lo que nadie te dice del frío
 
-1. **El viento es el problema, no la temperatura.** 5°C con viento de 50 km/h se siente como -10°C
-2. **Capas, capas, capas.** Nada de abrigos gordos; mejor 3 capas finas
-3. **Protector solar es obligatorio.** El sol del sur quema diferente
-4. **Los días de verano son ETERNOS.** Amanece a las 4:30am y oscurece a las 10pm
+1.  **El viento es el problema, no la temperatura.** 5°C con viento de 50 km/h se siente como -10°C
+2.  **Capas, capas, capas.** Nada de abrigos gordos; mejor 3 capas finas
+3.  **Protector solar es obligatorio.** El sol del sur quema diferente
+4.  **Los días de verano son ETERNOS.** Amanece a las 4:30am y oscurece a las 10pm
 
----
+* * *
 
 ## Cómo llegar
 
@@ -98,17 +104,8 @@ De octubre a marzo puedes ver colonias de pingüinos Magallánicos en Isla Marti
 
 **Por tierra:** Es posible pero larguísimo. Requiere cruzar a Chile y volver a entrar a Argentina. Solo para los muy aventureros.
 
----
+* * *
 
 ## ¿Quieres toda la info práctica?
 
-<a href="https://www.instantetrips.com/argentina/ushuaia" target="_blank" style="display:block; margin:2.5rem 0; padding:1.75rem; background:linear-gradient(135deg, rgba(244,185,66,0.08), rgba(117,170,219,0.08)); border-radius:16px; border-left:4px solid #F4B942; text-decoration:none; color:inherit;">
-  <span style="display:inline-flex; align-items:center; gap:8px; margin-bottom:1rem;">
-    <span style="font-size:1.5rem;">🇦🇷</span>
-    <span style="font-size:0.7rem; font-weight:800; text-transform:uppercase; letter-spacing:1.5px; color:#75AADB; background:rgba(117,170,219,0.12); padding:6px 12px; border-radius:20px;">Guía de Destino</span>
-  </span>
-  <br>
-  <strong style="font-size:1.4rem; font-weight:800; color:#2D3748;">🏔️ Ushuaia: El Fin del Mundo</strong>
-  <br>
-  <span style="color:#718096; font-size:0.95rem;">Clima, presupuesto, tours y experiencias imperdibles →</span>
-</a>
+<a class="cta-destination-card" style="display: block; margin: 2.5rem 0; padding: 1.75rem; background: linear-gradient(135deg, rgba(244,185,66,0.08), rgba(117,170,219,0.08)); border-radius: 16px; border-left: 4px solid #F4B942; text-decoration: none; color: inherit;" href="../argentina/destinos/ushuaia/" target="_blank" rel="noopener"><span style="display: inline-flex; align-items: center; gap: 8px; margin-bottom: 1rem;"><span style="font-size: 1.5rem;">🇦🇷</span> <span style="font-size: 0.7rem; font-weight: 800; text-transform: uppercase; letter-spacing: 1.5px; color: #75aadb; background: rgba(117,170,219,0.12); padding: 6px 12px; border-radius: 20px;">Guía de Destino</span></span><br><strong style="font-size: 1.4rem; font-weight: 800; color: #2d3748;">Ushuaia: El Fin del Mundo</strong><br><span style="color: #718096; font-size: 0.95rem;">Clima, presupuesto, tours y experiencias imperdibles →</span></a>
