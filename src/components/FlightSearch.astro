@@ -18,11 +18,16 @@ interface Props {
 
 const { 
   variant = 'sidebar',
-  affiliateTag = DEFAULT_TAG
+  affiliateTag,
+  destination = ''
 } = Astro.props;
+
+import { fetchAffiliates } from '../lib/fetchAffiliates';
+const config = await fetchAffiliates();
+const finalAffiliateTag = affiliateTag || config.skyscanner.affiliateTag || DEFAULT_TAG;
 ---
 
-<div class={`flight-widget ${variant}`} data-affiliate={affiliateTag}>
+<div class={`flight-widget ${variant}`} data-affiliate={finalAffiliateTag}>
     <div class="widget-header">
         <span class="widget-icon">✈️</span>
         <h4>Buscar Vuelos</h4>
@@ -45,6 +50,7 @@ const {
                 type="text" 
                 name="destination" 
                 placeholder="¿A dónde viajas?"
+                value={destination}
                 required
             />
         </div>

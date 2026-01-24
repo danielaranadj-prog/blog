@@ -1,0 +1,225 @@
+---
+/**
+ * Newsletter.astro
+ * Widget de captura de leads con diseño premium
+ */
+interface Props {
+  variant?: 'inline' | 'sidebar';
+}
+const { variant = 'inline' } = Astro.props;
+---
+
+<div class={`newsletter-card ${variant}`}>
+    <div class="glow-effect"></div>
+    
+    <div class="content-wrapper">
+        <div class="icon-circle">
+            📨
+        </div>
+        
+        <div class="text-group">
+            <h3>¿Te gustan las historias de viajes?</h3>
+            <p>Únete al blog y descubre todos los <strong>consejos, errores y experiencias reales</strong> que facilitarán tu próximo viaje.</p>
+        </div>
+
+        <form class="signup-form" id="newsletter-form">
+            <input 
+                type="email" 
+                name="email"
+                placeholder="Tu email aquí..." 
+                required
+            />
+            <button type="submit" id="btn-submit">
+                <span>Suscribirme</span>
+            </button>
+        </form>
+        
+        <p class="disclaimer" id="form-msg">Prometemos no ser intensos. Solo contenido útil.</p>
+    </div>
+</div>
+
+<script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
+    import { getFirestore, collection, addDoc, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+
+    const firebaseConfig = {
+        apiKey: "AIzaSyBdsu65Voj8en9u_7eL5q0YRFuCC7fUYWA",
+        authDomain: "instantetrips-editor.firebaseapp.com",
+        projectId: "instantetrips-editor",
+        storageBucket: "instantetrips-editor.firebasestorage.app",
+        messagingSenderId: "281917140804",
+        appId: "1:281917140804:web:ed712e65c9c4b77dd3b111"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const db = getFirestore(app);
+
+    const form = document.getElementById('newsletter-form');
+    const msg = document.getElementById('form-msg');
+    const btn = document.getElementById('btn-submit');
+
+    if(form) {
+        form.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const email = form.email.value;
+            const originalBtnText = btn.innerText;
+            
+            try {
+                btn.disabled = true;
+                btn.innerText = "...";
+                
+                await addDoc(collection(db, "subscribers"), {
+                    email: email,
+                    date: serverTimestamp(),
+                    source: window.location.pathname
+                });
+
+                msg.innerText = "¡Listo! Bienvenido al club.";
+                msg.style.color = "var(--brand-blue)";
+                form.reset();
+                btn.innerText = "✅";
+                
+            } catch (error) {
+                console.error("Error adding document: ", error);
+                msg.innerText = "Hubo un error. Intenta de nuevo.";
+                msg.style.color = "red";
+                btn.innerText = originalBtnText;
+                btn.disabled = false;
+            }
+        });
+    }
+</script>
+
+<style>
+    .newsletter-card {
+        position: relative;
+        background: var(--card-bg, #fff);
+        border: 1px solid var(--card-border, #E2E8F0);
+        border-radius: 16px; /* Más sutil */
+        padding: 2rem; /* Menos alto */
+        overflow: hidden;
+        margin: 3rem 0;
+        box-shadow: 0 10px 30px -10px rgba(0,0,0,0.05);
+    }
+
+    .newsletter-card.sidebar {
+        padding: 1.5rem;
+        margin: 0;
+        border-radius: 16px;
+    }
+
+    .glow-effect {
+        position: absolute;
+        top: -50px;
+        right: -50px;
+        width: 150px;
+        height: 150px;
+        background: radial-gradient(circle, rgba(244,185,66,0.15) 0%, rgba(117,170,219,0.05) 50%, transparent 70%);
+        border-radius: 50%;
+        filter: blur(20px);
+        pointer-events: none;
+    }
+
+    .content-wrapper {
+        position: relative;
+        z-index: 1;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        text-align: center;
+        gap: 1.25rem; /* Menos espacio entre elementos */
+    }
+
+    .icon-circle {
+        width: 50px;
+        height: 50px;
+        background: linear-gradient(135deg, #fff, #f8f9fa);
+        border: 2px solid var(--card-border, #E2E8F0);
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1.5rem;
+        box-shadow: 0 4px 10px rgba(0,0,0,0.05);
+    }
+    
+    .newsletter-card.sidebar .icon-circle { width: 40px; height: 40px; font-size: 1.2rem; }
+
+    .text-group h3 {
+        margin: 0 0 0.25rem;
+        font-family: 'Montserrat', sans-serif;
+        font-size: 1.35rem; /* Un poco más pequeño */
+        font-weight: 800;
+        color: var(--text-main, #2D3748);
+        line-height: 1.2;
+    }
+
+    .newsletter-card.sidebar h3 { font-size: 1.1rem; }
+
+    .text-group p {
+        margin: 0 auto;
+        font-size: 0.9rem;
+        color: var(--text-muted, #718096);
+        max-width: 480px; /* Más ancho para que quepa mejor en una línea */
+        line-height: 1.5;
+    }
+
+    .signup-form {
+        display: flex;
+        width: 100%;
+        max-width: 420px;
+        gap: 0.5rem;
+    }
+    
+    .newsletter-card.sidebar .signup-form { flex-direction: column; }
+
+    input {
+        flex: 1;
+        padding: 0.75rem 1rem;
+        border: 2px solid var(--card-border, #E2E8F0);
+        border-radius: 10px;
+        font-family: inherit;
+        background: var(--page-bg, #F8F9FA);
+        color: var(--text-main);
+        transition: all 0.3s ease;
+        font-size: 0.9rem;
+    }
+
+    input:focus {
+        outline: none;
+        border-color: var(--brand-blue, #75AADB);
+        box-shadow: 0 0 0 4px rgba(117,170,219,0.1);
+        background: var(--card-bg, #fff);
+    }
+
+    button {
+        padding: 0.75rem 1.5rem;
+        background: linear-gradient(135deg, var(--brand-blue, #75AADB), #5a95cb);
+        color: white;
+        border: none;
+        border-radius: 10px;
+        font-weight: 700;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+        font-size: 0.8rem;
+    }
+
+    button:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 8px 20px rgba(117,170,219,0.3);
+    }
+
+    .disclaimer {
+        font-size: 0.75rem;
+        color: var(--text-muted, #aaa);
+        opacity: 0.8;
+    }
+
+    @media (prefers-color-scheme: dark) {
+        .icon-circle { background: linear-gradient(135deg, #1e293b, #0f172a); border-color: #334155; }
+        input { background: rgba(0,0,0,0.2); border-color: #334155; }
+        input:focus { background: rgba(0,0,0,0.4); }
+    }
+</style>

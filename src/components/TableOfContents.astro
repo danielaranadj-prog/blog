@@ -1,0 +1,187 @@
+---
+/**
+ * TableOfContents.astro
+ * Navegación flotante para artículos largos
+ */
+---
+
+<nav class="toc-container">
+    <h4 class="toc-title">En este artículo</h4>
+    <ul id="toc-list" class="toc-list">
+        <!-- Se llena con JS -->
+    </ul>
+</nav>
+
+<script>
+    function generateTOC() {
+        const article = document.querySelector('.prose'); // Selector del contenido
+        const tocList = document.getElementById('toc-list');
+        
+        if (!article || !tocList) return;
+
+        // Limpiar lista actual
+        tocList.innerHTML = '';
+
+        // Buscar headers
+        const headers = article.querySelectorAll('h2, h3');
+        if (headers.length === 0) {
+            document.querySelector('.toc-container').style.display = 'none';
+            return;
+        }
+
+        headers.forEach((header, index) => {
+            // Asignar ID si no tiene
+            if (!header.id) {
+                const slug = header.textContent
+                    .toLowerCase()
+                    .replace(/[^a-z0-9]+/g, '-')
+                    .replace(/(^-|-$)+/g, '');
+                header.id = `${slug}-${index}`; // Index para evitar duplicados
+            }
+
+            const li = document.createElement('li');
+            li.className = `toc-item ${header.tagName.toLowerCase()}`;
+            
+            const link = document.createElement('a');
+            link.href = `#${header.id}`;
+            link.textContent = header.textContent;
+            
+            // Smooth scroll
+            link.addEventListener('click', (e) => {
+                e.preventDefault();
+                header.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                // Actualizar URL hash sin salto
+                history.pushState(null, null, `#${header.id}`);
+            });
+
+            li.appendChild(link);
+            tocList.appendChild(li);
+        });
+
+        // Observer para activar items al scroll
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    const id = entry.target.id;
+                    const activeLink = tocList.querySelector(`a[href="#${id}"]`);
+                    
+                    if (activeLink) {
+                        tocList.querySelectorAll('a').forEach(a => a.classList.remove('active'));
+                        activeLink.classList.add('active');
+                    }
+                }
+            });
+        }, { rootMargin: '-100px 0px -66% 0px' }); // Ajustar zona de activación
+
+        headers.forEach(h => observer.observe(h));
+    }
+
+    // Ejecutar al cargar
+    generateTOC();
+    
+    // Soporte para View Transitions de Astro (si se llegaran a usar)
+    document.addEventListener('astro:page-load', generateTOC);
+</script>
+
+<style>
+    .toc-container {
+        position: sticky;
+        top: 6rem;
+        padding: 1.5rem;
+        /* Estilo Tarjeta (Box) */
+        background: var(--card-bg, #fff);
+        border: 1px solid var(--card-border, #E2E8F0);
+        border-radius: 16px;
+        box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05); /* Sombra suave */
+        max-height: calc(100vh - 8rem);
+        overflow-y: auto;
+        display: none; 
+    }
+
+    /* Mostrar solo en pantallas grandes */
+    @media (min-width: 1400px) {
+        .toc-container { display: block; }
+    }
+
+    .toc-title {
+        font-family: 'Montserrat', sans-serif;
+        font-size: 0.8rem;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+        color: var(--text-main, #2D3748);
+        margin: 0 0 1rem 0;
+        font-weight: 800;
+        padding-bottom: 0.75rem;
+        border-bottom: 1px solid var(--card-border, #E2E8F0);
+    }
+
+    .toc-list {
+        list-style: none;
+        padding: 0;
+        margin: 0;
+        display: flex;
+        flex-direction: column;
+        gap: 0.5rem; /* Espacio entre items */
+    }
+
+    .toc-item {
+        position: relative;
+    }
+
+    .toc-item a {
+        text-decoration: none !important; /* Forzar sin subrayado */
+        color: var(--text-main, #2D3748); /* Color del texto del post */
+        font-size: 0.8rem; /* Pequeño */
+        font-weight: 500;
+        transition: all 0.2s ease;
+        display: block;
+        padding: 0.25rem 0.5rem; /* Más compacto */
+        line-height: 1.4;
+        border-radius: 6px;
+    }
+
+    /* Diferenciación Clara H2 vs H3 */
+    
+    /* H2: Negrita sutil, sin sangría */
+    .toc-item.h2 a {
+        color: var(--text-main, #4A5568);
+        font-weight: 600;
+    }
+
+    /* H3: Más pequeño, con sangría y viñeta visual */
+    .toc-item.h3 a {
+        font-size: 0.8rem;
+        padding-left: 1.5rem; /* Sangría notable */
+        color: var(--text-muted, #A0AEC0);
+        font-weight: 400;
+        position: relative;
+    }
+    
+    /* Pequeña línea o punto para H3 */
+    .toc-item.h3 a::before {
+        content: '';
+        position: absolute;
+        left: 0.75rem;
+        top: 50%;
+        transform: translateY(-50%);
+        width: 4px; /* Guión corto */
+        height: 1px;
+        background-color: var(--card-border, #CBD5E0);
+    }
+
+    .toc-item a:hover {
+        background-color: rgba(0, 0, 0, 0.03); /* Fondo muy sutil */
+        color: var(--brand-blue, #75AADB); /* Azul solo al hover */
+    }
+    
+    /* Estado Activo */
+    .toc-item a.active {
+        color: var(--brand-blue, #75AADB);
+        background-color: rgba(117, 170, 219, 0.15);
+        font-weight: 700;
+    }
+    
+    /* Scrollbar fina */
+    .toc-container::-webkit-scrollbar { width: 4px; }
+    .toc-container::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 4px; }
+</style>

@@ -16,8 +16,15 @@ const {
   destination = '',
   showPopular = true,
   provider = 'civitatis',
-  affiliateId = '12345'
+  affiliateId
 } = Astro.props;
+
+import { fetchAffiliates } from '../lib/fetchAffiliates';
+const config = await fetchAffiliates();
+
+// ID dinámica según el provider elegido
+const effectiveAffiliateId = affiliateId || 
+    (provider === 'civitatis' ? config.civitatis.affiliateId : 'PARTNER_ID_GYG'); // GYG no está en fetchAffiliates aún, usar placeholder o agregarlo si es crítico
 
 // Configuración de providers
 const providers = {
@@ -50,7 +57,7 @@ const popularTours = [
 ];
 ---
 
-<div class={`tours-widget ${variant}`} data-provider={provider} data-affiliate={affiliateId}>
+<div class={`tours-widget ${variant}`} data-provider={provider} data-affiliate={effectiveAffiliateId}>
     <div class="widget-header">
         <span class="widget-icon">🎫</span>
         <h4>Tours y Actividades</h4>

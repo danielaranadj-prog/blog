@@ -11,6 +11,8 @@ import FlightSearch from '../components/FlightSearch.astro';
 import HotelWidget from '../components/HotelWidget.astro';
 import ToursWidget from '../components/ToursWidget.astro';
 import Analytics from '../components/Analytics.astro';
+import Newsletter from '../components/Newsletter.astro';
+import TableOfContents from '../components/TableOfContents.astro';
 import { AUTHORS, DEFAULT_AUTHOR } from '../data/authors';
 import { fetchAffiliates } from '../lib/fetchAffiliates'; // Import fetcher
 
@@ -43,6 +45,11 @@ const post = {
   affiliateTitle: frontmatter.affiliateTitle || content.affiliateTitle, 
   affiliateLink: frontmatter.affiliateLink || content.affiliateLink,
   affiliateText: frontmatter.affiliateText || "Reserva directa al mejor precio",
+
+  // Datos para Widgets Automáticos
+  flightDestination: frontmatter.flight_destination,
+  tourCity: frontmatter.tour_city,
+  tourCountry: frontmatter.tour_country, // Opcional, para contexto
 };
 
 // Selección de Autor (Fallback System)
@@ -505,18 +512,31 @@ const encodedTitle = encodeURIComponent(post.title);
 
     .widget h4 { font-size: 0.75rem; color: var(--brand-blue); letter-spacing: 1px; text-transform: uppercase; margin-bottom: 0.75rem; font-weight: 800; }
 
-   @media (min-width: 1024px) {
+    @media (min-width: 1024px) {
       .layout { 
-        flex-direction: row; align-items: flex-start; 
+        flex-direction: row; align-items: flex-start; justify-content: center;
       }
       
-      main { flex: 1; }
+      main { flex: 1; max-width: 850px; } /* Limitar ancho para lectura cómoda */
       
-      aside { 
-        width: 320px; position: sticky; top: 2rem; 
+      .right-sidebar { 
+        width: 320px; position: sticky; top: 2rem; flex-shrink: 0;
       }
+      
+      .toc-sidebar { display: none; } /* Oculto en laptops normales */
       
       .content { padding: 2.5rem 4rem 4rem; }
+    }
+
+    @media (min-width: 1400px) {
+        .toc-sidebar { 
+            display: block; 
+            width: 250px; 
+            position: sticky; 
+            top: 2rem; 
+            flex-shrink: 0;
+            margin-right: 1.5rem;
+        }
     }
   </style>
 </head>
@@ -526,6 +546,11 @@ const encodedTitle = encodeURIComponent(post.title);
 
   <div class="container">
     <div class="layout">
+
+      <!-- COLUMNA IZQUIERDA: TOC (Solo Desktop XL) -->
+      <aside class="toc-sidebar">
+         <TableOfContents />
+      </aside>
 
       <main>
         {finalImage && (
@@ -568,9 +593,30 @@ const encodedTitle = encodeURIComponent(post.title);
                 </div>
             )}
 
+            {/* NEWSLETTER WIDGET (Retention Hook) */}
+            <Newsletter variant="inline" />
+            
             <AdBanner position="in-content" />
+            
+            {/* WIDGETS AUTOMÁTICOS SEGÚN DESTINO */}
+            {post.flightDestination && (
+                <div style="margin-top: 3rem; margin-bottom: 2rem;">
+                    <FlightSearch variant="inline" destination={post.flightDestination} />
+                </div>
+            )}
+            
+            {post.tourCity && (
+                <div style="margin-top: 2rem; margin-bottom: 2rem;">
+                    <ToursWidget 
+                        variant="inline" 
+                        destination={post.tourCity} 
+                        provider={toursProvider}
+                        affiliateId={civitatisId} 
+                    />
+                </div>
+            )}
           </div>
-
+          
           <div class="share-section">
             <span class="share-title">¿Te sirvió? Compártelo con otro viajero</span>
             <div class="share-buttons">
@@ -583,7 +629,7 @@ const encodedTitle = encodeURIComponent(post.title);
         </div>
       </main>
 
-      <aside>
+      <aside class="right-sidebar">
         
         <div class="widget author-widget">
           <img src={author.image} alt={author.name} />
