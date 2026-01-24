@@ -128,16 +128,19 @@
         position: relative;
     }
 
-    .toc-item a {
-        text-decoration: none !important; /* Forzar sin subrayado */
-        color: var(--text-main, #2D3748); /* Color del texto del post */
-        font-size: 0.8rem; /* Pequeño */
+    /* Forzar estilos para sobreescribir cualquier global */
+    .toc-container .toc-list .toc-item a {
+        text-decoration: none !important;
+        color: var(--text-main, #2D3748) !important;
+        border-bottom: none !important; /* Por si el global usa border-bottom para links */
+        font-size: 0.8rem;
         font-weight: 500;
         transition: all 0.2s ease;
         display: block;
-        padding: 0.25rem 0.5rem; /* Más compacto */
+        padding: 0.25rem 0.5rem;
         line-height: 1.4;
         border-radius: 6px;
+        background: transparent;
     }
 
     /* Diferenciación Clara H2 vs H3 */
@@ -174,9 +177,9 @@
         color: var(--brand-blue, #75AADB); /* Azul solo al hover */
     }
     
-    /* Estado Activo */
-    .toc-item a.active {
-        color: var(--brand-blue, #75AADB);
+    /* Estado Activo - override del color forzado arriba */
+    .toc-container .toc-list .toc-item a.active {
+        color: var(--brand-blue, #75AADB) !important;
         background-color: rgba(117, 170, 219, 0.15);
         font-weight: 700;
     }
