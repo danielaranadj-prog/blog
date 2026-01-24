@@ -469,6 +469,16 @@ const isHomePage = page.currentPage === 1;
             // ==========================================
             // 🔓 FIN ZONA BLINDADA SCRIPTS
             // ==========================================
+
+            // AUTO-FILTER FROM URL (Logic added for /destinos links)
+            document.addEventListener('DOMContentLoaded', () => {
+                const urlParams = new URLSearchParams(window.location.search);
+                const tag = urlParams.get('tag');
+                if (tag) {
+                    // Try to find a matching button to highlight it, or just filter
+                    filterPosts(tag.toLowerCase());
+                }
+            });
         </script>
     </body>
 </html>
