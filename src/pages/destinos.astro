@@ -10,28 +10,20 @@ const description = "Explora nuestros destinos favoritos. Guías de viaje reales
 // Destinos destacados con imágenes y datos
 const destinations = [
   {
+    name: "Argentina",
+    slug: "argentina",
+    emoji: "🇦🇷",
+    image: "https://images.unsplash.com/photo-1612294037637-ec328d0e075e?w=600&q=80",
+    cities: ["Buenos Aires", "Mendoza", "Ushuaia"],
+    postsCount: 3
+  },
+  {
     name: "España",
     slug: "espana",
     emoji: "🇪🇸",
     image: "https://images.unsplash.com/photo-1539037116277-4db20889f2d4?w=600&q=80",
     cities: ["Madrid", "Barcelona", "Sevilla"],
-    postsCount: 5
-  },
-  {
-    name: "Francia",
-    slug: "francia", 
-    emoji: "🇫🇷",
-    image: "https://images.unsplash.com/photo-1502602898657-3e91760cbb34?w=600&q=80",
-    cities: ["París", "Lyon", "Niza"],
-    postsCount: 3
-  },
-  {
-    name: "Italia",
-    slug: "italia",
-    emoji: "🇮🇹",
-    image: "https://images.unsplash.com/photo-1552832230-c0197dd311b5?w=600&q=80",
-    cities: ["Roma", "Florencia", "Venecia"],
-    postsCount: 4
+    postsCount: 1
   },
   {
     name: "México",
@@ -39,39 +31,7 @@ const destinations = [
     emoji: "🇲🇽",
     image: "https://images.unsplash.com/photo-1518105779142-d975f22f1b0a?w=600&q=80",
     cities: ["CDMX", "Oaxaca", "Cancún"],
-    postsCount: 6
-  },
-  {
-    name: "Estados Unidos",
-    slug: "usa",
-    emoji: "🇺🇸",
-    image: "https://images.unsplash.com/photo-1485738422979-f5c462d49f74?w=600&q=80",
-    cities: ["NYC", "LA", "Miami"],
-    postsCount: 3
-  },
-  {
-    name: "Japón",
-    slug: "japon",
-    emoji: "🇯🇵",
-    image: "https://images.unsplash.com/photo-1493976040374-85c8e12f0c0e?w=600&q=80",
-    cities: ["Tokio", "Kioto", "Osaka"],
-    postsCount: 2
-  },
-  {
-    name: "Argentina",
-    slug: "argentina",
-    emoji: "🇦🇷",
-    image: "https://images.unsplash.com/photo-1612294037637-ec328d0e075e?w=600&q=80",
-    cities: ["Buenos Aires", "Mendoza", "Bariloche"],
-    postsCount: 4
-  },
-  {
-    name: "Portugal",
-    slug: "portugal",
-    emoji: "🇵🇹",
-    image: "https://images.unsplash.com/photo-1555881400-74d7acaacd8b?w=600&q=80",
-    cities: ["Lisboa", "Oporto", "Sintra"],
-    postsCount: 2
+    postsCount: 0
   }
 ];
 ---
@@ -298,8 +258,8 @@ const destinations = [
 
     <main class="destinations-container">
         <header class="page-header">
-            <h1 class="page-title">🌍 Nuestros Destinos</h1>
-            <p class="page-subtitle">Explora los lugares que hemos recorrido y documentado para ti</p>
+            <h1 class="page-title">📂 Categorías</h1>
+            <p class="page-subtitle">Encuentra posts según el país que te interesa</p>
         </header>
 
         <div class="destinations-grid">
@@ -314,8 +274,8 @@ const destinations = [
                         <h2 class="card-name">{dest.name}</h2>
                         <p class="card-cities">{dest.cities.join(' · ')}</p>
                         <div class="card-stats">
-                            <span class="posts-count">{dest.postsCount} artículos</span>
-                            <span class="explore-btn">Explorar →</span>
+                            <span class="posts-count">Ver posts</span>
+                            <span class="explore-btn">Ir →</span>
                         </div>
                     </div>
                 </a>
