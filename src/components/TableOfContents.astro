@@ -87,15 +87,60 @@
     .toc-container {
         position: sticky;
         top: 6rem;
-        padding: 1.5rem;
-        /* Estilo Tarjeta (Box) */
-        background: var(--card-bg, #fff);
-        border: 1px solid var(--card-border, #E2E8F0);
-        border-radius: 16px;
-        box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05); /* Sombra suave */
+        padding: 1.75rem;
+        
+        /* 🎨 Premium Glassmorphism */
+        background: rgba(255, 255, 255, 0.8);
+        backdrop-filter: blur(20px) saturate(180%);
+        -webkit-backdrop-filter: blur(20px) saturate(180%);
+        
+        /* 💎 Gradient Border */
+        border: 1px solid rgba(255, 255, 255, 0.4);
+        border-radius: 20px;
+        
+        /* ✨ Premium Shadow */
+        box-shadow: 
+            0 8px 32px rgba(0, 0, 0, 0.08),
+            0 2px 8px rgba(0, 0, 0, 0.04),
+            inset 0 1px 0 rgba(255, 255, 255, 0.5);
+        
         max-height: calc(100vh - 8rem);
         overflow-y: auto;
-        display: none; 
+        display: none;
+        
+        /* 🌟 Subtle gradient overlay */
+        position: relative;
+        overflow: hidden;
+    }
+    
+    /* Gradient accent line on left */
+    .toc-container::before {
+        content: '';
+        position: absolute;
+        left: 0;
+        top: 0;
+        bottom: 0;
+        width: 3px;
+        background: linear-gradient(180deg, #F4B942, #75AADB, #F4B942);
+        background-size: 100% 200%;
+        animation: gradientFlow 4s ease-in-out infinite;
+    }
+    
+    @keyframes gradientFlow {
+        0%, 100% { background-position: 0% 0%; }
+        50% { background-position: 0% 100%; }
+    }
+
+    /* Dark mode glassmorphism */
+    @media (prefers-color-scheme: dark) {
+        .toc-container {
+            background: rgba(15, 23, 42, 0.8);
+            border-color: rgba(255, 255, 255, 0.08);
+            box-shadow: 
+                0 8px 32px rgba(0, 0, 0, 0.3),
+                0 2px 8px rgba(0, 0, 0, 0.2),
+                inset 0 1px 0 rgba(255, 255, 255, 0.05);
+        }
     }
 
     /* Mostrar solo en pantallas grandes */
@@ -105,86 +150,129 @@
 
     .toc-title {
         font-family: 'Montserrat', sans-serif;
-        font-size: 0.8rem;
+        font-size: 0.7rem;
         text-transform: uppercase;
-        letter-spacing: 1px;
-        color: var(--text-main, #2D3748);
-        margin: 0 0 1rem 0;
+        letter-spacing: 2px;
+        background: linear-gradient(135deg, #F4B942, #FFA500);
+        -webkit-background-clip: text;
+        background-clip: text;
+        -webkit-text-fill-color: transparent;
+        margin: 0 0 1.25rem 0;
         font-weight: 800;
         padding-bottom: 0.75rem;
-        border-bottom: 1px solid var(--card-border, #E2E8F0);
+        padding-left: 1rem; /* Space for gradient line */
+        border-bottom: 1px solid rgba(117, 170, 219, 0.15);
     }
 
     .toc-list {
         list-style: none;
-        padding: 0;
+        padding: 0 0 0 1rem; /* Align with title */
         margin: 0;
         display: flex;
         flex-direction: column;
-        gap: 0.5rem; /* Espacio entre items */
+        gap: 0.35rem;
     }
 
     .toc-item {
         position: relative;
     }
 
-    /* Forzar estilos para sobreescribir cualquier global */
+    /* Premium link styling */
     .toc-container .toc-list .toc-item a {
         text-decoration: none !important;
         color: var(--text-main, #2D3748) !important;
-        border-bottom: none !important; /* Por si el global usa border-bottom para links */
-        font-size: 0.8rem;
+        border-bottom: none !important;
+        font-size: 0.85rem;
         font-weight: 500;
-        transition: all 0.2s ease;
+        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
         display: block;
-        padding: 0.25rem 0.5rem;
-        line-height: 1.4;
-        border-radius: 6px;
+        padding: 0.5rem 0.75rem;
+        line-height: 1.5;
+        border-radius: 10px;
         background: transparent;
+        position: relative;
+        overflow: hidden;
     }
-
-    /* Diferenciación Clara H2 vs H3 */
     
-    /* H2: Negrita sutil, sin sangría */
-    .toc-item.h2 a {
-        color: var(--text-main, #4A5568);
-        font-weight: 600;
+    /* Subtle hover animation */
+    .toc-container .toc-list .toc-item a::before {
+        content: '';
+        position: absolute;
+        left: 0;
+        top: 0;
+        height: 100%;
+        width: 0;
+        background: linear-gradient(90deg, rgba(117, 170, 219, 0.1), transparent);
+        transition: width 0.3s ease;
+    }
+    
+    .toc-item a:hover::before {
+        width: 100%;
     }
 
-    /* H3: Más pequeño, con sangría y viñeta visual */
+    /* H2: Bold and prominent */
+    .toc-item.h2 a {
+        color: var(--text-main, #1A202C);
+        font-weight: 600;
+        font-size: 0.9rem;
+    }
+
+    /* H3: Elegant indentation */
     .toc-item.h3 a {
         font-size: 0.8rem;
-        padding-left: 1.5rem; /* Sangría notable */
-        color: var(--text-muted, #A0AEC0);
+        padding-left: 2rem;
+        color: var(--text-muted, #718096);
         font-weight: 400;
         position: relative;
     }
     
-    /* Pequeña línea o punto para H3 */
-    .toc-item.h3 a::before {
+    /* Premium bullet for H3 */
+    .toc-item.h3 a::after {
         content: '';
         position: absolute;
-        left: 0.75rem;
+        left: 1rem;
         top: 50%;
         transform: translateY(-50%);
-        width: 4px; /* Guión corto */
-        height: 1px;
-        background-color: var(--card-border, #CBD5E0);
+        width: 5px;
+        height: 5px;
+        border-radius: 50%;
+        background: linear-gradient(135deg, #F4B942, #FFA500);
+        opacity: 0.6;
     }
 
     .toc-item a:hover {
-        background-color: rgba(0, 0, 0, 0.03); /* Fondo muy sutil */
-        color: var(--brand-blue, #75AADB); /* Azul solo al hover */
+        background-color: rgba(45, 55, 72, 0.08);
+        color: var(--text-main, #1A202C) !important;
+        transform: translateX(3px);
+        padding-left: 1rem;
     }
     
-    /* Estado Activo - override del color forzado arriba */
+    .toc-item.h3 a:hover {
+        padding-left: 2.25rem;
+    }
+    
+    /* Active state with glow */
     .toc-container .toc-list .toc-item a.active {
-        color: var(--brand-blue, #75AADB) !important;
-        background-color: rgba(117, 170, 219, 0.15);
+        color: var(--text-main, #1A202C) !important;
+        background: linear-gradient(90deg, rgba(244, 185, 66, 0.15), rgba(244, 185, 66, 0.05));
         font-weight: 700;
+        box-shadow: 0 2px 8px rgba(244, 185, 66, 0.2);
+        transform: translateX(3px);
     }
     
-    /* Scrollbar fina */
-    .toc-container::-webkit-scrollbar { width: 4px; }
-    .toc-container::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 4px; }
+    /* Premium scrollbar */
+    .toc-container::-webkit-scrollbar { 
+        width: 6px; 
+    }
+    .toc-container::-webkit-scrollbar-track {
+        background: rgba(0, 0, 0, 0.02);
+        border-radius: 10px;
+    }
+    .toc-container::-webkit-scrollbar-thumb { 
+        background: linear-gradient(180deg, #F4B942, #75AADB);
+        border-radius: 10px;
+    }
+    .toc-container::-webkit-scrollbar-thumb:hover {
+        background: linear-gradient(180deg, #FFA500, #5a95cb);
+    }
 </style>

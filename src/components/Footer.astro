@@ -26,6 +26,7 @@ import CookieConsent from './CookieConsent.astro';
             <ul class="footer-links">
                 <li><a href="/">Inicio</a></li>
                 <li><a href="/destinos">Destinos</a></li>
+                <li><a href="/sobre-mi">Sobre Mí</a></li>
                 <li><a href="/manifiesto">Manifiesto</a></li> 
                 <li><a href="mailto:instantecreativo@icloud.com">Contacto</a></li>
             </ul>
@@ -229,10 +230,10 @@ import CookieConsent from './CookieConsent.astro';
         /* Social & Newsletter */
         .social-grid { gap: 0.4rem; }
         .social-grid a { width: 28px; height: 28px; }
-        .newsletter-col { min-width: 0; text-align: right; }
-        .newsletter-form { justify-content: flex-end; }
-        .input-field { width: 125px; flex: none; padding: 0.4rem; font-size: 0.75rem; height: 30px; }
-        .submit-btn { padding: 0 0.6rem; font-size: 1rem; height: 30px; }
+        .newsletter-col { min-width: 0; width: 100%; text-align: left; }
+        .newsletter-form { flex-direction: column; gap: 0.5rem; }
+        .input-field { width: 100%; padding: 0.6rem; font-size: 0.85rem; height: auto; }
+        .submit-btn { width: 100%; padding: 0.6rem; font-size: 0.9rem; height: auto; }
 
         /* BLOQUE DE MARCA */
         .brand-col { 

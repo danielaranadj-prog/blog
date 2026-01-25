@@ -19,7 +19,11 @@ export async function getStaticPaths({ paginate }) {
   // Ordenar por fecha (Más reciente primero)
   allPosts = allPosts.sort((a, b) => new Date(b.frontmatter.publishDate).valueOf() - new Date(a.frontmatter.publishDate).valueOf());
   
-  const popularPosts = allPosts.slice(0, 3);
+  // ✅ Fix: Generar URLs para posts populares
+  const popularPosts = allPosts.slice(0, 3).map(post => ({
+    ...post,
+    url: post.url || `/posts/${post.file.split('/').pop().replace('.md', '')}`
+  }));
 
   // Extracción de etiquetas únicas para el filtro
   const allTags = allPosts.flatMap(post => post.frontmatter.tags || []);

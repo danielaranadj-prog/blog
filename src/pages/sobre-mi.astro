@@ -84,20 +84,26 @@ let permalink = 'https://blog.instantetrips.com/sobre-mi';
             width: 100%;
             height: 100%;
             object-fit: cover;
-            object-position: 55% 25%; /* Ajuste fino: Centrar sujeto y priorizar rostro */
+            object-position: center;
             border-radius: 50%;
-            border: 4px solid var(--page-bg);
+            border: 0.2sx solid var(--page-bg);
             box-shadow: 0 12px 30px rgba(0,0,0,0.15);
         }
 
         .profile-img-container::after {
             content: '';
             position: absolute;
-            inset: -8px;
+            top: 50%;
+            left: 50%;
+            width: calc(100% + 16px);
+            height: calc(100% + 16px);
             border-radius: 50%;
             border: 2px dashed var(--accent-gold);
+            /* Importante: translate(-50%, -50%) centra el elemento, pero la animación debe respetarlo */
+            transform: translate(-50%, -50%); 
             animation: spin 30s linear infinite;
             pointer-events: none;
+            box-sizing: border-box; /* Asegura que el borde no afecte el tamaño total */
         }
 
         /* Content Sections */
@@ -136,6 +142,7 @@ let permalink = 'https://blog.instantetrips.com/sobre-mi';
             font-size: 1.15rem;
             line-height: 1.8;
             color: var(--text-main);
+            text-align: justify;
         }
 
         .about-content p {
@@ -220,23 +227,24 @@ let permalink = 'https://blog.instantetrips.com/sobre-mi';
         }
 
         @keyframes spin {
-            to { transform: rotate(360deg); }
+            from { transform: translate(-50%, -50%) rotate(0deg); }
+            to { transform: translate(-50%, -50%) rotate(360deg); }
         }
 
         .contact-cta {
-            display: inline-block;
-            margin-top: 1rem;
-            padding: 0.8rem 2rem;
-            background: linear-gradient(135deg, var(--brand-blue), #5a95cb);
-            color: white;
-            text-decoration: none;
-            border-radius: 50px;
-            font-family: 'Montserrat', sans-serif;
-            font-weight: 700;
-            font-size: 0.9rem;
-            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-            box-shadow: 0 4px 15px rgba(117, 170, 219, 0.3);
-        }
+    display: inline-block;
+    margin: 2rem auto 0; /* 👈 ESTA LÍNEA lo centra */
+    padding: 0.8rem 2rem;
+    background: linear-gradient(135deg, var(--brand-blue), #5a95cb);
+    color: white;
+    text-decoration: none;
+    border-radius: 50px;
+    font-family: 'Montserrat', sans-serif;
+    font-weight: 700;
+    font-size: 0.9rem;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    box-shadow: 0 4px 15px rgba(117, 170, 219, 0.3);
+}
 
         .contact-cta:hover {
             transform: translateY(-3px);
@@ -256,8 +264,8 @@ let permalink = 'https://blog.instantetrips.com/sobre-mi';
             <div class="profile-img-container">
                 <img src="/assets/autores/daniel-arana.jpg" alt="Daniel Arana" class="profile-img">
             </div>
-            <h1 class="about-title">SOBRE INSTANTE TRIPS</h1>
-            <p class="about-subtitle">Viajero independiente, creador y aprendiz constante.</p>
+            <h1 class="about-title">Daniel Arana</h1>
+            <p class="about-subtitle">Creador de <strong>Instante Trips</strong> y aprendiz constante.</p>
         </div>
 
         <!-- SECCIÓN 1: QUIÉN SOY -->
@@ -265,10 +273,7 @@ let permalink = 'https://blog.instantetrips.com/sobre-mi';
             <h2>Quién soy</h2>
             <div class="about-content">
                 <p>
-                    Soy <strong>Daniel</strong>, viajero independiente y creador de Instante Trips.
-                </p>
-                <p>
-                    Viajo por mi cuenta, planifico mis rutas desde cero, cometo errores, aprendo sobre la marcha y documento todo el proceso para que otras personas puedan viajar mejor informadas y con expectativas reales.
+                    Soy viajero independiente, viajo por mi cuenta, planifico mis rutas desde cero, cometo errores, aprendo sobre la marcha y documento todo el proceso para que otras personas puedan viajar mejor informadas y con expectativas reales.
                 </p>
                 <p>
                     Instante Trips nace como un proyecto personal, <span class="highlight">no como una agencia de viajes</span> ni como un catálogo de destinos perfectos.
@@ -276,11 +281,9 @@ let permalink = 'https://blog.instantetrips.com/sobre-mi';
             </div>
         </div>
 
-        <div class="divider">⸻</div>
-
         <!-- SECCIÓN 2: QUÉ ES INSTANTE TRIPS -->
         <div class="about-section">
-            <h2>Qué es Instante Trips</h2>
+            <h2>¿Qué es Instante Trips?</h2>
             <div class="about-content">
                 <p>
                     Instante Trips es un blog de viajes basado en procesos reales, no en promesas idealizadas.
@@ -298,11 +301,9 @@ let permalink = 'https://blog.instantetrips.com/sobre-mi';
             </div>
         </div>
 
-        <div class="divider">⸻</div>
-
         <!-- SECCIÓN 3: CÓMO SE CREA EL CONTENIDO -->
         <div class="about-section">
-            <h2>Cómo se crea el contenido</h2>
+            <h2>¿Cómo se crea el contenido?</h2>
             <div class="about-content">
                 <p>El contenido de Instante Trips se construye en tres etapas:</p>
                 
@@ -322,12 +323,17 @@ let permalink = 'https://blog.instantetrips.com/sobre-mi';
                 </div>
 
                 <p>
-                    No publico guías genéricas de lugares que no conozco. Cuando un destino aparece aquí, es porque <span class="highlight">lo estoy planeando, lo estoy viviendo o ya lo viví.</span>
+                    <strong>No publico guías genéricas.</strong> Cada destino que aparece aquí tiene uno de estos orígenes:
+                </p>
+                <ul class="about-list">
+                    <li><strong>Investigación profunda:</strong> Planeación detallada para un viaje futuro (estudio rutas, costos, logística).</li>
+                    <li><strong>Experiencia real:</strong> Destinos que ya visité personalmente y puedo contar desde la vivencia directa.</li>
+                </ul>
+                <p>
+                    En ambos casos, el contenido se basa en <span class="highlight">investigación seria y honesta</span>, no en copiar otros blogs.
                 </p>
             </div>
         </div>
-
-        <div class="divider">⸻</div>
 
         <!-- SECCIÓN 4: MONETIZACIÓN -->
         <div class="about-section">
@@ -346,11 +352,9 @@ let permalink = 'https://blog.instantetrips.com/sobre-mi';
             </div>
         </div>
 
-        <div class="divider">⸻</div>
-
         <!-- SECCIÓN 5: QUÉ NO ES -->
         <div class="about-section">
-            <h2>Qué NO es Instante Trips</h2>
+            <h2>¿Qué NO es Instante Trips?</h2>
             <div class="about-content">
                 <ul class="about-list">
                     <li>No es una agencia de viajes</li>
@@ -364,18 +368,12 @@ let permalink = 'https://blog.instantetrips.com/sobre-mi';
             </div>
         </div>
 
-        <div class="divider">⸻</div>
-
         <!-- SECCIÓN 6: CONTACTO -->
         <div class="about-section" style="text-align: center;">
-            <h2>Contacto y Colaboraciones</h2>
+            <h2>Colaboraciones</h2>
             <div class="about-content">
-                <p>
-                    Si tienes dudas, comentarios o quieres compartir tu experiencia, puedes escribirme a través de la página de contacto o en mis redes sociales.
-                </p>
-                
                 <div class="collaborator-box" style="background: rgba(117,170,219,0.05); padding: 1.5rem; border-radius: 12px; margin: 2rem 0; border: 1px dashed var(--card-border); text-align: left;">
-                    <h3 style="margin-top: 0; font-size: 1.2rem; color: var(--brand-blue);">¿Quieres ser Colaborador Invitado? ✍️</h3>
+                    <h3 style="margin-top: 0; font-size: 1.2rem; color: var(--brand-blue);">Cuéntanos tu historia✍️</h3>
                     <p style="font-size: 0.95rem; margin-bottom: 1rem;">
                         Si has vivido una experiencia de viaje única y quieres contarla en Instante Trips, ¡nos encantaría leerte!
                     </p>
@@ -385,16 +383,10 @@ let permalink = 'https://blog.instantetrips.com/sobre-mi';
                         <li>Al enviar tu historia, aceptas nuestros <a href="/legal/terminos" style="color: var(--brand-blue); text-decoration: underline;">Términos y Condiciones</a> (Colaboración voluntaria, sin regalías).</li>
                     </ul>
                 </div>
-
-                <p>
-                    Instante Trips está en constante evolución, igual que cada viaje.
-                </p>
-                <a href="mailto:instantecreativo@icloud.com" class="contact-cta">Cuéntanos tu historia</a>
+                <a href="mailto:instantecreativo@icloud.com" class="contact-cta">Contacto</a>
             </div>
         </div>
-
     </main>
-
     <Footer />
 </body>
 </html>
