@@ -14,7 +14,7 @@ export const AUTHORS: Record<string, Author> = {
     role: 'Founder & Creative Director',
     bio: 'Me encanta contar mis historias y experiencias viajando.',
     image: '/assets/autores/daniel-arana-1768646203429.jpg',
-    email: 'danielaranadj@gmail.com',
+    email: 'instantecreativo@icloud.com',
   },
 
   'edgar-arana': {

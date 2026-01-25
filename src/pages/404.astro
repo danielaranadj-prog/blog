@@ -2,6 +2,7 @@
 import BaseHead from '../components/BaseHead.astro';
 import BlogHeader from '../components/BlogHeader.astro';
 import Footer from '../components/Footer.astro';
+import FlightSearch from '../components/FlightSearch.astro';
 import { SITE } from '../config';
 
 let title = '404 - Ruta no encontrada';
@@ -192,6 +193,23 @@ let description = 'Parece que te has desviado. Regresa al inicio para seguir via
                 0%, 100% { transform: translateY(0); }
                 50% { transform: translateY(-10px); }
              }
+
+             .lost-widget-container {
+                margin-top: 3rem;
+                width: 100%;
+                max-width: 500px;
+                animation: fadeInUp 1s ease-out 0.5s forwards;
+                opacity: 0;
+             }
+
+             .widget-intro {
+                font-size: 0.9rem !important;
+                margin-bottom: 1rem !important;
+                color: var(--accent-gold);
+                font-weight: 600;
+                text-transform: uppercase;
+                letter-spacing: 1px;
+             }
         </style>
         <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Serif:ital,wght@0,400;0,600;1,400&display=swap" rel="stylesheet">
    </head>
@@ -213,6 +231,11 @@ let description = 'Parece que te has desviado. Regresa al inicio para seguir via
                     <span>Regresar a terreno conocido</span>
                     <span class="arrow">→</span>
                 </a>
+            </div>
+
+            <div class="lost-widget-container">
+                <p class="widget-intro">O... ¿por qué no aprovechas para planear tu próximo escape?</p>
+                <FlightSearch variant="inline" />
             </div>
         </main>
 

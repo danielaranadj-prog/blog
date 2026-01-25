@@ -1,0 +1,135 @@
+---
+---
+
+<div id="cookie-banner" class="cookie-banner">
+  <div class="cookie-content">
+    <div class="cookie-text">
+        <span class="cookie-icon">🍪</span>
+        <p>
+            <strong>Trips & Tips:</strong> Usamos cookies para que tu experiencia en el blog sea de primera clase y para fines estadísticos.
+            Al continuar, aceptas nuestra <a href="/legal/privacidad">Política de Privacidad</a>.
+        </p>
+    </div>
+    <div class="cookie-actions">
+      <button id="accept-cookies" class="btn-accept">Aceptar y Viajar</button>
+    </div>
+  </div>
+</div>
+
+<script>
+  // Lógica simple y ligera sin dependencias externas
+  const banner = document.getElementById('cookie-banner');
+  const btn = document.getElementById('accept-cookies');
+  const STORAGE_KEY = 'instante_cookies_accepted';
+
+  // 1. Verificar si ya aceptó
+  if (!localStorage.getItem(STORAGE_KEY)) {
+    // Pequeño delay para no ser intrusivo al cargar
+    setTimeout(() => {
+        banner?.classList.add('visible');
+    }, 2000);
+  }
+
+  // 2. Acción de aceptar
+  btn?.addEventListener('click', () => {
+    localStorage.setItem(STORAGE_KEY, 'true');
+    banner?.classList.remove('visible');
+  });
+</script>
+
+<style>
+  .cookie-banner {
+    position: fixed;
+    bottom: 2rem;
+    left: 50%;
+    transform: translateX(-50%) translateY(150%); /* Oculto abajo */
+    width: 90%;
+    max-width: 600px;
+    background: rgba(255, 255, 255, 0.95);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    border: 1px solid rgba(0,0,0,0.05);
+    border-left: 4px solid #F4B942; /* Gold accent */
+    border-radius: 16px;
+    box-shadow: 0 10px 40px rgba(0,0,0,0.15);
+    z-index: 9999;
+    padding: 1.25rem;
+    transition: transform 0.6s cubic-bezier(0.22, 1, 0.36, 1);
+    font-family: 'Montserrat', sans-serif;
+  }
+
+  .cookie-banner.visible {
+    transform: translateX(-50%) translateY(0);
+  }
+
+  .cookie-content {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1.5rem;
+  }
+
+  .cookie-text {
+    display: flex;
+    align-items: flex-start;
+    gap: 1rem;
+    font-size: 0.85rem;
+    color: #2D3748;
+    line-height: 1.5;
+  }
+
+  .cookie-icon {
+    font-size: 1.5rem;
+  }
+
+  .cookie-text a {
+    color: #75AADB;
+    text-decoration: underline;
+    font-weight: 600;
+  }
+
+  .btn-accept {
+    background: linear-gradient(135deg, #1A202C, #2D3748);
+    color: white;
+    border: none;
+    padding: 0.6rem 1.2rem;
+    border-radius: 50px;
+    font-family: 'Montserrat', sans-serif;
+    font-weight: 700;
+    font-size: 0.8rem;
+    cursor: pointer;
+    white-space: nowrap;
+    transition: all 0.2s ease;
+    box-shadow: 0 4px 12px rgba(45, 55, 72, 0.2);
+  }
+
+  .btn-accept:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 16px rgba(45, 55, 72, 0.3);
+  }
+
+  /* Dark Mode Support */
+  @media (prefers-color-scheme: dark) {
+    .cookie-banner {
+        background: rgba(30, 41, 59, 0.95);
+        border-color: rgba(255,255,255,0.1);
+    }
+    .cookie-text { color: #E2E8F0; }
+    .btn-accept {
+        background: #F4B942;
+        color: #1A202C;
+    }
+  }
+
+  /* Mobile adjustment */
+  @media (max-width: 600px) {
+    .cookie-content {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 1rem;
+    }
+    .btn-accept {
+        width: 100%;
+    }
+  }
+</style>

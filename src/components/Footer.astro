@@ -1,5 +1,6 @@
 ---
 const today = new Date();
+import CookieConsent from './CookieConsent.astro';
 ---
 
 <footer class="site-footer">
@@ -26,7 +27,7 @@ const today = new Date();
                 <li><a href="/">Inicio</a></li>
                 <li><a href="/destinos">Destinos</a></li>
                 <li><a href="/manifiesto">Manifiesto</a></li> 
-                <li><a href="mailto:hola@instantetrips.com">Contacto</a></li>
+                <li><a href="mailto:instantecreativo@icloud.com">Contacto</a></li>
             </ul>
         </div>
 
@@ -67,6 +68,11 @@ const today = new Date();
             Hecho con <span style="color:#e25555;">❤</span> y mucho café.
         </div>
     </div>
+    
+    <script>
+        import "../components/CookieConsent.astro";
+    </script>
+    <CookieConsent />
 </footer>
 
 <style>
