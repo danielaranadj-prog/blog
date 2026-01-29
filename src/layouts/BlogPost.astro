@@ -19,6 +19,7 @@ import ReadingProgress from '../components/ReadingProgress.astro';
 import BackToTop from '../components/BackToTop.astro';
 import ImageLightbox from '../components/ImageLightbox.astro';
 import SocialShare from '../components/SocialShare.astro';
+import PWAInstallPrompt from '../components/PWAInstallPrompt.astro';
 import { AUTHORS, DEFAULT_AUTHOR } from '../data/authors';
 import { fetchAffiliates } from '../lib/fetchAffiliates'; // Import fetcher
 
@@ -638,6 +639,7 @@ const readingTime = Math.ceil(words / 200);
   <ReadingProgress />
   <BackToTop />
   <ImageLightbox />
+  <PWAInstallPrompt />
   <BlogHeader />
 
   <div class="container">

@@ -19,6 +19,14 @@ const socialImage = image || '/social-default.jpg';
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 <link rel="icon" type="image/svg+xml" href="/logo.svg" />
 
+<!-- PWA Configuration -->
+<link rel="manifest" href="/manifest.json" />
+<meta name="theme-color" content="#F4B942" />
+<meta name="apple-mobile-web-app-capable" content="yes" />
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+<meta name="apple-mobile-web-app-title" content="Instante Trips" />
+<link rel="apple-touch-icon" href="/apple-touch-icon.png" />
+
 <title>{title}</title>
 <meta name="title" content={title} />
 <meta name="description" content={description} />
@@ -60,4 +68,20 @@ const socialImage = image || '/social-default.jpg';
   gtag('js', new Date());
 
   gtag('config', 'G-F6PP85582J');
+</script>
+
+<!-- PWA Service Worker Registration -->
+<script is:inline>
+if ('serviceWorker' in navigator) {
+  window.addEventListener('load', () => {
+    navigator.serviceWorker.register('/sw.js').then(
+      (registration) => {
+        console.log('[PWA] Service Worker registered successfully:', registration.scope);
+      },
+      (error) => {
+        console.error('[PWA] Service Worker registration failed:', error);
+      }
+    );
+  });
+}
 </script>

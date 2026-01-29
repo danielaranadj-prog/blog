@@ -1,0 +1,38 @@
+{
+    "name": "Instante Trips & Tips",
+    "short_name": "Instante Trips",
+    "description": "Blog de viajes con consejos, errores y experiencias reales que facilitarán tu próximo viaje",
+    "start_url": "/",
+    "display": "standalone",
+    "background_color": "#0f172a",
+    "theme_color": "#F4B942",
+    "orientation": "portrait-primary",
+    "icons": [
+        {
+            "src": "/pwa-icon-192.png",
+            "sizes": "192x192",
+            "type": "image/png",
+            "purpose": "any maskable"
+        },
+        {
+            "src": "/pwa-icon-512.png",
+            "sizes": "512x512",
+            "type": "image/png",
+            "purpose": "any maskable"
+        },
+        {
+            "src": "/apple-touch-icon.png",
+            "sizes": "180x180",
+            "type": "image/png"
+        }
+    ],
+    "categories": [
+        "travel",
+        "lifestyle",
+        "blog"
+    ],
+    "lang": "es",
+    "dir": "ltr",
+    "scope": "/",
+    "prefer_related_applications": false
+}
