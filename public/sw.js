@@ -41,6 +41,15 @@ self.addEventListener('fetch', (event) => {
     // Skip non-GET requests
     if (event.request.method !== 'GET') return;
 
+    const requestUrl = new URL(event.request.url);
+    const isSameOrigin = requestUrl.origin === location.origin;
+
+    // Only intercept and cache same-origin requests
+    // External resources (Unsplash, Cloudinary, Firebase CDN, etc.) load normally
+    if (!isSameOrigin) {
+        return; // Let the browser handle external requests natively
+    }
+
     event.respondWith(
         fetch(event.request)
             .then((response) => {
@@ -68,6 +77,7 @@ self.addEventListener('fetch', (event) => {
                         return caches.match(OFFLINE_URL);
                     }
 
+                    // Return a simple error response for failed same-origin requests
                     return new Response('Network error', {
                         status: 408,
                         headers: { 'Content-Type': 'text/plain' }
