@@ -1,0 +1,155 @@
+---
+/**
+ * DarkModeToggle.astro
+ * Toggle manual para cambiar entre modo claro y oscuro
+ */
+---
+
+<button id="theme-toggle" class="theme-toggle" aria-label="Cambiar tema">
+  <svg class="sun-icon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+    <circle cx="12" cy="12" r="5"/>
+    <path d="M12 1v2m0 18v2M4.22 4.22l1.42 1.42m12.72 12.72 1.42 1.42M1 12h2m18 0h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42"/>
+  </svg>
+  <svg class="moon-icon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+    <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/>
+  </svg>
+</button>
+
+<script is:inline>
+  // Theme management
+  const THEME_KEY = 'instante-trips-theme';
+  
+  function getThemePreference() {
+    // 1. Check localStorage
+    const stored = localStorage.getItem(THEME_KEY);
+    if (stored) return stored;
+    
+    // 2. Check system preference
+    if (window.matchMedia('(prefers-color-scheme: dark)').matches) {
+      return 'dark';
+    }
+    
+    return 'light';
+  }
+  
+  function setTheme(theme) {
+    document.documentElement.setAttribute('data-theme', theme);
+    localStorage.setItem(THEME_KEY, theme);
+    updateToggleIcon(theme);
+  }
+  
+  function updateToggleIcon(theme) {
+    const toggle = document.getElementById('theme-toggle');
+    if (!toggle) return;
+    
+    const sunIcon = toggle.querySelector('.sun-icon');
+    const moonIcon = toggle.querySelector('.moon-icon');
+    
+    if (theme === 'dark') {
+      sunIcon.style.display = 'block';
+      moonIcon.style.display = 'none';
+    } else {
+      sunIcon.style.display = 'none';
+      moonIcon.style.display = 'block';
+    }
+  }
+  
+  function initThemeToggle() {
+    const toggle = document.getElementById('theme-toggle');
+    if (!toggle) return;
+    
+    // Set initial theme
+    const currentTheme = getThemePreference();
+    setTheme(currentTheme);
+    
+    // Toggle on click
+    toggle.addEventListener('click', () => {
+      const current = document.documentElement.getAttribute('data-theme');
+      const newTheme = current === 'dark' ? 'light' : 'dark';
+      setTheme(newTheme);
+    });
+  }
+  
+  // Initialize immediately to prevent flash
+  const initialTheme = getThemePreference();
+  document.documentElement.setAttribute('data-theme', initialTheme);
+  
+  // Initialize toggle after DOM is ready
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', initThemeToggle);
+  } else {
+    initThemeToggle();
+  }
+  
+  // Support for Astro view transitions
+  document.addEventListener('astro:page-load', initThemeToggle);
+</script>
+
+<style>
+  .theme-toggle {
+    position: relative;
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    background: rgba(117, 170, 219, 0.1);
+    border: 1px solid rgba(117, 170, 219, 0.2);
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.3s ease;
+  }
+  
+  .theme-toggle:hover {
+    background: rgba(117, 170, 219, 0.2);
+    transform: rotate(20deg);
+  }
+  
+  .theme-toggle svg {
+    transition: all 0.3s ease;
+  }
+  
+  /* Icons styling */
+  .sun-icon {
+    color: #F4B942;
+  }
+  
+  .moon-icon {
+    color: #75AADB;
+  }
+  
+  /* Animation on click */
+  .theme-toggle:active {
+    transform: scale(0.9);
+  }
+</style>
+
+<style is:global>
+  /* Theme CSS Variables */
+  :root[data-theme="light"] {
+    --page-bg: #F8F9FA;
+    --card-bg: #ffffff;
+    --text-main: #2D3748;
+    --text-muted: #718096;
+    --text-prose: #4A5568;
+    --card-border: #E2E8F0;
+    --brand-blue: #75AADB;
+    --accent-gold: #F4B942;
+  }
+  
+  :root[data-theme="dark"] {
+    --page-bg: #0f172a;
+    --card-bg: #1e293b;
+    --text-main: #f1f5f9;
+    --text-muted: #94a3b8;
+    --text-prose: #cbd5e1;
+    --card-border: #334155;
+    --brand-blue: #75AADB;
+    --accent-gold: #F4B942;
+  }
+  
+  /* Smooth transition for theme changes */
+  * {
+    transition: background-color 0.3s ease, color 0.3s ease, border-color 0.3s ease;
+  }
+</style>

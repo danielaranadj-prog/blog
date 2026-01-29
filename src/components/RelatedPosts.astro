@@ -15,24 +15,46 @@ const { currentSlug, currentTags = [], limit = 3 } = Astro.props;
 // Obtener todos los posts
 const allPosts = await Astro.glob('../pages/posts/*.md');
 
-// Filtrar posts relacionados por tags
-const relatedPosts = allPosts
-  .filter(post => {
-    // Excluir el post actual
-    if (post.url?.includes(currentSlug)) return false;
-    
-    // Verificar si comparte tags
+// Algoritmo mejorado con scoring ponderado
+const scoredPosts = allPosts
+  .filter(post => !post.url?.includes(currentSlug)) // Excluir post actual
+  .map(post => {
     const postTags = post.frontmatter.tags || [];
-    const hasMatchingTag = postTags.some((tag: string) => 
+    let score = 0;
+    
+    // 1. Tags compartidos (peso: 3 puntos por tag)
+    const matchingTags = postTags.filter((tag: string) =>
       currentTags.map(t => t.toLowerCase()).includes(tag.toLowerCase())
     );
+    score += matchingTags.length * 3;
     
-    return hasMatchingTag;
+    // 2. Recencia del post (peso: 1 punto si es de los últimos 30 días)
+    const postDate = new Date(post.frontmatter.publishDate || 0);
+    const daysSincePublish = (Date.now() - postDate.getTime()) / (1000 * 60 * 60 * 24);
+    if (daysSincePublish <= 30) {
+      score += 1;
+    }
+    
+    return {
+      post,
+      score,
+      publishDate: postDate
+    };
+  })
+  .filter(item => item.score > 0) // Solo posts con algún puntaje
+  .sort((a, b) => {
+    // Ordenar por score primero, luego por fecha
+    if (b.score !== a.score) {
+      return b.score - a.score;
+    }
+    return b.publishDate.getTime() - a.publishDate.getTime();
   })
   .slice(0, limit);
 
 // Si no hay suficientes relacionados, completar con los más recientes
+const relatedPosts = scoredPosts.map(item => item.post);
 const remainingCount = limit - relatedPosts.length;
+
 if (remainingCount > 0) {
   const recentPosts = allPosts
     .filter(post => !post.url?.includes(currentSlug))

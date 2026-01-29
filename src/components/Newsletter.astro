@@ -222,4 +222,15 @@ const { variant = 'inline' } = Astro.props;
         input { background: rgba(0,0,0,0.2); border-color: #334155; }
         input:focus { background: rgba(0,0,0,0.4); }
     }
+    
+    /* Mobile: Botón debajo del input */
+    @media (max-width: 768px) {
+        .newsletter-card:not(.sidebar) .signup-form {
+            flex-direction: column;
+        }
+        
+        .newsletter-card:not(.sidebar) button {
+            width: 100%;
+        }
+    }
 </style>

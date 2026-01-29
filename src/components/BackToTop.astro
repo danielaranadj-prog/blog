@@ -1,0 +1,120 @@
+---
+/**
+ * BackToTop.astro
+ * Botón flotante para volver al inicio del artículo
+ */
+---
+
+<button id="back-to-top" class="back-to-top-btn" aria-label="Volver arriba">
+  <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+    <path d="M12 19V5M5 12l7-7 7 7"/>
+  </svg>
+</button>
+
+<script>
+  function initBackToTop() {
+    const button = document.getElementById('back-to-top');
+    if (!button) return;
+
+    // Mostrar/ocultar botón basado en scroll
+    function toggleButton() {
+      const scrolled = window.scrollY || document.documentElement.scrollTop;
+      const threshold = 300; // Mostrar después de 300px de scroll
+      
+      if (scrolled > threshold) {
+        button.classList.add('visible');
+      } else {
+        button.classList.remove('visible');
+      }
+    }
+
+    // Scroll suave al inicio
+    button.addEventListener('click', () => {
+      window.scrollTo({
+        top: 0,
+        behavior: 'smooth'
+      });
+    });
+
+    // Event listener con throttle
+    let ticking = false;
+    window.addEventListener('scroll', () => {
+      if (!ticking) {
+        window.requestAnimationFrame(() => {
+          toggleButton();
+          ticking = false;
+        });
+        ticking = true;
+      }
+    });
+
+    // Inicializar estado
+    toggleButton();
+  }
+
+  // Ejecutar en carga
+  initBackToTop();
+  
+  // Soporte para view transitions
+  document.addEventListener('astro:page-load', initBackToTop);
+</script>
+
+<style>
+  .back-to-top-btn {
+    position: fixed;
+    bottom: 2rem;
+    right: 2rem;
+    width: 48px;
+    height: 48px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, #F4B942, #FFA500);
+    color: #000;
+    border: none;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 4px 12px rgba(244, 185, 66, 0.3);
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    z-index: 1000;
+    
+    /* Inicialmente oculto */
+    opacity: 0;
+    visibility: hidden;
+    transform: translateY(20px) scale(0.8);
+  }
+  
+  .back-to-top-btn.visible {
+    opacity: 1;
+    visibility: visible;
+    transform: translateY(0) scale(1);
+  }
+  
+  .back-to-top-btn:hover {
+    transform: translateY(-4px) scale(1.05);
+    box-shadow: 0 8px 20px rgba(244, 185, 66, 0.5);
+  }
+  
+  .back-to-top-btn:active {
+    transform: translateY(-2px) scale(0.98);
+  }
+  
+  /* Animación del icono */
+  .back-to-top-btn svg {
+    transition: transform 0.3s ease;
+  }
+  
+  .back-to-top-btn:hover svg {
+    transform: translateY(-2px);
+  }
+  
+  /* Responsive */
+  @media (max-width: 768px) {
+    .back-to-top-btn {
+      bottom: 1.5rem;
+      right: 1.5rem;
+      width: 44px;
+      height: 44px;
+    }
+  }
+</style>

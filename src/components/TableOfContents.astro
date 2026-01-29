@@ -23,41 +23,82 @@
         tocList.innerHTML = '';
 
         // Buscar headers
-        const headers = article.querySelectorAll('h2, h3');
-        if (headers.length === 0) {
+        const content = document.querySelector('.prose');
+        const headings = content.querySelectorAll('h2, h3');
+        
+        if (headings.length === 0) {
             document.querySelector('.toc-container').style.display = 'none';
             return;
         }
 
-        headers.forEach((header, index) => {
-            // Asignar ID si no tiene
-            if (!header.id) {
-                const slug = header.textContent
+        headings.forEach((heading, index) => {
+            if (!heading.id) {
+                const slug = heading.textContent
                     .toLowerCase()
                     .replace(/[^a-z0-9]+/g, '-')
                     .replace(/(^-|-$)+/g, '');
-                header.id = `${slug}-${index}`; // Index para evitar duplicados
+                heading.id = `${slug}-${index}`;
             }
-
-            const li = document.createElement('li');
-            li.className = `toc-item ${header.tagName.toLowerCase()}`;
+            
+            const level = heading.tagName.toLowerCase();
+            const text = heading.textContent;
+            const id = heading.id;
+            
+            const item = document.createElement('li'); // Changed from 'div' to 'li' to match original structure
+            item.classList.add('toc-item', level);
             
             const link = document.createElement('a');
-            link.href = `#${header.id}`;
-            link.textContent = header.textContent;
+            link.href = `#${id}`;
+            link.textContent = text;
             
-            // Smooth scroll
+            // Force inline styles to override blue links
+            const isDark = document.documentElement.getAttribute('data-theme') === 'dark';
+            if (level === 'h2') {
+                link.style.color = isDark ? 'rgba(241, 245, 249, 0.95)' : '#2D3748';
+                link.style.fontWeight = '600';
+            } else {
+                link.style.color = isDark ? 'rgba(203, 213, 225, 0.85)' : '#718096';
+            }
+            link.style.textDecoration = 'none';
+            
             link.addEventListener('click', (e) => {
                 e.preventDefault();
-                header.scrollIntoView({ behavior: 'smooth', block: 'start' });
-                // Actualizar URL hash sin salto
-                history.pushState(null, null, `#${header.id}`);
+                const target = document.getElementById(id);
+                if (target) {
+                    const yOffset = -100;
+                    const y = target.getBoundingClientRect().top + window.pageYOffset + yOffset;
+                    window.scrollTo({ top: y, behavior: 'smooth' });
+                    
+                    document.querySelectorAll('.toc-item a').forEach(a => {
+                        a.classList.remove('active');
+                        // Reset colors
+                        const aLevel = a.closest('.toc-item').classList.contains('h2') ? 'h2' : 'h3';
+                        const currentDark = document.documentElement.getAttribute('data-theme') === 'dark';
+                        if (aLevel === 'h2') {
+                            a.style.color = currentDark ? 'rgba(241, 245, 249, 0.95)' : '#2D3748';
+                        } else {
+                            a.style.color = currentDark ? 'rgba(203, 213, 225, 0.85)' : '#718096';
+                        }
+                    });
+                    link.classList.add('active');
+                    link.style.color = '#F4B942'; // Active color
+                    history.pushState(null, null, `#${id}`); // Keep URL hash update
+                }
             });
-
-            li.appendChild(link);
-            tocList.appendChild(li);
+            
+            item.appendChild(link);
+            tocList.appendChild(item);
         });
-
+        
+        // Update colors on theme change
+        document.addEventListener('storage', updateLinkColors);
+        // Listen for theme toggle
+        const observerTheme = new MutationObserver(updateLinkColors); // Renamed to avoid conflict
+        observerTheme.observe(document.documentElement, {
+            attributes: true,
+            attributeFilter: ['data-theme']
+        });
+    
         // Observer para activar items al scroll
         const observer = new IntersectionObserver((entries) => {
             entries.forEach(entry => {
@@ -74,6 +115,22 @@
         }, { rootMargin: '-100px 0px -66% 0px' }); // Ajustar zona de activación
 
         headers.forEach(h => observer.observe(h));
+    }
+    
+    function updateLinkColors() {
+        const isDark = document.documentElement.getAttribute('data-theme') === 'dark';
+        document.querySelectorAll('.toc-item a').forEach(link => {
+            if (link.classList.contains('active')) {
+                link.style.color = '#F4B942';
+                return;
+            }
+            const level = link.closest('.toc-item').classList.contains('h2') ? 'h2' : 'h3';
+            if (level === 'h2') {
+                link.style.color = isDark ? 'rgba(241, 245, 249, 0.95)' : '#2D3748';
+            } else {
+                link.style.color = isDark ? 'rgba(203, 213, 225, 0.85)' : '#718096';
+            }
+        });
     }
 
     // Ejecutar al cargar
@@ -131,16 +188,18 @@
         50% { background-position: 0% 100%; }
     }
 
-    /* Dark mode glassmorphism */
-    @media (prefers-color-scheme: dark) {
-        .toc-container {
-            background: rgba(15, 23, 42, 0.8);
-            border-color: rgba(255, 255, 255, 0.08);
-            box-shadow: 
-                0 8px 32px rgba(0, 0, 0, 0.3),
-                0 2px 8px rgba(0, 0, 0, 0.2),
-                inset 0 1px 0 rgba(255, 255, 255, 0.05);
-        }
+    /* ⚠️ DARK MODE IMPORTANT
+     * SIEMPRE usar :root[data-theme="dark"] NO @media (prefers-color-scheme: dark)
+     * Esto asegura que el toggle manual de tema funcione correctamente
+     * El selector :root[data-theme="dark"] se activa con DarkModeToggle.astro
+     */
+    :root[data-theme="dark"] .toc-container {
+        background: rgba(15, 23, 42, 0.8);
+        border-color: rgba(255, 255, 255, 0.08);
+        box-shadow: 
+            0 8px 32px rgba(0, 0, 0, 0.3),
+            0 2px 8px rgba(0, 0, 0, 0.2),
+            inset 0 1px 0 rgba(255, 255, 255, 0.05);
     }
 
     /* Mostrar solo en pantallas grandes */
@@ -148,21 +207,96 @@
         .toc-container { display: block; }
     }
 
-    .toc-title {
-        font-family: 'Montserrat', sans-serif;
-        font-size: 0.7rem;
-        text-transform: uppercase;
-        letter-spacing: 2px;
-        background: linear-gradient(135deg, #F4B942, #FFA500);
-        -webkit-background-clip: text;
-        background-clip: text;
-        -webkit-text-fill-color: transparent;
-        margin: 0 0 1.25rem 0;
-        font-weight: 800;
-        padding-bottom: 0.75rem;
-        padding-left: 1rem; /* Space for gradient line */
-        border-bottom: 1px solid rgba(117, 170, 219, 0.15);
+    @media (max-width: 1200px) {
+    .toc-sticky {
+      display: none;
     }
+  }
+  
+  /* Light mode improvements */
+  :root[data-theme="light"] .toc-sticky {
+    --toc-bg: #ffffff;
+    --toc-border: rgba(117, 170, 219, 0.25);
+    --toc-shadow: 
+      0 2px 12px rgba(0, 0, 0, 0.06),
+      0 0 0 1px rgba(117, 170, 219, 0.08);
+    --toc-title: #2D3748;
+    --toc-title-border: rgba(244, 185, 66, 0.4);
+  }
+  
+  /* Default styles - DARK MODE */
+  .toc-sticky {
+    position: sticky;
+    top: 120px;
+    background: rgba(30, 41, 59, 0.7); /* Dark background */
+    backdrop-filter: blur(12px);
+    border: 1px solid rgba(117, 170, 219, 0.2);
+    border-radius: 16px;
+    padding: 1.5rem;
+    box-shadow: 
+      0 10px 30px rgba(0, 0, 0, 0.3),
+      inset 0 1px 0 rgba(255, 255, 255, 0.1);
+  }
+
+  .toc-title {
+    font-size: 0.75rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 1.5px;
+    color: #F4B942; /* Gold for dark mode */
+    margin: 0 0 1rem 0;
+    padding-bottom: 0.75rem;
+    border-bottom: 2px solid rgba(244, 185, 66, 0.3);
+    background: linear-gradient(90deg, #F4B942, #75AADB);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+  
+  /* LIGHT MODE OVERRIDES - Apply white background only in light mode */
+  :root[data-theme="light"] .toc-sticky {
+    background: #ffffff;
+    border: 1px solid rgba(117, 170, 219, 0.25);
+    box-shadow: 
+      0 2px 12px rgba(0, 0, 0, 0.06),
+      0 0 0 1px rgba(117, 170, 219, 0.08);
+  }
+  
+  :root[data-theme="light"] .toc-title {
+    color: #2D3748;
+    border-bottom-color: rgba(244, 185, 66, 0.4);
+  }
+  
+  :root[data-theme="light"] .toc-container a,
+  :root[data-theme="light"] .toc-container a:link,
+  :root[data-theme="light"] .toc-container a:visited,
+  :root[data-theme="light"] .toc-list a {
+    color: #4A5568 !important;
+  }
+  
+  :root[data-theme="light"] .toc-item.h2 a,
+  :root[data-theme="light"] .toc-item.h2 a:link,
+  :root[data-theme="light"] .toc-item.h2 a:visited {
+    color: #2D3748 !important;
+    font-weight: 600;
+  }
+  
+  :root[data-theme="light"] .toc-item.h3 a,
+  :root[data-theme="light"] .toc-item.h3 a:link,
+  :root[data-theme="light"] .toc-item.h3 a:visited {
+    color: #718096 !important;
+  }
+  
+  :root[data-theme="light"] .toc-list a:hover {
+    color: #2D3748 !important;
+    background: rgba(117, 170, 219, 0.1);
+  }
+  
+  :root[data-theme="light"] .toc-list a.active {
+    color: #F4B942 !important;
+    background: rgba(244, 185, 66, 0.15);
+    border-left-color: #F4B942;
+  }
 
     .toc-list {
         list-style: none;
@@ -180,7 +314,7 @@
     /* Premium link styling */
     .toc-container .toc-list .toc-item a {
         text-decoration: none !important;
-        color: var(--text-main, #2D3748) !important;
+        color: rgba(226, 232, 240, 0.9) !important; /* Light gray for dark mode */
         border-bottom: none !important;
         font-size: 0.85rem;
         font-weight: 500;
@@ -212,7 +346,7 @@
 
     /* H2: Bold and prominent */
     .toc-item.h2 a {
-        color: var(--text-main, #1A202C);
+        color: rgba(241, 245, 249, 0.95) !important;
         font-weight: 600;
         font-size: 0.9rem;
     }
@@ -221,9 +355,16 @@
     .toc-item.h3 a {
         font-size: 0.8rem;
         padding-left: 2rem;
-        color: var(--text-muted, #718096);
+        color: rgba(203, 213, 225, 0.85) !important;
         font-weight: 400;
         position: relative;
+    }
+    
+    /* Force override any inherited link styles */
+    .toc-container a,
+    .toc-container a:link,
+    .toc-container a:visited {
+        color: rgba(226, 232, 240, 0.9) !important;
     }
     
     /* Premium bullet for H3 */

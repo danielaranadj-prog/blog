@@ -1,0 +1,111 @@
+---
+/**
+ * Breadcrumbs.astro
+ * Componente de navegación breadcrumb para mejorar UX y SEO
+ * Incluye Schema.org structured data
+ */
+
+interface Props {
+  items: Array<{
+    label: string;
+    href: string;
+  }>;
+  currentPage: string;
+}
+
+const { items, currentPage } = Astro.props;
+
+// Construir breadcrumb list con Schema.org
+const breadcrumbList = {
+  "@context": "https://schema.org",
+  "@type": "BreadcrumbList",
+  "itemListElement": [
+    ...items.map((item, index) => ({
+      "@type": "ListItem",
+      "position": index + 1,
+      "name": item.label,
+      "item": new URL(item.href, Astro.site).href
+    })),
+    {
+      "@type": "ListItem",
+      "position": items.length + 1,
+      "name": currentPage
+    }
+  ]
+};
+---
+
+<nav aria-label="Breadcrumb" class="breadcrumbs">
+  <ol itemscope itemtype="https://schema.org/BreadcrumbList">
+    {items.map((item, index) => (
+      <li itemprop="itemListElement" itemscope itemtype="https://schema.org/ListItem">
+        <a itemprop="item" href={item.href}>
+          <span itemprop="name">{item.label}</span>
+        </a>
+        <meta itemprop="position" content={String(index + 1)} />
+        <span class="separator" aria-hidden="true">›</span>
+      </li>
+    ))}
+    <li itemprop="itemListElement" itemscope itemtype="https://schema.org/ListItem" class="current">
+      <span itemprop="name">{currentPage}</span>
+      <meta itemprop="position" content={String(items.length + 1)} />
+    </li>
+  </ol>
+</nav>
+
+<script type="application/ld+json" set:html={JSON.stringify(breadcrumbList)} />
+
+<style>
+  .breadcrumbs {
+    margin-bottom: 1.5rem;
+    font-size: 0.85rem;
+  }
+
+  .breadcrumbs ol {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 0.5rem;
+  }
+
+  .breadcrumbs li {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+  }
+
+  .breadcrumbs a {
+    color: var(--brand-blue, #75AADB);
+    text-decoration: none;
+    transition: color 0.2s ease;
+  }
+
+  .breadcrumbs a:hover {
+    color: var(--accent-gold, #F4B942);
+    text-decoration: underline;
+  }
+
+  .breadcrumbs .current {
+    color: var(--text-muted, #718096);
+    font-weight: 500;
+  }
+
+  .separator {
+    color: var(--text-muted, #718096);
+    opacity: 0.5;
+  }
+
+  /* Hide separator after last item */
+  .breadcrumbs li:last-child .separator {
+    display: none;
+  }
+
+  @media (max-width: 768px) {
+    .breadcrumbs {
+      font-size: 0.75rem;
+    }
+  }
+</style>

@@ -1,0 +1,65 @@
+---
+/**
+ * ReadingProgress.astro
+ * Barra de progreso de lectura que se llena mientras el usuario scrollea
+ */
+---
+
+<div id="reading-progress" class="reading-progress-bar"></div>
+
+<script>
+  function updateReadingProgress() {
+    const progressBar = document.getElementById('reading-progress');
+    if (!progressBar) return;
+
+    // Calcular el progreso de scroll
+    const windowHeight = window.innerHeight;
+    const documentHeight = document.documentElement.scrollHeight;
+    const scrollTop = window.scrollY || document.documentElement.scrollTop;
+    
+    // Calcular porcentaje (0-100)
+    const scrollable = documentHeight - windowHeight;
+    const scrolled = scrollTop;
+    const progress = (scrolled / scrollable) * 100;
+    
+    // Actualizar ancho de la barra
+    progressBar.style.width = `${Math.min(progress, 100)}%`;
+  }
+
+  // Actualizar en scroll con throttle para performance
+  let ticking = false;
+  window.addEventListener('scroll', () => {
+    if (!ticking) {
+      window.requestAnimationFrame(() => {
+        updateReadingProgress();
+        ticking = false;
+      });
+      ticking = true;
+    }
+  });
+
+  // Inicializar
+  updateReadingProgress();
+  
+  // Soporte para view transitions de Astro
+  document.addEventListener('astro:page-load', updateReadingProgress);
+</script>
+
+<style>
+  .reading-progress-bar {
+    position: fixed;
+    top: 0;
+    left: 0;
+    height: 4px;
+    background: linear-gradient(90deg, #F4B942, #75AADB);
+    width: 0%;
+    z-index: 9999;
+    transition: width 0.1s ease-out;
+    box-shadow: 0 2px 8px rgba(244, 185, 66, 0.4);
+  }
+  
+  /* Animación de glow al completar */
+  .reading-progress-bar[style*="100%"] {
+    box-shadow: 0 0 20px rgba(244, 185, 66, 0.8);
+  }
+</style>

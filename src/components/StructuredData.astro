@@ -1,0 +1,58 @@
+---
+/**
+ * StructuredData.astro
+ * Componente para añadir JSON-LD structured data (Schema.org)
+ * Mejora SEO y habilita Rich Snippets en Google
+ */
+
+interface Props {
+  type: 'BlogPosting' | 'Article';
+  title: string;
+  description: string;
+  author: string;
+  publishDate: string;
+  image: string;
+  url: string;
+  tags?: string[];
+}
+
+const { 
+  type = 'BlogPosting',
+  title, 
+  description, 
+  author, 
+  publishDate, 
+  image, 
+  url,
+  tags = []
+} = Astro.props;
+
+const structuredData = {
+  "@context": "https://schema.org",
+  "@type": type,
+  "headline": title,
+  "description": description,
+  "image": image,
+  "datePublished": publishDate,
+  "dateModified": publishDate, // Podría ser diferente si trackeas modificaciones
+  "author": {
+    "@type": "Person",
+    "name": author
+  },
+  "publisher": {
+    "@type": "Organization",
+    "name": "Instante Trips",
+    "logo": {
+      "@type": "ImageObject",
+      "url": "https://blog.instantetrips.com/logo.svg"
+    }
+  },
+  "mainEntityOfPage": {
+    "@type": "WebPage",
+    "@id": url
+  },
+  ...(tags.length > 0 && { "keywords": tags.join(", ") })
+};
+---
+
+<script type="application/ld+json" set:html={JSON.stringify(structuredData)} />

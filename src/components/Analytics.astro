@@ -19,7 +19,9 @@
         body: JSON.stringify(payload)
       });
       
-      console.log("Analytics: Page view logged securely");
+      if (import.meta.env.DEV) {
+        console.log("Analytics: Page view logged securely");
+      }
 
     } catch (e) {
       console.error("Analytics Error:", e);

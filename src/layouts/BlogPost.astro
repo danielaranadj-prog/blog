@@ -13,6 +13,12 @@ import ToursWidget from '../components/ToursWidget.astro';
 import Analytics from '../components/Analytics.astro';
 import Newsletter from '../components/Newsletter.astro';
 import TableOfContents from '../components/TableOfContents.astro';
+import StructuredData from '../components/StructuredData.astro';
+import Breadcrumbs from '../components/Breadcrumbs.astro';
+import ReadingProgress from '../components/ReadingProgress.astro';
+import BackToTop from '../components/BackToTop.astro';
+import ImageLightbox from '../components/ImageLightbox.astro';
+import SocialShare from '../components/SocialShare.astro';
 import { AUTHORS, DEFAULT_AUTHOR } from '../data/authors';
 import { fetchAffiliates } from '../lib/fetchAffiliates'; // Import fetcher
 
@@ -61,6 +67,12 @@ const finalImage = post.heroImage || post.heroImageLink;
 const permalink = Astro.url.href;
 const encodedUrl = encodeURIComponent(permalink);
 const encodedTitle = encodeURIComponent(post.title);
+
+// Calculate reading time (words per minute: 200)
+const slotContent = await Astro.slots.render('default');
+const words = slotContent.replace(/<[^>]*>/g, '').split(/\s+/).filter(w => w.length > 0).length;
+const readingTime = Math.ceil(words / 200);
+
 // ==========================================
 // 🔓 FIN ZONA LÓGICA
 // ==========================================
@@ -73,6 +85,16 @@ const encodedTitle = encodeURIComponent(post.title);
     description={post.description}
     permalink={permalink}
     image={finalImage}
+  />
+  
+  <StructuredData 
+    type="BlogPosting"
+    title={post.title}
+    description={post.description}
+    author={author.name}
+    publishDate={post.publishDate}
+    image={finalImage}
+    url={permalink}
   />
 
   <style>
@@ -88,17 +110,20 @@ const encodedTitle = encodeURIComponent(post.title);
       --card-border: #E2E8F0;
     }
 
-    @media (prefers-color-scheme: dark) {
-      :root {
-        --page-bg: #0f172a;
-        --card-bg: #1e293b;
-        --text-main: #f1f5f9;
-        --text-muted: #94a3b8;
-        --text-prose: #cbd5e1;
-        --card-border: #334155;
-      }
-      .share-icon.logo-mode { filter: invert(1); }
+    /* ⚠️ DARK MODE IMPORTANT
+     * SIEMPRE usar :root[data-theme="dark"] NO @media (prefers-color-scheme: dark)
+     * Esto asegura que el toggle manual de tema funcione correctamente
+     * El selector :root[data-theme="dark"] se activa con DarkModeToggle.astro
+     */
+    :root[data-theme="dark"] {
+      --page-bg: #0f172a;
+      --card-bg: #1e293b;
+      --text-main: #f1f5f9;
+      --text-muted: #94a3b8;
+      --text-prose: #cbd5e1;
+      --card-border: #334155;
     }
+    :root[data-theme="dark"] .share-icon.logo-mode { filter: invert(1); }
     /* 🔓 FIN DESIGN SYSTEM */
 
     body {
@@ -131,7 +156,8 @@ const encodedTitle = encodeURIComponent(post.title);
 
     .hero { 
       width: 100%; 
-      height: 450px; 
+      height: 450px;
+      aspect-ratio: 16 / 9; /* 👈 ESTA LÍNEA ES LA CLAVE */ 
       object-fit: cover; 
       margin-bottom: -0.25rem;
       animation: heroReveal 1s ease-out;
@@ -177,9 +203,29 @@ const encodedTitle = encodeURIComponent(post.title);
     h1 {
       font-size: clamp(2rem, 4vw, 3rem); 
       font-weight: 800; 
-      margin: 0 0 1.5rem; 
+      margin: 0 0 1rem; 
       line-height: 1.15; 
       color: var(--text-main);
+    }
+    
+    /* POST META INFO (Reading Time + Date) */
+    .post-meta-info {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      margin-bottom: 1.5rem;
+      font-size: 0.85rem;
+      color: var(--text-muted);
+    }
+    
+    .meta-item {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.35rem;
+    }
+    
+    .meta-separator {
+      opacity: 0.5;
     }
 
     /* HEADER DE AUTOR (MINI) - PREMIUM */
@@ -266,7 +312,7 @@ const encodedTitle = encodeURIComponent(post.title);
       max-width: 780px; 
       margin: 0 auto; 
       font-size: 1.125rem; /* 18px */
-      line-height: 1.4; 
+      line-height: 1.55; 
       color: var(--text-prose); 
       font-family: 'IBM Plex Sans', sans-serif;
     }
@@ -280,10 +326,26 @@ const encodedTitle = encodeURIComponent(post.title);
         margin-top: 2rem; margin-bottom: 0.3rem; /* Pegado al crédito */
         margin-left: auto; margin-right: auto; display: block; 
     }
+    /* FIX IFRAMES (TikTok / iOS Safari) */
     .prose :global(iframe) {
-        width: 100%; max-width: 100%; aspect-ratio: 16 / 9; height: auto; 
-        border-radius: 12px; margin-top: 2rem; margin-bottom: 0.3rem; 
-        box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+        max-width: 100%;
+        display: block;
+        margin: 1.5rem auto;
+        border-radius: 12px;
+    }
+    
+    /* Responsive iframe container */
+    .prose :global(iframe) {
+        width: 100%;
+        height: auto;
+        aspect-ratio: 9 / 16; /* TikTok vertical */
+        max-height: 80vh;
+    }
+    
+    @media (max-width: 768px) {
+        .prose :global(iframe) {
+            max-height: 70vh;
+        }
     }
 
     /* CRÉDITOS (Texto pequeño) */
@@ -412,8 +474,9 @@ const encodedTitle = encodeURIComponent(post.title);
     .btn-whatsapp:hover {
       box-shadow: 0 8px 20px rgba(37, 211, 102, 0.4);
     }
-    @media (prefers-color-scheme: dark) { 
-      .btn-twitter { background: linear-gradient(135deg, #ffffff, #e0e0e0); color: black; } 
+    :root[data-theme="dark"] .btn-twitter { 
+      background: linear-gradient(135deg, #ffffff, #e0e0e0); 
+      color: black; 
     }
 
     /* SIDEBAR - PREMIUM */
@@ -538,10 +601,43 @@ const encodedTitle = encodeURIComponent(post.title);
             margin-right: 1.5rem;
         }
     }
+    /* FIX NEWSLETTER EN iOS */
+    @media (max-width: 768px) {
+        .prose > section,
+        .prose > div {
+            max-width: 100%;
+        }
+
+        .prose form {
+            width: 100%;
+        }
+    }
+/* ==========================
+   FIXES iOS SAFARI
+========================== */
+
+@media (max-width: 768px) {
+  .prose > section,
+  .prose > div {
+    max-width: 100%;
+  }
+
+  .prose form {
+    width: 100%;
+  }
+
+ .prose :global(iframe) {
+    aspect-ratio: 9 / 16;
+  }
+}
+
   </style>
 </head>
 
 <body>
+  <ReadingProgress />
+  <BackToTop />
+  <ImageLightbox />
   <BlogHeader />
 
   <div class="container">
@@ -564,8 +660,19 @@ const encodedTitle = encodeURIComponent(post.title);
 
         <div class="content">
           <a href="/" class="back">← Volver al blog</a>
+          
+          <Breadcrumbs 
+            items={[{ label: "Inicio", href: "/" }]}
+            currentPage={post.title}
+          />
 
           <h1>{post.title}</h1>
+          
+          <div class="post-meta-info">
+            <span class="meta-item">📖 {readingTime} min de lectura</span>
+            <span class="meta-separator">•</span>
+            <span class="meta-item">📅 {post.publishDate}</span>
+          </div>
 
           <div class="post-header-meta">
             <div class="mini-author">
@@ -578,7 +685,7 @@ const encodedTitle = encodeURIComponent(post.title);
             </div>
           </div>
 
-          <div class="prose">
+          <div class="prose" id="main-content">
             <AdBanner position="in-content" />
 
             <slot />
@@ -617,13 +724,10 @@ const encodedTitle = encodeURIComponent(post.title);
             )}
           </div>
           
-          <div class="share-section">
-            <span class="share-title">¿Te sirvió? Compártelo con otro viajero</span>
-            <div class="share-buttons">
-                <a href={`https://www.facebook.com/sharer/sharer.php?u=${encodedUrl}`} target="_blank" class="share-btn btn-facebook">Facebook</a>
-                <a href={`https://twitter.com/intent/tweet?url=${encodedUrl}&text=${encodedTitle}`} target="_blank" class="share-btn btn-twitter">X</a>
-                <a href={`https://wa.me/?text=${encodedTitle} ${encodedUrl}`} target="_blank" class="share-btn btn-whatsapp">WhatsApp</a>
-            </div>
+          <!-- Social Share -->
+          <div class="article-share">
+            <h3 class="share-heading">¿Te sirvió este artículo? Compártelo con otros viajeros ✈️</h3>
+            <SocialShare title={post.title} url={permalink} variant="inline" />
           </div>
 
         </div>

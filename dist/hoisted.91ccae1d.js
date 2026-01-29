@@ -1,0 +1,1 @@
+import"./chunks/CookieConsent.astro_astro_type_script_index_0_lang.e2d367ae.js";/* empty css                              */const r=new IntersectionObserver(s=>{s.forEach(e=>{e.isIntersecting&&e.target.classList.add("visible")})},{threshold:.1}),t=document.getElementById("signature");t&&r.observe(t);

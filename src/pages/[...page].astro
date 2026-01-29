@@ -68,18 +68,28 @@ const isHomePage = page.currentPage === 1;
                 --title-color: #2D3748;
             }
 
-            @media (prefers-color-scheme: dark) {
-                :root {
-                    --page-bg: #0f172a; 
-                    --text-main: #f1f5f9;
-                    --text-muted: #94a3b8;
-                    --card-bg: #1e293b;
-                    --card-border: #334155;
-                    --title-color: #ffffff;
-                }
-                .profile-circle img {
-                    filter: invert(1) brightness(2);
-                }
+            /* ⚠️ DARK MODE IMPORTANT
+             * SIEMPRE usar :root[data-theme="dark"] NO @media (prefers-color-scheme: dark)
+             * Esto asegura que el toggle manual de tema funcione correctamente
+             * El selector :root[data-theme="dark"] se activa con DarkModeToggle.astro
+             */
+            :root[data-theme="dark"] {
+                --page-bg: #0f172a; 
+                --text-main: #f1f5f9;
+                --text-muted: #94a3b8;
+                --card-bg: #1e293b;
+                --card-border: #334155;
+                --title-color: #ffffff;
+            }
+            
+            /* Logo visibility fixes - Asegura que el logo "No somos gurús" sea visible en ambos modos */
+            :root[data-theme="dark"] .profile-circle img {
+                filter: invert(1) brightness(2);
+            }
+            
+            :root[data-theme="light"] .profile-circle img {
+                filter: none;
+                opacity: 0.8;
             }
             /* 🔓 FIN ZONA BLINDADA DE VARIABLES */
 

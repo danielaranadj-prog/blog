@@ -5,15 +5,12 @@
  * Siempre habilitado (control visual, no de Firestore)
  */
 
-interface Props {
-  variant?: 'sidebar' | 'inline' | 'full';
-}
-
 const DEFAULT_TAG = 'instante_trips';
 
 interface Props {
   variant?: 'sidebar' | 'inline' | 'full';
   affiliateTag?: string;
+  destination?: string;
 }
 
 const { 

@@ -24,17 +24,22 @@ const socialImage = image || '/social-default.jpg';
 <meta name="description" content={description} />
 <link rel="canonical" href={permalink} />
 
-<meta property="og:type" content="website" />
+<!-- Open Graph / Facebook -->
+<meta property="og:type" content="article" />
 <meta property="og:url" content={permalink} />
 <meta property="og:title" content={title} />
 <meta property="og:description" content={description} />
 <meta property="og:image" content={new URL(socialImage, Astro.site)} />
+<meta property="og:site_name" content="Instante Trips" />
+<meta property="og:locale" content="es_ES" />
 
+<!-- Twitter -->
 <meta property="twitter:card" content="summary_large_image" />
 <meta property="twitter:url" content={permalink} />
 <meta property="twitter:title" content={title} />
 <meta property="twitter:description" content={description} />
 <meta property="twitter:image" content={new URL(socialImage, Astro.site)} />
+<meta name="twitter:image:alt" content={title} />
 
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
