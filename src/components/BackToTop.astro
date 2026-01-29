@@ -11,15 +11,15 @@
   </svg>
 </button>
 
-<script>
+<script is:inline>
   function initBackToTop() {
-    const button = document.getElementById('back-to-top');
+    var button = document.getElementById('back-to-top');
     if (!button) return;
 
     // Mostrar/ocultar botón basado en scroll
     function toggleButton() {
-      const scrolled = window.scrollY || document.documentElement.scrollTop;
-      const threshold = 300; // Mostrar después de 300px de scroll
+      var scrolled = window.scrollY || document.documentElement.scrollTop;
+      var threshold = 300; // Mostrar después de 300px de scroll
       
       if (scrolled > threshold) {
         button.classList.add('visible');
@@ -29,7 +29,7 @@
     }
 
     // Scroll suave al inicio
-    button.addEventListener('click', () => {
+    button.addEventListener('click', function() {
       window.scrollTo({
         top: 0,
         behavior: 'smooth'
@@ -37,10 +37,10 @@
     });
 
     // Event listener con throttle
-    let ticking = false;
-    window.addEventListener('scroll', () => {
+    var ticking = false;
+    window.addEventListener('scroll', function() {
       if (!ticking) {
-        window.requestAnimationFrame(() => {
+        window.requestAnimationFrame(function() {
           toggleButton();
           ticking = false;
         });
@@ -52,8 +52,12 @@
     toggleButton();
   }
 
-  // Ejecutar en carga
-  initBackToTop();
+  // Ejecutar cuando DOM esté listo
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', initBackToTop);
+  } else {
+    initBackToTop();
+  }
   
   // Soporte para view transitions
   document.addEventListener('astro:page-load', initBackToTop);

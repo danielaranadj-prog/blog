@@ -7,30 +7,30 @@
 
 <div id="reading-progress" class="reading-progress-bar"></div>
 
-<script>
+<script is:inline>
   function updateReadingProgress() {
-    const progressBar = document.getElementById('reading-progress');
+    var progressBar = document.getElementById('reading-progress');
     if (!progressBar) return;
 
     // Calcular el progreso de scroll
-    const windowHeight = window.innerHeight;
-    const documentHeight = document.documentElement.scrollHeight;
-    const scrollTop = window.scrollY || document.documentElement.scrollTop;
+    var windowHeight = window.innerHeight;
+    var documentHeight = document.documentElement.scrollHeight;
+    var scrollTop = window.scrollY || document.documentElement.scrollTop;
     
     // Calcular porcentaje (0-100)
-    const scrollable = documentHeight - windowHeight;
-    const scrolled = scrollTop;
-    const progress = (scrolled / scrollable) * 100;
+    var scrollable = documentHeight - windowHeight;
+    var scrolled = scrollTop;
+    var progress = (scrolled / scrollable) * 100;
     
     // Actualizar ancho de la barra
-    progressBar.style.width = `${Math.min(progress, 100)}%`;
+    progressBar.style.width = Math.min(progress, 100) + '%';
   }
 
   // Actualizar en scroll con throttle para performance
-  let ticking = false;
-  window.addEventListener('scroll', () => {
+  var ticking = false;
+  window.addEventListener('scroll', function() {
     if (!ticking) {
-      window.requestAnimationFrame(() => {
+      window.requestAnimationFrame(function() {
         updateReadingProgress();
         ticking = false;
       });
@@ -38,8 +38,12 @@
     }
   });
 
-  // Inicializar
-  updateReadingProgress();
+  // Inicializar cuando DOM esté listo
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', updateReadingProgress);
+  } else {
+    updateReadingProgress();
+  }
   
   // Soporte para view transitions de Astro
   document.addEventListener('astro:page-load', updateReadingProgress);

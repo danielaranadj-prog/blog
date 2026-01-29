@@ -19,10 +19,10 @@
   </div>
 </div>
 
-<script>
+<script is:inline>
   function initImageLightbox() {
     const lightbox = document.getElementById('image-lightbox');
-    const lightboxImg = document.getElementById('lightbox-image') as HTMLImageElement;
+    const lightboxImg = document.getElementById('lightbox-image');
     const lightboxCaption = document.querySelector('.lightbox-caption');
     const closeBtn = document.querySelector('.lightbox-close');
     const overlay = document.querySelector('.lightbox-overlay');
@@ -30,7 +30,7 @@
     if (!lightbox || !lightboxImg) return;
 
     // Función para abrir lightbox
-    function openLightbox(imgSrc: string, imgAlt: string) {
+    function openLightbox(imgSrc, imgAlt) {
       lightboxImg.src = imgSrc;
       lightboxImg.alt = imgAlt;
       if (lightboxCaption) {
@@ -48,7 +48,7 @@
       document.body.style.overflow = ''; // Restore scroll
       
       // Clear image after animation
-      setTimeout(() => {
+      setTimeout(function() {
         lightboxImg.src = '';
       }, 300);
     }
@@ -56,39 +56,46 @@
     // Detectar todas las imágenes dentro del contenido del post
     const contentImages = document.querySelectorAll('.prose img, .content img, article img');
     
-    contentImages.forEach((img) => {
+    contentImages.forEach(function(img) {
       // Hacer clickeable
-      (img as HTMLElement).style.cursor = 'pointer';
+      img.style.cursor = 'pointer';
       
       // Agregar evento click
-      img.addEventListener('click', (e) => {
+      img.addEventListener('click', function(e) {
         e.preventDefault();
-        const target = e.target as HTMLImageElement;
-        openLightbox(target.src, target.alt || '');
+        openLightbox(img.src, img.alt || '');
       });
     });
 
     // Cerrar con botón X
-    closeBtn?.addEventListener('click', closeLightbox);
+    if (closeBtn) {
+      closeBtn.addEventListener('click', closeLightbox);
+    }
     
     // Cerrar con click en overlay
-    overlay?.addEventListener('click', closeLightbox);
+    if (overlay) {
+      overlay.addEventListener('click', closeLightbox);
+    }
     
     // Cerrar con ESC
-    document.addEventListener('keydown', (e) => {
+    document.addEventListener('keydown', function(e) {
       if (e.key === 'Escape' && lightbox.classList.contains('active')) {
         closeLightbox();
       }
     });
 
     // Prevenir cierre al hacer click en la imagen
-    lightboxImg.addEventListener('click', (e) => {
+    lightboxImg.addEventListener('click', function(e) {
       e.stopPropagation();
     });
   }
 
-  // Inicializar
-  initImageLightbox();
+  // Inicializar cuando el DOM esté listo
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', initImageLightbox);
+  } else {
+    initImageLightbox();
+  }
   
   // Re-inicializar en navegaciones de Astro
   document.addEventListener('astro:page-load', initImageLightbox);
