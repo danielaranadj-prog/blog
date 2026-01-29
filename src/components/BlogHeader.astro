@@ -1,6 +1,5 @@
 ---
 import { SITE } from '../config';
-import DarkModeToggle from './DarkModeToggle.astro';
 
 // 👇 AQUÍ ESTÁ EL CAMBIO: Reemplazamos "Blog" por "Manifiesto"
 const navItems = [
@@ -27,7 +26,6 @@ const navItems = [
                     </li>
                 ))}
             </ul>
-            <DarkModeToggle />
         </nav>
 
         <button id="mobile-menu-btn" aria-label="Abrir menú">
@@ -105,16 +103,14 @@ const navItems = [
         100% { background-position: -200% 0; }
     }
 
-    /* ⚠️ DARK MODE IMPORTANT
-     * SIEMPRE usar :root[data-theme="dark"] NO @media (prefers-color-scheme: dark)
-     * Esto asegura que el toggle manual de tema funcione correctamente
-     * El selector :root[data-theme="dark"] se activa con DarkModeToggle.astro
-     */
-    :root[data-theme="dark"] .site-header {
-        --header-bg: rgba(15, 23, 42, 0.85);
-        --header-text: #ffffff;
-        --header-border: rgba(255, 255, 255, 0.08);
-        --logo-filter: grayscale(100%) invert(100%) brightness(200%);
+    /* Dark Mode - Automatic system preference */
+    @media (prefers-color-scheme: dark) {
+        .site-header {
+            --header-bg: rgba(15, 23, 42, 0.85);
+            --header-text: #ffffff;
+            --header-border: rgba(255, 255, 255, 0.08);
+            --logo-filter: grayscale(100%) invert(100%) brightness(200%);
+        }
     }
     
     /* Skip to Content Link (Accessibility) */

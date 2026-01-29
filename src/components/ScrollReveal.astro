@@ -1,0 +1,176 @@
+---
+/**
+ * ScrollReveal.astro
+ * Intersection Observer based scroll animations
+ * Elegant fade-in and slide-up effects for content
+ */
+---
+
+<script is:inline>
+  function initScrollReveal() {
+    // Configuration
+    const config = {
+      threshold: 0.1,
+      rootMargin: '0px 0px -100px 0px'
+    };
+    
+    // Create observer
+    const observer = new IntersectionObserver((entries) => {
+      entries.forEach(entry => {
+        if (entry.isIntersecting) {
+          // Add delay based on index for stagger effect
+          const delay = entry.target.getAttribute('data-reveal-delay') || 0;
+          
+          setTimeout(() => {
+            entry.target.classList.add('revealed');
+          }, delay);
+          
+          // Optionally unobserve after reveal (performance optimization)
+          if (!entry.target.hasAttribute('data-reveal-repeat')) {
+            observer.unobserve(entry.target);
+          }
+        } else {
+          // If repeat is enabled, remove revealed class when out of view
+          if (entry.target.hasAttribute('data-reveal-repeat')) {
+            entry.target.classList.remove('revealed');
+          }
+        }
+      });
+    }, config);
+    
+    // Observe all elements with scroll-reveal class
+    const revealElements = document.querySelectorAll('.scroll-reveal');
+    revealElements.forEach((el, index) => {
+      // Add stagger delay if in a group
+      if (el.hasAttribute('data-stagger')) {
+        el.setAttribute('data-reveal-delay', index * 100);
+      }
+      observer.observe(el);
+    });
+    
+    // Auto-add scroll-reveal to common elements
+    const autoRevealSelectors = [
+      '.post-item-wrapper',
+      '.searchable-item',
+      '.widget',
+      '.prose h2',
+      '.prose h3',
+      '.prose img',
+      '.hero'
+    ];
+    
+    autoRevealSelectors.forEach(selector => {
+      const elements = document.querySelectorAll(selector);
+      elements.forEach((el, index) => {
+        if (!el.classList.contains('scroll-reveal')) {
+          el.classList.add('scroll-reveal');
+          
+          // Add stagger to grid items
+          if (selector.includes('post-item') || selector.includes('searchable')) {
+            el.setAttribute('data-stagger', 'true');
+            el.setAttribute('data-reveal-delay', index * 80);
+          }
+          
+          observer.observe(el);
+        }
+      });
+    });
+    
+    console.log('✨ Scroll reveal animations initialized');
+  }
+  
+  // Initialize
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', initScrollReveal);
+  } else {
+    initScrollReveal();
+  }
+  
+  // Re-initialize on Astro page transitions
+  document.addEventListener('astro:page-load', initScrollReveal);
+</script>
+
+<style is:global>
+  /* Base scroll-reveal state */
+  .scroll-reveal {
+    opacity: 0;
+    transform: translateY(30px);
+    transition: 
+      opacity 0.6s cubic-bezier(0.4, 0, 0.2, 1),
+      transform 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+  
+  /* Revealed state */
+  .scroll-reveal.revealed {
+    opacity: 1;
+    transform: translateY(0);
+  }
+  
+  /* Animation variants */
+  .scroll-reveal-fade {
+    opacity: 0;
+    transition: opacity 0.8s ease;
+  }
+  
+  .scroll-reveal-fade.revealed {
+    opacity: 1;
+  }
+  
+  .scroll-reveal-slide-right {
+    opacity: 0;
+    transform: translateX(-50px);
+  }
+  
+  .scroll-reveal-slide-right.revealed {
+    opacity: 1;
+    transform: translateX(0);
+  }
+  
+  .scroll-reveal-slide-left {
+    opacity: 0;
+    transform: translateX(50px);
+  }
+  
+  .scroll-reveal-slide-left.revealed {
+    opacity: 1;
+    transform: translateX(0);
+  }
+  
+  .scroll-reveal-scale {
+    opacity: 0;
+    transform: scale(0.9);
+  }
+  
+  .scroll-reveal-scale.revealed {
+    opacity: 1;
+    transform: scale(1);
+  }
+  
+  /* Stagger delays (can be used with data-reveal-delay attribute) */
+  .scroll-reveal[data-reveal-delay] {
+    transition-delay: calc(var(--reveal-delay, 0) * 1ms);
+  }
+  
+  /* Reduce motion for accessibility */
+  @media (prefers-reduced-motion: reduce) {
+    .scroll-reveal {
+      opacity: 1;
+      transform: none;
+      transition: none;
+    }
+    
+    .scroll-reveal.revealed {
+      opacity: 1;
+      transform: none;
+    }
+  }
+  
+  /* Performance optimization: will-change on reveal elements */
+  .scroll-reveal:not(.revealed) {
+    will-change: opacity, transform;
+  }
+  
+  .scroll-reveal.revealed {
+    will-change: auto;
+  }
+</style>

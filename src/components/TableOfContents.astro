@@ -52,7 +52,7 @@
             link.textContent = text;
             
             // Force inline styles to override blue links
-            const isDark = document.documentElement.getAttribute('data-theme') === 'dark';
+            const isDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
             if (level === 'h2') {
                 link.style.color = isDark ? 'rgba(241, 245, 249, 0.95)' : '#2D3748';
                 link.style.fontWeight = '600';
@@ -73,7 +73,7 @@
                         a.classList.remove('active');
                         // Reset colors
                         const aLevel = a.closest('.toc-item').classList.contains('h2') ? 'h2' : 'h3';
-                        const currentDark = document.documentElement.getAttribute('data-theme') === 'dark';
+                        const currentDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
                         if (aLevel === 'h2') {
                             a.style.color = currentDark ? 'rgba(241, 245, 249, 0.95)' : '#2D3748';
                         } else {
@@ -90,14 +90,9 @@
             tocList.appendChild(item);
         });
         
-        // Update colors on theme change
-        document.addEventListener('storage', updateLinkColors);
-        // Listen for theme toggle
-        const observerTheme = new MutationObserver(updateLinkColors); // Renamed to avoid conflict
-        observerTheme.observe(document.documentElement, {
-            attributes: true,
-            attributeFilter: ['data-theme']
-        });
+        // Listen for system theme changes
+        const mediaQuery = window.matchMedia('(prefers-color-scheme: dark)');
+        mediaQuery.addEventListener('change', updateLinkColors);
     
         // Observer para activar items al scroll
         const observer = new IntersectionObserver((entries) => {
@@ -118,7 +113,7 @@
     }
     
     function updateLinkColors() {
-        const isDark = document.documentElement.getAttribute('data-theme') === 'dark';
+        const isDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
         document.querySelectorAll('.toc-item a').forEach(link => {
             if (link.classList.contains('active')) {
                 link.style.color = '#F4B942';
@@ -188,18 +183,16 @@
         50% { background-position: 0% 100%; }
     }
 
-    /* ⚠️ DARK MODE IMPORTANT
-     * SIEMPRE usar :root[data-theme="dark"] NO @media (prefers-color-scheme: dark)
-     * Esto asegura que el toggle manual de tema funcione correctamente
-     * El selector :root[data-theme="dark"] se activa con DarkModeToggle.astro
-     */
-    :root[data-theme="dark"] .toc-container {
-        background: rgba(15, 23, 42, 0.8);
-        border-color: rgba(255, 255, 255, 0.08);
-        box-shadow: 
-            0 8px 32px rgba(0, 0, 0, 0.3),
-            0 2px 8px rgba(0, 0, 0, 0.2),
-            inset 0 1px 0 rgba(255, 255, 255, 0.05);
+    /* Dark Mode - Automatic system preference */
+    @media (prefers-color-scheme: dark) {
+        .toc-container {
+            background: rgba(15, 23, 42, 0.8);
+            border-color: rgba(255, 255, 255, 0.08);
+            box-shadow: 
+                0 8px 32px rgba(0, 0, 0, 0.3),
+                0 2px 8px rgba(0, 0, 0, 0.2),
+                inset 0 1px 0 rgba(255, 255, 255, 0.05);
+        }
     }
 
     /* Mostrar solo en pantallas grandes */
@@ -214,7 +207,8 @@
   }
   
   /* Light mode improvements */
-  :root[data-theme="light"] .toc-sticky {
+  @media (prefers-color-scheme: light) {
+    .toc-sticky {
     --toc-bg: #ffffff;
     --toc-border: rgba(117, 170, 219, 0.25);
     --toc-shadow: 
@@ -222,6 +216,7 @@
       0 0 0 1px rgba(117, 170, 219, 0.08);
     --toc-title: #2D3748;
     --toc-title-border: rgba(244, 185, 66, 0.4);
+    }
   }
   
   /* Default styles - DARK MODE */
@@ -254,48 +249,50 @@
   }
   
   /* LIGHT MODE OVERRIDES - Apply white background only in light mode */
-  :root[data-theme="light"] .toc-sticky {
-    background: #ffffff;
-    border: 1px solid rgba(117, 170, 219, 0.25);
-    box-shadow: 
-      0 2px 12px rgba(0, 0, 0, 0.06),
-      0 0 0 1px rgba(117, 170, 219, 0.08);
-  }
-  
-  :root[data-theme="light"] .toc-title {
-    color: #2D3748;
-    border-bottom-color: rgba(244, 185, 66, 0.4);
-  }
-  
-  :root[data-theme="light"] .toc-container a,
-  :root[data-theme="light"] .toc-container a:link,
-  :root[data-theme="light"] .toc-container a:visited,
-  :root[data-theme="light"] .toc-list a {
-    color: #4A5568 !important;
-  }
-  
-  :root[data-theme="light"] .toc-item.h2 a,
-  :root[data-theme="light"] .toc-item.h2 a:link,
-  :root[data-theme="light"] .toc-item.h2 a:visited {
-    color: #2D3748 !important;
-    font-weight: 600;
-  }
-  
-  :root[data-theme="light"] .toc-item.h3 a,
-  :root[data-theme="light"] .toc-item.h3 a:link,
-  :root[data-theme="light"] .toc-item.h3 a:visited {
-    color: #718096 !important;
-  }
-  
-  :root[data-theme="light"] .toc-list a:hover {
-    color: #2D3748 !important;
-    background: rgba(117, 170, 219, 0.1);
-  }
-  
-  :root[data-theme="light"] .toc-list a.active {
-    color: #F4B942 !important;
-    background: rgba(244, 185, 66, 0.15);
-    border-left-color: #F4B942;
+  @media (prefers-color-scheme: light) {
+    .toc-sticky {
+      background: #ffffff;
+      border: 1px solid rgba(117, 170, 219, 0.25);
+      box-shadow: 
+        0 2px 12px rgba(0, 0, 0, 0.06),
+        0 0 0 1px rgba(117, 170, 219, 0.08);
+    }
+    
+    .toc-title {
+      color: #2D3748;
+      border-bottom-color: rgba(244, 185, 66, 0.4);
+    }
+    
+    .toc-container a,
+    .toc-container a:link,
+    .toc-container a:visited,
+    .toc-list a {
+      color: #4A5568 !important;
+    }
+    
+    .toc-item.h2 a,
+    .toc-item.h2 a:link,
+    .toc-item.h2 a:visited {
+      color: #2D3748 !important;
+      font-weight: 600;
+    }
+    
+    .toc-item.h3 a,
+    .toc-item.h3 a:link,
+    .toc-item.h3 a:visited {
+      color: #718096 !important;
+    }
+    
+    .toc-list a:hover {
+      color: #2D3748 !important;
+      background: rgba(117, 170, 219, 0.1);
+    }
+    
+    .toc-list a.active {
+      color: #F4B942 !important;
+      background: rgba(244, 185, 66, 0.15);
+      border-left-color: #F4B942;
+    }
   }
 
     .toc-list {
