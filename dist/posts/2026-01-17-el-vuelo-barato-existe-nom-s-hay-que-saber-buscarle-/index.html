@@ -1,9 +1,17 @@
 <!DOCTYPE html>
-<html lang="es" class="astro-Z6ODSMK6">
+<html lang="es" class="astro-D4LXOPKS">
 <head>
   <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <link rel="icon" type="image/svg+xml" href="/logo.svg">
+
+<!-- PWA Configuration -->
+<link rel="manifest" href="/manifest.json">
+<meta name="theme-color" content="#F4B942">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Instante Trips">
+<link rel="apple-touch-icon" href="/apple-touch-icon.png">
 
 <title>El vuelo barato existe, nomás hay que saber buscarle ✈️</title>
 <meta name="title" content="El vuelo barato existe, nomás hay que saber buscarle ✈️">
@@ -38,41 +46,244 @@
 <!-- ⚠️ IMPORTANTE: Reemplaza "G-PLACEHOLDER" con tu ID real de GA4 antes de lanzar -->
 <script async src="https://www.googletagmanager.com/gtag/js?id=G-F6PP85582J"></script>
 
+
+<!-- PWA Service Worker Registration -->
+<script>
+if ('serviceWorker' in navigator) {
+  window.addEventListener('load', () => {
+    navigator.serviceWorker.register('/sw.js').then(
+      (registration) => {
+        console.log('[PWA] Service Worker registered successfully:', registration.scope);
+      },
+      (error) => {
+        console.error('[PWA] Service Worker registration failed:', error);
+      }
+    );
+  });
+}
+</script>
   
   <script type="application/ld+json">{"@context":"https://schema.org","@type":"BlogPosting","headline":"El vuelo barato existe, nomás hay que saber buscarle ✈️","description":"¿Cansado de ver que el de al lado pagó menos? Descubre cómo usar Google Flights y Skyscanner a tu favor.","image":"https://res.cloudinary.com/dbwdmu9k2/image/upload/v1768575545/IMG_0311_ujcimj.jpg","datePublished":"2026-01-17","dateModified":"2026-01-17","author":{"@type":"Person","name":"Daniel Arana"},"publisher":{"@type":"Organization","name":"Instante Trips","logo":{"@type":"ImageObject","url":"https://blog.instantetrips.com/logo.svg"}},"mainEntityOfPage":{"@type":"WebPage","@id":"https://blog.instantetrips.com/posts/2026-01-17-el-vuelo-barato-existe-nom-s-hay-que-saber-buscarle-/"}}</script>
 
 
   
-<link rel="stylesheet" href="/assets/2026-01-17-buenos-aires-5-dias-guia-real.943e992f.css" />
-<link rel="stylesheet" href="/assets/2026-01-17-buenos-aires-5-dias-guia-real.dd0641ea.css" />
-<link rel="stylesheet" href="/assets/2026-01-17-buenos-aires-5-dias-guia-real.4452690d.css" /><script type="module" src="/hoisted.b5d15b8c.js"></script></head>
+<link rel="stylesheet" href="/assets/2026-01-17-buenos-aires-5-dias-guia-real.cbbe1c09.css" />
+<link rel="stylesheet" href="/assets/2026-01-17-buenos-aires-5-dias-guia-real.b3e9bbca.css" />
+<link rel="stylesheet" href="/assets/2026-01-17-buenos-aires-5-dias-guia-real.4452690d.css" /><script type="module" src="/hoisted.6989dea2.js"></script></head>
 
-<body class="astro-Z6ODSMK6">
-  <div id="reading-progress" class="reading-progress-bar astro-RX5SVQNU"></div>
+<body class="astro-D4LXOPKS">
+  <div id="reading-progress" class="reading-progress-bar astro-PI2MKIBP"></div>
+
+<script>
+  function updateReadingProgress() {
+    var progressBar = document.getElementById('reading-progress');
+    if (!progressBar) return;
+
+    // Calcular el progreso de scroll
+    var windowHeight = window.innerHeight;
+    var documentHeight = document.documentElement.scrollHeight;
+    var scrollTop = window.scrollY || document.documentElement.scrollTop;
+    
+    // Calcular porcentaje (0-100)
+    var scrollable = documentHeight - windowHeight;
+    var scrolled = scrollTop;
+    var progress = (scrolled / scrollable) * 100;
+    
+    // Actualizar ancho de la barra
+    progressBar.style.width = Math.min(progress, 100) + '%';
+  }
+
+  // Actualizar en scroll con throttle para performance
+  var ticking = false;
+  window.addEventListener('scroll', function() {
+    if (!ticking) {
+      window.requestAnimationFrame(function() {
+        updateReadingProgress();
+        ticking = false;
+      });
+      ticking = true;
+    }
+  });
+
+  // Inicializar cuando DOM esté listo
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', updateReadingProgress);
+  } else {
+    updateReadingProgress();
+  }
+  
+  // Soporte para view transitions de Astro
+  document.addEventListener('astro:page-load', updateReadingProgress);
+</script>
 
 
-
-
-  <button id="back-to-top" class="back-to-top-btn astro-4VB55H7I" aria-label="Volver arriba">
-  <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="astro-4VB55H7I">
-    <path d="M12 19V5M5 12l7-7 7 7" class="astro-4VB55H7I"></path>
+  <button id="back-to-top" class="back-to-top-btn astro-LXNSEJB7" aria-label="Volver arriba">
+  <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="astro-LXNSEJB7">
+    <path d="M12 19V5M5 12l7-7 7 7" class="astro-LXNSEJB7"></path>
   </svg>
 </button>
 
+<script>
+  function initBackToTop() {
+    var button = document.getElementById('back-to-top');
+    if (!button) return;
+
+    // Mostrar/ocultar botón basado en scroll
+    function toggleButton() {
+      var scrolled = window.scrollY || document.documentElement.scrollTop;
+      var threshold = 300; // Mostrar después de 300px de scroll
+      
+      if (scrolled > threshold) {
+        button.classList.add('visible');
+      } else {
+        button.classList.remove('visible');
+      }
+    }
+
+    // Scroll suave al inicio
+    button.addEventListener('click', function() {
+      window.scrollTo({
+        top: 0,
+        behavior: 'smooth'
+      });
+    });
+
+    // Event listener con throttle
+    var ticking = false;
+    window.addEventListener('scroll', function() {
+      if (!ticking) {
+        window.requestAnimationFrame(function() {
+          toggleButton();
+          ticking = false;
+        });
+        ticking = true;
+      }
+    });
+
+    // Inicializar estado
+    toggleButton();
+  }
+
+  // Ejecutar cuando DOM esté listo
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', initBackToTop);
+  } else {
+    initBackToTop();
+  }
+  
+  // Soporte para view transitions
+  document.addEventListener('astro:page-load', initBackToTop);
+</script>
 
 
-
-  <div id="image-lightbox" class="lightbox astro-BSZH2Q64" aria-hidden="true">
-  <div class="lightbox-overlay astro-BSZH2Q64"></div>
-  <div class="lightbox-content astro-BSZH2Q64">
-    <button class="lightbox-close astro-BSZH2Q64" aria-label="Cerrar">
-      <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="astro-BSZH2Q64">
-        <path d="M18 6L6 18M6 6l12 12" class="astro-BSZH2Q64"></path>
+  <div id="image-lightbox" class="lightbox astro-BAGUA3KI" aria-hidden="true">
+  <div class="lightbox-overlay astro-BAGUA3KI"></div>
+  <div class="lightbox-content astro-BAGUA3KI">
+    <button class="lightbox-close astro-BAGUA3KI" aria-label="Cerrar">
+      <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="astro-BAGUA3KI">
+        <path d="M18 6L6 18M6 6l12 12" class="astro-BAGUA3KI"></path>
       </svg>
     </button>
-    <img id="lightbox-image" src="" alt="" class="lightbox-img astro-BSZH2Q64">
-    <div class="lightbox-caption astro-BSZH2Q64"></div>
+    <img id="lightbox-image" src="" alt="" class="lightbox-img astro-BAGUA3KI">
+    <div class="lightbox-caption astro-BAGUA3KI"></div>
   </div>
+</div>
+
+<script>
+  function initImageLightbox() {
+    const lightbox = document.getElementById('image-lightbox');
+    const lightboxImg = document.getElementById('lightbox-image');
+    const lightboxCaption = document.querySelector('.lightbox-caption');
+    const closeBtn = document.querySelector('.lightbox-close');
+    const overlay = document.querySelector('.lightbox-overlay');
+    
+    if (!lightbox || !lightboxImg) return;
+
+    // Función para abrir lightbox
+    function openLightbox(imgSrc, imgAlt) {
+      lightboxImg.src = imgSrc;
+      lightboxImg.alt = imgAlt;
+      if (lightboxCaption) {
+        lightboxCaption.textContent = imgAlt || '';
+      }
+      lightbox.classList.add('active');
+      lightbox.setAttribute('aria-hidden', 'false');
+      document.body.style.overflow = 'hidden'; // Prevent scroll
+    }
+
+    // Función para cerrar lightbox
+    function closeLightbox() {
+      lightbox.classList.remove('active');
+      lightbox.setAttribute('aria-hidden', 'true');
+      document.body.style.overflow = ''; // Restore scroll
+      
+      // Clear image after animation
+      setTimeout(function() {
+        lightboxImg.src = '';
+      }, 300);
+    }
+
+    // Detectar todas las imágenes dentro del contenido del post
+    const contentImages = document.querySelectorAll('.prose img, .content img, article img');
+    
+    contentImages.forEach(function(img) {
+      // Hacer clickeable
+      img.style.cursor = 'pointer';
+      
+      // Agregar evento click
+      img.addEventListener('click', function(e) {
+        e.preventDefault();
+        openLightbox(img.src, img.alt || '');
+      });
+    });
+
+    // Cerrar con botón X
+    if (closeBtn) {
+      closeBtn.addEventListener('click', closeLightbox);
+    }
+    
+    // Cerrar con click en overlay
+    if (overlay) {
+      overlay.addEventListener('click', closeLightbox);
+    }
+    
+    // Cerrar con ESC
+    document.addEventListener('keydown', function(e) {
+      if (e.key === 'Escape' && lightbox.classList.contains('active')) {
+        closeLightbox();
+      }
+    });
+
+    // Prevenir cierre al hacer click en la imagen
+    lightboxImg.addEventListener('click', function(e) {
+      e.stopPropagation();
+    });
+  }
+
+  // Inicializar cuando el DOM esté listo
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', initImageLightbox);
+  } else {
+    initImageLightbox();
+  }
+  
+  // Re-inicializar en navegaciones de Astro
+  document.addEventListener('astro:page-load', initImageLightbox);
+</script>
+
+
+  <div id="pwa-install-prompt" class="install-prompt hidden astro-UOHV2HNQ">
+    <div class="prompt-content astro-UOHV2HNQ">
+        <div class="prompt-icon astro-UOHV2HNQ">✈️</div>
+        <div class="prompt-text astro-UOHV2HNQ">
+            <h3 class="astro-UOHV2HNQ">Instalar Instante Trips</h3>
+            <p class="astro-UOHV2HNQ">Accede más rápido desde tu pantalla de inicio</p>
+        </div>
+        <div class="prompt-actions astro-UOHV2HNQ">
+            <button id="install-btn" class="btn-install astro-UOHV2HNQ">Instalar</button>
+            <button id="dismiss-btn" class="btn-dismiss astro-UOHV2HNQ">Ahora no</button>
+        </div>
+    </div>
 </div>
 
 
@@ -214,14 +425,14 @@
 
 
 
-  <div class="container astro-Z6ODSMK6">
-    <div class="layout astro-Z6ODSMK6">
+  <div class="container astro-D4LXOPKS">
+    <div class="layout astro-D4LXOPKS">
 
       <!-- COLUMNA IZQUIERDA: TOC (Solo Desktop XL) -->
-      <aside class="toc-sidebar astro-Z6ODSMK6">
-         <nav class="toc-container astro-5VYHEHZV">
-    <h4 class="toc-title astro-5VYHEHZV">En este artículo</h4>
-    <ul id="toc-list" class="toc-list astro-5VYHEHZV">
+      <aside class="toc-sidebar astro-D4LXOPKS">
+         <nav class="toc-container astro-4CWEX4DT">
+    <h4 class="toc-title astro-4CWEX4DT">En este artículo</h4>
+    <ul id="toc-list" class="toc-list astro-4CWEX4DT">
         <!-- Se llena con JS -->
     </ul>
 </nav>
@@ -231,11 +442,11 @@
 
       </aside>
 
-      <main class="astro-Z6ODSMK6">
-        <img src="https://res.cloudinary.com/dbwdmu9k2/image/upload/v1768575545/IMG_0311_ujcimj.jpg" alt="El vuelo barato existe, nomás hay que saber buscarle ✈️" class="hero astro-Z6ODSMK6" loading="eager">
+      <main class="astro-D4LXOPKS">
+        <img src="https://res.cloudinary.com/dbwdmu9k2/image/upload/v1768575545/IMG_0311_ujcimj.jpg" alt="El vuelo barato existe, nomás hay que saber buscarle ✈️" class="hero astro-D4LXOPKS" loading="eager">
 
-        <div class="content astro-Z6ODSMK6">
-          <a href="/" class="back astro-Z6ODSMK6">← Volver al blog</a>
+        <div class="content astro-D4LXOPKS">
+          <a href="/" class="back astro-D4LXOPKS">← Volver al blog</a>
           
           <nav aria-label="Breadcrumb" class="breadcrumbs astro-UQNGRKYX">
   <ol itemscope itemtype="https://schema.org/BreadcrumbList" class="astro-UQNGRKYX">
@@ -257,26 +468,26 @@
 
 
 
-          <h1 class="astro-Z6ODSMK6">El vuelo barato existe, nomás hay que saber buscarle ✈️</h1>
+          <h1 class="astro-D4LXOPKS">El vuelo barato existe, nomás hay que saber buscarle ✈️</h1>
           
-          <div class="post-meta-info astro-Z6ODSMK6">
-            <span class="meta-item astro-Z6ODSMK6">📖 3 min de lectura</span>
-            <span class="meta-separator astro-Z6ODSMK6">•</span>
-            <span class="meta-item astro-Z6ODSMK6">📅 2026-01-17</span>
+          <div class="post-meta-info astro-D4LXOPKS">
+            <span class="meta-item astro-D4LXOPKS">📖 3 min de lectura</span>
+            <span class="meta-separator astro-D4LXOPKS">•</span>
+            <span class="meta-item astro-D4LXOPKS">📅 2026-01-17</span>
           </div>
 
-          <div class="post-header-meta astro-Z6ODSMK6">
-            <div class="mini-author astro-Z6ODSMK6">
-                <img src="/assets/autores/daniel-arana-1768646203429.jpg" alt="Daniel Arana" class="astro-Z6ODSMK6">
-                <div class="author-info astro-Z6ODSMK6">
-                    <span class="author-label astro-Z6ODSMK6">Este artículo fue escrito por:</span>
-                    <span class="author-name astro-Z6ODSMK6">Daniel Arana</span>
-                    <span class="publish-date astro-Z6ODSMK6">2026-01-17</span>
+          <div class="post-header-meta astro-D4LXOPKS">
+            <div class="mini-author astro-D4LXOPKS">
+                <img src="/assets/autores/daniel-arana-1769321690759.jpg" alt="Daniel Arana" class="astro-D4LXOPKS">
+                <div class="author-info astro-D4LXOPKS">
+                    <span class="author-label astro-D4LXOPKS">Este artículo fue escrito por:</span>
+                    <span class="author-name astro-D4LXOPKS">Daniel Arana</span>
+                    <span class="publish-date astro-D4LXOPKS">2026-01-17</span>
                 </div>
             </div>
           </div>
 
-          <div class="prose astro-Z6ODSMK6" id="main-content">
+          <div class="prose astro-D4LXOPKS" id="main-content">
             <div class="ad-wrapper ad-fluid astro-Q73BIN5X">
     <span class="ad-label astro-Q73BIN5X">Te podría interesar</span>
 
@@ -426,51 +637,43 @@ Así que te explico rápido, de viajero a viajero.</p>
           </div>
           
           <!-- Social Share -->
-          <div class="article-share astro-Z6ODSMK6">
-            <h3 class="share-heading astro-Z6ODSMK6">¿Te sirvió este artículo? Compártelo con otros viajeros ✈️</h3>
-            <div class="social-share inline-share astro-XW2NXKGX">
+          <div class="article-share astro-D4LXOPKS">
+            <h3 class="share-heading astro-D4LXOPKS">¿Te sirvió este artículo? Compártelo con otros viajeros ✈️</h3>
+            <div class="social-share inline-share astro-EFZTDYF3">
   
   
-  <div class="share-buttons astro-XW2NXKGX">
+  <div class="share-buttons astro-EFZTDYF3">
     <!-- WhatsApp -->
-    <a href="https://wa.me/?text=El%20vuelo%20barato%20existe%2C%20nom%C3%A1s%20hay%20que%20saber%20buscarle%20%E2%9C%88%EF%B8%8F%20https%3A%2F%2Fblog.instantetrips.com%2Fposts%2F2026-01-17-el-vuelo-barato-existe-nom-s-hay-que-saber-buscarle-%2F" target="_blank" rel="noopener noreferrer" class="share-btn whatsapp astro-XW2NXKGX" aria-label="Compartir en WhatsApp">
-      <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor" class="astro-XW2NXKGX">
-        <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.890-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413Z" class="astro-XW2NXKGX"></path>
+    <a href="https://wa.me/?text=El%20vuelo%20barato%20existe%2C%20nom%C3%A1s%20hay%20que%20saber%20buscarle%20%E2%9C%88%EF%B8%8F%20https%3A%2F%2Fblog.instantetrips.com%2Fposts%2F2026-01-17-el-vuelo-barato-existe-nom-s-hay-que-saber-buscarle-%2F" target="_blank" rel="noopener noreferrer" class="share-btn whatsapp astro-EFZTDYF3" aria-label="Compartir en WhatsApp">
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor" class="astro-EFZTDYF3">
+        <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.890-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413Z" class="astro-EFZTDYF3"></path>
       </svg>
-      <span class="astro-XW2NXKGX">WhatsApp</span>
+      <span class="astro-EFZTDYF3">WhatsApp</span>
     </a>
 
     <!-- Facebook -->
-    <a href="https://www.facebook.com/sharer/sharer.php?u=https%3A%2F%2Fblog.instantetrips.com%2Fposts%2F2026-01-17-el-vuelo-barato-existe-nom-s-hay-que-saber-buscarle-%2F" target="_blank" rel="noopener noreferrer" class="share-btn facebook astro-XW2NXKGX" aria-label="Compartir en Facebook">
-      <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor" class="astro-XW2NXKGX">
-        <path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z" class="astro-XW2NXKGX"></path>
+    <a href="https://www.facebook.com/sharer/sharer.php?u=https%3A%2F%2Fblog.instantetrips.com%2Fposts%2F2026-01-17-el-vuelo-barato-existe-nom-s-hay-que-saber-buscarle-%2F" target="_blank" rel="noopener noreferrer" class="share-btn facebook astro-EFZTDYF3" aria-label="Compartir en Facebook">
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor" class="astro-EFZTDYF3">
+        <path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z" class="astro-EFZTDYF3"></path>
       </svg>
-      <span class="astro-XW2NXKGX">Facebook</span>
+      <span class="astro-EFZTDYF3">Facebook</span>
     </a>
 
     <!-- Twitter/X -->
-    <a href="https://twitter.com/intent/tweet?text=El%20vuelo%20barato%20existe%2C%20nom%C3%A1s%20hay%20que%20saber%20buscarle%20%E2%9C%88%EF%B8%8F&#38;url=https%3A%2F%2Fblog.instantetrips.com%2Fposts%2F2026-01-17-el-vuelo-barato-existe-nom-s-hay-que-saber-buscarle-%2F" target="_blank" rel="noopener noreferrer" class="share-btn twitter astro-XW2NXKGX" aria-label="Compartir en X (Twitter)">
-      <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor" class="astro-XW2NXKGX">
-        <path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z" class="astro-XW2NXKGX"></path>
+    <a href="https://twitter.com/intent/tweet?text=El%20vuelo%20barato%20existe%2C%20nom%C3%A1s%20hay%20que%20saber%20buscarle%20%E2%9C%88%EF%B8%8F&#38;url=https%3A%2F%2Fblog.instantetrips.com%2Fposts%2F2026-01-17-el-vuelo-barato-existe-nom-s-hay-que-saber-buscarle-%2F" target="_blank" rel="noopener noreferrer" class="share-btn twitter astro-EFZTDYF3" aria-label="Compartir en X (Twitter)">
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor" class="astro-EFZTDYF3">
+        <path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z" class="astro-EFZTDYF3"></path>
       </svg>
-      <span class="astro-XW2NXKGX">X</span>
-    </a>
-
-    <!-- Pinterest -->
-    <a href="https://pinterest.com/pin/create/button/?url=https%3A%2F%2Fblog.instantetrips.com%2Fposts%2F2026-01-17-el-vuelo-barato-existe-nom-s-hay-que-saber-buscarle-%2F&#38;description=El%20vuelo%20barato%20existe%2C%20nom%C3%A1s%20hay%20que%20saber%20buscarle%20%E2%9C%88%EF%B8%8F" target="_blank" rel="noopener noreferrer" class="share-btn pinterest astro-XW2NXKGX" aria-label="Compartir en Pinterest">
-      <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor" class="astro-XW2NXKGX">
-        <path d="M12 0C5.373 0 0 5.372 0 12c0 5.084 3.163 9.426 7.627 11.174-.105-.949-.2-2.405.042-3.441.218-.937 1.407-5.965 1.407-5.965s-.359-.719-.359-1.782c0-1.668.967-2.914 2.171-2.914 1.023 0 1.518.769 1.518 1.690 0 1.029-.655 2.568-.994 3.995-.283 1.194.599 2.169 1.777 2.169 2.133 0 3.772-2.249 3.772-5.495 0-2.873-2.064-4.882-5.012-4.882-3.414 0-5.418 2.561-5.418 5.207 0 1.031.397 2.138.893 2.738.098.119.112.224.083.345l-.333 1.36c-.053.22-.174.267-.402.161-1.499-.698-2.436-2.889-2.436-4.649 0-3.785 2.75-7.262 7.929-7.262 4.163 0 7.398 2.967 7.398 6.931 0 4.136-2.607 7.464-6.227 7.464-1.216 0-2.359-.631-2.75-1.378l-.748 2.853c-.271 1.043-1.002 2.35-1.492 3.146C9.57 23.812 10.763 24 12 24c6.627 0 12-5.373 12-12 0-6.628-5.373-12-12-12z" class="astro-XW2NXKGX"></path>
-      </svg>
-      <span class="astro-XW2NXKGX">Pinterest</span>
+      <span class="astro-EFZTDYF3">X</span>
     </a>
 
     <!-- Copy Link -->
-    <button class="share-btn copy-link astro-XW2NXKGX" data-url="https://blog.instantetrips.com/posts/2026-01-17-el-vuelo-barato-existe-nom-s-hay-que-saber-buscarle-/" aria-label="Copiar enlace">
-      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="astro-XW2NXKGX">
-        <path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71" class="astro-XW2NXKGX"></path>
-        <path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71" class="astro-XW2NXKGX"></path>
+    <button class="share-btn copy-link astro-EFZTDYF3" data-url="https://blog.instantetrips.com/posts/2026-01-17-el-vuelo-barato-existe-nom-s-hay-que-saber-buscarle-/" aria-label="Copiar enlace">
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="astro-EFZTDYF3">
+        <path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71" class="astro-EFZTDYF3"></path>
+        <path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71" class="astro-EFZTDYF3"></path>
       </svg>
-      <span class="astro-XW2NXKGX">Copiar</span>
+      <span class="astro-EFZTDYF3">Copiar</span>
     </button>
   </div>
 </div>
@@ -483,15 +686,15 @@ Así que te explico rápido, de viajero a viajero.</p>
         </div>
       </main>
 
-      <aside class="right-sidebar astro-Z6ODSMK6">
+      <aside class="right-sidebar astro-D4LXOPKS">
         
-        <div class="widget author-widget astro-Z6ODSMK6">
-          <img src="/assets/autores/daniel-arana-1768646203429.jpg" alt="Daniel Arana" class="astro-Z6ODSMK6">
-          <h3 class="astro-Z6ODSMK6">Daniel Arana</h3>
+        <div class="widget author-widget astro-D4LXOPKS">
+          <img src="/assets/autores/daniel-arana-1769321690759.jpg" alt="Daniel Arana" class="astro-D4LXOPKS">
+          <h3 class="astro-D4LXOPKS">Daniel Arana</h3>
           
-          <span class="author-role astro-Z6ODSMK6">Founder &amp; Creative Director</span>
+          <span class="author-role astro-D4LXOPKS">Founder &amp; Creative Director</span>
           
-          <p class="astro-Z6ODSMK6">Me encanta contar mis historias y experiencias viajando.</p>
+          <p class="astro-D4LXOPKS">Me encanta contar mis historias y experiencias viajando.</p>
         </div>
 
         <div class="flight-widget sidebar astro-KN7JLOY4" data-affiliate="instante_trips">
@@ -719,7 +922,7 @@ Así que te explico rápido, de viajero a viajero.</p>
 
 
 
-        <div class="widget astro-Z6ODSMK6" style="padding:0; border:none; background: transparent; text-align: center;">
+        <div class="widget astro-D4LXOPKS" style="padding:0; border:none; background: transparent; text-align: center;">
           <div class="ad-wrapper ad-square astro-Q73BIN5X">
     <span class="ad-label astro-Q73BIN5X">Publicidad</span>
 

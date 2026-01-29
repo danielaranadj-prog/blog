@@ -5,6 +5,14 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <link rel="icon" type="image/svg+xml" href="/logo.svg">
 
+<!-- PWA Configuration -->
+<link rel="manifest" href="/manifest.json">
+<meta name="theme-color" content="#F4B942">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Instante Trips">
+<link rel="apple-touch-icon" href="/apple-touch-icon.png">
+
 <title>Instante Trips &amp; Tips</title>
 <meta name="title" content="Instante Trips &#38; Tips">
 <meta name="description" content="Vive la magia del destino: sabores, paisajes y momentos únicos.">
@@ -39,11 +47,27 @@
 <script async src="https://www.googletagmanager.com/gtag/js?id=G-F6PP85582J"></script>
 
 
+<!-- PWA Service Worker Registration -->
+<script>
+if ('serviceWorker' in navigator) {
+  window.addEventListener('load', () => {
+    navigator.serviceWorker.register('/sw.js').then(
+      (registration) => {
+        console.log('[PWA] Service Worker registered successfully:', registration.scope);
+      },
+      (error) => {
+        console.error('[PWA] Service Worker registration failed:', error);
+      }
+    );
+  });
+}
+</script>
+
         
-    <link rel="stylesheet" href="/assets/2026-01-17-buenos-aires-5-dias-guia-real.943e992f.css" />
-<link rel="stylesheet" href="/assets/_...page_.ea675489.css" />
-<link rel="stylesheet" href="/assets/2026-01-17-buenos-aires-5-dias-guia-real.dd0641ea.css" />
-<link rel="stylesheet" href="/assets/2026-01-17-buenos-aires-5-dias-guia-real.4452690d.css" /><script type="module" src="/hoisted.b5d15b8c.js"></script></head>
+    <link rel="stylesheet" href="/assets/2026-01-17-buenos-aires-5-dias-guia-real.cbbe1c09.css" />
+<link rel="stylesheet" href="/assets/_...page_.ddfaccb7.css" />
+<link rel="stylesheet" href="/assets/2026-01-17-buenos-aires-5-dias-guia-real.b3e9bbca.css" />
+<link rel="stylesheet" href="/assets/2026-01-17-buenos-aires-5-dias-guia-real.4452690d.css" /><script type="module" src="/hoisted.6989dea2.js"></script></head>
 
     <body class="astro-6LYLBAR6">
         <header class="site-header astro-2XH3XKIS" id="main-header">

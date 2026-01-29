@@ -5,6 +5,14 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <link rel="icon" type="image/svg+xml" href="/logo.svg">
 
+<!-- PWA Configuration -->
+<link rel="manifest" href="/manifest.json">
+<meta name="theme-color" content="#F4B942">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Instante Trips">
+<link rel="apple-touch-icon" href="/apple-touch-icon.png">
+
 <title>Política de Cookies</title>
 <meta name="title" content="Política de Cookies">
 <meta name="description" content="Información legal de Instante Trips &#38; Tips">
@@ -38,8 +46,24 @@
 <!-- ⚠️ IMPORTANTE: Reemplaza "G-PLACEHOLDER" con tu ID real de GA4 antes de lanzar -->
 <script async src="https://www.googletagmanager.com/gtag/js?id=G-F6PP85582J"></script>
 
+
+<!-- PWA Service Worker Registration -->
+<script>
+if ('serviceWorker' in navigator) {
+  window.addEventListener('load', () => {
+    navigator.serviceWorker.register('/sw.js').then(
+      (registration) => {
+        console.log('[PWA] Service Worker registered successfully:', registration.scope);
+      },
+      (error) => {
+        console.error('[PWA] Service Worker registration failed:', error);
+      }
+    );
+  });
+}
+</script>
     
-<link rel="stylesheet" href="/assets/2026-01-17-buenos-aires-5-dias-guia-real.943e992f.css" />
+<link rel="stylesheet" href="/assets/2026-01-17-buenos-aires-5-dias-guia-real.cbbe1c09.css" />
 <link rel="stylesheet" href="/assets/cookies.69b519ce.css" /><script type="module" src="/hoisted.07514fdc.js"></script></head>
 <body class="astro-IKLIMICB">
     <header class="site-header astro-2XH3XKIS" id="main-header">
