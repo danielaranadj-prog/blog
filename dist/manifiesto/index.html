@@ -39,6 +39,9 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@400;700&family=Montserrat:wght@300;400;500;600;800&display=swap" rel="stylesheet">
 
+<!-- Font Awesome Icons -->
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" integrity="sha512-DTOQO9RWCH3ppGqcWaEA1BIZOC6xxalwEsw9c2QQeAIftl+Vegovlnee1c9QX4TctnWMn13TZye+giMm8e2LwA==" crossorigin="anonymous" referrerpolicy="no-referrer">
+
 <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-5650296070135561" crossorigin="anonymous">
 </script>
 
@@ -64,143 +67,65 @@ if ('serviceWorker' in navigator) {
 </script>
     
     <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Serif:ital,wght@0,400;0,600;1,400&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="/assets/2026-01-17-buenos-aires-5-dias-guia-real.cbbe1c09.css" />
-<link rel="stylesheet" href="/assets/manifiesto.da6510c7.css" /><script type="module" src="/hoisted.91ccae1d.js"></script></head>
+<link rel="stylesheet" href="/assets/2026-01-17-buenos-aires-5-dias-guia-real.050d8887.css" />
+<link rel="stylesheet" href="/assets/manifiesto.da6510c7.css" /><script type="module" src="/hoisted.06bf073f.js"></script></head>
 
 <body class="astro-N5HVUNMY">
-    <header class="site-header astro-2XH3XKIS" id="main-header">
-    <div class="header-container astro-2XH3XKIS">
+    <header class="site-header astro-O2ZIKIUP" id="main-header">
+    <div class="header-container astro-O2ZIKIUP">
         
-        <a href="/" class="logo-wrapper astro-2XH3XKIS">
-            <img src="/logo.svg" alt="Instante Trips &#38; Tips" class="logo astro-2XH3XKIS">
+        <a href="/" class="logo-wrapper astro-O2ZIKIUP">
+            <img src="/logo.svg" alt="Instante Trips &#38; Tips" class="logo astro-O2ZIKIUP">
         </a>
 
-        <nav class="desktop-nav astro-2XH3XKIS">
-            <ul class="astro-2XH3XKIS">
-                <li class="astro-2XH3XKIS">
-                        <a href="/" class="nav-link astro-2XH3XKIS">Inicio</a>
-                    </li><li class="astro-2XH3XKIS">
-                        <a href="/destinos" class="nav-link astro-2XH3XKIS">Destinos</a>
-                    </li><li class="astro-2XH3XKIS">
-                        <a href="/sobre-mi" class="nav-link astro-2XH3XKIS">Sobre Mí</a>
-                    </li><li class="astro-2XH3XKIS">
-                        <a href="/manifiesto" class="nav-link astro-2XH3XKIS">Manifiesto</a>
-                    </li><li class="astro-2XH3XKIS">
-                        <a href="mailto:instantecreativo@icloud.com" class="nav-link astro-2XH3XKIS">Contacto</a>
+        <nav class="desktop-nav astro-O2ZIKIUP">
+            <ul class="astro-O2ZIKIUP">
+                <li class="astro-O2ZIKIUP">
+                        <a href="/" class="nav-link astro-O2ZIKIUP">Inicio</a>
+                    </li><li class="astro-O2ZIKIUP">
+                        <a href="/destinos" class="nav-link astro-O2ZIKIUP">Destinos</a>
+                    </li><li class="astro-O2ZIKIUP">
+                        <a href="/sobre-mi" class="nav-link astro-O2ZIKIUP">Sobre Mí</a>
+                    </li><li class="astro-O2ZIKIUP">
+                        <a href="/manifiesto" class="nav-link astro-O2ZIKIUP">Manifiesto</a>
+                    </li><li class="astro-O2ZIKIUP">
+                        <a href="mailto:instantecreativo@icloud.com" class="nav-link astro-O2ZIKIUP">Contacto</a>
                     </li>
             </ul>
-            <button id="theme-toggle" class="theme-toggle astro-O6NRIIKQ" aria-label="Cambiar tema">
-  <svg class="sun-icon astro-O6NRIIKQ" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-    <circle cx="12" cy="12" r="5" class="astro-O6NRIIKQ"></circle>
-    <path d="M12 1v2m0 18v2M4.22 4.22l1.42 1.42m12.72 12.72 1.42 1.42M1 12h2m18 0h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42" class="astro-O6NRIIKQ"></path>
-  </svg>
-  <svg class="moon-icon astro-O6NRIIKQ" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-    <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z" class="astro-O6NRIIKQ"></path>
-  </svg>
-</button>
-
-<script>
-  // Theme management
-  const THEME_KEY = 'instante-trips-theme';
-  
-  function getThemePreference() {
-    // 1. Check localStorage
-    const stored = localStorage.getItem(THEME_KEY);
-    if (stored) return stored;
-    
-    // 2. Check system preference
-    if (window.matchMedia('(prefers-color-scheme: dark)').matches) {
-      return 'dark';
-    }
-    
-    return 'light';
-  }
-  
-  function setTheme(theme) {
-    document.documentElement.setAttribute('data-theme', theme);
-    localStorage.setItem(THEME_KEY, theme);
-    updateToggleIcon(theme);
-  }
-  
-  function updateToggleIcon(theme) {
-    const toggle = document.getElementById('theme-toggle');
-    if (!toggle) return;
-    
-    const sunIcon = toggle.querySelector('.sun-icon');
-    const moonIcon = toggle.querySelector('.moon-icon');
-    
-    if (theme === 'dark') {
-      sunIcon.style.display = 'block';
-      moonIcon.style.display = 'none';
-    } else {
-      sunIcon.style.display = 'none';
-      moonIcon.style.display = 'block';
-    }
-  }
-  
-  function initThemeToggle() {
-    const toggle = document.getElementById('theme-toggle');
-    if (!toggle) return;
-    
-    // Set initial theme
-    const currentTheme = getThemePreference();
-    setTheme(currentTheme);
-    
-    // Toggle on click
-    toggle.addEventListener('click', () => {
-      const current = document.documentElement.getAttribute('data-theme');
-      const newTheme = current === 'dark' ? 'light' : 'dark';
-      setTheme(newTheme);
-    });
-  }
-  
-  // Initialize immediately to prevent flash
-  const initialTheme = getThemePreference();
-  document.documentElement.setAttribute('data-theme', initialTheme);
-  
-  // Initialize toggle after DOM is ready
-  if (document.readyState === 'loading') {
-    document.addEventListener('DOMContentLoaded', initThemeToggle);
-  } else {
-    initThemeToggle();
-  }
-  
-  // Support for Astro view transitions
-  document.addEventListener('astro:page-load', initThemeToggle);
-</script>
-
-
-
-
         </nav>
 
-        <button id="mobile-menu-btn" aria-label="Abrir menú" class="astro-2XH3XKIS">
-            <span class="hamburger-line astro-2XH3XKIS"></span>
-            <span class="hamburger-line astro-2XH3XKIS"></span>
-            <span class="hamburger-line astro-2XH3XKIS"></span>
+        <!-- Search Button -->
+        <button id="search-btn" class="search-btn astro-O2ZIKIUP" aria-label="Buscar" title="Buscar posts y destinos">
+            <i class="fas fa-search astro-O2ZIKIUP"></i>
+        </button>
+
+        <button id="mobile-menu-btn" aria-label="Abrir menú" class="astro-O2ZIKIUP">
+            <span class="hamburger-line astro-O2ZIKIUP"></span>
+            <span class="hamburger-line astro-O2ZIKIUP"></span>
+            <span class="hamburger-line astro-O2ZIKIUP"></span>
         </button>
     </div>
 
-    <div id="mobile-menu" class="mobile-menu-container astro-2XH3XKIS">
-        <nav class="astro-2XH3XKIS">
-            <ul class="astro-2XH3XKIS">
-                <li class="astro-2XH3XKIS">
-                        <a href="/" class="mobile-link astro-2XH3XKIS">Inicio</a>
-                    </li><li class="astro-2XH3XKIS">
-                        <a href="/destinos" class="mobile-link astro-2XH3XKIS">Destinos</a>
-                    </li><li class="astro-2XH3XKIS">
-                        <a href="/sobre-mi" class="mobile-link astro-2XH3XKIS">Sobre Mí</a>
-                    </li><li class="astro-2XH3XKIS">
-                        <a href="/manifiesto" class="mobile-link astro-2XH3XKIS">Manifiesto</a>
-                    </li><li class="astro-2XH3XKIS">
-                        <a href="mailto:instantecreativo@icloud.com" class="mobile-link astro-2XH3XKIS">Contacto</a>
+    <div id="mobile-menu" class="mobile-menu-container astro-O2ZIKIUP">
+        <nav class="astro-O2ZIKIUP">
+            <ul class="astro-O2ZIKIUP">
+                <li class="astro-O2ZIKIUP">
+                        <a href="/" class="mobile-link astro-O2ZIKIUP">Inicio</a>
+                    </li><li class="astro-O2ZIKIUP">
+                        <a href="/destinos" class="mobile-link astro-O2ZIKIUP">Destinos</a>
+                    </li><li class="astro-O2ZIKIUP">
+                        <a href="/sobre-mi" class="mobile-link astro-O2ZIKIUP">Sobre Mí</a>
+                    </li><li class="astro-O2ZIKIUP">
+                        <a href="/manifiesto" class="mobile-link astro-O2ZIKIUP">Manifiesto</a>
+                    </li><li class="astro-O2ZIKIUP">
+                        <a href="mailto:instantecreativo@icloud.com" class="mobile-link astro-O2ZIKIUP">Contacto</a>
                     </li>
             </ul>
         </nav>
     </div>
 </header>
 
-<a href="#main-content" class="skip-link astro-2XH3XKIS">Saltar al contenido</a>
+<a href="#main-content" class="skip-link astro-O2ZIKIUP">Saltar al contenido</a>
 
 
 
