@@ -5,7 +5,7 @@ publishDate: "2026-01-23"
 author: "daniel-arana"
 heroImage: "https://res.cloudinary.com/dbwdmu9k2/image/upload/v1768398416/espa%C3%B1a-madrid-estadio-bernabeu_takhrg.jpg"
 layout: "../../layouts/BlogPost.astro"
-tags: ["Real Madrid", "España", "Madrid", "Madrilista Premium", "Partido del Real Madrid", "Primer viaje a europa", "Entradas Real Madrid", "espana"]
+tags: ["Real Madrid", "España", "Madrid", "Madrilista Premium", "Partido del Real Madrid", "Primer viaje a europa", "Entradas Real Madrid", "boletos", "Bernabéu", "espana"]
 ---
 
 ¿Te imaginas poner el despertador a las **2:55 de la madrugada**, no para ir al aeropuerto, sino para pelearte por una entrada con miles de fans del Real Madrid? ⏰💻

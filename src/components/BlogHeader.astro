@@ -28,6 +28,11 @@ const navItems = [
             </ul>
         </nav>
 
+        <!-- Search Button -->
+        <button id="search-btn" class="search-btn" aria-label="Buscar" title="Buscar posts y destinos">
+            <i class="fas fa-search"></i>
+        </button>
+
         <button id="mobile-menu-btn" aria-label="Abrir menú">
             <span class="hamburger-line"></span>
             <span class="hamburger-line"></span>
@@ -53,10 +58,26 @@ const navItems = [
 <script>
     const btn = document.getElementById('mobile-menu-btn');
     const menu = document.getElementById('mobile-menu');
+    const searchBtn = document.getElementById('search-btn');
+    
     if (btn && menu) {
         btn.addEventListener('click', () => {
             btn.classList.toggle('active');
             menu.classList.toggle('active');
+        });
+    }
+    
+    if (searchBtn) {
+        searchBtn.addEventListener('click', () => {
+            const searchOverlay = document.getElementById('search-overlay');
+            if (searchOverlay) {
+                searchOverlay.classList.add('search-open');
+                document.body.style.overflow = 'hidden';
+                setTimeout(() => {
+                    const searchInput = document.getElementById('search-input');
+                    searchInput?.focus();
+                }, 100);
+            }
         });
     }
 </script>
@@ -215,6 +236,31 @@ const navItems = [
 
     .nav-link:hover::after { 
         width: 100%; 
+    }
+
+    /* --- SEARCH BUTTON --- */
+    .search-btn {
+        background: none;
+        border: none;
+        font-size: 1.2rem;
+        cursor: pointer;
+        color: var(--header-text);
+        padding: 8px;
+        transition: all 0.3s ease;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        border-radius: 8px;
+    }
+
+    .search-btn:hover {
+        color: var(--hover-color);
+        background: rgba(244, 185, 66, 0.1);
+        transform: scale(1.05);
+    }
+
+    .search-btn i {
+        color: inherit;
     }
 
     /* --- MOBILE --- */

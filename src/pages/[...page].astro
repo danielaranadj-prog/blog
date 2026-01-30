@@ -13,6 +13,7 @@ import HotelWidget from '../components/HotelWidget.astro';
 import CookieBanner from '../components/CookieBanner.astro';
 import ToastNotification from '../components/ToastNotification.astro';
 import ScrollReveal from '../components/ScrollReveal.astro';
+import SearchBar from '../components/SearchBar.astro';
 import { SITE } from '../config';
 
 // 🔒 LÓGICA CRÍTICA DE PAGINACIÓN DE ASTRO
@@ -314,6 +315,7 @@ const isHomePage = page.currentPage === 1;
     <body>
         <ToastNotification />
         <ScrollReveal />
+        <SearchBar />
         <BlogHeader />
         
         {isHomePage && (

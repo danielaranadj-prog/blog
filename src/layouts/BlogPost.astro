@@ -23,6 +23,7 @@ import PWAInstallPrompt from '../components/PWAInstallPrompt.astro';
 import TextSelectionShare from '../components/TextSelectionShare.astro';
 import ToastNotification from '../components/ToastNotification.astro';
 import ScrollReveal from '../components/ScrollReveal.astro';
+import SearchBar from '../components/SearchBar.astro';
 import { AUTHORS, DEFAULT_AUTHOR } from '../data/authors';
 import { fetchAffiliates } from '../lib/fetchAffiliates'; // Import fetcher
 
@@ -649,6 +650,7 @@ const readingTime = Math.ceil(words / 200);
   <TextSelectionShare />
   <ToastNotification />
   <ScrollReveal />
+  <SearchBar />
   <BlogHeader />
 
   <div class="container">
