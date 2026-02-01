@@ -1,6 +1,6 @@
 ---
-title: "¿Misión Imposible? Cómo conseguí mi entrada para ver al Real Madrid (y por qué madrugar valió la pena)"
-description: "¿Quieres ver al Real Madrid en el Bernabéu? Te cuento mi experiencia comprando entradas desde Latinoamérica, por qué pagué el Madridista Premium y cómo evitar estafas en reventa."
+title: "¿Misión Imposible? Cómo conseguí mi entrada para ver al Real Madrid"
+description: "¿Quieres ver al Real Madrid en el Bernabéu? Te cuento mi experiencia comprando entradas y cómo evitar estafas en reventa."
 publishDate: "2026-01-23"
 author: "daniel-arana"
 heroImage: "https://res.cloudinary.com/dbwdmu9k2/image/upload/v1768398416/espa%C3%B1a-madrid-estadio-bernabeu_takhrg.jpg"
@@ -21,6 +21,8 @@ El corazón me latía a mil. Sabía que esto es una lotería. Los **Socios** (ab
 Durante 15 minutos (los más largos de mi vida), entraba al sitio y veía lugares disponibles. Le daba clic, seleccionaba y... ¡pum! Al darle "comprar", ya no estaban. Alguien más rápido me los había ganado.
 
 Le daba _refresh_ a la página como un desesperado intentándolo una y otra vez. De repente, **¡el milagro!** Pude seleccionar uno y, sin pensarlo ni revisar en qué fila estaba, lo compré. ✅
+
+![](/uploads/1769972439608-boleto-real-madrid-getafe-jpg)
 
 * * *
 
