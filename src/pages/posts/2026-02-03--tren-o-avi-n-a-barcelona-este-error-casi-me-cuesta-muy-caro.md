@@ -13,7 +13,9 @@ Barcelona tiene una magia especial, un aire mediterráneo que te atrapa desde qu
 
 Después de vivirlo en carne propia y de comparar precios, aquí te cuento mi experiencia para que viajes como un experto y no te pase lo que a mí.
 
-## 1\. El mundo de los trenes: ¿Cuál elegir?![](/uploads/1769928614410-Captura-de-pantalla-2026-01-31-a-la-s--11-32-12-p-m--png)
+https://www.tiktok.com/@danygaran/video/7601791839645011256
+
+## 1\. El mundo de los trenes: ¿Cuál elegir?
 
 ![](/uploads/1769930384622-17302209623037-webp)
 
@@ -28,8 +30,6 @@ Si estás buscando el **Avlo** (ese tren morado de Renfe), ¡ni le busques! Ya n
 
 ## 2\. El avión: ¿Vale la pena?
 
-![](/uploads/1769928590637-Captura-de-pantalla-2026-01-31-a-la-s--10-26-57-p-m--png)
-
 Yo me decidí por **Iberia** porque llegar al aeropuerto de Barajas en Madrid fue facilísimo. Me subí al **autobús Express** y en 30 minutos ya estaba ahí por solo 5€.
 
 El vuelo es un suspiro, dura como **1 hora y 15 min**, pero aquí está el truco: si sumas el tiempo de llegar al aeropuerto, la seguridad y la espera, acabas haciendo casi **5 horas**. El tren, en cambio, te deja en el centro en **2 horas y media**.
@@ -38,8 +38,6 @@ El vuelo es un suspiro, dura como **1 hora y 15 min**, pero aquí está el truco
 
 ## 3\. El Autobús: La "Red de Seguridad" y el Abono Único
 
-![](/uploads/1769928918494-Captura-de-pantalla-2026-01-31-a-la-s--11-53-19-p-m--png)
-
 Si de plano los precios del tren y el avión están por las nubes, **ALSA** es el salvavidas.
 
 -   **Costos accesibles:** viaja desde 15€ (depende del horario), pero encontrarás gran variedad de precios.
@@ -47,6 +45,7 @@ Si de plano los precios del tren y el avión están por las nubes, **ALSA** es 
 -   **El Pro:** Salidas nocturnas. Te ahorras una noche de hotel llegando a Barcelona a las 7 AM.
     
 -   **Anticipa tu viaje:** no compres tu ticket el mismo día de tu salida, porque el precio estará por las nubes.
+    
 
 * * *
 
