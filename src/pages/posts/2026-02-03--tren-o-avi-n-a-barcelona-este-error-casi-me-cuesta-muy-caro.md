@@ -13,7 +13,7 @@ Barcelona tiene una magia especial, un aire mediterráneo que te atrapa desde qu
 
 Después de vivirlo en carne propia y de comparar precios, aquí te cuento mi experiencia para que viajes como un experto y no te pase lo que a mí.
 
-https://www.tiktok.com/@danygaran/video/7601791839645011256
+[https://www.tiktok.com/@danygaran/video/7601791839645011256](https://www.tiktok.com/@danygaran/video/7601791839645011256)
 
 ## 1\. El mundo de los trenes: ¿Cuál elegir?
 
@@ -36,7 +36,7 @@ El vuelo es un suspiro, dura como **1 hora y 15 min**, pero aquí está el truco
 
 > **Mi consejo:** Si vives cerca del aeropuerto, vuela. Si no, vete a la estación de Atocha y toma el tren; vas a ganar muchísimo tiempo.
 
-## 3\. El Autobús: La "Red de Seguridad" y el Abono Único
+## 3\. El Autobús: La "Red de Seguridad"
 
 Si de plano los precios del tren y el avión están por las nubes, **ALSA** es el salvavidas.
 
