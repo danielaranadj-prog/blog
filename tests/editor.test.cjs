@@ -110,3 +110,9 @@ test('archive cancels scheduling without deleting work and allows restoration',a
   const archived=await api.archive(user,p.id,true);assert.equal(archived.status,'draft');assert.equal(archived.scheduledAt,null);assert.equal(archived.archived,true);
   assert.equal((await api.archive(user,p.id,false)).archived,false);
 });
+test('AI requires configured connection and explicit consent before transmitting text',async()=>{
+  const {generateEditorialText}=require('../functions/editor-ai.cjs');const {db}=setup();let calls=0;
+  await assert.rejects(generateEditorialText({db,user,input:{text:'notas privadas de un viaje',consent:true},fetcher:()=>{calls++;}}),{status:503});
+  process.env.EDITOR_GEMINI_API_KEY='local-test-only';process.env.EDITOR_GEMINI_MODEL='test-model';
+  try {await assert.rejects(generateEditorialText({db,user,input:{text:'notas privadas de un viaje',consent:false},fetcher:()=>{calls++;}}),{status:400});assert.equal(calls,0);}finally{delete process.env.EDITOR_GEMINI_API_KEY;delete process.env.EDITOR_GEMINI_MODEL;}
+});

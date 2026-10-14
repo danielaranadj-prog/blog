@@ -35,7 +35,9 @@ Los borradores y programados no se escriben en `src/pages/posts` hasta publicar.
 
 Los conflictos de versiones detienen el guardado. Los conflictos con cambios externos en GitHub requieren recargar/importar la versión correcta; no se sobrescriben automáticamente. Hay hasta cinco intentos para fallos transitorios de publicaciones programadas.
 
-El asistente de esta versión ofrece estructura, títulos orientativos y revisión basada en el texto. No existe una conexión de generación con IA: requiere elegir y configurar un proveedor antes de enviar contenido a él.
+El asistente ofrece estructura, títulos orientativos y revisión basada en el texto. La integración opcional con Gemini se habilita únicamente al configurar `EDITOR_GEMINI_API_KEY` y `EDITOR_GEMINI_MODEL` en el servidor de Vercel. Usar un modelo disponible en la cuenta y revisar sus condiciones y precios: https://ai.google.dev/gemini-api/docs/models . No reutilizar la clave pública de Firebase. Hasta configurar estas variables, la generación permanece desactivada.
+
+Cada generación requiere confirmar en la interfaz el envío del título y relato a Gemini. Se limita el texto a 20.000 caracteres y a 20 solicitudes por cuenta y día. La respuesta se muestra como texto y solo se inserta tras una acción explícita; nunca se publica automáticamente. La IA no verifica hechos y el autor debe revisar la propuesta.
 
 ## Validación
 

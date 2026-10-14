@@ -21,7 +21,7 @@ module.exports=async(req,res)=>{
     const b=typeof req.body==='string'?JSON.parse(req.body):req.body||{};
     let result;
     switch(b.action) {
-      case 'list': result={posts:await api.list(user),scheduler:(await admin.firestore().doc('editor_system/scheduler').get()).data()?.lastHeartbeat || 0,storage:process.env.EDITOR_USE_STORAGE==='true'?'storage':'private-compressed'};break;
+      case 'list': result={posts:await api.list(user),scheduler:(await admin.firestore().doc('editor_system/scheduler').get()).data()?.lastHeartbeat || 0,aiReady:!!(process.env.EDITOR_GEMINI_API_KEY&&process.env.EDITOR_GEMINI_MODEL),storage:process.env.EDITOR_USE_STORAGE==='true'?'storage':'private-compressed'};break;
       case 'get':result=await api.getPost(user,b.id);break;
       case 'save':result=await api.save(user,b.post,'draft');break;
       case 'schedule':result=await api.save(user,b.post,'scheduled');break;
@@ -46,6 +46,7 @@ module.exports=async(req,res)=>{
       case 'archive':result=await api.archive(user,b.id,b.archived);break;
       case 'reloadPublished':result=await api.reloadPublished(user,b.id);break;
       case 'import':result=await api.importPosts(user);break;
+      case 'generate':result=await require('../functions/editor-ai.cjs').generateEditorialText({db:admin.firestore(),user,input:b});break;
       case 'checkLinks': {
         const links=[...new Set(Array.isArray(b.links)?b.links:[])].filter(x=>typeof x==='string'&&x.length<2000).slice(0,10);
         const {checkLink}=require('../functions/link-check.cjs');

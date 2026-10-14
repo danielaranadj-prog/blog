@@ -9,7 +9,7 @@ export async function initPlanner(bridge) {
   const urls=new Map(),mediaMetadata=new Map();
   const auth=bridge.auth;
   const sessionUid=auth.currentUser.uid;
-  let recovered=null;
+  let recovered=null,aiReady=false,aiOutput='';
   async function recovery(op,value){
     try {
       const database=await new Promise((resolve,reject)=>{const r=indexedDB.open('instante-editor-recovery',1);r.onupgradeneeded=()=>r.result.createObjectStore('pending');r.onsuccess=()=>resolve(r.result);r.onerror=()=>reject(r.error);});
@@ -85,7 +85,7 @@ export async function initPlanner(bridge) {
     }catch(e){panel.innerHTML=`<div class="planner-wrap"><h1>No se pudo cargar esta sección</h1><p role="alert">${esc(e.message)}</p><button class="planner-button" data-retry>Reintentar</button><button class="planner-button" data-new>Escribir un artículo</button></div>`;}
   }
   async function refresh(){
-    const data=await api('list');posts=data.posts;
+    const data=await api('list');posts=data.posts;aiReady=data.aiReady===true;
     if(!posts.length&&bridge.isAdmin){await api('import');posts=(await api('list')).posts;}
     const ready=data.scheduler&&Date.now()-data.scheduler<180000;
     $('schedule-post').disabled=!ready;
@@ -196,7 +196,7 @@ export async function initPlanner(bridge) {
   function chooseBlock(){dialog.innerHTML=`<h2>Añadir un bloque</h2><div class="planner-cards">${Object.entries(blocks).map(([k,t])=>`<button class="planner-button" data-block="${k}">${t.name}</button>`).join('')}</div><footer><button class="planner-button" data-close-dialog>Cerrar</button></footer>`;dialog.showModal();}
   function assistant(){
     const p=snapshot(),words=p.html.replace(/<[^>]+>/g,' ').split(/\s+/).filter(Boolean).length;
-    dialog.innerHTML=`<h2>Asistente editorial</h2><p class="planner-subtitle">Herramientas basadas en tu contenido. Las sugerencias no verifican precios, horarios ni experiencias.</p><div class="assistant-output">${esc(`Tu artículo tiene ${words} palabras (${Math.max(1,Math.ceil(words/220))} min de lectura).\n\nPosibles enfoques para “${p.tags[0]||'este destino'}”:\n• Qué debes saber antes de viajar\n• Mi presupuesto y los gastos que no esperaba\n• Lo que haría diferente en mi próxima visita\n\nAntes de publicarlo:\n${auditContent(p).map(f=>'• '+f.message).join('\n')||'• Haz una última lectura y verifica tus fuentes.'}`)}</div><p class="planner-subtitle">La generación con IA requiere conectar un proveedor; esta versión organiza y revisa tu material sin generar datos nuevos.</p><footer><button class="planner-button" data-close-dialog>Cerrar</button></footer>`;dialog.showModal();
+    dialog.innerHTML=`<h2>Asistente editorial</h2><p class="planner-subtitle">Herramientas basadas en tu contenido. Las sugerencias no verifican precios, horarios ni experiencias.</p><div class="assistant-output">${esc(`Tu artículo tiene ${words} palabras (${Math.max(1,Math.ceil(words/220))} min de lectura).\n\nPosibles enfoques para “${p.tags[0]||'este destino'}”:\n• Qué debes saber antes de viajar\n• Mi presupuesto y los gastos que no esperaba\n• Lo que haría diferente en mi próxima visita\n\nAntes de publicarlo:\n${auditContent(p).map(f=>'• '+f.message).join('\n')||'• Haz una última lectura y verifica tus fuentes.'}`)}</div><p class="planner-subtitle">${aiReady?'Gemini está conectado. Solo se envía el texto cuando lo confirmas; revisa la propuesta antes de insertarla.':'Conexión con IA pendiente. Puedes usar las plantillas y la revisión editorial mientras tanto.'}</p>${aiReady?'<label class="field-label">Tarea<select id="ai-mode" class="input-modern"><option value="outline">Ordenar notas</option><option value="titles">Sugerir títulos</option><option value="draft">Preparar un borrador</option></select></label><label><input type="checkbox" id="ai-consent"> Autorizo enviar el título y el relato actual a Gemini para preparar una propuesta.</label><button class="planner-button primary" data-generate>Generar propuesta</button><p id="ai-status" role="status"></p><div id="ai-output" class="assistant-output" hidden></div><button class="planner-button" data-insert-ai hidden>Insertar propuesta al final del relato</button>':''}<footer><button class="planner-button" data-close-dialog>Cerrar</button></footer>`;dialog.showModal();
   }
   async function handle(e){
     const b=e.target.closest('button,[data-close-dialog]');if(!b)return;
@@ -214,6 +214,12 @@ export async function initPlanner(bridge) {
     if(b.hasAttribute('data-today')){month=new Date();return refresh();}
     if(b.hasAttribute('data-retry'))return showView(view);
     if(b.hasAttribute('data-import')){b.disabled=true;try{const r=await api('import');bridge.toast(`${r.count} artículos incorporados al calendario.`);await refresh();}finally{b.disabled=false;}return;}
+    if(b.hasAttribute('data-generate')){
+      if(!$('ai-consent').checked)throw Error('Confirma el envío del texto a Gemini.');
+      b.disabled=true;$('ai-status').textContent='Preparando propuesta…';
+      try{const p=snapshot(),plain=new DOMParser().parseFromString(p.html,'text/html').body.textContent;const r=await api('generate',{consent:true,mode:$('ai-mode').value,text:p.title+'\n'+plain});aiOutput=r.text;$('ai-output').textContent=aiOutput;$('ai-output').hidden=false;dialog.querySelector('[data-insert-ai]').hidden=false;$('ai-status').textContent='Propuesta lista para tu revisión.';}finally{b.disabled=false;}return;
+    }
+    if(b.hasAttribute('data-insert-ai')){bridge.insert('<h2>Propuesta para revisar</h2>'+aiOutput.split(/\n\n+/).map(p=>'<p>'+esc(p).replace(/\n/g,'<br>')+'</p>').join(''));queueSave();dialog.close();return;}
     if(b.dataset.reviewed){const p=posts.find(p=>p.id===b.dataset.reviewed);openForm('Registrar revisión',`<p>Confirma que comprobaste los datos del artículo. Esto registra la revisión; los cambios en el texto se publican desde el editor.</p><label>Próxima revisión<input class="input-modern" name="reviewAt" type="date" required></label>`,async f=>{await api('reviewed',{id:p.id,version:p.version,reviewAt:f.get('reviewAt')});await renderReviews();});return;}
     if(b.dataset.archivePost){
       const restoring=b.dataset.restore==='true';
