@@ -6,6 +6,12 @@ author: "daniel-arana"
 heroImage: "https://res.cloudinary.com/dbwdmu9k2/image/upload/v1768398416/espa%C3%B1a-madrid-estadio-bernabeu_takhrg.jpg"
 layout: "../../layouts/BlogPost.astro"
 tags: ["Real Madrid", "España", "Madrid", "Madrilista Premium", "Partido del Real Madrid", "Primer viaje a europa", "Entradas Real Madrid", "boletos", "Bernabéu", "espana"]
+quickSummary:
+  budget: "95€ - 150€ (Oficial)"
+  bestSeason: "Comprar 10 días antes (Venta Premium)"
+  pitfall: "Comprar en reventa no oficial (Viagogo/estafas)"
+  ctaText: "Ver entradas oficiales y tour Bernabéu"
+  ctaLink: "https://www.civitatis.com/es/madrid/tour-bernabeu/"
 ---
 
 ¿Te imaginas poner el despertador a las **2:55 de la madrugada**, no para ir al aeropuerto, sino para pelearte por una entrada con miles de fans del Real Madrid? ⏰💻
@@ -47,6 +53,28 @@ Si decides arriesgarte con la venta general (o incluso en la preventa), la puntu
 #### 3\. Evita la reventa no oficial 🚫
 
 Existen plataformas como StubHub o Viagogo que te prometen acceso a cualquier lugar del estadio. **Mi consejo: ten mucho cuidado.** Muchas veces venden entradas que ni siquiera han salido a la venta oficial. Nunca las he utilizado porque considero que son un azar y el riesgo de estafa es alto. Lo mejor y más seguro siempre será el sitio oficial del Real Madrid.
+
+<div class="affiliate-activity-card" style="margin: 2.5rem 0; border: 1px solid #E6E1D6; border-radius: 16px; padding: 1.5rem; background: #FFFFFF; box-shadow: 0 4px 20px rgba(0,0,0,0.04);">
+  <div style="display: flex; justify-content: space-between; align-items: flex-start; gap: 1rem; flex-wrap: wrap;">
+    <div>
+      <span style="display: inline-block; background: #FAF7F2; color: #D95D24; font-size: 0.75rem; font-weight: 800; padding: 4px 10px; border-radius: 999px; margin-bottom: 0.5rem; border: 1px solid #E6E1D6;">⭐ EXPERIENCIA OFICIAL</span>
+      <h3 style="margin: 0 0 0.5rem; font-family: 'Playfair Display', serif; font-size: 1.35rem; color: #18181B;">Tour Oficial Estadio Santiago Bernabéu</h3>
+      <p style="margin: 0; font-size: 0.95rem; color: #71717A;">Si no consigues entrada para partido o visitas en día sin juego, el tour oficial te permite pisar el vestuario, túnel y el museo de las 15 Champions.</p>
+    </div>
+    <div style="text-align: right;">
+      <span style="font-size: 0.75rem; color: #71717A; display: block;">Desde</span>
+      <strong style="font-size: 1.5rem; color: #18181B; font-weight: 800;">25€</strong>
+    </div>
+  </div>
+  <div style="margin: 1.25rem 0 1rem; display: flex; flex-direction: column; gap: 6px; font-size: 0.88rem; color: #27272A;">
+    <div>✅ Cancelación gratuita hasta 24 horas antes</div>
+    <div>✅ Acceso directo sin filas en taquilla</div>
+    <div>✅ Proveedor oficial verificado Civitatis</div>
+  </div>
+  <a href="https://www.civitatis.com/es/madrid/tour-bernabeu/" target="_blank" rel="sponsored nofollow noopener" class="ticket-btn" style="display: block; width: 100%; text-align: center; text-decoration: none; padding: 12px 20px; background: #D95D24; color: #FFFFFF; border-radius: 999px; font-weight: 700; font-size: 0.95rem;">
+    Reservar Tour Bernabéu con Civitatis →
+  </a>
+</div>
 
 * * *
 

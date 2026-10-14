@@ -1,47 +1,28 @@
 ---
 import BaseHead from '../components/BaseHead.astro';
 import BlogHeader from '../components/BlogHeader.astro';
-import Footer from '../components/Footer.astro';
-import FlightSearch from '../components/FlightSearch.astro';
-import { SITE } from '../config';
+import Footer from '../components/Footer.astro'; // Importamos el footer nuevo si ya lo hiciste
 
-let title = '404 - Ruta no encontrada';
-let description = 'Parece que te has desviado. Regresa al inicio para seguir viajando.';
+let title = '404 - Perdido en el Mapa';
+let description = 'Parece que te has desviado de la ruta. Regresa al inicio para seguir viajando.';
 ---
 
 <html lang="es">
-   <head>
-      <BaseHead title={title} description={description} permalink={Astro.site?.href || '/'} />
+	<head>
+		<BaseHead title={title} description={description} permalink={Astro.site.href} />
         <style>
-             /* === 404 PAGE - PREMIUM UPGRADE === */
-             :root {
-                --brand-blue: #75AADB;
-                --accent-gold: #F4B942;
-                --page-bg: #F8F9FA;
-                --text-main: #2D3748;
-                --text-muted: #718096;
-             }
-
-             @media (prefers-color-scheme: dark) {
-                :root {
-                    --page-bg: #0f172a;
-                    --text-main: #f1f5f9;
-                    --text-muted: #94a3b8;
-                }
-             }
-
+             @import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;800&display=swap');
+             
              body {
                 font-family: 'Montserrat', sans-serif;
                 margin: 0;
-                background-color: var(--page-bg);
-                color: var(--text-main);
+                background-color: #F8F9FA;
+                color: #2D3748;
                 display: flex;
                 flex-direction: column;
                 min-height: 100vh;
-                transition: background 0.3s ease, color 0.3s ease;
              }
-
-             .error-main {
+             .error-container {
                 flex: 1;
                 display: flex;
                 flex-direction: column;
@@ -49,196 +30,53 @@ let description = 'Parece que te has desviado. Regresa al inicio para seguir via
                 justify-content: center;
                 text-align: center;
                 padding: 2rem;
-                position: relative;
-                overflow: hidden;
              }
-
-             /* Background glow effect */
-             .error-main::before {
-                content: '';
-                position: absolute;
-                width: 600px;
-                height: 600px;
-                background: radial-gradient(circle, rgba(244, 185, 66, 0.15) 0%, transparent 70%);
-                border-radius: 50%;
-                z-index: 0;
-                animation: pulse 4s ease-in-out infinite;
-             }
-
-             @keyframes pulse {
-                0%, 100% { transform: scale(1); opacity: 0.5; }
-                50% { transform: scale(1.1); opacity: 0.8; }
-             }
-
-             /* El 404 gigante de fondo (Con gradiente animado) */
-             .huge-404 {
-                font-size: clamp(10rem, 30vw, 25rem);
-                font-weight: 900;
-                line-height: 0.8;
-                position: absolute;
-                z-index: 0;
-                user-select: none;
-                pointer-events: none;
-                background: linear-gradient(
-                    135deg, 
-                    rgba(244, 185, 66, 0.15) 0%, 
-                    rgba(117, 170, 219, 0.15) 50%, 
-                    rgba(244, 185, 66, 0.15) 100%
-                );
-                background-size: 200% 200%;
-                -webkit-background-clip: text;
-                background-clip: text;
-                -webkit-text-fill-color: transparent;
-                animation: shimmer404 6s ease-in-out infinite;
-             }
-
-             @keyframes shimmer404 {
-                0% { background-position: 0% 50%; }
-                50% { background-position: 100% 50%; }
-                100% { background-position: 0% 50%; }
-             }
-
-             .content-wrapper {
-                z-index: 1;
-                max-width: 600px;
-                animation: fadeInUp 1s ease-out;
-             }
-
-             @keyframes fadeInUp {
-                from { opacity: 0; transform: translateY(30px); }
-                to { opacity: 1; transform: translateY(0); }
-             }
-
              h1 {
-                font-size: clamp(2rem, 5vw, 3.5rem);
+                font-size: clamp(3rem, 10vw, 8rem);
                 font-weight: 800;
-                color: var(--text-main);
-                margin: 0 0 1rem;
-                line-height: 1.2;
-                text-transform: uppercase;
+                color: #75AADB; /* Azul Marca */
+                margin: 0;
+                line-height: 1;
              }
-
-             .highlight {
-                 background: linear-gradient(135deg, var(--brand-blue), #4a89dc);
-                 -webkit-background-clip: text;
-                 background-clip: text;
-                 -webkit-text-fill-color: transparent;
+             h2 {
+                font-size: 1.5rem;
+                margin-top: 1rem;
+                margin-bottom: 1rem;
              }
-
              p {
-                font-family: 'IBM Plex Serif', serif;
-                font-size: 1.15rem;
-                color: var(--text-muted);
-                margin-bottom: 2.5rem;
-                line-height: 1.7;
                 max-width: 500px;
+                color: #718096;
+                margin-bottom: 2rem;
+                line-height: 1.6;
              }
-
              .btn-home {
-                display: inline-flex;
-                align-items: center;
-                gap: 10px;
-                background: linear-gradient(135deg, var(--accent-gold) 0%, #FFA500 100%);
-                color: #1A202C;
-                padding: 1rem 2.5rem;
+                background-color: #F4B942; /* Dorado Acento */
+                color: #ffffff;
+                padding: 1rem 2rem;
                 border-radius: 50px;
                 text-decoration: none;
                 font-weight: 700;
-                letter-spacing: 1px;
-                text-transform: uppercase;
-                font-size: 0.85rem;
-                transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
-                box-shadow: 0 4px 20px rgba(244, 185, 66, 0.4);
-                position: relative;
-                overflow: hidden;
+                transition: transform 0.2s;
+                box-shadow: 0 4px 10px rgba(244, 185, 66, 0.3);
              }
-
-             .btn-home::before {
-                content: '';
-                position: absolute;
-                inset: 0;
-                background: linear-gradient(135deg, #FFA500 0%, var(--accent-gold) 100%);
-                opacity: 0;
-                transition: opacity 0.3s ease;
-             }
-
              .btn-home:hover {
-                transform: translateY(-4px) scale(1.02);
-                box-shadow: 0 8px 30px rgba(244, 185, 66, 0.5);
-             }
-
-             .btn-home:hover::before {
-                opacity: 1;
-             }
-
-             .btn-home span {
-                position: relative;
-                z-index: 1;
-             }
-
-             .btn-home .arrow {
-                transition: transform 0.3s ease;
-             }
-
-             .btn-home:hover .arrow {
-                transform: translateX(4px);
-             }
-
-             /* Floating animation for subtle movement */
-             .content-wrapper {
-                animation: fadeInUp 1s ease-out, float 6s ease-in-out infinite 1s;
-             }
-
-             @keyframes float {
-                0%, 100% { transform: translateY(0); }
-                50% { transform: translateY(-10px); }
-             }
-
-             .lost-widget-container {
-                margin-top: 3rem;
-                width: 100%;
-                max-width: 500px;
-                animation: fadeInUp 1s ease-out 0.5s forwards;
-                opacity: 0;
-             }
-
-             .widget-intro {
-                font-size: 0.9rem !important;
-                margin-bottom: 1rem !important;
-                color: var(--accent-gold);
-                font-weight: 600;
-                text-transform: uppercase;
-                letter-spacing: 1px;
+                transform: translateY(-3px);
              }
         </style>
-        <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Serif:ital,wght@0,400;0,600;1,400&display=swap" rel="stylesheet">
-   </head>
-   <body>
-      <BlogHeader />
+	</head>
+	<body>
+		<BlogHeader />
         
-        <main class="error-main">
-            <div class="huge-404">404</div>
-
-            <div class="content-wrapper">
-                <h1>Parece que tomaste el <span class="highlight">tren equivocado</span>.</h1>
-                
-                <p>
-                    A veces perderse es la mejor parte del viaje, pero esta vez te has salido del mapa. 
-                    Esa página no existe (o se mudó a otro continente).
-                </p>
-                
-                <a href="/" class="btn-home">
-                    <span>Regresar a terreno conocido</span>
-                    <span class="arrow">→</span>
-                </a>
-            </div>
-
-            <div class="lost-widget-container">
-                <p class="widget-intro">O... ¿por qué no aprovechas para planear tu próximo escape?</p>
-                <FlightSearch variant="inline" />
-            </div>
-        </main>
+        <div class="error-container">
+            <h1>404</h1>
+            <h2>¡Ups! Te saliste de la ruta.</h2>
+            <p>
+                Parece que la página que buscas tomó un vuelo sin escalas a la dimensión desconocida. 
+                No te preocupes, el viaje continúa.
+            </p>
+            <a href="/" class="btn-home">← Volver al Inicio</a>
+        </div>
 
         <Footer />
-   </body>
+	</body>
 </html>

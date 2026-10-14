@@ -1,0 +1,126 @@
+---
+export interface Props {
+  slotId?: string;
+  format?: 'rectangle' | 'horizontal' | 'leaderboard';
+  label?: string;
+}
+
+const {
+  slotId = "ad-slot-default",
+  format = "rectangle",
+  label = "PUBLICIDAD"
+} = Astro.props;
+
+const formatClass = format === 'rectangle' 
+  ? 'ad-slot--rectangle' 
+  : format === 'horizontal' 
+    ? 'ad-slot--horizontal' 
+    : 'ad-slot--leaderboard';
+---
+
+<div class={`ad-slot-container ${formatClass}`} id={slotId} role="complementary" aria-label="Espacio publicitario">
+  <div class="ad-slot-header">
+    <span class="ad-slot-label">{label}</span>
+  </div>
+  
+  <div class="ad-slot-viewport">
+    <slot>
+      <!-- Placeholder mientras carga la red publicitaria para garantizar CLS = 0 -->
+      <div class="ad-slot-placeholder">
+        <span class="placeholder-icon">🏷️</span>
+        <span class="placeholder-text">Espacio Patrocinado</span>
+      </div>
+    </slot>
+  </div>
+</div>
+
+<style>
+  .ad-slot-container {
+    width: 100%;
+    margin: 2rem 0;
+    background: rgba(0, 0, 0, 0.02);
+    border: 1px solid rgba(0, 0, 0, 0.06);
+    border-radius: 12px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
+    position: relative;
+    box-sizing: border-box;
+    contain: layout style;
+  }
+
+  :global(.dark) .ad-slot-container,
+  @media (prefers-color-scheme: dark) {
+    .ad-slot-container {
+      background: rgba(255, 255, 255, 0.02);
+      border-color: rgba(255, 255, 255, 0.08);
+    }
+  }
+
+  /* Anti-CLS strict dimensions */
+  .ad-slot--rectangle {
+    min-height: 280px;
+    max-width: 320px;
+    margin-left: auto;
+    margin-right: auto;
+  }
+
+  .ad-slot--horizontal {
+    min-height: 110px;
+    max-width: 750px;
+  }
+
+  .ad-slot--leaderboard {
+    min-height: 110px;
+    max-width: 990px;
+  }
+
+  .ad-slot-header {
+    width: 100%;
+    padding: 6px 12px 2px;
+    display: flex;
+    justify-content: center;
+  }
+
+  .ad-slot-label {
+    font-size: 0.62rem;
+    font-weight: 800;
+    color: var(--text-muted, #94a3b8);
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
+    opacity: 0.8;
+  }
+
+  .ad-slot-viewport {
+    width: 100%;
+    flex-grow: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-height: inherit;
+    padding: 0.5rem;
+    box-sizing: border-box;
+  }
+
+  .ad-slot-placeholder {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 4px;
+    color: var(--text-muted, #94a3b8);
+    opacity: 0.6;
+  }
+
+  .placeholder-icon {
+    font-size: 1.2rem;
+  }
+
+  .placeholder-text {
+    font-size: 0.72rem;
+    font-weight: 600;
+    letter-spacing: 0.5px;
+  }
+</style>
+

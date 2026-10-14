@@ -1,0 +1,253 @@
+---
+export interface Props {
+  budget?: string;
+  bestSeason?: string;
+  pitfall?: string;
+  ctaText?: string;
+  ctaLink?: string;
+}
+
+const {
+  budget = "7€ - 15€",
+  bestSeason = "Todo el año",
+  pitfall = "No reservar online",
+  ctaText = "Descargar itinerario completo",
+  ctaLink = "#",
+} = Astro.props;
+---
+
+<aside class="tldr-ticket-card" aria-label="Resumen rápido del viaje">
+  <div class="ticket-left-body">
+    <div class="tldr-header-title">
+      <span class="tldr-bolt">⚡</span>
+      <span>EL RESUMEN AL GRANO / TL;DR</span>
+    </div>
+
+    <div class="ticket-3cols-grid">
+      <div class="ticket-col-item">
+        <span class="ticket-icon" aria-hidden="true">👛</span>
+        <div class="ticket-info">
+          <span class="ticket-label">Presupuesto</span>
+          <strong class="ticket-val">{budget}</strong>
+        </div>
+      </div>
+
+      <div class="ticket-col-item">
+        <span class="ticket-icon" aria-hidden="true">📅</span>
+        <div class="ticket-info">
+          <span class="ticket-label">Mejor época</span>
+          <strong class="ticket-val">{bestSeason}</strong>
+        </div>
+      </div>
+
+      <div class="ticket-col-item">
+        <span class="ticket-icon ticket-icon-error" aria-hidden="true">❌</span>
+        <div class="ticket-info">
+          <span class="ticket-label">Error a evitar</span>
+          <strong class="ticket-val">{pitfall}</strong>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="ticket-perforation-divider" aria-hidden="true">
+    <div class="notch notch-top"></div>
+    <div class="dashed-line"></div>
+    <div class="notch notch-bottom"></div>
+  </div>
+
+  <div class="ticket-right-cta">
+    <a 
+      href={ctaLink} 
+      class="ticket-cta-button"
+      target="_blank" 
+      rel="sponsored nofollow noopener"
+    >
+      <span>{ctaText}</span>
+    </a>
+  </div>
+</aside>
+
+<style>
+  .tldr-ticket-card {
+    margin: 2.5rem 0;
+    background: #FFFFFF;
+    border: 1px solid var(--card-border, #E6E1D6);
+    border-radius: 14px;
+    box-shadow: var(--card-shadow, 0 4px 20px rgba(0, 0, 0, 0.04));
+    display: flex;
+    flex-direction: column;
+    position: relative;
+    overflow: hidden;
+  }
+
+  @media (min-width: 820px) {
+    .tldr-ticket-card {
+      flex-direction: row;
+      align-items: stretch;
+    }
+  }
+
+  .ticket-left-body {
+    flex: 1;
+    padding: 1.5rem 1.75rem;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+  }
+
+  .tldr-header-title {
+    font-family: var(--font-sans);
+    font-size: 0.75rem;
+    font-weight: 800;
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
+    color: var(--text-main, #18181B);
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    margin-bottom: 1.25rem;
+  }
+
+  .tldr-bolt {
+    color: var(--accent-terracotta, #D95D24);
+    font-size: 0.95rem;
+  }
+
+  .ticket-3cols-grid {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 1.25rem;
+  }
+
+  @media (min-width: 580px) {
+    .ticket-3cols-grid {
+      grid-template-columns: repeat(3, 1fr);
+    }
+  }
+
+  .ticket-col-item {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+
+  .ticket-icon {
+    font-size: 1.35rem;
+    line-height: 1;
+    flex-shrink: 0;
+  }
+
+  .ticket-info {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+  }
+
+  .ticket-label {
+    font-family: var(--font-sans);
+    font-size: 0.72rem;
+    color: var(--text-muted, #71717A);
+    text-transform: capitalize;
+    font-weight: 600;
+  }
+
+  .ticket-val {
+    font-family: var(--font-sans);
+    font-size: 0.95rem;
+    font-weight: 800;
+    color: var(--text-main, #18181B);
+    line-height: 1.25;
+  }
+
+  /* PERFORATION DIVIDER WITH TICKET NOTCHES */
+  .ticket-perforation-divider {
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: transparent;
+  }
+
+  @media (max-width: 819px) {
+    .ticket-perforation-divider {
+      width: 100%;
+      height: 1px;
+    }
+    .dashed-line {
+      width: 100%;
+      height: 1px;
+      border-top: 2px dashed #E6E1D6;
+    }
+    .notch {
+      display: none;
+    }
+  }
+
+  @media (min-width: 820px) {
+    .ticket-perforation-divider {
+      width: 20px;
+      flex-direction: column;
+      margin: 0 -10px;
+      z-index: 5;
+    }
+    .dashed-line {
+      height: 100%;
+      width: 1px;
+      border-left: 2px dashed #E6E1D6;
+    }
+    .notch {
+      width: 20px;
+      height: 20px;
+      border-radius: 50%;
+      background: var(--bg-page, #FAF7F2);
+      border: 1px solid var(--card-border, #E6E1D6);
+      position: absolute;
+    }
+    .notch-top {
+      top: -10px;
+      clip-path: inset(50% 0 0 0);
+    }
+    .notch-bottom {
+      bottom: -10px;
+      clip-path: inset(0 0 50% 0);
+    }
+  }
+
+  .ticket-right-cta {
+    padding: 1.5rem 1.75rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: #FAF8F5;
+  }
+
+  @media (min-width: 820px) {
+    .ticket-right-cta {
+      min-width: 220px;
+      padding-left: 2rem;
+    }
+  }
+
+  .ticket-cta-button {
+    background: #1C3F3A;
+    color: #FFFFFF !important;
+    text-decoration: none !important;
+    font-family: var(--font-sans);
+    font-weight: 700;
+    font-size: 0.88rem;
+    padding: 0.85rem 1.4rem;
+    border-radius: 8px;
+    text-align: center;
+    transition: all 0.2s ease;
+    width: 100%;
+    display: block;
+    box-shadow: 0 4px 12px rgba(28, 63, 58, 0.2);
+  }
+
+  .ticket-cta-button:hover {
+    background: var(--accent-terracotta, #D95D24);
+    box-shadow: 0 6px 18px rgba(217, 93, 36, 0.35);
+    transform: translateY(-1px);
+  }
+</style>

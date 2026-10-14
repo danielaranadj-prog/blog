@@ -6,6 +6,12 @@ author: "daniel-arana"
 heroImage: "https://images.unsplash.com/photo-1612294037637-ec328d0e075e?w=1200&q=80"
 layout: "../../layouts/BlogPost.astro"
 tags: ["Argentina", "Buenos Aires", "Itinerario", "Guía de viaje"]
+quickSummary:
+  budget: "35$ - 55$ / día (Dólar Blue)"
+  bestSeason: "Octubre a Diciembre / Marzo a Mayo"
+  pitfall: "Pagar con tarjeta internacional o cambiar en bancos (usa Dólar Blue)"
+  ctaText: "Descargar mapa privado de Buenos Aires"
+  ctaLink: "https://maps.google.com"
 ---
 
 ## La ciudad que no duerme (y tú tampoco vas a querer)

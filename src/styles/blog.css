@@ -1,133 +1,542 @@
-/* blog.css - VERSIÓN MAESTRA (ADAPTABLE Y SEGURA) */
+/* blog.css - EDITORIAL TRAVEL UI DESIGN SYSTEM */
 
-/* 1. EL CEREBRO DE LOS COLORES (Variables) */
-/* Aquí definimos qué colores usar en cada modo */
 :root {
-  /* --- MODO OSCURO (Tu marca original "Argentina Dark") --- */
-  --bg-body: #0b1116;       /* Fondo Negro Profundo */
-  --text-main: #f1f5f9;     /* Texto Blanco Hueso (Súper legible) */
-  --text-muted: #94a3b8;    /* Gris medio para detalles */
-  --accent-gold: #F4B942;   /* Dorado Sol de Mayo */
-  --accent-blue: #75AADB;   /* Celeste Bandera */
-  --card-bg: rgba(255, 255, 255, 0.05); /* Fondo tarjetas/citas */
-  --code-bg: #0d1117;       /* Fondo para bloques de código */
-  
-  --font-body: 'Montserrat', sans-serif;
+  /* --- PALETA DE COLORES (Design Tokens) --- */
+  --bg-page: #FAF7F2;               /* Crema cálido / Papel editorial */
+  --card-bg: #FFFFFF;               /* Superficie de tarjetas: Blanco puro */
+  --card-border: #E6E1D6;           /* Borde sutil pergamino */
+  --card-shadow: 0 4px 20px rgba(0, 0, 0, 0.04);
+  --card-shadow-hover: 0 10px 30px rgba(0, 0, 0, 0.08);
+
+  --text-main: #18181B;             /* Carbón profundo / Slate oscuro */
+  --text-muted: #71717A;            /* Gris neutro medio */
+  --text-prose: #27272A;            /* Lectura confortable */
+
+  --dark-authority: #1C1F26;        /* Bloques de autoridad ("No somos gurús" / TOC) */
+  --accent-terracotta: #D95D24;     /* Naranja Terracota vibrante (Máximo CTR) */
+  --accent-terracotta-hover: #B84A18;
+  --accent-gold: #D95D24;
+
+  --font-serif: 'Playfair Display', Georgia, 'Times New Roman', serif;
+  --font-sans: 'Montserrat', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  --font-body: var(--font-sans);
 }
 
-/* --- MODO CLARO (Si el usuario tiene el cel en modo día) --- */
-@media (prefers-color-scheme: light) {
-  :root {
-    --bg-body: #ffffff;       /* Fondo Blanco */
-    --text-main: #1e293b;     /* Texto Gris Oscuro (Casi negro) */
-    --text-muted: #64748b;    
-    --accent-blue: #2563eb;   /* Un azul más fuerte para que se vea bien en blanco */
-    --accent-gold: #d97706;   /* Un dorado más oscurito para contraste */
-    --card-bg: #f1f5f9;       /* Fondo gris muy clarito para citas */
-    --code-bg: #1e293b;       /* Código sigue siendo oscuro para contraste */
-  }
-}
-
-/* 2. BASE DEL CUERPO (Transiciones suaves) */
-body {
-  background-color: var(--bg-body);
+/* BASE */
+html {
+  background-color: var(--bg-page);
   color: var(--text-main);
   font-family: var(--font-body);
-  transition: background-color 0.3s ease, color 0.3s ease;
-  margin: 0; padding: 0;
+  -webkit-font-smoothing: antialiased;
+  scroll-behavior: smooth;
 }
 
-/* 3. CONTENEDOR PRINCIPAL DEL ARTÍCULO */
+body {
+  background-color: var(--bg-page);
+  color: var(--text-main);
+  font-family: var(--font-body);
+  margin: 0;
+  padding: 0;
+  min-height: 100vh;
+}
+
+/* ARTÍCULOS & TIPOGRAFÍA EDITORIAL */
 article {
-  max-width: 65ch; /* Mantenemos tu ancho ideal */
+  max-width: 68ch;
   margin: 0 auto;
-  padding: 1rem;
 }
 
-/* 4. TIPOGRAFÍA DE LECTURA */
+h1, h2, h3, .serif-heading {
+  font-family: var(--font-serif);
+  font-feature-settings: "pnum" 1, "onum" 1;
+  color: var(--text-main);
+  letter-spacing: -0.02em;
+}
+
 p {
-  font-size: 1.15rem; /* Un pelín más grande para comodidad */
+  font-size: 1.12rem;
   line-height: 1.8;
-  margin-bottom: 1.5rem;
+  margin-bottom: 1.6rem;
   font-weight: 400;
-  
-  /* AQUÍ ESTÁ EL CAMBIO CLAVE: Usamos variable, no color fijo */
-  color: var(--text-main); 
+  color: var(--text-prose);
 }
 
-/* 5. ENCABEZADOS DENTRO DEL POST (H2, H3) */
 article h2 {
-  font-size: 1.8rem;
-  font-weight: 700;
-  color: var(--accent-gold); /* Dorado inteligente */
-  margin-top: 3rem;
-  margin-bottom: 1rem;
-  border-bottom: 1px solid rgba(244, 185, 66, 0.3);
-  padding-bottom: 0.5rem;
+  font-size: 1.9rem;
+  font-weight: 800;
+  color: var(--text-main);
+  margin-top: 3.5rem;
+  margin-bottom: 1.25rem;
+  line-height: 1.25;
+  border-bottom: 2px solid var(--card-border);
+  padding-bottom: 0.6rem;
 }
 
 article h3 {
   font-size: 1.4rem;
-  font-weight: 600;
-  color: var(--accent-blue); /* Celeste inteligente */
-  margin-top: 2rem;
-  margin-bottom: 0.8rem;
+  font-weight: 700;
+  color: var(--text-main);
+  margin-top: 2.25rem;
+  margin-bottom: 0.85rem;
 }
 
-/* 6. CITAS Y DESTACADOS */
 blockquote {
-  border-left: 4px solid var(--accent-gold);
-  background: var(--card-bg); /* Fondo se adapta a luz/oscuridad */
-  margin: 2rem 0;
-  padding: 1rem 1.5rem;
+  border-left: 4px solid var(--accent-terracotta);
+  background: rgba(217, 93, 36, 0.05);
+  margin: 2.25rem 0;
+  padding: 1.25rem 1.75rem;
   font-style: italic;
   color: var(--text-main);
-  border-radius: 0 8px 8px 0;
+  border-radius: 0 10px 10px 0;
 }
 
-/* 7. LISTAS */
-ul, ol {
-  margin-bottom: 1.5rem;
-  padding-left: 1.5rem;
-}
-
-li {
-  margin-bottom: 0.5rem;
-  color: var(--text-main); /* Se adapta */
-}
-
-li::marker {
-  color: var(--accent-blue);
-}
-
-/* 8. ENLACES DENTRO DEL TEXTO */
 article a {
-  color: var(--accent-blue);
+  color: var(--accent-terracotta);
   text-decoration: underline;
-  text-decoration-thickness: 1px;
-  text-underline-offset: 4px;
+  text-decoration-thickness: 1.5px;
+  text-underline-offset: 3px;
+  font-weight: 600;
+  transition: color 0.15s ease;
 }
 
 article a:hover {
-  color: var(--accent-gold);
+  color: var(--accent-terracotta-hover);
 }
 
-/* 9. IMÁGENES (CON TU CORRECCIÓN DE TAMAÑO) */
 article img {
-  max-width: 100%;  /* Esto es vital, lo conservamos */
+  max-width: 100%;
   height: auto;
   display: block;
-  border-radius: 8px;
-  box-shadow: 0 4px 20px rgba(0,0,0,0.2); /* Sombra más suave */
-  margin: 2rem 0;
+  border-radius: 14px;
+  box-shadow: var(--card-shadow);
+  margin: 2.25rem 0;
+  border: 1px solid var(--card-border);
 }
 
-/* 10. CÓDIGO TÉCNICO */
 pre {
-  background-color: var(--code-bg);
-  padding: 1rem;
-  border-radius: 8px;
+  background-color: var(--dark-authority);
+  padding: 1.2rem;
+  border-radius: 12px;
   overflow-x: auto;
-  border: 1px solid rgba(255,255,255,0.1);
-  color: #fff; /* El código siempre se ve bien en blanco sobre oscuro */
+  border: 1px solid #2E333D;
+  color: #F4F4F5;
+  font-size: 0.95rem;
+}
+
+/* ========================================================
+   COMPONENTES DE CONVERSIÓN NATIVOS (EDITORIAL TRAVEL UI)
+======================================================== */
+
+/* 1. QUICK SUMMARY BOX (BILLETE DE EMBARQUE / TL;DR) */
+.quick-summary-box {
+  margin: 2.5rem 0;
+  background: var(--card-bg);
+  border: 1px solid var(--card-border);
+  border-radius: 16px;
+  box-shadow: var(--card-shadow);
+  position: relative;
+  overflow: hidden;
+}
+
+.summary-ticket-wrap {
+  display: flex;
+  flex-direction: column;
+}
+
+@media (min-width: 768px) {
+  .summary-ticket-wrap {
+    flex-direction: row;
+  }
+}
+
+.summary-left-section {
+  flex: 1;
+  padding: 1.5rem 1.75rem;
+}
+
+.summary-header-bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding-bottom: 0.85rem;
+  margin-bottom: 1.25rem;
+  border-bottom: 1px dashed var(--card-border);
+}
+
+.summary-tldr-badge {
+  font-family: var(--font-sans);
+  font-size: 0.75rem;
+  font-weight: 800;
+  letter-spacing: 1.2px;
+  text-transform: uppercase;
+  color: var(--text-main);
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.summary-tldr-badge::before {
+  content: "⚡";
+  font-size: 0.9rem;
+}
+
+.summary-grid-3cols {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 1.25rem;
+}
+
+@media (min-width: 600px) {
+  .summary-grid-3cols {
+    grid-template-columns: repeat(3, 1fr);
+  }
+}
+
+.summary-col {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+}
+
+.col-icon {
+  font-size: 1.4rem;
+  line-height: 1;
+  flex-shrink: 0;
+}
+
+.col-content {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.col-label {
+  font-size: 0.72rem;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  font-weight: 700;
+  letter-spacing: 0.5px;
+}
+
+.col-value {
+  font-size: 0.95rem;
+  font-weight: 800;
+  color: var(--text-main);
+  line-height: 1.35;
+}
+
+.summary-right-cta {
+  padding: 1.5rem 1.75rem;
+  background: #FAF8F5;
+  border-top: 1px dashed var(--card-border);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+@media (min-width: 768px) {
+  .summary-right-cta {
+    border-top: none;
+    border-left: 2px dashed var(--card-border);
+    min-width: 240px;
+  }
+}
+
+.summary-ticket-btn {
+  background: var(--dark-authority);
+  color: #FFFFFF !important;
+  text-decoration: none !important;
+  font-weight: 700;
+  font-size: 0.88rem;
+  padding: 0.85rem 1.4rem;
+  border-radius: 8px;
+  text-align: center;
+  transition: all 0.2s ease;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  width: 100%;
+  justify-content: center;
+}
+
+.summary-ticket-btn:hover {
+  background: var(--accent-terracotta);
+  transform: translateY(-1px);
+}
+
+/* 2. AFFILIATE TRANSPORT BOX (TABLA COMPARATIVA CON BOTÓN TERRACOTA) */
+.affiliate-transport-box {
+  margin: 2.5rem 0;
+  background: var(--card-bg);
+  border: 1px solid var(--card-border);
+  border-radius: 16px;
+  padding: 1.75rem;
+  box-shadow: var(--card-shadow);
+  position: relative;
+}
+
+.transport-comp-header {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 1.25rem;
+  margin-bottom: 1.5rem;
+  padding-bottom: 1rem;
+  border-bottom: 1px solid var(--card-border);
+}
+
+.brand-pill-ouigo {
+  background: #E5007D;
+  color: #FFFFFF;
+  font-weight: 900;
+  font-size: 0.85rem;
+  padding: 0.35rem 0.85rem;
+  border-radius: 20px;
+  letter-spacing: 0.5px;
+}
+
+.brand-pill-avlo {
+  color: #6C1D6E;
+  font-weight: 900;
+  font-size: 1.15rem;
+  letter-spacing: -0.5px;
+}
+
+.comp-vs-divider {
+  font-size: 0.75rem;
+  font-weight: 800;
+  color: var(--text-muted);
+  text-transform: uppercase;
+}
+
+.transport-comp-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1.5rem;
+  margin-bottom: 1.5rem;
+  text-align: center;
+}
+
+.comp-side {
+  padding: 1rem;
+  background: var(--bg-page);
+  border-radius: 12px;
+}
+
+.comp-side-title {
+  font-size: 0.75rem;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  font-weight: 700;
+  margin-bottom: 0.35rem;
+}
+
+.comp-side-price {
+  font-size: 1.6rem;
+  font-weight: 900;
+  color: var(--text-main);
+  line-height: 1.1;
+  margin-bottom: 0.25rem;
+}
+
+.comp-side-duration {
+  font-size: 0.78rem;
+  color: var(--text-muted);
+  font-weight: 600;
+}
+
+.transport-terracotta-cta {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  background: var(--accent-terracotta);
+  color: #FFFFFF !important;
+  text-decoration: none !important;
+  font-weight: 800;
+  font-size: 0.95rem;
+  padding: 0.95rem 1.6rem;
+  border-radius: 10px;
+  width: 100%;
+  box-sizing: border-box;
+  transition: all 0.2s ease;
+  box-shadow: 0 4px 14px rgba(217, 93, 36, 0.35);
+}
+
+.transport-terracotta-cta:hover {
+  background: var(--accent-terracotta-hover);
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(217, 93, 36, 0.45);
+}
+
+/* 3. STATEMENT CARD "NO SOMOS GURÚS" (BLOQUE DE AUTORIDAD) */
+.statement-card-dark {
+  background: var(--dark-authority);
+  border-radius: 16px;
+  padding: 2rem 1.75rem;
+  color: #FFFFFF;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  position: relative;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12);
+  min-height: 280px;
+}
+
+.statement-icon-top {
+  font-size: 1.6rem;
+  color: var(--accent-terracotta);
+  margin-bottom: 1rem;
+}
+
+.statement-quote {
+  margin: 0;
+  font-family: var(--font-sans);
+  line-height: 1.5;
+}
+
+.statement-highlight {
+  color: var(--accent-terracotta);
+  font-weight: 800;
+  font-size: 1.1rem;
+  display: block;
+  margin-bottom: 0.6rem;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.statement-body {
+  color: #E4E4E7;
+  font-size: 0.95rem;
+  font-weight: 500;
+}
+
+.statement-finger-bottom {
+  align-self: flex-end;
+  font-size: 1.6rem;
+  margin-top: 1rem;
+  opacity: 0.9;
+}
+
+/* 4. SEGURO DE VIAJE SIDEBAR WIDGET */
+.insurance-card-widget {
+  background: #EBF7F6;
+  border: 1px solid #CDECE9;
+  border-radius: 16px;
+  padding: 1.5rem;
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.insurance-medal-icon {
+  font-size: 2.2rem;
+  line-height: 1;
+}
+
+.insurance-title {
+  font-family: var(--font-serif);
+  font-size: 1.15rem;
+  font-weight: 800;
+  color: #134E4A;
+  margin: 0;
+  line-height: 1.3;
+}
+
+.insurance-text {
+  font-size: 0.82rem;
+  color: #3B7A75;
+  margin: 0;
+  line-height: 1.45;
+}
+
+.insurance-calc-btn {
+  background: #FFFFFF;
+  color: var(--text-main) !important;
+  border: 1.5px solid var(--text-main);
+  text-decoration: none !important;
+  font-weight: 700;
+  font-size: 0.85rem;
+  padding: 0.65rem 1.4rem;
+  border-radius: 8px;
+  transition: all 0.2s ease;
+  display: inline-block;
+  margin-top: 0.25rem;
+}
+
+.insurance-calc-btn:hover {
+  background: var(--text-main);
+  color: #FFFFFF !important;
+}
+
+/* 5. ÍNDICE DEL VIAJE (TIMELINE VERTICAL STICKY) */
+.toc-card-widget {
+  background: var(--dark-authority);
+  color: #FFFFFF;
+  border-radius: 16px;
+  padding: 1.5rem;
+  box-shadow: var(--card-shadow);
+}
+
+.toc-widget-title {
+  font-family: var(--font-serif);
+  font-size: 1.25rem;
+  font-weight: 800;
+  color: #FFFFFF;
+  margin: 0 0 1.25rem;
+}
+
+.toc-timeline-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  position: relative;
+}
+
+.toc-timeline-item {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  font-size: 0.88rem;
+  color: #A1A1AA;
+}
+
+.toc-timeline-item a {
+  color: inherit;
+  text-decoration: none;
+  transition: color 0.2s ease;
+}
+
+.toc-timeline-item a:hover {
+  color: #FFFFFF;
+}
+
+.toc-dot {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  border: 2px solid #52525B;
+  flex-shrink: 0;
+  background: transparent;
+}
+
+.toc-timeline-item.active {
+  color: #FFFFFF;
+  font-weight: 700;
+  background: rgba(217, 93, 36, 0.15);
+  padding: 0.4rem 0.75rem;
+  border-radius: 50px;
+  margin: -0.2rem -0.4rem;
+}
+
+.toc-timeline-item.active .toc-dot {
+  border-color: var(--accent-terracotta);
+  background: var(--accent-terracotta);
+  box-shadow: 0 0 8px rgba(217, 93, 36, 0.6);
 }

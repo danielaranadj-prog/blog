@@ -7,6 +7,12 @@ heroImage: "https://res.cloudinary.com/dbwdmu9k2/image/upload/v1769926152/DSCF37
 layout: "../../layouts/BlogPost.astro"
 tags: ["Tren a Barcelona", "Avión a Barcelona", "Tren Alta Velocidad", "OUIGO", "RENFE", "AVE", "AVLO", "Trenes baratos", "Madrid a Barcelona"]
 flight_destination: "Barcelona"
+quickSummary:
+  budget: "9€ - 18€ (OUIGO / Iryo)"
+  bestSeason: "Reserva con 3-4 meses de antelación"
+  pitfall: "Metro de noche con maletas (blanco fácil carteristas)"
+  ctaText: "Buscar billetes OUIGO desde 9€"
+  ctaLink: "https://www.omio.com"
 ---
 
 Barcelona tiene una magia especial, un aire mediterráneo que te atrapa desde que llegas. Pero ojo, que este 2026 las cosas han cambiado un poco para llegar allá. Ya no es solo buscar "lo más barato", sino saber elegir bien para que el viaje no se vuelva una pesadilla.
@@ -26,6 +32,46 @@ Si estás buscando el **Avlo** (ese tren morado de Renfe), ¡ni le busques! Ya n
 -   **Iryo (Mi favorito):** Es el punto medio perfecto. Los trenes son súper modernos (parecen naves espaciales) y viajas con mucho estilo. Tienen boletos desde **15€-18€** y la comida ahí adentro es otro nivel.
     
 -   **AVE (El de lujo):** Como ya no hay Avlo, el AVE se quedó como la opción para ir súper cómodo y puntual. Es más caro (desde **30€**), pero llegas sintiéndote como un jefe.
+
+<div class="affiliate-transport-box" style="margin: 2.5rem 0;">
+  <div class="transport-box-header">
+    <span class="transport-badge">🚄 COMPARATIVA ALTA VELOCIDAD</span>
+    <span class="transport-route">Madrid ➔ Barcelona</span>
+  </div>
+  <table class="comparison-table">
+    <thead>
+      <tr>
+        <th>Operador</th>
+        <th>Tiempo</th>
+        <th>Equipaje</th>
+        <th>Precio Desde</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><strong>OUIGO</strong></td>
+        <td>2h 30m</td>
+        <td>Mochila + Cabina</td>
+        <td><strong style="color: #D95D24;">9€</strong></td>
+      </tr>
+      <tr>
+        <td><strong>Iryo</strong></td>
+        <td>2h 30m</td>
+        <td>Incluido completo</td>
+        <td><strong>18€</strong></td>
+      </tr>
+      <tr>
+        <td><strong>AVE (Renfe)</strong></td>
+        <td>2h 30m</td>
+        <td>Hasta 3 bultos</td>
+        <td><strong>30€</strong></td>
+      </tr>
+    </tbody>
+  </table>
+  <a href="https://www.omio.com" target="_blank" rel="sponsored nofollow noopener" class="ticket-btn" style="width: 100%; display: block; text-align: center; text-decoration: none; margin-top: 1rem;">
+    Buscar billetes de tren desde 9€ →
+  </a>
+</div>
     
 
 ## 2\. El avión: ¿Vale la pena?
