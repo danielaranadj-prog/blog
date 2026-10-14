@@ -6,7 +6,7 @@
     <meta name="robots" content="noindex, nofollow">
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Publicaciones - Blog.Instantetrips</title>
+    <title>Sala de Redacción | Instante Trips</title>
 
     <script src="https://cdn.tailwindcss.com"></script>
     <script
@@ -22,521 +22,214 @@
     <script type="module" src="/vendor/ionicons/7.1.0/ionicons.esm.js"></script>
     <script nomodule src="/vendor/ionicons/7.1.0/ionicons.js"></script>
 
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,wght@0,700;0,800;1,700;1,800&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
 
     <script>
         tailwind.config = {
             darkMode: 'class',
             theme: {
                 extend: {
-                    fontFamily: { sans: ['Inter', 'sans-serif'] },
-                    colors: { slate: { 850: '#1e293b' } }
+                    fontFamily: {
+                        serif: ['Fraunces', 'Georgia', 'serif'],
+                        sans: ['Plus Jakarta Sans', 'sans-serif']
+                    },
+                    colors: {
+                        terracotta: { DEFAULT: '#E04F16', hover: '#C23E0B' },
+                        slate: { 50:'#FAF7F2',100:'#F3EFE6',200:'#E8E2D7',300:'#D6D1C4',400:'#938D83',500:'#736D64',600:'#5F5B55',700:'#2E2E32',800:'#242427',850:'#1C1C1F',900:'#1C1C1F',950:'#121214' },
+                        gray: { 50:'#FAF7F2',100:'#F3EFE6',200:'#E8E2D7',300:'#D6D1C4',400:'#938D83',500:'#736D64',600:'#5F5B55',700:'#393735',800:'#242427',900:'#18181B',950:'#121214' },
+                        orange: { 50:'#FFF0E8',100:'#FCE1D1',200:'#F8BFA0',300:'#F39464',400:'#EC7138',500:'#E04F16',600:'#C23E0B',700:'#9C3109',800:'#65250F',900:'#3C2118',950:'#271A15' }
+                    }
                 }
             }
         }
     </script>
 
     <style>
-        body {
-            background-color: #f3f4f6;
-            color: #111;
-            font-family: 'Inter', sans-serif;
-            transition: background 0.3s, color 0.3s;
-        }
-
-        body.dark {
-            background-color: #0f172a;
-            color: #e2e8f0;
-        }
-
-        .logo-adaptive {
-            filter: invert(1);
-            transition: filter 0.3s;
-        }
-
-        .dark .logo-adaptive {
-            filter: invert(0);
-        }
-
-        .dark .tox-tinymce {
-            border-color: #334155 !important;
-        }
-
-        /* Glassmorphism */
-        .glass-card {
-            background: rgba(255, 255, 255, 0.85);
-            backdrop-filter: blur(20px);
-            -webkit-backdrop-filter: blur(20px);
-            border: 1px solid rgba(255, 255, 255, 0.4);
-            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.15), 0 0 0 1px rgba(255, 255, 255, 0.1);
-        }
-
-        .dark .glass-card {
-            background: rgba(15, 23, 42, 0.9);
-            border: 1px solid rgba(255, 255, 255, 0.1);
-            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
-        }
-
-        /* Animated Gradient Background */
-        .gradient-bg {
-            background: linear-gradient(-45deg, #f3f4f6, #dbeafe, #fce7f3, #ffedd5, #f3f4f6);
-            background-size: 400% 400%;
-            animation: gradientShift 20s ease infinite;
-        }
-
-        .dark .gradient-bg {
-            background: linear-gradient(-45deg, #0f172a, #1e1b4b, #1e293b, #0f172a);
-            background-size: 400% 400%;
-        }
-
-        @keyframes gradientShift {
-
-            0%,
-            100% {
-                background-position: 0% 50%;
-            }
-
-            25% {
-                background-position: 50% 100%;
-            }
-
-            50% {
-                background-position: 100% 50%;
-            }
-
-            75% {
-                background-position: 50% 0%;
-            }
-        }
-
-        /* Premium Buttons */
-        .btn-primary {
-            background: linear-gradient(135deg, #171717 0%, #262626 100%);
-            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
-            position: relative;
-            overflow: hidden;
-        }
-
-        .btn-primary::before {
-            content: '';
-            position: absolute;
-            inset: 0;
-            background: linear-gradient(135deg, rgba(255, 255, 255, 0.1) 0%, transparent 50%);
-            opacity: 0;
-            transition: opacity 0.3s;
-        }
-
-        .btn-primary:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
-        }
-
-        .btn-primary:hover::before {
-            opacity: 1;
-        }
-
-        .btn-primary:active {
-            transform: translateY(0);
-        }
-
-        .dark .btn-primary {
-            background: linear-gradient(135deg, #f97316 0%, #ea580c 100%);
-        }
-
-        /* Accent Colors */
-        .accent-input {
-            transition: all 0.2s ease;
-            border: 1px solid transparent;
-        }
-
-        .accent-input:focus {
-            border-color: #f97316;
-            box-shadow: 0 0 0 3px rgba(249, 115, 22, 0.15);
-            outline: none;
-        }
-
-        .text-accent {
-            color: #f97316;
-        }
-
-        .bg-accent {
-            background-color: #f97316;
-        }
-
-        /* Modal Animations */
-        .modal-overlay {
-            position: fixed;
-            inset: 0;
-            background: rgba(0, 0, 0, 0.6);
-            backdrop-filter: blur(8px);
-            z-index: 50;
-            display: none;
-            place-items: center;
-        }
-
-        .modal-overlay.open {
-            display: grid;
-        }
-
-        .modal-content {
-            animation: modalSlideUp 0.35s cubic-bezier(0.34, 1.56, 0.64, 1);
-        }
-
-        @keyframes modalSlideUp {
-            from {
-                opacity: 0;
-                transform: translateY(30px) scale(0.95);
-            }
-
-            to {
-                opacity: 1;
-                transform: translateY(0) scale(1);
-            }
-        }
-
-        /* Enhanced Header */
-        .header-enhanced {
-            background: linear-gradient(to right, rgba(255, 255, 255, 0.95), rgba(249, 250, 251, 0.95));
-            backdrop-filter: blur(10px);
-            border-bottom: 1px solid rgba(0, 0, 0, 0.05);
-        }
-
-        .dark .header-enhanced {
-            background: linear-gradient(to right, rgba(15, 23, 42, 0.95), rgba(30, 41, 59, 0.95));
-            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
-        }
-
-        /* Interactive Elements */
-        .btn-icon {
-            transition: all 0.2s ease;
-            border-radius: 10px;
-        }
-
-        .btn-icon:hover {
-            background: rgba(249, 115, 22, 0.1);
-            color: #f97316;
-            transform: scale(1.05);
-        }
-
-        /* Card Hover Effects */
-        .card-hover {
-            transition: all 0.3s ease;
-        }
-
-        .card-hover:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 20px 40px -15px rgba(0, 0, 0, 0.15);
-        }
-
-        /* Existing Styles */
-        .loader {
-            width: 20px;
-            height: 20px;
-            border: 2px solid #ccc;
-            border-top-color: #f97316;
-            border-radius: 50%;
-            animation: spin 0.8s linear infinite;
-        }
-
-        @keyframes spin {
-            to {
-                transform: rotate(360deg);
-            }
-        }
-
-        .dot {
-            width: 8px;
-            height: 8px;
-            border-radius: 50%;
-            display: inline-block;
-            transition: all 0.3s;
-        }
-
-        .dot-green {
-            background: #22c55e;
-            box-shadow: 0 0 8px #22c55e;
-        }
-
-        .dot-yellow {
-            background: #eab308;
-            box-shadow: 0 0 8px #eab308;
-        }
-
-        .dot-red {
-            background: #ef4444;
-            box-shadow: 0 0 8px #ef4444;
-        }
-
-        .prose {
-            font-size: 0.95rem;
-            line-height: 1.7;
-            color: #333;
-            max-width: 65ch;
-            margin: 0 auto;
-        }
-
-        .dark .prose {
-            color: #e2e8f0;
-        }
-
-        .prose h1 {
-            font-size: 2.25em;
-            font-weight: 800;
-            margin-bottom: 0.5em;
-            line-height: 1.2;
-        }
-
-        .prose h2 {
-            font-size: 1.5em;
-            font-weight: 700;
-            margin-top: 1.5em;
-            margin-bottom: 0.5em;
-        }
-
-        .prose p {
-            margin-bottom: 1em;
-        }
-
-        .prose img {
-            border-radius: 8px;
-            margin: 1em 0;
-            max-width: 100%;
-            height: auto;
-        }
-
-        .prose iframe {
-            width: 100%;
-            aspect-ratio: 16/9;
-            border-radius: 8px;
-            margin: 1em 0;
-        }
-
-        /* Custom Scrollbar */
-        ::-webkit-scrollbar {
-            width: 6px;
-        }
-
-        ::-webkit-scrollbar-track {
-            background: transparent;
-        }
-
-        ::-webkit-scrollbar-thumb {
-            background: rgba(0, 0, 0, 0.15);
-            border-radius: 3px;
-        }
-
-        ::-webkit-scrollbar-thumb:hover {
-            background: rgba(0, 0, 0, 0.25);
-        }
-
-        .dark ::-webkit-scrollbar-thumb {
-            background: rgba(255, 255, 255, 0.1);
-        }
-
-        .dark ::-webkit-scrollbar-thumb:hover {
-            background: rgba(255, 255, 255, 0.2);
-        }
-
-        /* Premium Toast Notifications */
-        .toast-notification {
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            padding: 14px 20px;
-            border-radius: 14px;
-            color: white;
-            font-size: 0.85rem;
-            font-weight: 600;
-            box-shadow: 0 12px 40px rgba(0, 0, 0, 0.25);
-            animation: toastSlideIn 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
-            backdrop-filter: blur(10px);
-            border: 1px solid rgba(255, 255, 255, 0.15);
-        }
-
-        .toast-success {
-            background: linear-gradient(135deg, #059669, #10b981);
-        }
-
-        .toast-error {
-            background: linear-gradient(135deg, #dc2626, #ef4444);
-        }
-
-        .toast-info {
-            background: linear-gradient(135deg, #171717, #374151);
-        }
-
-        .toast-exit {
-            animation: toastSlideOut 0.3s ease forwards;
-        }
-
-        @keyframes toastSlideIn {
-            from {
-                opacity: 0;
-                transform: translateX(-30px) scale(0.95);
-            }
-
-            to {
-                opacity: 1;
-                transform: translateX(0) scale(1);
-            }
-        }
-
-        @keyframes toastSlideOut {
-            to {
-                opacity: 0;
-                transform: translateX(-30px) scale(0.95);
-            }
-        }
-
-        /* Section Badges */
-        .section-badge {
-            display: inline-flex;
-            align-items: center;
-            gap: 6px;
-            font-size: 0.65rem;
-            font-weight: 800;
-            text-transform: uppercase;
-            letter-spacing: 1.5px;
-            padding: 6px 14px;
-            border-radius: 10px;
-            background: linear-gradient(135deg, rgba(249, 115, 22, 0.1), rgba(249, 115, 22, 0.05));
-            color: #f97316;
-            border: 1px solid rgba(249, 115, 22, 0.15);
-        }
-
-        .dark .section-badge {
-            background: linear-gradient(135deg, rgba(249, 115, 22, 0.15), rgba(249, 115, 22, 0.08));
-        }
-
-        /* Publish Button Glow */
-        .btn-publish {
-            background: linear-gradient(135deg, #f97316 0%, #ea580c 50%, #dc2626 100%);
-            background-size: 200% 200%;
-            animation: publishGlow 3s ease infinite;
-            box-shadow: 0 4px 20px rgba(249, 115, 22, 0.3);
-        }
-
-        .btn-publish:hover {
-            box-shadow: 0 8px 35px rgba(249, 115, 22, 0.45);
-            transform: translateY(-2px);
-        }
-
-        @keyframes publishGlow {
-
-            0%,
-            100% {
-                background-position: 0% 50%;
-            }
-
-            50% {
-                background-position: 100% 50%;
-            }
-        }
-
-        /* App Fade In */
-        .app-fadein {
-            animation: appFadeIn 0.4s ease;
-        }
-
-        @keyframes appFadeIn {
-            from {
-                opacity: 0;
-                transform: translateY(8px);
-            }
-
-            to {
-                opacity: 1;
-                transform: translateY(0);
-            }
-        }
-
-        /* Editor Panel Background */
-        .editor-panel-bg {
-            background-image: radial-gradient(circle at 1px 1px, rgba(0, 0, 0, 0.03) 1px, transparent 0);
-            background-size: 24px 24px;
-        }
-
-        .dark .editor-panel-bg {
-            background-image: radial-gradient(circle at 1px 1px, rgba(255, 255, 255, 0.03) 1px, transparent 0);
-        }
-
-        /* Preview Column Gradient Divider */
-        .preview-column {
-            border-left: 1px solid rgba(0, 0, 0, 0.06);
-            position: relative;
-        }
-
-        .dark .preview-column {
-            border-left-color: rgba(255, 255, 255, 0.06);
-        }
-
-        /* Input Group Styling */
-        .input-group {
-            position: relative;
-        }
-
-        .input-group label {
-            font-size: 0.65rem;
-            font-weight: 700;
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
-            color: #9ca3af;
-            margin-bottom: 4px;
-            display: block;
-        }
-
-        .input-modern {
-            width: 100%;
-            padding: 10px 14px;
-            background: rgba(0, 0, 0, 0.02);
-            border: 1px solid rgba(0, 0, 0, 0.08);
-            border-radius: 12px;
-            font-size: 0.875rem;
-            transition: all 0.2s ease;
-            outline: none;
-        }
-
-        .input-modern:focus {
-            border-color: #f97316;
-            box-shadow: 0 0 0 3px rgba(249, 115, 22, 0.1);
-            background: white;
-        }
+        :root {
+            --paper:#FAF7F2; --surface:#FDFBF7; --white:#FFFFFF; --ink:#18181B;
+            --muted:#736D64; --line:#D6D1C4; --rule:#18181B; --ticket:#F3EFE6;
+            --accent:#E04F16; --accent-hover:#C23E0B;
+            --serif:'Fraunces',Georgia,serif; --sans:'Plus Jakarta Sans',sans-serif;
+            --print-shadow:0 4px 0 #18181B;
+        }
+        body.dark { --paper:#121214; --surface:#1C1C1F; --white:#202023; --ink:#F5F1E9; --muted:#B7B0A5; --line:#2E2E32; --rule:#2E2E32; --ticket:#242427; --print-shadow:0 4px 0 #080809; color-scheme:dark; }
+        * { box-sizing:border-box; }
+        body { margin:0; background:var(--paper); color:var(--ink); font-family:var(--sans); -webkit-font-smoothing:antialiased; }
+        button,input,select,textarea { font:inherit; }
+        button,a,label,input,select,textarea { -webkit-tap-highlight-color:transparent; }
+        button,[role=button] { cursor:pointer; }
+        button:disabled { cursor:wait; opacity:.65; }
+        button:focus-visible,a:focus-visible,input:focus-visible,select:focus-visible,textarea:focus-visible,summary:focus-visible { outline:3px solid var(--accent); outline-offset:4px; }
+        input,select,textarea { color:var(--ink); }
+        input::placeholder,textarea::placeholder { color:var(--muted); opacity:.78; }
+        #login-section.hidden,#app-section.hidden,#admin-link.hidden,#greeting-container.hidden { display:none!important; }
+        .press-login { min-height:100dvh; display:grid; place-items:center; padding:2rem 1rem; background-color:var(--paper); background-image:linear-gradient(var(--line) 1px,transparent 1px),linear-gradient(90deg,var(--line) 1px,transparent 1px); background-size:56px 56px; }
+        .press-pass { width:100%; max-width:440px; background:var(--surface); border:1.5px solid var(--rule); border-radius:16px; box-shadow:var(--print-shadow); overflow:hidden; }
+        .pass-ribbon { background:#18181B; color:#FFF; padding:1rem; text-align:center; font-size:.66rem; font-weight:700; letter-spacing:.13em; }
+        .pass-body { padding:2rem 2rem 1.5rem; }
+        .pass-mark { display:flex; justify-content:space-between; align-items:center; padding-bottom:1.1rem; border-bottom:1px dashed var(--line); font-size:.6rem; font-weight:700; letter-spacing:.12em; text-transform:uppercase; color:var(--muted); }
+        .pass-title { font:800 2.8rem/1 var(--serif); letter-spacing:-.05em; margin:1.6rem 0 .6rem; }
+        .pass-subtitle { font-size:.87rem; color:var(--muted); margin:0 0 1.6rem; }
+        .pass-footer { border-top:1px dashed var(--line); margin-top:1.6rem; padding-top:1rem; display:flex; justify-content:space-between; font-size:.62rem; color:var(--muted); }
+        .field-label { display:block; font-size:.68rem; font-weight:700; margin:0 0 .55rem; letter-spacing:.025em; color:var(--ink); }
+        .field-help { font-size:.7rem; line-height:1.6; color:var(--muted); margin:.5rem 0 0; }
+        .field-stack { display:grid; gap:1.1rem; }
+        .input-modern,.accent-input { background:var(--white); border:1px solid var(--line); border-radius:9px; width:100%; padding:.8rem .9rem; font-size:.85rem; min-height:44px; color:var(--ink); outline:none; transition:border-color .15s; }
+        .input-modern:focus,.accent-input:focus { border-color:var(--accent); box-shadow:0 0 0 3px rgb(224 79 22 / .1); }
+        .btn-primary,.btn-publish { border:1.5px solid var(--rule); background:var(--accent); color:white; font-weight:700; min-height:48px; border-radius:999px; box-shadow:var(--print-shadow); transition:background .15s,transform .15s,box-shadow .15s; }
+        .btn-primary:hover,.btn-publish:hover { background:var(--accent-hover); transform:translateY(2px); box-shadow:0 2px 0 #18181B; }
+        .btn-primary:active,.btn-publish:active { transform:translateY(4px); box-shadow:none; }
+        .header-enhanced { background:var(--paper); border-bottom:1.5px solid var(--rule); min-height:78px; padding:.85rem 1.5rem; flex:none; z-index:40; }
+        .dark .header-enhanced { background:#18181B; }
+        .header-row { display:flex; align-items:center; justify-content:space-between; gap:1rem; max-width:1800px; margin:auto; }
+        .header-brand-group { display:flex; align-items:center; gap:1.4rem; min-width:0; }
+        .masthead { font:800 1.65rem/.95 var(--serif); letter-spacing:-.055em; }
+        .masthead small { display:block; font:600 .53rem/1.5 var(--sans); letter-spacing:.2em; margin-top:.3rem; text-transform:uppercase; }
+        .edition-label { border-left:1px solid var(--line); padding-left:1.25rem; }
+        .edition-label strong { font-size:.76rem; display:block; }
+        .edition-label small { font-size:.6rem; color:var(--muted); }
+        #save-status { color:var(--muted); font-size:.6rem; margin:0; }
+        #greeting-container { border:1px solid var(--line); border-radius:999px; padding:.5rem .9rem; align-items:center; gap:.5rem; background:var(--surface); }
+        #greeting-text { font-size:.65rem; font-weight:600; margin:0; color:var(--ink); }
+        #author-role-text { font-size:.55rem; color:var(--muted); margin:0; }
+        .header-actions { display:flex; align-items:center; gap:.35rem; flex-shrink:0; }
+        .btn-icon { display:inline-flex; gap:.45rem; align-items:center; justify-content:center; border:1px solid transparent; border-radius:999px; min-height:42px; min-width:42px; padding:.55rem .75rem; color:var(--ink); font-size:.72rem; font-weight:600; text-decoration:none; transition:background .15s,border-color .15s; }
+        .btn-icon ion-icon { font-size:1rem; }
+        .btn-icon:hover { background:var(--ticket); border-color:var(--line); }
+        .action-outline { border-color:var(--line); }
+        #btn-logout { color:var(--muted); }
+        .workspace { flex:1; display:flex; min-height:0; overflow:hidden; }
+        .editor-scroll { flex:1; min-width:0; overflow-y:auto; padding:2rem 2rem 5rem; }
+        .editor-inner { max-width:850px; margin:auto; }
+        .desk-intro { margin-bottom:1.6rem; }
+        .eyebrow { font-size:.6rem; letter-spacing:.17em; text-transform:uppercase; font-weight:700; color:var(--accent); display:block; margin-bottom:.65rem; }
+        .desk-intro h1 { font:700 clamp(1.65rem,2.2vw,2.3rem)/1.12 var(--serif); letter-spacing:-.035em; margin:0 0 .6rem; }
+        .desk-intro p { font-size:.8rem; color:var(--muted); line-height:1.7; margin:0; }
+        .editorial-steps { display:flex; gap:1.2rem; margin-top:1.2rem; padding:1rem 0; border-top:1px solid var(--line); border-bottom:1px solid var(--line); }
+        .editorial-steps a { font-size:.65rem; text-decoration:none; color:var(--muted); }
+        .editorial-steps b { color:var(--accent); margin-right:.4rem; }
+        .expedition-card,.writing-card,.publish-card { border:1.5px solid var(--rule); border-radius:16px; background:var(--surface); margin-bottom:1.5rem; overflow:hidden; box-shadow:0 8px 24px rgb(24 24 27 / .05); scroll-margin-top:1rem; }
+        .expedition-card { padding:1.35rem; }
+        .section-top { display:flex; align-items:center; justify-content:space-between; gap:1rem; margin-bottom:1.3rem; }
+        .section-badge { display:inline-flex; align-items:center; gap:.5rem; padding:.5rem .75rem; background:#18181B; color:#FFF; border-radius:5px; font-size:.59rem; font-weight:700; text-transform:uppercase; letter-spacing:.12em; }
+        .section-badge.accent { background:var(--accent); }
+        .text-action { display:inline-flex; align-items:center; gap:.35rem; font-size:.65rem; color:var(--muted); background:transparent; border:0; padding:.5rem; }
+        .text-action:hover { color:var(--accent); }
+        .title-line { position:relative; }
+        #post-title { width:100%; font:700 clamp(1.5rem,2vw,2rem)/1.2 var(--serif); letter-spacing:-.035em; background:transparent; border:0; border-bottom:1px solid var(--line); border-radius:0; padding:.25rem 3rem .9rem 0; color:var(--ink); }
+        #post-title:focus { outline:none; border-bottom-color:var(--accent); }
+        .title-meter { position:absolute; right:0; top:.75rem; display:flex; gap:.45rem; align-items:center; }
+        #title-count { font-size:.6rem; color:var(--muted); font-variant-numeric:tabular-nums; }
+        #post-desc { resize:vertical; min-height:90px; line-height:1.65; }
+        .meta-grid { display:grid; grid-template-columns:1fr 1fr; gap:1rem; }
+        .upload-area { display:flex; align-items:center; gap:1rem; padding:1.1rem; border:1.5px dashed var(--line); border-radius:12px; background:var(--ticket); cursor:pointer; margin:0 0 .7rem; }
+        .upload-area:hover { border-color:var(--accent); }
+        .upload-symbol { display:grid; place-items:center; width:42px; height:42px; flex:none; border-radius:50%; background:var(--surface); border:1px solid var(--rule); color:var(--accent); font-size:1.3rem; }
+        .upload-copy strong { display:block; font-size:.8rem; color:var(--ink); }
+        .upload-copy span { display:block; font-size:.65rem; line-height:1.6; color:var(--muted); margin-top:.25rem; }
+        .upload-arrow { color:var(--accent); margin-left:auto; font-size:1.25rem; }
+        .editorial-tag { display:inline-flex; align-items:center; gap:.45rem; padding:.35rem .65rem; border:1px solid var(--rule); border-radius:999px; background:var(--ticket); color:var(--ink); font-size:.7rem; font-weight:600; }
+        .tag-remove { background:transparent; border:0; min-width:24px; min-height:24px; font-size:1.1rem; color:var(--muted); }
+        .tag-remove:hover { color:var(--accent); }
+        .publication-details { border-top:1px solid var(--line); padding-top:1rem; }
+        .publication-details > summary { cursor:pointer; display:flex; flex-wrap:wrap; align-items:center; gap:.5rem; list-style:none; font-size:.76rem; font-weight:700; }
+        .publication-details > summary::-webkit-details-marker { display:none; }
+        .publication-details > summary::after { content:'+'; color:var(--accent); font-size:1.2rem; margin-left:auto; }
+        .publication-details[open] > summary::after { content:'−'; }
+        .publication-details summary small { color:var(--muted); font-size:.62rem; font-weight:400; }
+        .publication-fields { padding-top:1.2rem; }
+        .upload-area:focus-within { outline:3px solid var(--accent); outline-offset:4px; }
+        .travel-tools { border-top:2px dashed var(--line); padding-top:1rem; margin-top:1.2rem; }
+        .travel-tools summary { cursor:pointer; display:flex; justify-content:space-between; align-items:center; gap:.5rem; font-size:.7rem; font-weight:700; list-style:none; }
+        .travel-tools summary::-webkit-details-marker { display:none; }
+        .travel-tools summary::after { content:'+'; color:var(--accent); font-size:1.2rem; }
+        .travel-tools[open] summary::after { content:'−'; }
+        .travel-tools .meta-grid { margin-top:1rem; }
+        .writing-header { padding:1.1rem 1.25rem; border-bottom:1px dashed var(--line); }
+        .writing-header p { margin:.65rem 0 0; font-size:.7rem; color:var(--muted); line-height:1.65; }
+        .writing-shortcuts { display:flex; flex-wrap:wrap; gap:.5rem; margin-top:.8rem; }
+        .writing-shortcuts button { background:var(--ticket); border:1px solid var(--line); border-radius:999px; color:var(--ink); font-size:.67rem; font-weight:600; padding:.55rem .8rem; min-height:38px; display:inline-flex; align-items:center; gap:.4rem; }
+        .writing-shortcuts button:hover { border-color:var(--accent); color:var(--accent); }
+        .publish-card { padding:1.25rem; }
+        .publish-card h2 { font:700 1.4rem/1.2 var(--serif); margin:0 0 .5rem; }
+        .publish-card p { color:var(--muted); font-size:.72rem; line-height:1.7; margin:0 0 1rem; }
+        #btn-publish { width:100%; display:flex; align-items:center; justify-content:center; gap:.7rem; padding:1rem; font-size:.95rem; }
+        .preview-column { width:41%; flex:none; overflow-y:auto; border-left:1.5px solid var(--rule); background:var(--paper); padding:2rem 2rem 4rem; }
+        .preview-inner { max-width:660px; margin:auto; }
+        .preview-topline { display:flex; justify-content:space-between; align-items:center; border-bottom:1px solid var(--line); padding-bottom:1.1rem; margin-bottom:1.5rem; }
+        .preview-topline small { font-size:.56rem; letter-spacing:.08em; text-transform:uppercase; color:var(--muted); }
+        .preview-empty { border:1px dashed var(--line); padding:3rem 1.5rem; border-radius:14px; text-align:center; }
+        .preview-empty strong { font:700 1.6rem/1.15 var(--serif); display:block; margin:1rem 0 .7rem; }
+        .preview-empty p { font-size:.8rem!important; color:var(--muted); }
+        .prose { font-family:var(--sans); font-size:.95rem; line-height:1.85; color:var(--ink); overflow-wrap:anywhere; }
+        .prose h1,.prose h2,.prose h3 { font-family:var(--serif); color:var(--ink); font-weight:700; line-height:1.15; letter-spacing:-.03em; }
+        .prose h1 { font-size:2.15rem; margin:.8rem 0 1.2rem; }
+        .prose h2 { font-size:1.7rem; margin:2rem 0 1rem; }
+        .prose h3 { font-size:1.3rem; margin:1.5rem 0 .7rem; }
+        .prose p { margin:0 0 1.25rem; }
+        .prose ul,.prose ol { padding-left:1.4rem; margin:1rem 0; }
+        .prose ul { list-style:disc; } .prose ol { list-style:decimal; }
+        .prose a { color:var(--accent); text-decoration:underline; text-underline-offset:3px; }
+        .prose img { max-width:100%; height:auto; border:1.5px solid var(--rule); border-radius:14px; margin:1.3rem 0; }
+        .prose .preview-hero { display:block; width:100%; aspect-ratio:16/9; object-fit:cover; border:1.5px solid var(--rule); border-radius:14px; margin:0 0 1.5rem; }
+        .prose .preview-headline { border:1.5px solid var(--rule); border-radius:14px; padding:1rem; background:var(--surface); }
+        .prose iframe { width:100%; aspect-ratio:16/9; border-radius:14px; margin:1rem 0; border:1px solid var(--line); }
+        .prose blockquote { border-left:3px solid var(--accent); padding:.7rem 1rem; margin:1.5rem 0; background:var(--ticket); }
+        .prose table { width:100%; border-collapse:collapse; display:block; overflow-x:auto; }
+        .prose :is(th,td) { padding:.6rem; border:1px solid var(--line); }
+        .prose pre { overflow:auto; padding:1rem; border:1px solid var(--line); border-radius:10px; }
+        .prose .cta-destination-card { color:#18181B; text-decoration:none; }
+        .prose .cta-destination-card strong { font-family:var(--serif); }
+        .modal-overlay { position:fixed; inset:0; background:rgb(18 18 20 / .65); z-index:50; display:none; place-items:center; padding:1rem; }
+        .modal-overlay.open { display:grid; }
+        .modal-content { background:var(--surface); border:1.5px solid var(--rule); border-radius:16px; box-shadow:var(--print-shadow); }
+        #preview-modal-mobile { padding:0; z-index:60; }
+        #preview-modal-mobile > div { background:var(--paper); color:var(--ink); }
+        #preview-modal-mobile > div > div:first-child { background:var(--surface); border-bottom:1.5px solid var(--rule); }
+        #preview-modal-mobile .prose { max-width:760px; width:100%; margin:auto; }
+        #author-modal label,#load-post-modal label { color:var(--ink); }
+        .text-accent { color:var(--accent); }
+        .loader { width:20px; height:20px; border:2px solid var(--line); border-top-color:var(--accent); border-radius:50%; animation:spin .8s linear infinite; }
+        @keyframes spin { to { transform:rotate(360deg); } }
+        .dot { width:7px; height:7px; border-radius:50%; display:inline-block; background:var(--line); }
+        .dot-green { background:#34815C; } .dot-yellow { background:#C38B22; } .dot-red { background:#C44C39; }
+        .toast-notification { display:flex; gap:.6rem; align-items:center; max-width:min(420px,calc(100vw - 2rem)); padding:1rem 1.2rem; background:var(--ink); color:var(--paper); border:1.5px solid var(--rule); border-radius:10px; box-shadow:var(--print-shadow); font-size:.8rem; }
+        .toast-success { background:#246148; color:white; } .toast-error { background:#A63123; color:white; }
+        .toast-exit { opacity:0; transition:opacity .2s; }
+        .tox-tinymce { border:0!important; border-radius:0!important; }
+        .tox .tox-editor-header { background:var(--surface)!important; box-shadow:none!important; border-bottom:1px solid var(--line)!important; }
+        .tox .tox-toolbar,.tox .tox-toolbar__primary,.tox .tox-toolbar-overlord,.tox .tox-menubar,.tox .tox-statusbar { background:var(--surface)!important; }
+        .tox .tox-tbtn { background:transparent!important; color:var(--ink)!important; }
+        .tox .tox-tbtn__select-label { color:var(--ink)!important; font-family:var(--sans)!important; }
+        .tox .tox-tbtn svg { fill:var(--ink)!important; }
+        .tox .tox-tbtn:hover,.tox .tox-tbtn--enabled { background:var(--ticket)!important; }
+        .tox .tox-statusbar,.tox .tox-statusbar a,.tox .tox-statusbar__path-item,.tox .tox-statusbar__wordcount { color:var(--muted)!important; font-family:var(--sans)!important; }
+        .tox .tox-menu,.tox .tox-dialog,.tox .tox-dialog__header,.tox .tox-dialog__footer,.tox .tox-collection--list { background:var(--surface)!important; color:var(--ink)!important; border-color:var(--line)!important; }
+        .tox .tox-dialog__title,.tox .tox-label,.tox .tox-collection__item-label { color:var(--ink)!important; font-family:var(--sans)!important; }
+        .tox .tox-textfield,.tox .tox-textarea,.tox .tox-listboxfield .tox-listbox--select { background:var(--white)!important; color:var(--ink)!important; border-color:var(--line)!important; }
+        .tox .tox-collection__item--active { background:var(--ticket)!important; }
+        .tox .tox-dialog-wrap__backdrop { background:rgb(18 18 20 / .65)!important; }
+        .tox .tox-button { background:var(--accent)!important; border-color:var(--accent)!important; color:#FFFFFF!important; border-radius:999px!important; }
+        .tox .tox-button--secondary { background:var(--ticket)!important; border-color:var(--line)!important; color:var(--ink)!important; }
+        .tox .tox-toolbar__group { border-color:var(--line)!important; }
+        ::-webkit-scrollbar { width:7px; height:7px; } ::-webkit-scrollbar-thumb { background:var(--line); border-radius:8px; }
+        @media (max-width:1199px) { .edition-label,#greeting-container { display:none!important; } .editor-scroll { padding:1.5rem 1.25rem 3rem; } .preview-column { padding:1.5rem; width:40%; } }
+        @media (max-width:1023px) { .preview-column { display:none; } .editor-inner { max-width:850px; } .header-enhanced { padding:.8rem 1rem; } .masthead { font-size:1.4rem; } }
+        @media (max-width:599px) { .editor-scroll { padding:1.25rem 1rem 3rem; } .header-row { gap:.4rem; } .header-actions { gap:0; } .btn-icon { padding:.45rem; min-width:36px; min-height:40px; } .masthead { font-size:1.15rem; } .masthead small { font-size:.44rem; } .expedition-card { padding:1rem; } .meta-grid { grid-template-columns:1fr; } .editorial-steps { gap:.6rem; justify-content:space-between; } .editorial-steps a { font-size:.57rem; } .pass-body { padding:1.5rem; } .upload-area { padding:.85rem; gap:.7rem; } .upload-copy strong { font-size:.74rem; } .upload-copy span { font-size:.61rem; } .preview-headline { font-size:1.75rem!important; } #toast-container { left:1rem; bottom:1rem; } }
+        @media (prefers-reduced-motion:reduce) { *,*::before,*::after { scroll-behavior:auto!important; transition:none!important; animation:none!important; } }
 
-        .dark .input-modern {
-            background: rgba(255, 255, 255, 0.04);
-            border-color: rgba(255, 255, 255, 0.08);
-            color: #e2e8f0;
-        }
-
-        .dark .input-modern:focus {
-            background: rgba(255, 255, 255, 0.06);
-        }
-
-        /* Status Pill in Header */
-        .status-pill {
-            display: inline-flex;
-            align-items: center;
-            gap: 4px;
-            font-size: 0.6rem;
-            font-weight: 600;
-            padding: 2px 8px;
-            border-radius: 6px;
-            background: rgba(34, 197, 94, 0.1);
-            color: #22c55e;
-        }
     </style>
 </head>
 
 <body class="antialiased">
 
-    <div id="preview-modal-mobile" class="modal-overlay z-[60]">
+    <div id="preview-modal-mobile" role="dialog" aria-modal="true" aria-label="Vista previa del artículo" class="modal-overlay z-[60]">
         <div class="bg-white dark:bg-slate-900 w-full h-full flex flex-col">
             <div
                 class="flex justify-between items-center p-4 border-b dark:border-slate-700 bg-white dark:bg-slate-900">
                 <h3 class="font-bold text-lg flex items-center gap-2"><ion-icon name="eye-outline"></ion-icon> Vista
                     Previa</h3>
-                <button onclick="closeMobilePreview()" class="text-3xl p-2"><ion-icon
+                <button aria-label="Cerrar vista previa" onclick="closeMobilePreview()" class="text-3xl p-2"><ion-icon
                         name="close-outline"></ion-icon></button>
             </div>
             <div id="mobile-preview-content"
@@ -544,27 +237,27 @@
         </div>
     </div>
 
-    <div id="load-post-modal" class="modal-overlay">
+    <div id="load-post-modal" role="dialog" aria-modal="true" aria-label="Mis artículos" class="modal-overlay">
         <div
-            class="modal-content bg-white dark:bg-slate-900 w-full max-w-2xl rounded-2xl shadow-2xl p-6 flex flex-col max-h-[85vh]">
+            class="press-modal modal-content bg-white dark:bg-slate-900 w-full max-w-2xl rounded-2xl shadow-2xl p-6 flex flex-col max-h-[85vh]">
             <div class="flex justify-between items-center mb-4 border-b dark:border-slate-800 pb-3">
                 <h3 class="font-bold text-lg flex items-center gap-2 text-accent"><ion-icon
                         name="folder-open-outline"></ion-icon> Explorar</h3>
-                <button onclick="closeLoadModal()" class="btn-icon p-2"><ion-icon name="close-outline"
+                <button aria-label="Cerrar artículos" onclick="closeLoadModal()" class="btn-icon p-2"><ion-icon name="close-outline"
                         class="text-2xl"></ion-icon></button>
             </div>
-            <input type="text" id="search-posts" placeholder="Buscar..."
+            <input type="text" id="search-posts" aria-label="Buscar artículos" placeholder="Buscar artículos…"
                 class="w-full p-3 bg-gray-50 dark:bg-slate-800 rounded-xl accent-input border border-gray-200 dark:border-slate-700 mb-4"
                 oninput="filterPosts()">
             <div id="posts-list" class="space-y-2 overflow-y-auto flex-1 pr-2"></div>
         </div>
     </div>
 
-    <div id="author-modal" class="modal-overlay">
-        <div class="modal-content bg-white dark:bg-slate-900 w-full max-w-lg rounded-2xl shadow-2xl p-6">
+    <div id="author-modal" role="dialog" aria-modal="true" aria-label="Autores" class="modal-overlay">
+        <div class="press-modal modal-content bg-white dark:bg-slate-900 w-full max-w-lg rounded-2xl shadow-2xl p-6">
             <div class="flex justify-between items-center mb-4">
                 <h3 class="font-bold text-lg text-accent">Autores</h3>
-                <button onclick="closeAuthorModal()" class="btn-icon p-2"><ion-icon name="close-outline"
+                <button aria-label="Cerrar autores" onclick="closeAuthorModal()" class="btn-icon p-2"><ion-icon name="close-outline"
                         class="text-2xl"></ion-icon></button>
             </div>
             <div class="space-y-3">
@@ -582,204 +275,127 @@
         </div>
     </div>
 
-    <div id="login-section" class="flex items-center justify-center min-h-screen p-4 gradient-bg">
-        <div class="w-full max-w-sm text-center glass-card rounded-3xl p-8">
-            <div class="mb-8">
-                <img src="public/blog.svg" alt="Logo" class="h-14 mx-auto mb-4 logo-adaptive">
-                <h1
-                    class="text-2xl font-bold bg-gradient-to-r from-gray-900 to-gray-600 dark:from-white dark:to-gray-300 bg-clip-text text-transparent">
-                    Editor V6.3</h1>
-                <p class="text-xs text-gray-400 mt-1">Panel de Publicaciones</p>
+    <div id="login-section" class="press-login">
+        <div class="press-pass">
+            <div class="pass-ribbon">🪪 ZONA DE EDITORES • ACCESO OFICIAL</div>
+            <div class="pass-body">
+                <div class="pass-mark"><span>Credencial de prensa</span><span>Trips & Tips</span></div>
+                <h1 class="pass-title">Instante Trips</h1>
+                <p class="pass-subtitle">Sala de Redacción V6.3</p>
+                <form id="login-form" class="field-stack">
+                    <div><label for="email" class="field-label">Tu correo de editor</label>
+                        <input type="email" id="email" autocomplete="username" placeholder="nombre@correo.com" class="input-modern" required></div>
+                    <div><label for="password" class="field-label">Contraseña</label>
+                        <input type="password" id="password" autocomplete="current-password" placeholder="Tu contraseña" class="input-modern" required></div>
+                    <button type="submit" class="btn-primary w-full py-3">Entrar a la redacción →</button>
+                </form>
+                <p id="login-error" class="text-red-500 text-sm mt-4 hidden" role="alert"></p>
+                <div class="pass-footer"><span>Guías reales. Historias propias.</span><span>© <script>document.write(new Date().getFullYear())</script></span></div>
             </div>
-            <form id="login-form" class="space-y-4">
-                <input type="email" id="email" placeholder="Email"
-                    class="w-full p-4 bg-white/50 dark:bg-slate-800/50 rounded-xl accent-input border border-gray-200 dark:border-slate-700"
-                    required>
-                <input type="password" id="password" placeholder="Contraseña"
-                    class="w-full p-4 bg-white/50 dark:bg-slate-800/50 rounded-xl accent-input border border-gray-200 dark:border-slate-700"
-                    required>
-                <button type="submit" class="w-full btn-primary text-white font-bold py-4 rounded-xl">Entrar</button>
-            </form>
-            <p id="login-error" class="text-red-500 text-sm mt-4 hidden"></p>
-            <p class="text-xs text-gray-400 mt-6">©
-                <script>document.write(new Date().getFullYear())</script> Instante Trips
-            </p>
         </div>
     </div>
 
     <div id="app-section" class="hidden h-[100dvh] flex flex-col">
-        <header class="header-enhanced h-16 flex-none z-40">
-            <div class="w-full px-4 h-full flex items-center justify-between">
-                <div class="flex items-center gap-4">
-                    <div class="flex items-center gap-3">
-                        <div
-                            class="w-9 h-9 bg-gradient-to-br from-orange-400 to-orange-600 rounded-xl flex items-center justify-center shadow-lg shadow-orange-500/20">
-                            <img src="public/blog.svg" alt="Logo" class="h-5 invert">
-                        </div>
-                        <div>
-                            <span class="font-bold text-sm">Editor V6.3</span>
-                            <p class="text-[10px] text-gray-500" id="save-status"></p>
-                        </div>
-                    </div>
-                    <!-- Greeting Message (shown after login) -->
-                    <div id="greeting-container"
-                        class="hidden md:flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-orange-50 to-amber-50 dark:from-orange-900/20 dark:to-amber-900/20 rounded-xl border border-orange-100 dark:border-orange-800/30">
-                        <span id="greeting-emoji" class="text-lg"></span>
-                        <div>
-                            <p id="greeting-text" class="text-xs font-semibold text-gray-700 dark:text-gray-200"></p>
-                            <p id="author-role-text" class="text-[10px] text-gray-500"></p>
-                        </div>
+        <header class="header-enhanced">
+            <div class="header-row">
+                <div class="header-brand-group">
+                    <div class="masthead">INSTANTE<small>Trips & Tips</small></div>
+                    <div class="edition-label"><strong>Sala de Redacción</strong><small>EDICIÓN V6.3</small><p id="save-status"></p></div>
+                    <div id="greeting-container" class="hidden md:flex">
+                        <span id="greeting-emoji" aria-hidden="true"></span>
+                        <div><p id="greeting-text"></p><p id="author-role-text"></p></div>
                     </div>
                 </div>
-                <div class="flex items-center gap-1">
-                    <!-- Admin Button (hidden by default, shown only for admin) -->
-                    <a id="admin-link" href="../admin/"
-                        class="hidden btn-icon flex items-center gap-2 px-3 py-2.5 text-sm font-medium bg-purple-50 dark:bg-purple-900/30 text-purple-600 dark:text-purple-400 rounded-xl"
-                        title="Panel de Administración">
-                        <ion-icon name="settings-outline"></ion-icon>
-                        <span class="hidden md:inline">Admin</span>
-                    </a>
-                    <button onclick="toggleDarkMode()" class="btn-icon p-2.5" title="Modo Oscuro"><ion-icon
-                            name="moon-outline" class="text-lg"></ion-icon></button>
-                    <button onclick="openMobilePreview()" class="lg:hidden btn-icon p-2.5 text-accent"
-                        title="Vista Previa"><ion-icon name="eye-outline" class="text-lg"></ion-icon></button>
-                    <button onclick="openLoadModal()"
-                        class="btn-icon flex items-center gap-2 px-4 py-2.5 text-sm font-medium"
-                        title="Explorar Posts"><ion-icon name="folder-open-outline"></ion-icon> <span
-                            class="hidden sm:inline">Explorar</span></button>
-                    <button id="btn-logout" class="btn-icon p-2.5 text-red-500 hover:!bg-red-50 hover:!text-red-600"
-                        title="Cerrar Sesión"><ion-icon name="log-out-outline" class="text-lg"></ion-icon></button>
-                </div>
+                <nav class="header-actions" aria-label="Herramientas de redacción">
+                    <a id="admin-link" href="../admin/" class="hidden btn-icon" title="Panel de Administración" aria-label="Abrir administración"><ion-icon name="settings-outline" aria-hidden="true"></ion-icon><span class="hidden md:inline">Admin</span></a>
+                    <button onclick="toggleDarkMode()" class="btn-icon" title="Cambiar tema" aria-label="Cambiar entre tema claro y oscuro"><ion-icon name="moon-outline" aria-hidden="true"></ion-icon></button>
+                    <button onclick="openMobilePreview()" class="lg:hidden btn-icon" title="Vista previa" aria-label="Abrir vista previa"><ion-icon name="eye-outline" aria-hidden="true"></ion-icon></button>
+                    <button onclick="openLoadModal()" class="btn-icon action-outline" title="Explorar publicaciones" aria-label="Explorar publicaciones"><ion-icon name="folder-open-outline" aria-hidden="true"></ion-icon><span class="hidden sm:inline">Mis artículos</span></button>
+                    <button id="btn-logout" class="btn-icon" title="Cerrar sesión" aria-label="Cerrar sesión"><ion-icon name="log-out-outline" aria-hidden="true"></ion-icon></button>
+                </nav>
             </div>
         </header>
 
-        <div class="flex-1 flex overflow-hidden app-fadein">
+        <div class="workspace">
+            <main class="editor-scroll">
+                <div class="editor-inner">
+                    <div class="desk-intro">
+                        <span class="eyebrow">Historias de viaje, contadas de verdad</span>
+                        <h1>Tu próxima historia empieza aquí.</h1>
+                        <p>Prepara la ficha, cuenta el viaje y revisa cómo se lee antes de publicar.</p>
+                        <nav class="editorial-steps" aria-label="Pasos para escribir un artículo">
+                            <a href="#expedition-card"><b>01</b> La ficha</a><a href="#writing-card"><b>02</b> El relato</a><a href="#publish-card"><b>03</b> La publicación</a>
+                        </nav>
+                    </div>
 
-            <div class="flex-1 overflow-y-auto p-6 pb-32 relative editor-panel-bg">
-                <div class="max-w-3xl mx-auto">
-                    <div
-                        class="bg-white/80 dark:bg-slate-900/80 backdrop-blur-sm border border-gray-200/80 dark:border-slate-800/80 rounded-2xl p-6 mb-6 shadow-sm card-hover">
-                        <div class="flex justify-between items-center mb-5">
-                            <span class="section-badge">
-                                <ion-icon name="settings-outline"></ion-icon> Configuración
-                            </span>
-                            <button onclick="clearAll()"
-                                class="text-xs text-red-400 hover:text-red-600 hover:underline transition-colors flex items-center gap-1">
-                                <ion-icon name="trash-outline" class="text-sm"></ion-icon> Limpiar
-                            </button>
-                        </div>
-                        <div class="space-y-5">
-                            <div class="relative">
-                                <input type="text" id="post-title"
-                                    class="w-full text-2xl font-bold bg-transparent border-b-2 border-gray-200 dark:border-slate-700 py-3 outline-none focus:border-orange-500 transition-colors"
-                                    placeholder="Título del Artículo" oninput="updateSEO()">
-                                <div class="absolute right-0 top-4 flex items-center gap-2"><span id="title-count"
-                                        class="text-xs text-gray-400 font-mono">0</span>
-                                    <div id="title-seo" class="dot bg-gray-200"></div>
+                    <section id="expedition-card" class="expedition-card" aria-label="Ficha del artículo">
+                        <div class="section-top"><span class="section-badge">01 / Ficha de expedición</span>
+                            <button onclick="clearAll()" class="text-action"><ion-icon name="trash-outline" aria-hidden="true"></ion-icon> Limpiar ficha</button></div>
+                        <div class="field-stack">
+                            <div>
+                                <label class="field-label" for="post-title">El titular de tu historia</label>
+                                <div class="title-line">
+                                    <input type="text" id="post-title" class="font-serif text-3xl font-bold" placeholder="Un título que invite a viajar…" oninput="updateSEO()" aria-describedby="title-help">
+                                    <div class="title-meter"><span id="title-count">0</span><div id="title-seo" class="dot" aria-hidden="true"></div></div>
                                 </div>
+                                <p class="field-help" id="title-help">Un titular claro y concreto. Ideal: entre 50 y 65 caracteres.</p>
                             </div>
-                            <textarea id="post-desc" rows="2"
-                                class="w-full text-sm bg-gray-50/80 dark:bg-slate-800/60 p-4 rounded-xl outline-none resize-none border border-gray-100 dark:border-slate-700/50 focus:border-orange-500 transition-colors"
-                                placeholder="✍️ Descripción SEO — Esta aparece en los resultados de búsqueda..."
-                                oninput="updateSEO()"></textarea>
-                            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                                <div class="input-group">
-                                    <label>📅 Fecha</label>
-                                    <input type="date" id="post-date" class="input-modern">
-                                </div>
-                                <div class="input-group">
-                                    <label class="flex justify-between">✏️ Autor
-                                        <span onclick="openAuthorModal()"
-                                            class="text-orange-500 cursor-pointer hover:text-orange-600 transition-colors text-sm">+
-                                            Nuevo</span>
-                                    </label>
-                                    <select id="post-author" class="input-modern">
-                                        <option>Cargando...</option>
-                                    </select>
-                                </div>
+                            <div><label class="field-label" for="post-desc">La historia, en dos líneas</label>
+                                <textarea id="post-desc" rows="2" class="input-modern" placeholder="Qué encontrará el lector y por qué le ayudará en su viaje…" oninput="updateSEO()" aria-describedby="description-help"></textarea>
+                                <p class="field-help" id="description-help">Esta descripción aparece en los buscadores. Entre 50 y 160 caracteres.</p></div>
+                            <details class="publication-details">
+                                <summary><span>Portada y datos de publicación</span><small>Foto, firma y etiquetas</small></summary>
+                                <div class="field-stack publication-fields">
+                            <div class="meta-grid">
+                                <div><label class="field-label" for="post-date">Fecha de publicación</label><input type="date" id="post-date" class="input-modern"></div>
+                                <div><div class="flex items-center justify-between"><label class="field-label" for="post-author">Firma del artículo</label><button type="button" onclick="openAuthorModal()" class="text-action">+ Nuevo autor</button></div><select id="post-author" class="input-modern"><option>Cargando...</option></select></div>
                             </div>
-                            <div class="input-group">
-                                <label>🖼️ Imagen Principal</label>
-                                <div class="flex items-center gap-2">
-                                    <input type="text" id="post-hero" class="input-modern flex-1"
-                                        placeholder="URL de la imagen o sube una..." oninput="renderLivePreview()">
-                                    <label
-                                        class="cursor-pointer bg-orange-50 dark:bg-orange-900/20 hover:bg-orange-100 dark:hover:bg-orange-900/30 p-2.5 rounded-xl text-orange-500 transition-colors">
-                                        <ion-icon name="cloud-upload-outline" class="text-lg"></ion-icon>
-                                        <input type="file" class="hidden" accept="image/*"
-                                            onchange="uploadHeroImage(this)">
-                                    </label>
-                                </div>
+                            <div>
+                                <span class="field-label">La foto de portada</span>
+                                <label class="upload-area" for="hero-upload">
+                                    <span class="upload-symbol"><ion-icon name="cloud-upload-outline" aria-hidden="true"></ion-icon></span>
+                                    <span class="upload-copy"><strong>Seleccionar foto de portada</strong><span>Desde tu computadora o móvil. La imagen se comprime al subirla.</span></span><span class="upload-arrow" aria-hidden="true">↗</span>
+                                    <input id="hero-upload" type="file" class="sr-only" accept="image/*" onchange="uploadHeroImage(this)">
+                                </label>
+                                <label class="field-label" for="post-hero">O pega una dirección de imagen</label>
+                                <input type="text" id="post-hero" class="input-modern" placeholder="https://… o /uploads/…" oninput="renderLivePreview()" aria-describedby="hero-help">
+                                <p class="field-help" id="hero-help">Usa una foto horizontal. Comprueba el encuadre en la vista previa.</p>
                             </div>
-                            <div class="input-group">
-                                <label>🏷️ Tags</label>
-                                <div class="flex items-center gap-2">
-                                    <span class="text-orange-400 text-sm font-bold">#</span>
-                                    <input type="text" id="tag-input"
-                                        class="flex-1 text-sm bg-transparent outline-none py-2"
-                                        placeholder="Escribe un tag y presiona Enter">
-                                </div>
-                            </div>
+                            <div><label class="field-label" for="tag-input">Destinos y temas</label><input type="text" id="tag-input" class="input-modern" placeholder="Por ejemplo: España. Pulsa Enter para añadir." aria-describedby="tags-help"><p id="tags-help" class="field-help">Añade al menos una etiqueta para identificar el artículo.</p></div>
                             <div id="tags-container" class="flex flex-wrap gap-2"></div>
-
-                            <!-- Widget Config -->
-                            <div class="pt-5 border-t dark:border-slate-800/50 mt-2">
-                                <span class="section-badge mb-3">
-                                    <ion-icon name="airplane-outline"></ion-icon> Widgets de Viaje
-                                </span>
-                                <div class="grid grid-cols-1 md:grid-cols-2 gap-3 mt-3">
-                                    <div class="input-group">
-                                        <label>✈️ Destino Vuelos</label>
-                                        <input type="text" id="flight-dest" class="input-modern"
-                                            placeholder="Ej: Madrid">
-                                    </div>
-                                    <div class="input-group">
-                                        <label>🗺️ Ciudad Tours</label>
-                                        <input type="text" id="tour-city" class="input-modern" placeholder="Ej: Madrid">
-                                    </div>
+                        <details class="travel-tools">
+                            <summary><span>Widgets de viaje</span><span class="text-xs font-normal text-gray-500">Opcional</span></summary>
+                            <div class="meta-grid"><div><label class="field-label" for="flight-dest">Destino de vuelos</label><input type="text" id="flight-dest" class="input-modern" placeholder="Ej: Madrid"></div><div><label class="field-label" for="tour-city">Ciudad de tours</label><input type="text" id="tour-city" class="input-modern" placeholder="Ej: Madrid"></div></div>
+                        </details>
                                 </div>
-                            </div>
-
-                            <!-- Video Button -->
-                            <div class="pt-1">
-                                <button onclick="insertVideoLink()"
-                                    class="flex items-center gap-2 px-4 py-3 bg-red-50 dark:bg-red-900/20 text-red-500 dark:text-red-400 rounded-xl text-sm font-bold hover:bg-red-100 dark:hover:bg-red-900/30 transition-all w-full justify-center border border-red-100 dark:border-red-800/30">
-                                    <ion-icon name="logo-youtube" class="text-xl"></ion-icon> Insertar Video (YouTube /
-                                    TikTok)
-                                </button>
-                            </div>
+                            </details>
                         </div>
-                    </div>
+                    </section>
 
-                    <div
-                        class="bg-white dark:bg-slate-900 rounded-2xl shadow-lg border border-gray-200 dark:border-slate-800 overflow-hidden min-h-[500px]">
-                        <textarea id="tiny-editor" class="w-full h-full"></textarea>
-                    </div>
+                    <section id="writing-card" class="writing-card" aria-label="Escribir el contenido del artículo">
+                        <div class="writing-header"><span class="section-badge">02 / El relato</span><p>Escribe o pega tu historia. Usa la barra del editor para añadir títulos, listas y fotos dentro del texto.</p>
+                            <div class="writing-shortcuts"><button onclick="tinymce.activeEditor.execCommand('mceImage')"><ion-icon name="image-outline" aria-hidden="true"></ion-icon> Añadir foto al texto</button><button onclick="insertVideoLink()"><ion-icon name="logo-youtube" aria-hidden="true"></ion-icon> Añadir video</button><button onclick="insertCtaLink()"><ion-icon name="link-outline" aria-hidden="true"></ion-icon> Añadir tarjeta de destino</button></div>
+                        </div>
+                        <textarea id="tiny-editor" class="w-full h-full" aria-label="Contenido del artículo"></textarea>
+                    </section>
 
-                    <div class="mt-8 mb-8">
-                        <button onclick="publishCurrentPost()"
-                            class="w-full btn-publish text-white font-bold py-5 rounded-2xl flex items-center justify-center gap-3 text-lg transition-all">
-                            <ion-icon name="rocket-outline" class="text-2xl"></ion-icon> Publicar Artículo
-                        </button>
+                    <section id="publish-card" class="publish-card" aria-label="Revisar y publicar">
+                        <span class="eyebrow">03 / Última lectura</span><h2>¿Lista para salir al mundo?</h2>
+                        <p>Revisa el titular, la foto, la firma y el contenido. Antes de publicar se te pedirá confirmar el artículo.</p>
+                        <button onclick="openMobilePreview()" class="text-action mb-3"><ion-icon name="eye-outline" aria-hidden="true"></ion-icon> Revisar vista previa</button>
+                        <button id="btn-publish" onclick="publishCurrentPost()" class="btn-publish"><ion-icon name="rocket-outline" aria-hidden="true"></ion-icon> Publicar artículo</button>
+                    </section>
+                </div>
+            </main>
+
+            <aside class="hidden lg:block preview-column" id="live-preview-column" aria-label="Vista previa del artículo">
+                <div class="preview-inner">
+                    <div class="preview-topline"><span class="section-badge accent"><ion-icon name="eye-outline" aria-hidden="true"></ion-icon> Vista previa en vivo</span><small>Vista de lectura</small></div>
+                    <div id="live-preview-content" class="prose">
+                        <div class="preview-empty"><span class="eyebrow">Una página por escribir</span><strong>Así se leerá tu historia.</strong><p>Añade un titular, una foto y el relato para verlos aquí mientras escribes.</p></div>
                     </div>
                 </div>
-            </div>
-
-            <div class="hidden lg:block w-1/2 bg-white dark:bg-black overflow-y-auto p-12 preview-column"
-                id="live-preview-column">
-                <div class="max-w-2xl mx-auto">
-                    <div class="flex items-center gap-2 mb-8">
-                        <span class="section-badge">
-                            <ion-icon name="eye-outline"></ion-icon> Vista Previa en Vivo
-                        </span>
-                    </div>
-                    <div id="live-preview-content" class="prose dark:prose-invert max-w-none">
-                        <p class="text-gray-300 dark:text-gray-600 text-center py-12 text-lg">Empieza a escribir para
-                            ver la vista previa...</p>
-                    </div>
-                </div>
-            </div>
-
+            </aside>
         </div>
     </div>
 
@@ -890,13 +506,22 @@
                 content_css: window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'default',
                 plugins: 'image media link lists table code preview wordcount help',
                 toolbar: 'undo redo | blocks fontsize | bold italic underline | bullist numlist | alignleft aligncenter alignright | link image media | customCtaBtn customVideoBtn | removeformat code',
-                content_style: 'body { font-family:Inter,sans-serif; font-size:16px; line-height:1.6 } img { max-width: 100%; height: auto; border-radius: 8px; }',
+                content_style: `@import url('https://fonts.googleapis.com/css2?family=Fraunces:ital,wght@0,700;0,800;1,700;1,800&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap');
+body { font-family:'Plus Jakarta Sans',sans-serif; font-size:16px; line-height:1.85; color:#18181B; background:#FDFBF7; padding:12px; }
+h1,h2,h3 { font-family:'Fraunces',Georgia,serif; font-weight:700; line-height:1.18; letter-spacing:-.025em; color:#18181B; }
+h1 { font-size:2.2rem; } h2 { font-size:1.8rem; } h3 { font-size:1.4rem; }
+a { color:#E04F16; } img { max-width:100%; height:auto; border:1.5px solid #18181B; border-radius:14px; }
+blockquote { border-left:3px solid #E04F16; background:#F3EFE6; padding:1rem; margin:1.5rem 0; }
+body[data-editor-theme='dark'] { background:#1C1C1F; color:#F5F1E9; }
+body[data-editor-theme='dark'] h1,body[data-editor-theme='dark'] h2,body[data-editor-theme='dark'] h3 { color:#F5F1E9; }
+body[data-editor-theme='dark'] blockquote { background:#242427; }
+.cta-destination-card { color:#18181B; text-decoration:none; }`,
                 convert_urls: false,
                 relative_urls: false,
                 remove_script_host: false,
                 media_live_embeds: true,
                 setup: function (editor) {
-                    editor.on('init', function () { editor.setContent(initialContent); });
+                    editor.on('init', function () { editor.setContent(initialContent); applyEditorTheme(); });
                     editor.on('input change keyup', function () { renderLivePreview(); });
 
                     editor.ui.registry.addButton('customVideoBtn', {
@@ -941,17 +566,15 @@
             const title = prompt('Título Principal (Ej: Ushuaia: El Fin del Mundo)', 'Ushuaia: El Fin del Mundo');
             const desc = prompt('Descripción (Ej: Clima, presupuesto...)', 'Clima, presupuesto, tours y experiencias imperdibles →');
 
-            // 2. Construir HTML (usando variables CSS para Dark Mode)
+            // Tarjeta editorial conservada por la regla CTA de Turndown.
             const html = `
-            <a href="${url}" target="_blank" class="cta-destination-card" style="display:block; margin:2.5rem 0; padding:1.75rem; background:linear-gradient(135deg, rgba(244,185,66,0.08), rgba(117,170,219,0.08)); border-radius:16px; border-left:4px solid var(--accent-gold, #F4B942); text-decoration:none; color:inherit;">
+            <a href="${url}" target="_blank" class="cta-destination-card" style="display:block; margin:2rem 0; padding:1.5rem; background:#F3EFE6; border:1.5px solid #18181B; border-radius:14px; text-decoration:none; color:#18181B;">
               <span style="display:inline-flex; align-items:center; gap:8px; margin-bottom:1rem;">
                 <span style="font-size:1.5rem;">${emoji}</span>
-                <span style="font-size:0.7rem; font-weight:800; text-transform:uppercase; letter-spacing:1.5px; color:var(--brand-blue, #75AADB); background:rgba(117,170,219,0.12); padding:6px 12px; border-radius:20px;">${label}</span>
-              </span>
-              <br>
-              <strong style="font-size:1.4rem; font-weight:800; color:var(--text-main, #2D3748);">${title}</strong>
-              <br>
-              <span style="color:var(--text-muted, #718096); font-size:0.95rem;">${desc}</span>
+                <span style="font-family:'Plus Jakarta Sans',sans-serif; font-size:0.7rem; font-weight:700; text-transform:uppercase; letter-spacing:1px; color:#FFFFFF; background:#E04F16; padding:6px 12px; border-radius:20px;">${label}</span>
+              </span><br>
+              <strong style="display:block; font-family:'Fraunces',Georgia,serif; font-size:1.6rem; line-height:1.2; font-weight:800; color:#18181B;">${title}</strong>
+              <span style="display:block; margin-top:1rem; padding-top:1rem; border-top:1px dashed #938D83; font-family:'Plus Jakarta Sans',sans-serif; font-size:0.95rem; line-height:1.6; color:#4D4841;">${desc} <span style="color:#E04F16; font-weight:700;" aria-hidden="true">→</span></span>
             </a>
             <p>&nbsp;</p>
             `;
@@ -994,8 +617,8 @@
             const t = document.getElementById('post-title').value;
             const h = document.getElementById('post-hero').value;
             let finalHtml = '';
-            if (h) finalHtml += `<img src="${h}" class="w-full h-64 object-cover rounded-xl mb-6 shadow-sm">`;
-            if (t) finalHtml += `<h1 class="text-3xl font-bold mb-4">${t}</h1>`;
+            if (h) finalHtml += `<img src="${h}" alt="Imagen principal del artículo" class="preview-hero">`;
+            if (t) finalHtml += `<h1 class="preview-headline">${t}</h1>`;
             finalHtml += content;
             const deskPreview = document.getElementById('live-preview-content');
             if (deskPreview) deskPreview.innerHTML = finalHtml;
@@ -1366,14 +989,20 @@
         function renderTags() {
             document.getElementById('tags-container').innerHTML = tags.map((t, i) => {
                 const safe = sanitizeAttr(t);
-                return `<span class="bg-gray-200 dark:bg-slate-700 px-3 py-1 rounded-full text-xs font-medium inline-flex items-center gap-1">#${safe} <button onclick="tags.splice(${i},1);renderTags()" class="ml-1 hover:text-red-500">×</button></span>`;
+                return `<span class="editorial-tag">#${safe} <button onclick="tags.splice(${i},1);renderTags()" class="tag-remove" aria-label="Quitar etiqueta">×</button></span>`;
             }).join('');
+        }
+
+        function applyEditorTheme() {
+            const editorBody = tinymce.activeEditor && tinymce.activeEditor.getBody();
+            if (editorBody) editorBody.setAttribute('data-editor-theme', document.body.classList.contains('dark') ? 'dark' : 'light');
         }
 
         // Dark mode: persist in localStorage
         window.toggleDarkMode = () => {
             document.body.classList.toggle('dark');
             localStorage.setItem('editor-dark-mode', document.body.classList.contains('dark') ? '1' : '0');
+            applyEditorTheme();
         };
         // Restore dark mode on load
         (function () {
