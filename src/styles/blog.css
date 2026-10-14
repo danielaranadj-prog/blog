@@ -372,50 +372,59 @@ pre {
 
 /* 3. STATEMENT CARD "NO SOMOS GURÚS" (BLOQUE DE AUTORIDAD) */
 .statement-card-dark {
-  background: var(--dark-authority);
+  background: var(--dark-authority, #1C1F26);
   border-radius: 16px;
-  padding: 2rem 1.75rem;
+  padding: 1.35rem 1.25rem;
   color: #FFFFFF;
   display: flex;
   flex-direction: column;
   justify-content: space-between;
   position: relative;
-  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12);
-  min-height: 280px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+  height: 100%;
+  box-sizing: border-box;
 }
 
 .statement-icon-top {
-  font-size: 1.6rem;
-  color: var(--accent-terracotta);
-  margin-bottom: 1rem;
+  font-size: 1.5rem;
+  color: var(--accent-terracotta, #D95D24);
+  margin-bottom: 0.6rem;
+  line-height: 1;
 }
 
 .statement-quote {
-  margin: 0;
-  font-family: var(--font-sans);
-  line-height: 1.5;
+  margin: 0 !important;
+  padding: 0 !important;
+  background: transparent !important;
+  border-left: none !important;
+  font-style: normal !important;
 }
 
 .statement-highlight {
-  color: var(--accent-terracotta);
+  color: var(--accent-terracotta, #D95D24);
   font-weight: 800;
-  font-size: 1.1rem;
+  font-size: 0.85rem;
+  font-family: var(--font-sans);
   display: block;
-  margin-bottom: 0.6rem;
+  margin-bottom: 0.4rem;
   text-transform: uppercase;
   letter-spacing: 0.5px;
 }
 
 .statement-body {
-  color: #E4E4E7;
-  font-size: 0.95rem;
-  font-weight: 500;
+  color: #FFFFFF;
+  font-family: var(--font-serif);
+  font-size: 1.05rem;
+  font-weight: 700;
+  line-height: 1.32;
+  display: block;
 }
 
 .statement-finger-bottom {
   align-self: flex-end;
-  font-size: 1.6rem;
-  margin-top: 1rem;
+  font-size: 1.5rem;
+  margin-top: 0.75rem;
+  line-height: 1;
   opacity: 0.9;
 }
 

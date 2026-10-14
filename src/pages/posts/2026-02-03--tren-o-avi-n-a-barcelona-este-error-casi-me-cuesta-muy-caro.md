@@ -7,6 +7,7 @@ heroImage: "https://res.cloudinary.com/dbwdmu9k2/image/upload/v1769926152/DSCF37
 layout: "../../layouts/BlogPost.astro"
 tags: ["Tren a Barcelona", "Avión a Barcelona", "Tren Alta Velocidad", "OUIGO", "RENFE", "AVE", "AVLO", "Trenes baratos", "Madrid a Barcelona"]
 flight_destination: "Barcelona"
+featured: true
 quickSummary:
   budget: "9€ - 18€ (OUIGO / Iryo)"
   bestSeason: "Reserva con 3-4 meses de antelación"
