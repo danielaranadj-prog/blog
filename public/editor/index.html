@@ -1159,9 +1159,17 @@
 
         window.openLoadModal = async () => {
             document.getElementById('load-post-modal').classList.add('open');
-            const files = await ghFetch(`/contents/${githubConfig.postsPath}`);
-            allPosts = files.filter(f => f.name.endsWith('.md')).map(f => ({ name: f.name, sha: f.sha }));
-            renderPostsList(allPosts);
+            const list = document.getElementById('posts-list');
+            list.textContent = 'Cargando publicaciones…';
+            try {
+                if (!githubConfig) throw new Error('Espera a que termine de cargar la sesión.');
+                const files = await ghFetch(`/contents/${githubConfig.postsPath}`);
+                if (!Array.isArray(files)) throw new Error('La carpeta de publicaciones no está disponible.');
+                allPosts = files.filter(f => f.name.endsWith('.md')).map(f => ({ name: f.name, sha: f.sha }));
+                renderPostsList(allPosts);
+            } catch (error) {
+                list.textContent = `No se pudieron cargar las publicaciones: ${error.message}`;
+            }
         };
 
         window.loadPost = async (name) => {
