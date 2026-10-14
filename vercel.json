@@ -82,5 +82,18 @@
         }
       ]
     }
+  ],
+  "redirects": [
+    {
+      "source": "/:path*",
+      "has": [
+        {
+          "type": "host",
+          "value": "blog.instantetrips.com"
+        }
+      ],
+      "destination": "https://www.instantetrips.com/:path*",
+      "permanent": true
+    }
   ]
 }
