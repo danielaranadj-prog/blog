@@ -13,8 +13,8 @@
   --text-prose: #27272A;            /* Lectura confortable */
 
   --dark-authority: #1C1F26;        /* Bloques de autoridad ("No somos gurús" / TOC) */
-  --accent-terracotta: #D95D24;     /* Naranja Terracota vibrante (Máximo CTR) */
-  --accent-terracotta-hover: #B84A18;
+  --accent-terracotta: #F4510B;     /* Naranja Terracota vibrante (Máximo CTR) */
+  --accent-terracotta-hover: #CF3D00;
   --accent-gold: #D95D24;
 
   --font-serif: 'Playfair Display', Georgia, 'Times New Roman', serif;
@@ -42,9 +42,15 @@ body {
 
 /* ARTÍCULOS & TIPOGRAFÍA EDITORIAL */
 article {
-  max-width: 68ch;
-  margin: 0 auto;
+  min-width: 0;
+  margin: 0;
 }
+
+*, *::before, *::after { box-sizing: border-box; }
+[hidden] { display: none !important; }
+a:focus-visible, button:focus-visible { outline: 3px solid var(--accent-terracotta); outline-offset: 4px; }
+.prose { overflow-wrap: anywhere; }
+.prose :is(h2, h3) { scroll-margin-top: 2rem; }
 
 h1, h2, h3, .serif-heading {
   font-family: var(--font-serif);
@@ -61,7 +67,7 @@ p {
   color: var(--text-prose);
 }
 
-article h2 {
+.prose h2 {
   font-size: 1.9rem;
   font-weight: 800;
   color: var(--text-main);
@@ -72,7 +78,7 @@ article h2 {
   padding-bottom: 0.6rem;
 }
 
-article h3 {
+.prose h3 {
   font-size: 1.4rem;
   font-weight: 700;
   color: var(--text-main);
@@ -90,7 +96,7 @@ blockquote {
   border-radius: 0 10px 10px 0;
 }
 
-article a {
+.prose a {
   color: var(--accent-terracotta);
   text-decoration: underline;
   text-decoration-thickness: 1.5px;
@@ -99,11 +105,11 @@ article a {
   transition: color 0.15s ease;
 }
 
-article a:hover {
+.prose a:hover {
   color: var(--accent-terracotta-hover);
 }
 
-article img {
+.prose img {
   max-width: 100%;
   height: auto;
   display: block;
@@ -549,3 +555,26 @@ pre {
   background: var(--accent-terracotta);
   box-shadow: 0 0 8px rgba(217, 93, 36, 0.6);
 }
+/* Editorial statement follows the same proportions as the article cards. */
+.statement-card-dark { border-radius: 12px; padding: 1.35rem 1.5rem; background: #202228; min-height: 310px; }
+.statement-highlight { font: 800 clamp(1.15rem, 1.6vw, 1.55rem)/1.15 var(--font-serif); letter-spacing: -.025em; }
+.statement-body { font-size: clamp(1.2rem, 1.8vw, 1.65rem); line-height: 1.18; }
+.statement-icon-top, .statement-finger-bottom { font-size: 1.8rem; }
+@media (prefers-reduced-motion: reduce) {
+  html { scroll-behavior: auto; }
+  *, *::before, *::after { transition: none !important; }
+}
+
+/* Article sidebar on a white reading surface, as in the supplied reference. */
+.toc-card-widget { background: transparent; padding: 0 0 1rem; border-radius: 0; box-shadow: none; }
+.toc-widget-title { color: var(--text-main); font-size: 1.6rem; }
+.toc-timeline-list { gap: 1rem; }
+.toc-timeline-list::before { content: ''; position: absolute; top: 8px; bottom: 8px; left: 5px; width: 1px; background: #b6b4b1; }
+.toc-timeline-item { position: relative; align-items: flex-start; color: var(--text-main); line-height: 1.5; font-size: .82rem; }
+.toc-dot { margin-top: 5px; width: 11px; height: 11px; background: white; border: 1px solid #999; z-index: 1; }
+.toc-timeline-item.active { color: var(--text-main); background: transparent; padding: 0; margin: 0; }
+.toc-timeline-item.active a { background: #faf7f2; border-radius: 12px; }
+.toc-timeline-item a:hover { color: var(--accent-terracotta); }
+.insurance-card-widget { border-color: #78c6c0; border-radius: 12px; }
+
+.prose .article-hero-img { width: 100%; height: 100%; margin: 0; border: 0; border-radius: 0; box-shadow: none; object-fit: cover; }

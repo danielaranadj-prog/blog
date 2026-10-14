@@ -92,13 +92,8 @@ const relatedPosts = scoredPosts.slice(0, 3).map((item) => item.post);
 /* -----------------------------
    HEADINGS PARA ÍNDICE DEL VIAJE
 ----------------------------- */
-const tocHeadings = (headings && headings.length > 0)
-  ? headings.filter((h: any) => h.depth === 2 || h.depth === 3).slice(0, 6)
-  : [
-      { text: "1. Cómo llegar y ahorrar en transporte", slug: "1-la-mejor-alternativa-al-metro-tren-de-alta-velocidad-o-aerobus" },
-      { text: "2. Visitas sin agobios ni reventas", slug: "2-visitas-sin-agobios-ni-reventas-callejeras" },
-      { text: "3. La libertad de cambiar de rumbo", slug: "3-la-libertad-de-cambiar-de-rumbo-plan-b" },
-    ];
+const articleHeadings = headings;
+const tocHeadings = articleHeadings.filter((h: any) => h.depth === 2 || h.depth === 3);
 
 /* -----------------------------
    DATOS ESTRUCTURADOS JSON-LD
@@ -439,6 +434,28 @@ const schemaData = {
         z-index: 10;
       }
     }
+
+    .post-page-shell { max-width: 1280px; background: white; padding: 2rem 2.5rem 4rem; }
+    .article-two-cols-layout { margin-top: 2rem; }
+    .article-main-surface { min-width: 0; background: transparent; border: 0; border-radius: 0; box-shadow: none; overflow: visible; }
+    .article-inner-padding { padding: 0; }
+    .article-hero-wrap { float: left; width: 48%; height: auto; aspect-ratio: 1.45; margin: 0 1.5rem 1rem 0; border-radius: 10px; }
+    .prose::after { content: ''; display: block; clear: both; }
+    .article-meta-bar { margin-bottom: 0; padding-bottom: 0; border-bottom: 0; }
+    .article-sticky-sidebar { border-left: 1px solid #e5e2dc; padding-left: 1.5rem; }
+    @media (min-width: 1024px) {
+      .article-two-cols-layout { grid-template-columns: minmax(0, 1fr) 290px; gap: 2.5rem; }
+      .article-sticky-sidebar { top: 2rem; }
+    }
+    @media (max-width: 699px) {
+      .post-page-shell { padding: 1.5rem 1rem 3rem; }
+      .article-hero-wrap { float: none; width: 100%; margin: 0 0 1.5rem; aspect-ratio: 16 / 9; }
+      .article-headline-serif { font-size: 1.9rem; }
+      .signature-card-box { padding: 1rem; align-items: flex-start; }
+      .signature-avatar { width: 48px; height: 48px; }
+      .article-sticky-sidebar { border-left: 0; padding-left: 0; }
+      .article-breadcrumb { flex-wrap: wrap; }
+    }
   </style>
 </head>
 
@@ -446,25 +463,7 @@ const schemaData = {
   <BlogHeader />
 
   <div class="post-page-shell">
-    <div class="article-two-cols-layout">
-
-      <!-- COLUMNA PRINCIPAL DE CONTENIDO (70%) -->
-      <main class="article-main-surface">
-        {finalImage && (
-          <div class="article-hero-wrap">
-            <img
-              src={finalImage}
-              alt={post.alt}
-              class="article-hero-img"
-              loading="eager"
-              fetchpriority="high"
-              width="1200"
-              height="630"
-            />
-          </div>
-        )}
-
-        <article class="article-inner-padding">
+    <header class="article-heading">
           <nav class="article-breadcrumb" aria-label="Ruta de navegación">
             <a href="/" class="breadcrumb-link">Inicio</a>
             <span>/</span>
@@ -490,6 +489,7 @@ const schemaData = {
             <span>4 min de lectura</span>
           </div>
 
+    </header>
           <!-- TL;DR TICKET COMPONENT -->
           <QuickSummaryBox 
             budget={post.quickSummary?.budget || "7€ - 15€"}
@@ -499,8 +499,29 @@ const schemaData = {
             ctaLink={post.quickSummary?.ctaLink || "https://www.omio.com"}
           />
 
+
+    <div class="article-two-cols-layout">
+
+      <!-- COLUMNA PRINCIPAL DE CONTENIDO (70%) -->
+      <main class="article-main-surface">
+        <article class="article-inner-padding">
           <!-- CUERPO DEL POST -->
           <div class="prose">
+        {finalImage && (
+          <div class="article-hero-wrap">
+            <img
+              src={finalImage}
+              alt={post.alt}
+              class="article-hero-img"
+              loading="eager"
+              fetchpriority="high"
+              width="1200"
+              height="630"
+            />
+          </div>
+        )}
+
+
             <slot />
           </div>
 
@@ -559,17 +580,17 @@ const schemaData = {
       <aside class="article-sticky-sidebar" aria-label="Barra lateral">
         
         <!-- WIDGET A: ÍNDICE DEL VIAJE (TIMELINE VERTICAL CON ACENTO ACTIVO NARANJA) -->
-        <div class="toc-card-widget">
+        {tocHeadings.length > 0 && <div class="toc-card-widget">
           <h4 class="toc-widget-title">Índice del viaje</h4>
           <ol class="toc-timeline-list" id="articleTocList">
             {tocHeadings.map((h: any, idx: number) => (
               <li class={`toc-timeline-item ${idx === 0 ? 'active' : ''}`}>
                 <span class="toc-dot"></span>
-                <a href={`#${h.slug}`}>{idx + 1}. {h.text}</a>
+                <a href={`#${h.slug}`}>{idx + 1}. {h.text.replace(/^\d+[.)]\s*/, '')}</a>
               </li>
             ))}
           </ol>
-        </div>
+        </div>}
 
         <!-- WIDGET B: TARJETA NATIVA DE DESCUENTO EN SEGURO DE VIAJE (MOCKUP 2) -->
         <div class="insurance-card-widget">
@@ -598,16 +619,16 @@ const schemaData = {
   <script is:inline>
     // Sincronización del TOC activo con el scroll
     document.addEventListener('DOMContentLoaded', () => {
-      const headings = document.querySelectorAll('.prose h2, .prose h3');
+      const headings = Array.from(document.querySelectorAll('.toc-timeline-item a')).map(link => document.getElementById(decodeURIComponent(link.hash.slice(1))));
       const tocItems = document.querySelectorAll('.toc-timeline-item');
       
       if (headings.length > 0 && tocItems.length > 0) {
-        window.addEventListener('scroll', () => {
+        const updateToc = () => {
           let currentIdx = 0;
           const scrollPos = window.scrollY + 180;
           
           headings.forEach((h, i) => {
-            if (h.offsetTop <= scrollPos) {
+            if (h && h.getBoundingClientRect().top + window.scrollY <= scrollPos) {
               currentIdx = i;
             }
           });
@@ -619,7 +640,9 @@ const schemaData = {
               item.classList.remove('active');
             }
           });
-        });
+        };
+        window.addEventListener('scroll', updateToc, { passive: true });
+        updateToc();
       }
     });
   </script>

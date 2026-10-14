@@ -24,7 +24,7 @@
           id="globalSearchInput" 
           placeholder="Buscar destinos..." 
           aria-label="Buscar destinos"
-          oninput="if(typeof window.searchPosts === 'function') { const s = document.getElementById('searchInput'); if(s) { s.value = this.value; window.searchPosts(); } }"
+          oninput="if(typeof window.searchPosts === 'function') window.searchPosts();"
           onkeydown="if(event.key === 'Escape') { this.value = ''; if(typeof window.resetFilters === 'function') window.resetFilters(); }"
         />
         <kbd class="kbd-shortcut">[ESC]</kbd>
@@ -34,9 +34,9 @@
     <!-- NAVIGATION & SOCIALS -->
     <div class="header-right-group">
       <nav class="header-nav-links" aria-label="Navegación principal">
-        <a href="/" class="nav-item">Destinos</a>
+        <a href="/destinos" class="nav-item">Destinos</a>
         <a href="/#explorar" class="nav-item">Guías</a>
-        <a href="/posts/barcelona-10-minutos-de-terror-y-lo-único-que-me-salvó" class="nav-item">Sobre nosotros</a>
+        <a href="/sobre-mi" class="nav-item">Sobre nosotros</a>
         <a href="/posts/madrid-traslados" class="nav-item">Contacto</a>
       </nav>
 
@@ -69,7 +69,7 @@
     background-color: var(--bg-page);
     border-bottom: 1px solid var(--card-border);
     padding: 1rem 0;
-    position: sticky;
+    position: relative;
     top: 0;
     z-index: 100;
     backdrop-filter: blur(8px);
@@ -77,9 +77,9 @@
   }
 
   .header-inner {
-    max-width: 1220px;
+    max-width: 1440px;
     margin: 0 auto;
-    padding: 0 1.5rem;
+    padding: 0 2rem;
     display: flex;
     align-items: center;
     justify-content: space-between;
@@ -103,7 +103,7 @@
 
   .brand-main {
     font-family: var(--font-serif);
-    font-size: 1.7rem;
+    font-size: 2.3rem;
     font-weight: 900;
     letter-spacing: -0.03em;
     line-height: 1;
@@ -236,5 +236,24 @@
   .social-icon-btn:hover {
     background-color: var(--accent-terracotta);
     transform: translateY(-2px);
+  }
+
+  @media (max-width: 1199px) {
+    .header-inner { flex-wrap: wrap; gap: 1rem; }
+    .header-right-group { margin-left: auto; }
+    .header-nav-links { display: flex; gap: 1rem; }
+    .header-social-icons { display: none; }
+    .brand-main { font-size: 1.9rem; }
+    .header-search-wrap { max-width: 260px; }
+  }
+  @media (max-width: 699px) {
+    .header-inner { padding: 0 1rem; gap: .85rem; }
+    .brand-main { font-size: 1.8rem; }
+    .header-search-wrap { display: block; max-width: none; flex: 0 0 100%; order: 3; }
+    .search-input-pill input { font-size: 1rem; min-height: 28px; }
+    .header-right-group { flex: 0 0 100%; order: 2; margin: 0; }
+    .header-nav-links { width: 100%; justify-content: space-between; gap: .5rem; }
+    .nav-item { font-size: .72rem; min-height: 32px; display: inline-flex; align-items: center; }
+    .kbd-shortcut { display: none; }
   }
 </style>

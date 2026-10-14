@@ -13,8 +13,8 @@ export async function getStaticPaths({ paginate }) {
     (a, b) => new Date(b.frontmatter.publishDate).valueOf() - new Date(a.frontmatter.publishDate).valueOf()
   );
   
-  // Post destacado: Prioriza el post con featured: true o el de tren a barcelona
-  const featuredPost = allPosts.find((p) => p.frontmatter.featured === true || p.url.includes('tren-o-avi-n-a-barcelona')) || allPosts[0];
+  // El artículo más reciente siempre ocupa la cabecera.
+  const featuredPost = allPosts[0];
 
   return paginate(allPosts, { 
     pageSize: 13,
@@ -35,7 +35,12 @@ const description = 'Guías de viaje reales, sin filtros y directo al grano: tre
 const permalink = Astro.url.href;
 
 const featuredHeroImage = featuredPost.frontmatter.heroImage || featuredPost.frontmatter.heroImageLink || 'https://res.cloudinary.com/dbwdmu9k2/image/upload/v1769926152/DSCF3740_ava5eg.jpg';
-const featuredTag = 'ESPAÑA';
+const featuredData = `${featuredPost.frontmatter.title} ${(featuredPost.frontmatter.tags || []).join(' ')}`;
+const featuredTag = /vallarta|oaxaca|méxico/i.test(featuredData) ? 'MÉXICO'
+  : /argentina|patagonia|ushuaia|mendoza|buenos aires/i.test(featuredData) ? 'ARGENTINA'
+  : /españa|madrid|barcelona|segovia/i.test(featuredData) ? 'ESPAÑA'
+  : (featuredPost.frontmatter.tags?.[0] || 'VIAJES');
+const featuredSearch = `${featuredData} ${featuredPost.frontmatter.description || ''} ${featuredPost.url}`;
 ---
 
 <html lang="es">
@@ -43,311 +48,51 @@ const featuredTag = 'ESPAÑA';
         <BaseHead {title} {description} {permalink} image={featuredHeroImage} />
 
         <style>
-            .home-shell {
-                max-width: 1220px;
-                margin: 0 auto;
-                padding: 1.25rem 1.5rem 4rem;
-                box-sizing: border-box;
+            .home-shell { max-width: 1440px; margin: auto; padding: 0 2rem 4rem; box-sizing: border-box; }
+            .subbar-container { display: flex; align-items: center; gap: 2rem; padding: 1.35rem 0; }
+            .subbar-tagline { font-size: .9rem; line-height: 1.5; margin: 0; color: var(--text-main); flex-shrink: 0; }
+            .categories-pills-row { display: flex; gap: .5rem; min-width: 0; overflow-x: auto; scrollbar-width: none; padding: 3px 0; }
+            .categories-pills-row::-webkit-scrollbar { display: none; }
+            .cat-pill { border: 0; border-radius: 50px; padding: .65rem 1.1rem; background: #e7e5e1; color: var(--text-main); font: 500 .85rem var(--font-sans); white-space: nowrap; cursor: pointer; min-height: 44px; }
+            .cat-pill:hover { background: #d9d6d1; }
+            .cat-pill.active { background: var(--dark-authority); color: white; }
+            .hero-card-section { margin-bottom: 1rem; }
+            .hero-card-box { display: grid; grid-template-columns: 1fr 1fr; width: 100%; max-width: none; margin: 0; border: 1.5px solid #363638; border-radius: 12px; overflow: hidden; background: var(--bg-page); min-height: 345px; }
+            .hero-media-wrap { position: relative; min-width: 0; min-height: 100%; background: #e6e1d6; }
+            .hero-media-link { display: block; position: absolute; inset: 0; }
+            .hero-img-element { display: block; width: 100%; height: 100%; object-fit: cover; border: 0; border-radius: 0; margin: 0; }
+            .hero-content-wrap { display: flex; flex-direction: column; justify-content: center; align-items: flex-start; gap: 1rem; padding: 1.65rem 2rem; min-width: 0; }
+            .hero-badge-pill { display: inline-flex; border-radius: 50px; padding: .45rem .85rem; background: var(--accent-terracotta); color: white; font: 700 .75rem var(--font-sans); }
+            .hero-title-serif { font: 900 clamp(1.8rem, 3vw, 3rem)/1.08 var(--font-serif); letter-spacing: -.035em; margin: 0; }
+            .hero-title-serif a { color: inherit; text-decoration: none; }
+            .hero-description-text { font-size: .95rem; line-height: 1.5; margin: 0; color: var(--text-prose); }
+            .hero-terracotta-btn { display: inline-flex; align-items: center; gap: .65rem; border-radius: 50px; padding: .8rem 1.1rem; background: var(--accent-terracotta); color: white; text-decoration: none; font: 700 .9rem var(--font-sans); }
+            .hero-terracotta-btn:hover { background: var(--accent-terracotta-hover); }
+            .posts-grid-4cols { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 1rem; align-items: stretch; }
+            .post-grid-item-wrap { display: flex; flex-direction: column; min-width: 0; }
+            #no-results { grid-column: 1 / -1; text-align: center; padding: 3rem 1rem; border: 1px dashed var(--card-border); border-radius: 12px; }
+            .no-results-icon { font-size: 2rem; }
+            .no-results-title { font-size: 1.4rem; }
+            .reset-filter-btn { border: 0; border-radius: 50px; padding: .85rem 1.25rem; margin-top: 1rem; background: var(--accent-terracotta); color: white; cursor: pointer; font: 700 .9rem var(--font-sans); }
+            .pagination-container { display: flex; align-items: center; justify-content: center; gap: 1rem; margin-top: 3rem; padding-top: 1.5rem; border-top: 1px solid var(--card-border); }
+            .pagination-btn { padding: .75rem 1rem; border: 1px solid var(--card-border); border-radius: 50px; color: var(--text-main); text-decoration: none; font-size: .85rem; }
+            .pagination-count { font-size: .8rem; }
+            @media (max-width: 1199px) {
+                .subbar-container { flex-direction: column; align-items: stretch; gap: .65rem; }
+                .hero-content-wrap { padding: 1.5rem; }
+                .posts-grid-4cols { grid-template-columns: repeat(2, minmax(0, 1fr)); }
             }
-
-            /* --- BARRA SUB-HEADER CON TAGLINE Y PÍLDORAS --- */
-            .subbar-container {
-                display: flex;
-                flex-direction: column;
-                gap: 1rem;
-                margin: 1rem 0 1.5rem;
-            }
-
-            @media (min-width: 860px) {
-                .subbar-container {
-                    flex-direction: row;
-                    align-items: center;
-                    justify-content: space-between;
-                }
-            }
-
-            .subbar-tagline {
-                font-family: var(--font-sans);
-                font-size: 0.95rem;
-                color: #52525B;
-                font-weight: 500;
-                margin: 0;
-            }
-
-            .categories-pills-row {
-                display: flex;
-                align-items: center;
-                gap: 0.5rem;
-                overflow-x: auto;
-                -webkit-overflow-scrolling: touch;
-                scrollbar-width: none;
-                padding-bottom: 2px;
-            }
-
-            .categories-pills-row::-webkit-scrollbar {
-                display: none;
-            }
-
-            .cat-pill {
-                font-family: var(--font-sans);
-                font-size: 0.8rem;
-                font-weight: 700;
-                padding: 0.42rem 1rem;
-                border-radius: 50px;
-                border: 1px solid #E6E1D6;
-                background: #F0ECE4;
-                color: #18181B;
-                cursor: pointer;
-                transition: all 0.15s ease;
-                white-space: nowrap;
-            }
-
-            .cat-pill:hover {
-                background: #E5DFD5;
-            }
-
-            .cat-pill.active {
-                background: #18181B;
-                color: #FFFFFF;
-                border-color: #18181B;
-                box-shadow: 0 2px 8px rgba(0, 0, 0, 0.12);
-            }
-
-            /* --- HERO CARD UNIFICADA (1.22fr 1fr) --- */
-            .hero-card-section {
-                margin-bottom: 1.75rem;
-            }
-
-            .hero-card-box {
-                background: var(--card-bg, #FFFFFF);
-                border: 1px solid var(--card-border, #E6E1D6);
-                border-radius: 20px;
-                box-shadow: 0 4px 20px rgba(0, 0, 0, 0.04);
-                overflow: hidden;
-                display: grid;
-                grid-template-columns: 1fr;
-            }
-
-            @media (min-width: 960px) {
-                .hero-card-box {
-                    grid-template-columns: 1.22fr 1fr;
-                    height: 395px;
-                }
-            }
-
-            .hero-media-wrap {
-                width: 100%;
-                height: 100%;
-                overflow: hidden;
-                position: relative;
-                background: #EAE6DF;
-            }
-
-            @media (max-width: 959px) {
-                .hero-media-wrap {
-                    height: 250px;
-                }
-            }
-
-            .hero-media-link {
-                display: block;
-                width: 100%;
-                height: 100%;
-            }
-
-            .hero-img-element {
-                width: 100%;
-                height: 100%;
-                object-fit: cover;
-                object-position: center;
-                display: block;
-                transition: transform 0.4s ease;
-            }
-
-            .hero-card-box:hover .hero-img-element {
-                transform: scale(1.025);
-            }
-
-            .hero-content-wrap {
-                padding: 2.25rem 2.5rem;
-                display: flex;
-                flex-direction: column;
-                justify-content: center;
-                align-items: flex-start;
-                gap: 0.85rem;
-                box-sizing: border-box;
-            }
-
-            @media (max-width: 600px) {
-                .hero-content-wrap {
-                    padding: 1.5rem;
-                }
-            }
-
-            .hero-badge-pill {
-                display: inline-flex;
-                align-items: center;
-                background: var(--accent-terracotta, #D95D24);
-                color: #FFFFFF;
-                font-family: var(--font-sans);
-                font-size: 0.72rem;
-                font-weight: 800;
-                letter-spacing: 0.6px;
-                padding: 0.3rem 0.85rem;
-                border-radius: 50px;
-                text-transform: uppercase;
-            }
-
-            .hero-title-serif {
-                font-family: var(--font-serif);
-                font-size: clamp(1.65rem, 2.3vw, 2.35rem);
-                font-weight: 900;
-                line-height: 1.15;
-                color: var(--text-main, #18181B);
-                margin: 0;
-            }
-
-            .hero-title-serif a {
-                color: inherit;
-                text-decoration: none;
-                transition: color 0.15s ease;
-            }
-
-            .hero-title-serif a:hover {
-                color: var(--accent-terracotta, #D95D24);
-            }
-
-            .hero-description-text {
-                font-family: var(--font-sans);
-                font-size: 0.95rem;
-                line-height: 1.5;
-                color: var(--text-muted, #52525B);
-                margin: 0;
-                display: -webkit-box;
-                -webkit-line-clamp: 2;
-                -webkit-box-orient: vertical;
-                overflow: hidden;
-            }
-
-            .hero-terracotta-btn {
-                display: inline-flex;
-                align-items: center;
-                gap: 8px;
-                background: var(--accent-terracotta, #D95D24);
-                color: #FFFFFF !important;
-                text-decoration: none !important;
-                font-family: var(--font-sans);
-                font-weight: 700;
-                font-size: 0.92rem;
-                padding: 0.75rem 1.6rem;
-                border-radius: 50px;
-                transition: all 0.2s ease;
-                box-shadow: 0 4px 14px rgba(217, 93, 36, 0.25);
-            }
-
-            .hero-terracotta-btn:hover {
-                background: var(--accent-terracotta-hover, #B84A18);
-                transform: translateY(-2px);
-                box-shadow: 0 6px 18px rgba(217, 93, 36, 0.35);
-            }
-
-            /* --- GRID INFERIOR DE 4 COLUMNAS (PROPOSAL) --- */
-            .posts-grid-4cols {
-                display: grid;
-                grid-template-columns: 1fr;
-                gap: 1.25rem;
-            }
-
-            @media (min-width: 600px) {
-                .posts-grid-4cols {
-                    grid-template-columns: repeat(2, 1fr);
-                }
-            }
-
-            @media (min-width: 1040px) {
-                .posts-grid-4cols {
-                    grid-template-columns: repeat(4, 1fr);
-                    gap: 1.25rem;
-                }
-            }
-
-            .post-grid-item-wrap {
-                display: flex;
-                flex-direction: column;
-                height: 100%;
-            }
-
-            /* EMPTY STATE BLINDADO */
-            #no-results {
-                grid-column: 1 / -1;
-                text-align: center;
-                padding: 4rem 1.5rem;
-                background: #FFFFFF;
-                border: 1px dashed var(--card-border);
-                border-radius: 16px;
-                color: var(--text-muted);
-            }
-
-            .no-results-icon {
-                font-size: 2.5rem;
-                display: block;
-                margin-bottom: 0.8rem;
-            }
-
-            .no-results-title {
-                font-family: var(--font-serif);
-                font-size: 1.3rem;
-                font-weight: 800;
-                color: var(--text-main);
-                margin: 0 0 0.5rem;
-            }
-
-            .reset-filter-btn {
-                background: var(--accent-terracotta);
-                color: #FFFFFF;
-                border: none;
-                padding: 0.65rem 1.4rem;
-                border-radius: 50px;
-                font-weight: 700;
-                font-family: var(--font-sans);
-                cursor: pointer;
-                margin-top: 1rem;
-            }
-
-            /* PAGINACIÓN */
-            .pagination-container {
-                display: flex;
-                justify-content: center;
-                align-items: center;
-                gap: 1.5rem;
-                margin-top: 3.5rem;
-                padding-top: 2rem;
-                border-top: 1px solid var(--card-border);
-            }
-
-            .pagination-btn {
-                text-decoration: none;
-                padding: 0.7rem 1.5rem;
-                border-radius: 50px;
-                background: #FFFFFF;
-                border: 1px solid var(--card-border);
-                color: var(--text-main);
-                font-family: var(--font-sans);
-                font-weight: 700;
-                font-size: 0.88rem;
-                transition: all 0.2s ease;
-            }
-
-            .pagination-btn:hover {
-                background: var(--text-main);
-                color: #FFFFFF;
-            }
-
-            .pagination-count {
-                font-family: var(--font-sans);
-                font-size: 0.9rem;
-                font-weight: 700;
-                color: var(--text-muted);
+            @media (max-width: 699px) {
+                .home-shell { padding: 0 1rem 2.5rem; }
+                .subbar-tagline { font-size: .8rem; flex-shrink: 1; }
+                .cat-pill { font-size: .8rem; padding: .6rem 1rem; }
+                .hero-card-box { grid-template-columns: minmax(0, 1fr); }
+                .hero-media-wrap { aspect-ratio: 16 / 9; min-height: 0; }
+                .hero-content-wrap { padding: 1.25rem; gap: .85rem; }
+                .hero-title-serif { font-size: clamp(1.65rem, 7vw, 2.4rem); }
+                .hero-description-text { font-size: .87rem; }
+                .posts-grid-4cols { grid-template-columns: minmax(0, 1fr); }
+                .pagination-container { gap: .5rem; flex-wrap: wrap; }
             }
         </style>
     </head>
@@ -362,18 +107,18 @@ const featuredTag = 'ESPAÑA';
                 <p class="subbar-tagline">Guías de viaje reales, sin filtros y directo al grano</p>
                 
                 <div class="categories-pills-row">
-                    <button class="cat-pill active" data-category="all" onclick="filterPosts('all', this)">Todo</button>
-                    <button class="cat-pill" data-category="españa" onclick="filterPosts('españa', this)">España</button>
-                    <button class="cat-pill" data-category="argentina" onclick="filterPosts('argentina', this)">Argentina</button>
-                    <button class="cat-pill" data-category="transporte" onclick="filterPosts('transporte', this)">Trenes y Vuelos</button>
-                    <button class="cat-pill" data-category="futbol" onclick="filterPosts('futbol', this)">Fútbol</button>
-                    <button class="cat-pill" data-category="hacks" onclick="filterPosts('hacks', this)">Hacks</button>
+                    <button class="cat-pill active" aria-pressed="true" data-category="all" onclick="filterPosts('all', this)">Todo</button>
+                    <button class="cat-pill" aria-pressed="false" data-category="españa" onclick="filterPosts('españa', this)">España</button>
+                    <button class="cat-pill" aria-pressed="false" data-category="argentina" onclick="filterPosts('argentina', this)">Argentina</button>
+                    <button class="cat-pill" aria-pressed="false" data-category="transporte" onclick="filterPosts('transporte', this)">Trenes y Vuelos</button>
+                    <button class="cat-pill" aria-pressed="false" data-category="futbol" onclick="filterPosts('futbol', this)">Fútbol</button>
+                    <button class="cat-pill" aria-pressed="false" data-category="hacks" onclick="filterPosts('hacks', this)">Hacks</button>
                 </div>
             </section>
 
             <!-- HERO CARD (PÁGINA 1): ENCLOSED SINGLE CARD (1.22fr 1fr) -->
             {isFirstPage && featuredPost && (
-                <section class="hero-card-section" aria-label="Artículo destacado">
+                <section class="hero-card-section" data-search={featuredSearch} aria-label="Artículo más reciente">
                     <article class="hero-card-box">
                         <div class="hero-media-wrap">
                             <a href={featuredPost.url} class="hero-media-link" aria-label={`Leer artículo destacado: ${featuredPost.frontmatter.title}`}>
@@ -393,9 +138,9 @@ const featuredTag = 'ESPAÑA';
                         <div class="hero-content-wrap">
                             <span class="hero-badge-pill">RECIENTE • {featuredTag}</span>
                             
-                            <h2 class="hero-title-serif">
+                            <h1 class="hero-title-serif">
                                 <a href={featuredPost.url}>{featuredPost.frontmatter.title}</a>
-                            </h2>
+                            </h1>
 
                             <p class="hero-description-text">{featuredPost.frontmatter.description}</p>
 
@@ -411,13 +156,20 @@ const featuredTag = 'ESPAÑA';
             <!-- GRID INFERIOR DE 4 COLUMNAS (PROPOSAL) -->
             <main class="posts-grid-4cols" id="postsGrid" aria-label="Listado de guías y crónicas">
                 
+                {gridPosts.map((p, index) => {
+                    const tagsStr = (p.frontmatter.tags || []).join(' ').toLowerCase();
+                    const searchData = `${p.frontmatter.title} ${p.frontmatter.description} ${tagsStr} ${p.url}`.toLowerCase();
+                    return (<>
+                        <div class="post-grid-item-wrap" data-search={searchData}>
+                            <BlogPostPreview post={p} />
+                        </div>
                 <!-- TARJETA EDITORIAL DE AUTORIDAD ("NO SOMOS GURÚS") -->
-                {isFirstPage && (
-                    <div class="post-grid-item-wrap" data-search="no somos gurus sobre nosotros honestidad tips">
+                {isFirstPage && index === 0 && (
+                    <div class="post-grid-item-wrap statement-grid-item" data-editorial="true">
                         <div class="statement-card-dark">
                             <div class="statement-icon-top" aria-hidden="true">✌️</div>
                             <blockquote class="statement-quote">
-                                <span class="statement-highlight">"NO SOMOS GURÚS:</span>
+                                <span class="statement-highlight">NO SOMOS GURÚS:</span>
                                 <span class="statement-body">
                                     Solo te contamos lo que realmente pasa, sin filtros, sin patrocinios. Si es una mierda, te lo diremos.
                                 </span>
@@ -427,14 +179,8 @@ const featuredTag = 'ESPAÑA';
                     </div>
                 )}
 
-                {gridPosts.map((p) => {
-                    const tagsStr = (p.frontmatter.tags || []).join(' ').toLowerCase();
-                    const searchData = `${p.frontmatter.title} ${p.frontmatter.description} ${tagsStr} ${p.url}`.toLowerCase();
-                    return (
-                        <div class="post-grid-item-wrap" data-search={searchData}>
-                            <BlogPostPreview post={p} />
-                        </div>
-                    );
+                    </>);
+
                 })}
 
                 <!-- EMPTY STATE BLINDADO -->
@@ -459,31 +205,35 @@ const featuredTag = 'ESPAÑA';
 
         <script is:inline>
             let currentFilter = 'all';
+            const normalize = value => value.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '');
 
             window.searchPosts = function() {
                 const searchInput = document.getElementById('globalSearchInput');
                 const query = searchInput ? searchInput.value.toLowerCase().trim() : '';
-                const cards = document.querySelectorAll('.post-grid-item-wrap');
+                const cards = document.querySelectorAll('[data-search]');
                 const noResults = document.getElementById('no-results');
                 let visibleCount = 0;
 
                 cards.forEach(card => {
-                    const data = card.getAttribute('data-search') || '';
-                    const matchesQuery = query === '' || data.includes(query);
+                    const data = normalize(card.getAttribute('data-search') || '');
+                    const matchesQuery = query === '' || normalize(data).includes(normalize(query));
                     const matchesCategory = currentFilter === 'all' || 
-                        (currentFilter === 'españa' && (data.includes('españa') || data.includes('barcelona') || data.includes('madrid') || data.includes('segovia'))) ||
+                        (currentFilter === 'españa' && (data.includes('espana') || data.includes('barcelona') || data.includes('madrid') || data.includes('segovia'))) ||
                         (currentFilter === 'argentina' && (data.includes('argentina') || data.includes('patagonia') || data.includes('chalten') || data.includes('pampa') || data.includes('ushuaia') || data.includes('buenos aires'))) ||
                         (currentFilter === 'transporte' && (data.includes('tren') || data.includes('vuelo') || data.includes('metro') || data.includes('transporte') || data.includes('autobus') || data.includes('avion'))) ||
                         (currentFilter === 'futbol' && (data.includes('futbol') || data.includes('bernabeu') || data.includes('estadio') || data.includes('real madrid'))) ||
                         (currentFilter === 'hacks' && (data.includes('hack') || data.includes('mochila') || data.includes('maleta') || data.includes('vpn') || data.includes('gratis') || data.includes('consejos')));
 
                     if (matchesQuery && matchesCategory) {
-                        card.style.display = 'flex';
+                        card.hidden = false;
                         visibleCount++;
                     } else {
-                        card.style.display = 'none';
+                        card.hidden = true;
                     }
                 });
+
+                const editorial = document.querySelector('[data-editorial]');
+                if (editorial) editorial.hidden = query !== '' || currentFilter !== 'all';
 
                 if (noResults) {
                     if (visibleCount === 0) {
@@ -500,6 +250,7 @@ const featuredTag = 'ESPAÑA';
                 currentFilter = category;
                 document.querySelectorAll('.cat-pill').forEach(btn => btn.classList.remove('active'));
                 if (btnElement) btnElement.classList.add('active');
+                document.querySelectorAll('.cat-pill').forEach(btn => btn.setAttribute('aria-pressed', String(btn === btnElement)));
                 window.searchPosts();
             };
 

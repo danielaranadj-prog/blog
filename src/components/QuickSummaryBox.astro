@@ -71,9 +71,9 @@ const {
 <style>
   .tldr-ticket-card {
     margin: 2.5rem 0;
-    background: #FFFFFF;
+    background: #faf7f2;
     border: 1px solid var(--card-border, #E6E1D6);
-    border-radius: 14px;
+    border-radius: 0;
     box-shadow: var(--card-shadow, 0 4px 20px rgba(0, 0, 0, 0.04));
     display: flex;
     flex-direction: column;
@@ -250,4 +250,11 @@ const {
     box-shadow: 0 6px 18px rgba(217, 93, 36, 0.35);
     transform: translateY(-1px);
   }
+
+  .ticket-cta-button { box-sizing: border-box; }
+  .ticket-left-body, .ticket-info { min-width: 0; }
+  .ticket-val { overflow-wrap: anywhere; }
+  .ticket-right-cta { background: transparent; }
+  @media (min-width: 820px) { .ticket-right-cta { width: 30%; min-width: 0; } }
+  @media (max-width: 579px) { .ticket-left-body, .ticket-right-cta { padding: 1.25rem; } }
 </style>
