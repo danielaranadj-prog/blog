@@ -65,6 +65,7 @@ function githubMock(){
     if(path.startsWith('/contents/'))return state.file?response(state.file):response({},404);
     if(path.startsWith('/git/ref/heads/'))return response({object:{sha:'head'}});
     if(path==='/git/commits/head')return response({tree:{sha:'tree'}});
+    if(path==='/git/blobs')return response({sha:'image-blob'});
     if(path==='/git/trees'){state.tree=JSON.parse(opts.body);return response({sha:'newtree'});}
     if(path==='/git/commits')return response({sha:'newcommit'});
     if(path.startsWith('/git/refs/heads/')){
@@ -115,4 +116,15 @@ test('AI requires configured connection and explicit consent before transmitting
   await assert.rejects(generateEditorialText({db,user,input:{text:'notas privadas de un viaje',consent:true},fetcher:()=>{calls++;}}),{status:503});
   process.env.EDITOR_GEMINI_API_KEY='local-test-only';process.env.EDITOR_GEMINI_MODEL='test-model';
   try {await assert.rejects(generateEditorialText({db,user,input:{text:'notas privadas de un viaje',consent:false},fetcher:()=>{calls++;}}),{status:400});assert.equal(calls,0);}finally{delete process.env.EDITOR_GEMINI_API_KEY;delete process.env.EDITOR_GEMINI_MODEL;}
+});
+
+test('private photographs and the article are published together in one commit',async()=>{
+  const mock=githubMock(),{api,db}=setup(mock.fetcher);await db.doc('config/main').set({repoOwner:'o',repoName:'r',githubToken:'test-only',branch:'main'});
+  const m=await api.mediaSave(user,{name:'foto.jpg',base64:Buffer.from([255,216,255,1,2]).toString('base64')});
+  const p=await api.save(user,{...fixture,hero:'media:'+m.id,html:fixture.html+`<img data-media-id="${m.id}" src="blob:local" alt="Vista del viaje">`,mediaIds:[m.id]});
+  await api.publish(user,p.id,p.version);
+  assert.equal(mock.log.filter(x=>x.method==='PATCH').length,1);
+  assert.equal(mock.state.tree.tree.length,2);
+  const article=mock.state.tree.tree.find(x=>x.path.endsWith('.md')).content;
+  assert(article.includes(`/uploads/${m.id}.jpg`));assert(!article.includes('blob:local'));assert(!article.includes('heroImage: "media:'));
 });

@@ -168,13 +168,17 @@ function service({ db, admin, bucket, fetcher = fetch, now = () => Date.now() })
       if (post.hero.startsWith('media:')) ids.add(post.hero.slice(6));
       const replacements = new Map();
       const tree = [];
-      for (const mediaId of ids) {
-        const media = await mediaGet(user,mediaId);
-        const ext = media.mime === 'image/png' ? 'png' : media.mime === 'image/webp' ? 'webp' : 'jpg';
-        const target = `uploads/${mediaId}.${ext}`;
-        const blob = await gh('/git/blobs','POST',{ content:media.bytes.toString('base64'),encoding:'base64' });
-        tree.push({path:`public/${target}`, mode:'100644', type:'blob', sha:blob.sha});
-        replacements.set(mediaId,`/${target}`);
+      if(ids.size>30)fail('Usa hasta 30 fotografías por artículo.');
+      const mediaQueue=[...ids];
+      for(let offset=0;offset<mediaQueue.length;offset+=4) {
+        await Promise.all(mediaQueue.slice(offset,offset+4).map(async mediaId=>{
+          const media=await mediaGet(user,mediaId);
+          const ext=media.mime==='image/png'?'png':media.mime==='image/webp'?'webp':'jpg';
+          const target=`uploads/${mediaId}.${ext}`;
+          const blob=await gh('/git/blobs','POST',{content:media.bytes.toString('base64'),encoding:'base64'});
+          tree.push({path:`public/${target}`,mode:'100644',type:'blob',sha:blob.sha});
+          replacements.set(mediaId,`/${target}`);
+        }));
       }
       let body = cleanHtml(post.html);
       body = body.replace(/<img\b[^>]*>/g, tag => {
