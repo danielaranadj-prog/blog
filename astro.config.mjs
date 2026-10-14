@@ -4,7 +4,7 @@ import { remarkVideo } from './src/plugins/remark-video.mjs';
 
 export default defineConfig({
   // 1. Tu dominio está perfecto
-  site: 'https://blog.instantetrips.com',
+  site: 'https://www.instantetrips.com',
 
   // 2. Base comentada (Correcto para subdominio)
   // base: '/blog', 

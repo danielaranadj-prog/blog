@@ -39,3 +39,30 @@ All commands are run from the root of the project, from a terminal:
 ## Aknowledgement
 
 - [astro-netlify-cms-starter](https://github.com/delucis/astro-netlify-cms-starter)
+
+
+## Producción de Instante Trips
+
+- Sitio principal: https://www.instantetrips.com
+- Editor de artículos: https://www.instantetrips.com/editor
+- Herramientas de administración: https://www.instantetrips.com/admin
+- Repositorio productivo: `danielaranadj-prog/blog`, rama `main`.
+- Vercel: proyecto `blog-al95`, equipo `danielaranadj-progs-projects`.
+- Astro 1.9.2; publicaciones en `src/pages/posts/`.
+- Compilar con `ASTRO_TELEMETRY_DISABLED=1 npm run build`.
+
+El código activo de las herramientas está en `public/editor/` y `public/admin/`.
+Se importó del repositorio `danielaranadj-prog/danielaranadj-prog.github.io`,
+commit `16ab48b`. Ese repositorio queda como respaldo; sus cambios futuros no
+se publican en el nuevo sitio automáticamente. Modificar estas copias activas
+para actualizar las herramientas.
+
+Se mantienen Firebase Authentication y la configuración de publicación de
+Firestore (`config/main`): no se cambian usuarios, contraseñas ni tokens.
+Las herramientas siguen publicando mediante la API de GitHub. La política de
+recursos específica de ambas rutas está en `vercel.json`; la política del blog
+público se conserva.
+
+El dominio `instantetrips.com` redirige a `www.instantetrips.com`. El antiguo
+`blog.instantetrips.com` debe redirigir permanentemente al dominio principal
+conservando cada ruta. Los dominios se administran en Vercel y el DNS en Namecheap.
