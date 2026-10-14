@@ -1,0 +1,1426 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <base href="/editor/">
+    <meta name="robots" content="noindex, nofollow">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Publicaciones - Blog.Instantetrips</title>
+
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script
+        src="https://cdn.jsdelivr.net/npm/browser-image-compression@2.0.2/dist/browser-image-compression.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+
+    <script src="https://cdn.tiny.cloud/1/mzaiavt8ne1jnylgt9u8ns2j7xbaofg5gexdmktmbfa09jh3/tinymce/6/tinymce.min.js"
+        referrerpolicy="origin"></script>
+
+    <script src="https://unpkg.com/turndown/dist/turndown.js"></script>
+    <script src="https://unpkg.com/turndown-plugin-gfm/dist/turndown-plugin-gfm.js"></script>
+
+    <script type="module" src="https://unpkg.com/ionicons@7.1.0/dist/ionicons/ionicons.esm.js"></script>
+    <script nomodule src="https://unpkg.com/ionicons@7.1.0/dist/ionicons/ionicons.js"></script>
+
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    fontFamily: { sans: ['Inter', 'sans-serif'] },
+                    colors: { slate: { 850: '#1e293b' } }
+                }
+            }
+        }
+    </script>
+
+    <style>
+        body {
+            background-color: #f3f4f6;
+            color: #111;
+            font-family: 'Inter', sans-serif;
+            transition: background 0.3s, color 0.3s;
+        }
+
+        body.dark {
+            background-color: #0f172a;
+            color: #e2e8f0;
+        }
+
+        .logo-adaptive {
+            filter: invert(1);
+            transition: filter 0.3s;
+        }
+
+        .dark .logo-adaptive {
+            filter: invert(0);
+        }
+
+        .dark .tox-tinymce {
+            border-color: #334155 !important;
+        }
+
+        /* Glassmorphism */
+        .glass-card {
+            background: rgba(255, 255, 255, 0.85);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.4);
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.15), 0 0 0 1px rgba(255, 255, 255, 0.1);
+        }
+
+        .dark .glass-card {
+            background: rgba(15, 23, 42, 0.9);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+        }
+
+        /* Animated Gradient Background */
+        .gradient-bg {
+            background: linear-gradient(-45deg, #f3f4f6, #dbeafe, #fce7f3, #ffedd5, #f3f4f6);
+            background-size: 400% 400%;
+            animation: gradientShift 20s ease infinite;
+        }
+
+        .dark .gradient-bg {
+            background: linear-gradient(-45deg, #0f172a, #1e1b4b, #1e293b, #0f172a);
+            background-size: 400% 400%;
+        }
+
+        @keyframes gradientShift {
+
+            0%,
+            100% {
+                background-position: 0% 50%;
+            }
+
+            25% {
+                background-position: 50% 100%;
+            }
+
+            50% {
+                background-position: 100% 50%;
+            }
+
+            75% {
+                background-position: 50% 0%;
+            }
+        }
+
+        /* Premium Buttons */
+        .btn-primary {
+            background: linear-gradient(135deg, #171717 0%, #262626 100%);
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .btn-primary::before {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background: linear-gradient(135deg, rgba(255, 255, 255, 0.1) 0%, transparent 50%);
+            opacity: 0;
+            transition: opacity 0.3s;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+        }
+
+        .btn-primary:hover::before {
+            opacity: 1;
+        }
+
+        .btn-primary:active {
+            transform: translateY(0);
+        }
+
+        .dark .btn-primary {
+            background: linear-gradient(135deg, #f97316 0%, #ea580c 100%);
+        }
+
+        /* Accent Colors */
+        .accent-input {
+            transition: all 0.2s ease;
+            border: 1px solid transparent;
+        }
+
+        .accent-input:focus {
+            border-color: #f97316;
+            box-shadow: 0 0 0 3px rgba(249, 115, 22, 0.15);
+            outline: none;
+        }
+
+        .text-accent {
+            color: #f97316;
+        }
+
+        .bg-accent {
+            background-color: #f97316;
+        }
+
+        /* Modal Animations */
+        .modal-overlay {
+            position: fixed;
+            inset: 0;
+            background: rgba(0, 0, 0, 0.6);
+            backdrop-filter: blur(8px);
+            z-index: 50;
+            display: none;
+            place-items: center;
+        }
+
+        .modal-overlay.open {
+            display: grid;
+        }
+
+        .modal-content {
+            animation: modalSlideUp 0.35s cubic-bezier(0.34, 1.56, 0.64, 1);
+        }
+
+        @keyframes modalSlideUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px) scale(0.95);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0) scale(1);
+            }
+        }
+
+        /* Enhanced Header */
+        .header-enhanced {
+            background: linear-gradient(to right, rgba(255, 255, 255, 0.95), rgba(249, 250, 251, 0.95));
+            backdrop-filter: blur(10px);
+            border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+        }
+
+        .dark .header-enhanced {
+            background: linear-gradient(to right, rgba(15, 23, 42, 0.95), rgba(30, 41, 59, 0.95));
+            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+        }
+
+        /* Interactive Elements */
+        .btn-icon {
+            transition: all 0.2s ease;
+            border-radius: 10px;
+        }
+
+        .btn-icon:hover {
+            background: rgba(249, 115, 22, 0.1);
+            color: #f97316;
+            transform: scale(1.05);
+        }
+
+        /* Card Hover Effects */
+        .card-hover {
+            transition: all 0.3s ease;
+        }
+
+        .card-hover:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 20px 40px -15px rgba(0, 0, 0, 0.15);
+        }
+
+        /* Existing Styles */
+        .loader {
+            width: 20px;
+            height: 20px;
+            border: 2px solid #ccc;
+            border-top-color: #f97316;
+            border-radius: 50%;
+            animation: spin 0.8s linear infinite;
+        }
+
+        @keyframes spin {
+            to {
+                transform: rotate(360deg);
+            }
+        }
+
+        .dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            display: inline-block;
+            transition: all 0.3s;
+        }
+
+        .dot-green {
+            background: #22c55e;
+            box-shadow: 0 0 8px #22c55e;
+        }
+
+        .dot-yellow {
+            background: #eab308;
+            box-shadow: 0 0 8px #eab308;
+        }
+
+        .dot-red {
+            background: #ef4444;
+            box-shadow: 0 0 8px #ef4444;
+        }
+
+        .prose {
+            font-size: 0.95rem;
+            line-height: 1.7;
+            color: #333;
+            max-width: 65ch;
+            margin: 0 auto;
+        }
+
+        .dark .prose {
+            color: #e2e8f0;
+        }
+
+        .prose h1 {
+            font-size: 2.25em;
+            font-weight: 800;
+            margin-bottom: 0.5em;
+            line-height: 1.2;
+        }
+
+        .prose h2 {
+            font-size: 1.5em;
+            font-weight: 700;
+            margin-top: 1.5em;
+            margin-bottom: 0.5em;
+        }
+
+        .prose p {
+            margin-bottom: 1em;
+        }
+
+        .prose img {
+            border-radius: 8px;
+            margin: 1em 0;
+            max-width: 100%;
+            height: auto;
+        }
+
+        .prose iframe {
+            width: 100%;
+            aspect-ratio: 16/9;
+            border-radius: 8px;
+            margin: 1em 0;
+        }
+
+        /* Custom Scrollbar */
+        ::-webkit-scrollbar {
+            width: 6px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: transparent;
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: rgba(0, 0, 0, 0.15);
+            border-radius: 3px;
+        }
+
+        ::-webkit-scrollbar-thumb:hover {
+            background: rgba(0, 0, 0, 0.25);
+        }
+
+        .dark ::-webkit-scrollbar-thumb {
+            background: rgba(255, 255, 255, 0.1);
+        }
+
+        .dark ::-webkit-scrollbar-thumb:hover {
+            background: rgba(255, 255, 255, 0.2);
+        }
+
+        /* Premium Toast Notifications */
+        .toast-notification {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 14px 20px;
+            border-radius: 14px;
+            color: white;
+            font-size: 0.85rem;
+            font-weight: 600;
+            box-shadow: 0 12px 40px rgba(0, 0, 0, 0.25);
+            animation: toastSlideIn 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.15);
+        }
+
+        .toast-success {
+            background: linear-gradient(135deg, #059669, #10b981);
+        }
+
+        .toast-error {
+            background: linear-gradient(135deg, #dc2626, #ef4444);
+        }
+
+        .toast-info {
+            background: linear-gradient(135deg, #171717, #374151);
+        }
+
+        .toast-exit {
+            animation: toastSlideOut 0.3s ease forwards;
+        }
+
+        @keyframes toastSlideIn {
+            from {
+                opacity: 0;
+                transform: translateX(-30px) scale(0.95);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateX(0) scale(1);
+            }
+        }
+
+        @keyframes toastSlideOut {
+            to {
+                opacity: 0;
+                transform: translateX(-30px) scale(0.95);
+            }
+        }
+
+        /* Section Badges */
+        .section-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            font-size: 0.65rem;
+            font-weight: 800;
+            text-transform: uppercase;
+            letter-spacing: 1.5px;
+            padding: 6px 14px;
+            border-radius: 10px;
+            background: linear-gradient(135deg, rgba(249, 115, 22, 0.1), rgba(249, 115, 22, 0.05));
+            color: #f97316;
+            border: 1px solid rgba(249, 115, 22, 0.15);
+        }
+
+        .dark .section-badge {
+            background: linear-gradient(135deg, rgba(249, 115, 22, 0.15), rgba(249, 115, 22, 0.08));
+        }
+
+        /* Publish Button Glow */
+        .btn-publish {
+            background: linear-gradient(135deg, #f97316 0%, #ea580c 50%, #dc2626 100%);
+            background-size: 200% 200%;
+            animation: publishGlow 3s ease infinite;
+            box-shadow: 0 4px 20px rgba(249, 115, 22, 0.3);
+        }
+
+        .btn-publish:hover {
+            box-shadow: 0 8px 35px rgba(249, 115, 22, 0.45);
+            transform: translateY(-2px);
+        }
+
+        @keyframes publishGlow {
+
+            0%,
+            100% {
+                background-position: 0% 50%;
+            }
+
+            50% {
+                background-position: 100% 50%;
+            }
+        }
+
+        /* App Fade In */
+        .app-fadein {
+            animation: appFadeIn 0.4s ease;
+        }
+
+        @keyframes appFadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(8px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        /* Editor Panel Background */
+        .editor-panel-bg {
+            background-image: radial-gradient(circle at 1px 1px, rgba(0, 0, 0, 0.03) 1px, transparent 0);
+            background-size: 24px 24px;
+        }
+
+        .dark .editor-panel-bg {
+            background-image: radial-gradient(circle at 1px 1px, rgba(255, 255, 255, 0.03) 1px, transparent 0);
+        }
+
+        /* Preview Column Gradient Divider */
+        .preview-column {
+            border-left: 1px solid rgba(0, 0, 0, 0.06);
+            position: relative;
+        }
+
+        .dark .preview-column {
+            border-left-color: rgba(255, 255, 255, 0.06);
+        }
+
+        /* Input Group Styling */
+        .input-group {
+            position: relative;
+        }
+
+        .input-group label {
+            font-size: 0.65rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            color: #9ca3af;
+            margin-bottom: 4px;
+            display: block;
+        }
+
+        .input-modern {
+            width: 100%;
+            padding: 10px 14px;
+            background: rgba(0, 0, 0, 0.02);
+            border: 1px solid rgba(0, 0, 0, 0.08);
+            border-radius: 12px;
+            font-size: 0.875rem;
+            transition: all 0.2s ease;
+            outline: none;
+        }
+
+        .input-modern:focus {
+            border-color: #f97316;
+            box-shadow: 0 0 0 3px rgba(249, 115, 22, 0.1);
+            background: white;
+        }
+
+        .dark .input-modern {
+            background: rgba(255, 255, 255, 0.04);
+            border-color: rgba(255, 255, 255, 0.08);
+            color: #e2e8f0;
+        }
+
+        .dark .input-modern:focus {
+            background: rgba(255, 255, 255, 0.06);
+        }
+
+        /* Status Pill in Header */
+        .status-pill {
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+            font-size: 0.6rem;
+            font-weight: 600;
+            padding: 2px 8px;
+            border-radius: 6px;
+            background: rgba(34, 197, 94, 0.1);
+            color: #22c55e;
+        }
+    </style>
+</head>
+
+<body class="antialiased">
+
+    <div id="preview-modal-mobile" class="modal-overlay z-[60]">
+        <div class="bg-white dark:bg-slate-900 w-full h-full flex flex-col">
+            <div
+                class="flex justify-between items-center p-4 border-b dark:border-slate-700 bg-white dark:bg-slate-900">
+                <h3 class="font-bold text-lg flex items-center gap-2"><ion-icon name="eye-outline"></ion-icon> Vista
+                    Previa</h3>
+                <button onclick="closeMobilePreview()" class="text-3xl p-2"><ion-icon
+                        name="close-outline"></ion-icon></button>
+            </div>
+            <div id="mobile-preview-content"
+                class="flex-1 overflow-y-auto p-6 prose dark:prose-invert max-w-none pb-20"></div>
+        </div>
+    </div>
+
+    <div id="load-post-modal" class="modal-overlay">
+        <div
+            class="modal-content bg-white dark:bg-slate-900 w-full max-w-2xl rounded-2xl shadow-2xl p-6 flex flex-col max-h-[85vh]">
+            <div class="flex justify-between items-center mb-4 border-b dark:border-slate-800 pb-3">
+                <h3 class="font-bold text-lg flex items-center gap-2 text-accent"><ion-icon
+                        name="folder-open-outline"></ion-icon> Explorar</h3>
+                <button onclick="closeLoadModal()" class="btn-icon p-2"><ion-icon name="close-outline"
+                        class="text-2xl"></ion-icon></button>
+            </div>
+            <input type="text" id="search-posts" placeholder="Buscar..."
+                class="w-full p-3 bg-gray-50 dark:bg-slate-800 rounded-xl accent-input border border-gray-200 dark:border-slate-700 mb-4"
+                oninput="filterPosts()">
+            <div id="posts-list" class="space-y-2 overflow-y-auto flex-1 pr-2"></div>
+        </div>
+    </div>
+
+    <div id="author-modal" class="modal-overlay">
+        <div class="modal-content bg-white dark:bg-slate-900 w-full max-w-lg rounded-2xl shadow-2xl p-6">
+            <div class="flex justify-between items-center mb-4">
+                <h3 class="font-bold text-lg text-accent">Autores</h3>
+                <button onclick="closeAuthorModal()" class="btn-icon p-2"><ion-icon name="close-outline"
+                        class="text-2xl"></ion-icon></button>
+            </div>
+            <div class="space-y-3">
+                <input type="text" id="new-auth-name" placeholder="Nombre"
+                    class="w-full p-3 rounded-xl accent-input border border-gray-200 dark:bg-slate-800 dark:border-slate-600">
+                <input type="text" id="new-auth-role" placeholder="Rol"
+                    class="w-full p-3 rounded-xl accent-input border border-gray-200 dark:bg-slate-800 dark:border-slate-600">
+                <textarea id="new-auth-bio" rows="2" placeholder="Bio..."
+                    class="w-full p-3 rounded-xl accent-input border border-gray-200 dark:bg-slate-800 dark:border-slate-600"></textarea>
+                <input type="file" id="new-auth-file" class="w-full text-xs">
+                <button onclick="saveNewAuthor()" id="btn-save-auth"
+                    class="w-full btn-primary text-white py-3 rounded-xl font-bold">Guardar</button>
+            </div>
+            <div id="authors-list-container" class="mt-4 pt-4 border-t dark:border-slate-700"></div>
+        </div>
+    </div>
+
+    <div id="login-section" class="flex items-center justify-center min-h-screen p-4 gradient-bg">
+        <div class="w-full max-w-sm text-center glass-card rounded-3xl p-8">
+            <div class="mb-8">
+                <img src="public/blog.svg" alt="Logo" class="h-14 mx-auto mb-4 logo-adaptive">
+                <h1
+                    class="text-2xl font-bold bg-gradient-to-r from-gray-900 to-gray-600 dark:from-white dark:to-gray-300 bg-clip-text text-transparent">
+                    Editor V6.3</h1>
+                <p class="text-xs text-gray-400 mt-1">Panel de Publicaciones</p>
+            </div>
+            <form id="login-form" class="space-y-4">
+                <input type="email" id="email" placeholder="Email"
+                    class="w-full p-4 bg-white/50 dark:bg-slate-800/50 rounded-xl accent-input border border-gray-200 dark:border-slate-700"
+                    required>
+                <input type="password" id="password" placeholder="Contraseña"
+                    class="w-full p-4 bg-white/50 dark:bg-slate-800/50 rounded-xl accent-input border border-gray-200 dark:border-slate-700"
+                    required>
+                <button type="submit" class="w-full btn-primary text-white font-bold py-4 rounded-xl">Entrar</button>
+            </form>
+            <p id="login-error" class="text-red-500 text-sm mt-4 hidden"></p>
+            <p class="text-xs text-gray-400 mt-6">©
+                <script>document.write(new Date().getFullYear())</script> Instante Trips
+            </p>
+        </div>
+    </div>
+
+    <div id="app-section" class="hidden h-[100dvh] flex flex-col">
+        <header class="header-enhanced h-16 flex-none z-40">
+            <div class="w-full px-4 h-full flex items-center justify-between">
+                <div class="flex items-center gap-4">
+                    <div class="flex items-center gap-3">
+                        <div
+                            class="w-9 h-9 bg-gradient-to-br from-orange-400 to-orange-600 rounded-xl flex items-center justify-center shadow-lg shadow-orange-500/20">
+                            <img src="public/blog.svg" alt="Logo" class="h-5 invert">
+                        </div>
+                        <div>
+                            <span class="font-bold text-sm">Editor V6.3</span>
+                            <p class="text-[10px] text-gray-500" id="save-status"></p>
+                        </div>
+                    </div>
+                    <!-- Greeting Message (shown after login) -->
+                    <div id="greeting-container"
+                        class="hidden md:flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-orange-50 to-amber-50 dark:from-orange-900/20 dark:to-amber-900/20 rounded-xl border border-orange-100 dark:border-orange-800/30">
+                        <span id="greeting-emoji" class="text-lg"></span>
+                        <div>
+                            <p id="greeting-text" class="text-xs font-semibold text-gray-700 dark:text-gray-200"></p>
+                            <p id="author-role-text" class="text-[10px] text-gray-500"></p>
+                        </div>
+                    </div>
+                </div>
+                <div class="flex items-center gap-1">
+                    <!-- Admin Button (hidden by default, shown only for admin) -->
+                    <a id="admin-link" href="../admin/"
+                        class="hidden btn-icon flex items-center gap-2 px-3 py-2.5 text-sm font-medium bg-purple-50 dark:bg-purple-900/30 text-purple-600 dark:text-purple-400 rounded-xl"
+                        title="Panel de Administración">
+                        <ion-icon name="settings-outline"></ion-icon>
+                        <span class="hidden md:inline">Admin</span>
+                    </a>
+                    <button onclick="toggleDarkMode()" class="btn-icon p-2.5" title="Modo Oscuro"><ion-icon
+                            name="moon-outline" class="text-lg"></ion-icon></button>
+                    <button onclick="openMobilePreview()" class="lg:hidden btn-icon p-2.5 text-accent"
+                        title="Vista Previa"><ion-icon name="eye-outline" class="text-lg"></ion-icon></button>
+                    <button onclick="openLoadModal()"
+                        class="btn-icon flex items-center gap-2 px-4 py-2.5 text-sm font-medium"
+                        title="Explorar Posts"><ion-icon name="folder-open-outline"></ion-icon> <span
+                            class="hidden sm:inline">Explorar</span></button>
+                    <button id="btn-logout" class="btn-icon p-2.5 text-red-500 hover:!bg-red-50 hover:!text-red-600"
+                        title="Cerrar Sesión"><ion-icon name="log-out-outline" class="text-lg"></ion-icon></button>
+                </div>
+            </div>
+        </header>
+
+        <div class="flex-1 flex overflow-hidden app-fadein">
+
+            <div class="flex-1 overflow-y-auto p-6 pb-32 relative editor-panel-bg">
+                <div class="max-w-3xl mx-auto">
+                    <div
+                        class="bg-white/80 dark:bg-slate-900/80 backdrop-blur-sm border border-gray-200/80 dark:border-slate-800/80 rounded-2xl p-6 mb-6 shadow-sm card-hover">
+                        <div class="flex justify-between items-center mb-5">
+                            <span class="section-badge">
+                                <ion-icon name="settings-outline"></ion-icon> Configuración
+                            </span>
+                            <button onclick="clearAll()"
+                                class="text-xs text-red-400 hover:text-red-600 hover:underline transition-colors flex items-center gap-1">
+                                <ion-icon name="trash-outline" class="text-sm"></ion-icon> Limpiar
+                            </button>
+                        </div>
+                        <div class="space-y-5">
+                            <div class="relative">
+                                <input type="text" id="post-title"
+                                    class="w-full text-2xl font-bold bg-transparent border-b-2 border-gray-200 dark:border-slate-700 py-3 outline-none focus:border-orange-500 transition-colors"
+                                    placeholder="Título del Artículo" oninput="updateSEO()">
+                                <div class="absolute right-0 top-4 flex items-center gap-2"><span id="title-count"
+                                        class="text-xs text-gray-400 font-mono">0</span>
+                                    <div id="title-seo" class="dot bg-gray-200"></div>
+                                </div>
+                            </div>
+                            <textarea id="post-desc" rows="2"
+                                class="w-full text-sm bg-gray-50/80 dark:bg-slate-800/60 p-4 rounded-xl outline-none resize-none border border-gray-100 dark:border-slate-700/50 focus:border-orange-500 transition-colors"
+                                placeholder="✍️ Descripción SEO — Esta aparece en los resultados de búsqueda..."
+                                oninput="updateSEO()"></textarea>
+                            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                <div class="input-group">
+                                    <label>📅 Fecha</label>
+                                    <input type="date" id="post-date" class="input-modern">
+                                </div>
+                                <div class="input-group">
+                                    <label class="flex justify-between">✏️ Autor
+                                        <span onclick="openAuthorModal()"
+                                            class="text-orange-500 cursor-pointer hover:text-orange-600 transition-colors text-sm">+
+                                            Nuevo</span>
+                                    </label>
+                                    <select id="post-author" class="input-modern">
+                                        <option>Cargando...</option>
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="input-group">
+                                <label>🖼️ Imagen Principal</label>
+                                <div class="flex items-center gap-2">
+                                    <input type="text" id="post-hero" class="input-modern flex-1"
+                                        placeholder="URL de la imagen o sube una..." oninput="renderLivePreview()">
+                                    <label
+                                        class="cursor-pointer bg-orange-50 dark:bg-orange-900/20 hover:bg-orange-100 dark:hover:bg-orange-900/30 p-2.5 rounded-xl text-orange-500 transition-colors">
+                                        <ion-icon name="cloud-upload-outline" class="text-lg"></ion-icon>
+                                        <input type="file" class="hidden" accept="image/*"
+                                            onchange="uploadHeroImage(this)">
+                                    </label>
+                                </div>
+                            </div>
+                            <div class="input-group">
+                                <label>🏷️ Tags</label>
+                                <div class="flex items-center gap-2">
+                                    <span class="text-orange-400 text-sm font-bold">#</span>
+                                    <input type="text" id="tag-input"
+                                        class="flex-1 text-sm bg-transparent outline-none py-2"
+                                        placeholder="Escribe un tag y presiona Enter">
+                                </div>
+                            </div>
+                            <div id="tags-container" class="flex flex-wrap gap-2"></div>
+
+                            <!-- Widget Config -->
+                            <div class="pt-5 border-t dark:border-slate-800/50 mt-2">
+                                <span class="section-badge mb-3">
+                                    <ion-icon name="airplane-outline"></ion-icon> Widgets de Viaje
+                                </span>
+                                <div class="grid grid-cols-1 md:grid-cols-2 gap-3 mt-3">
+                                    <div class="input-group">
+                                        <label>✈️ Destino Vuelos</label>
+                                        <input type="text" id="flight-dest" class="input-modern"
+                                            placeholder="Ej: Madrid">
+                                    </div>
+                                    <div class="input-group">
+                                        <label>🗺️ Ciudad Tours</label>
+                                        <input type="text" id="tour-city" class="input-modern" placeholder="Ej: Madrid">
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Video Button -->
+                            <div class="pt-1">
+                                <button onclick="insertVideoLink()"
+                                    class="flex items-center gap-2 px-4 py-3 bg-red-50 dark:bg-red-900/20 text-red-500 dark:text-red-400 rounded-xl text-sm font-bold hover:bg-red-100 dark:hover:bg-red-900/30 transition-all w-full justify-center border border-red-100 dark:border-red-800/30">
+                                    <ion-icon name="logo-youtube" class="text-xl"></ion-icon> Insertar Video (YouTube /
+                                    TikTok)
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div
+                        class="bg-white dark:bg-slate-900 rounded-2xl shadow-lg border border-gray-200 dark:border-slate-800 overflow-hidden min-h-[500px]">
+                        <textarea id="tiny-editor" class="w-full h-full"></textarea>
+                    </div>
+
+                    <div class="mt-8 mb-8">
+                        <button onclick="publishCurrentPost()"
+                            class="w-full btn-publish text-white font-bold py-5 rounded-2xl flex items-center justify-center gap-3 text-lg transition-all">
+                            <ion-icon name="rocket-outline" class="text-2xl"></ion-icon> Publicar Artículo
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <div class="hidden lg:block w-1/2 bg-white dark:bg-black overflow-y-auto p-12 preview-column"
+                id="live-preview-column">
+                <div class="max-w-2xl mx-auto">
+                    <div class="flex items-center gap-2 mb-8">
+                        <span class="section-badge">
+                            <ion-icon name="eye-outline"></ion-icon> Vista Previa en Vivo
+                        </span>
+                    </div>
+                    <div id="live-preview-content" class="prose dark:prose-invert max-w-none">
+                        <p class="text-gray-300 dark:text-gray-600 text-center py-12 text-lg">Empieza a escribir para
+                            ver la vista previa...</p>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </div>
+
+    <div id="toast-container" class="fixed bottom-6 left-6 z-[80] flex flex-col gap-2"></div>
+
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
+        import { getAuth, signInWithEmailAndPassword, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
+        import { getFirestore, doc, getDoc } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+
+        // TURNDOWN
+        const turndownService = new TurndownService({ headingStyle: 'atx', codeBlockStyle: 'fenced', bulletListMarker: '-' });
+        turndownService.use(turndownPluginGfm.gfm);
+        turndownService.addRule('iframe', {
+            filter: 'iframe',
+            replacement: function (content, node) {
+                const src = node.getAttribute('src');
+                return src ? '\n\n' + src + '\n\n' : '';
+            }
+        });
+        turndownService.addRule('tiktok', {
+            filter: function (node) {
+                return node.nodeName === 'BLOCKQUOTE' && node.classList.contains('tiktok-embed');
+            },
+            replacement: function (content, node) {
+                const cite = node.getAttribute('cite');
+                return cite ? '\n\n' + cite + '\n\n' : '';
+            }
+        });
+        turndownService.addRule('cta', {
+            filter: function (node) {
+                return node.nodeName === 'A' && node.classList.contains('cta-destination-card');
+            },
+            replacement: function (content, node) {
+                return '\n\n' + node.outerHTML + '\n\n';
+            }
+        });
+
+        // FIREBASE
+        const firebaseConfig = {
+            apiKey: "AIzaSyBdsu65Voj8en9u_7eL5q0YRFuCC7fUYWA",
+            authDomain: "instantetrips-editor.firebaseapp.com",
+            projectId: "instantetrips-editor",
+            storageBucket: "instantetrips-editor.firebasestorage.app",
+            messagingSenderId: "281917140804",
+            appId: "1:281917140804:web:ed712e65c9c4b77dd3b111"
+        };
+        const app = initializeApp(firebaseConfig);
+        const auth = getAuth(app);
+        const db = getFirestore(app);
+
+        const MASTER_ADMIN_EMAIL = "danielaranadj@gmail.com";
+        const isAdmin = () => auth.currentUser && auth.currentUser.email.toLowerCase() === MASTER_ADMIN_EMAIL.toLowerCase();
+        const canDelete = isAdmin;  // Alias for backwards compatibility
+
+        // Email → Author mapping (add new authors here)
+        const EMAIL_TO_AUTHOR = {
+            'danielaranadj@gmail.com': { slug: 'daniel-arana', name: 'Daniel', role: 'Administrador' },
+            // Add more authors: 'email@example.com': { slug: 'author-slug', name: 'Display Name', role: 'Role' }
+        };
+
+        // Get current author info based on logged-in email
+        function getCurrentAuthorInfo() {
+            if (!auth.currentUser) return null;
+            const email = auth.currentUser.email.toLowerCase();
+            return EMAIL_TO_AUTHOR[email] || { slug: null, name: auth.currentUser.email.split('@')[0], role: 'Autor' };
+        }
+
+        // Time-based greeting
+        function getGreeting() {
+            const hour = new Date().getHours();
+            if (hour >= 5 && hour < 12) return { text: 'Buenos días', emoji: '☀️' };
+            if (hour >= 12 && hour < 19) return { text: 'Buenas tardes', emoji: '🌤️' };
+            return { text: 'Buenas noches', emoji: '🌙' };
+        }
+
+        // Show personalized greeting
+        function showGreeting() {
+            const authorInfo = getCurrentAuthorInfo();
+            if (!authorInfo) return;
+
+            const greeting = getGreeting();
+            const container = document.getElementById('greeting-container');
+            const emojiEl = document.getElementById('greeting-emoji');
+            const textEl = document.getElementById('greeting-text');
+            const roleEl = document.getElementById('author-role-text');
+
+            emojiEl.textContent = greeting.emoji;
+            textEl.textContent = `${greeting.text}, ${authorInfo.name}`;
+            roleEl.textContent = authorInfo.role;
+            container.classList.remove('hidden');
+            container.classList.add('flex');
+        }
+
+        let githubConfig = null;
+        let tags = [];
+        let allPosts = [];
+        let currentPostSha = null;
+        let currentPostFilename = null;
+
+        // INIT TINYMCE
+        function initTinyMCE(initialContent = '') {
+            tinymce.init({
+                selector: '#tiny-editor',
+                height: 600,
+                menubar: false,
+                skin: window.matchMedia('(prefers-color-scheme: dark)').matches ? 'oxide-dark' : 'oxide',
+                content_css: window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'default',
+                plugins: 'image media link lists table code preview wordcount help',
+                toolbar: 'undo redo | blocks fontsize | bold italic underline | bullist numlist | alignleft aligncenter alignright | link image media | customCtaBtn customVideoBtn | removeformat code',
+                content_style: 'body { font-family:Inter,sans-serif; font-size:16px; line-height:1.6 } img { max-width: 100%; height: auto; border-radius: 8px; }',
+                convert_urls: false,
+                relative_urls: false,
+                remove_script_host: false,
+                media_live_embeds: true,
+                setup: function (editor) {
+                    editor.on('init', function () { editor.setContent(initialContent); });
+                    editor.on('input change keyup', function () { renderLivePreview(); });
+
+                    editor.ui.registry.addButton('customVideoBtn', {
+                        icon: 'embed',
+                        tooltip: 'Insertar Video (YouTube/TikTok)',
+                        onAction: function (_) {
+                            const url = prompt('Pega el enlace del video (YouTube o TikTok):');
+                            if (url && url.trim()) {
+                                const cleanUrl = url.trim();
+                                editor.insertContent(`\n\n${cleanUrl}\n\n`);
+                            }
+                        }
+                    });
+
+                    editor.ui.registry.addButton('customCtaBtn', {
+                        icon: 'bookmark',
+                        tooltip: 'Insertar CTA Destino',
+                        onAction: function (_) {
+                            window.insertCtaLink();
+                        }
+                    });
+                },
+                images_upload_handler: (blobInfo, progress) => new Promise(async (resolve, reject) => {
+                    try {
+                        const file = blobInfo.blob();
+                        const b64 = await toBase64(await imageCompression(file, { maxSizeMB: 1 }));
+                        const name = `${Date.now()}-${file.name.replace(/[^a-z0-9]/gi, '-')}`;
+                        await ghFetch(`/contents/public/uploads/${name}`, 'PUT', { message: 'Tiny Upload', content: b64.split(',')[1], branch: githubConfig.branch });
+                        resolve(`/uploads/${name}`);
+                    } catch (e) { reject('Error subida: ' + e.message); }
+                })
+            });
+        }
+
+        window.insertCtaLink = () => {
+            // 1. Pedir datos al usuario
+            const url = prompt('URL del Destino (Ej: https://.../ushuaia)', 'https://www.instantetrips.com/argentina/destinos/ushuaia/');
+            if (!url) return;
+
+            const emoji = prompt('Emoji / Bandera (Ej: 🇦🇷)', '🇦🇷');
+            const label = prompt('Etiqueta Pequeña (Ej: Guía de Destino)', 'Guía de Destino');
+            const title = prompt('Título Principal (Ej: Ushuaia: El Fin del Mundo)', 'Ushuaia: El Fin del Mundo');
+            const desc = prompt('Descripción (Ej: Clima, presupuesto...)', 'Clima, presupuesto, tours y experiencias imperdibles →');
+
+            // 2. Construir HTML (usando variables CSS para Dark Mode)
+            const html = `
+            <a href="${url}" target="_blank" class="cta-destination-card" style="display:block; margin:2.5rem 0; padding:1.75rem; background:linear-gradient(135deg, rgba(244,185,66,0.08), rgba(117,170,219,0.08)); border-radius:16px; border-left:4px solid var(--accent-gold, #F4B942); text-decoration:none; color:inherit;">
+              <span style="display:inline-flex; align-items:center; gap:8px; margin-bottom:1rem;">
+                <span style="font-size:1.5rem;">${emoji}</span>
+                <span style="font-size:0.7rem; font-weight:800; text-transform:uppercase; letter-spacing:1.5px; color:var(--brand-blue, #75AADB); background:rgba(117,170,219,0.12); padding:6px 12px; border-radius:20px;">${label}</span>
+              </span>
+              <br>
+              <strong style="font-size:1.4rem; font-weight:800; color:var(--text-main, #2D3748);">${title}</strong>
+              <br>
+              <span style="color:var(--text-muted, #718096); font-size:0.95rem;">${desc}</span>
+            </a>
+            <p>&nbsp;</p>
+            `;
+
+            // 3. Insertar en TinyMCE
+            if (tinymce.activeEditor) {
+                tinymce.activeEditor.insertContent(html);
+            }
+        };
+
+        window.insertVideoLink = () => {
+            const input = prompt('Pega el enlace o código embed (YouTube/TikTok):');
+            if (!input || !input.trim()) return;
+
+            let cleanUrl = input.trim();
+
+            // Basic check for HTML embed code
+            if (cleanUrl.includes('<iframe') || cleanUrl.includes('<blockquote')) {
+                const div = document.createElement('div');
+                div.innerHTML = cleanUrl;
+
+                const iframe = div.querySelector('iframe');
+                const blockquote = div.querySelector('blockquote');
+
+                if (iframe && iframe.src) {
+                    cleanUrl = iframe.src;
+                } else if (blockquote && blockquote.getAttribute('cite')) {
+                    cleanUrl = blockquote.getAttribute('cite');
+                }
+            }
+
+            if (tinymce.activeEditor) {
+                tinymce.activeEditor.insertContent(`\n\n${cleanUrl}\n\n`);
+            }
+        };
+
+        function renderLivePreview() {
+            let content = '';
+            if (tinymce.activeEditor) content = tinymce.activeEditor.getContent();
+            const t = document.getElementById('post-title').value;
+            const h = document.getElementById('post-hero').value;
+            let finalHtml = '';
+            if (h) finalHtml += `<img src="${h}" class="w-full h-64 object-cover rounded-xl mb-6 shadow-sm">`;
+            if (t) finalHtml += `<h1 class="text-3xl font-bold mb-4">${t}</h1>`;
+            finalHtml += content;
+            const deskPreview = document.getElementById('live-preview-content');
+            if (deskPreview) deskPreview.innerHTML = finalHtml;
+            const mobPreview = document.getElementById('mobile-preview-content');
+            if (mobPreview) mobPreview.innerHTML = finalHtml;
+        }
+
+        window.openMobilePreview = () => { renderLivePreview(); document.getElementById('preview-modal-mobile').classList.add('open'); }
+        window.closeMobilePreview = () => document.getElementById('preview-modal-mobile').classList.remove('open');
+
+        const loginForm = document.getElementById('login-form');
+        loginForm.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            try { await signInWithEmailAndPassword(auth, document.getElementById('email').value, document.getElementById('password').value); }
+            catch (error) { document.getElementById('login-error').classList.remove('hidden'); document.getElementById('login-error').textContent = "Login fallido"; }
+        });
+        document.getElementById('btn-logout').addEventListener('click', () => signOut(auth));
+
+        onAuthStateChanged(auth, async (user) => {
+            if (user) {
+                document.getElementById('login-section').classList.add('hidden');
+                document.getElementById('app-section').classList.remove('hidden');
+                document.getElementById('post-date').valueAsDate = new Date();
+
+                // Show admin button only for master admin
+                const adminLink = document.getElementById('admin-link');
+                if (isAdmin()) {
+                    adminLink.classList.remove('hidden');
+                } else {
+                    adminLink.classList.add('hidden');
+                }
+
+                // Show personalized greeting
+                showGreeting();
+
+                const docSnap = await getDoc(doc(db, "config", "main"));
+                if (docSnap.exists()) {
+                    githubConfig = docSnap.data();
+                    if (!githubConfig.postsPath.endsWith('/')) githubConfig.postsPath += '/';
+                    loadAuthorsFromRepo();
+                    initTinyMCE();
+                }
+            } else {
+                document.getElementById('login-section').classList.remove('hidden');
+                document.getElementById('app-section').classList.add('hidden');
+                document.getElementById('admin-link').classList.add('hidden');
+            }
+        });
+
+        async function ghFetch(ep, m = 'GET', b = null) {
+            const res = await fetch(`https://api.github.com/repos/${githubConfig.repoOwner}/${githubConfig.repoName}${ep}`, {
+                method: m,
+                headers: { 'Authorization': `token ${githubConfig.githubToken}`, 'Content-Type': 'application/json' },
+                body: b ? JSON.stringify(b) : null
+            });
+            if (!res.ok) throw new Error(`GitHub: ${res.status}`);
+            return res.json();
+        }
+
+        const toBase64 = file => new Promise(r => { const rd = new FileReader(); rd.readAsDataURL(file); rd.onload = () => r(rd.result); });
+
+        // Modern replacement for btoa(unescape(encodeURIComponent(str)))
+        function utf8ToBase64(str) {
+            const bytes = new TextEncoder().encode(str);
+            let binary = '';
+            for (const b of bytes) binary += String.fromCharCode(b);
+            return btoa(binary);
+        }
+
+        // Modern replacement for decodeURIComponent(escape(atob(b64)))
+        function base64ToUtf8(b64) {
+            const binary = atob(b64);
+            const bytes = Uint8Array.from(binary, c => c.charCodeAt(0));
+            return new TextDecoder().decode(bytes);
+        }
+
+        function validatePost() {
+            const title = document.getElementById('post-title').value.trim();
+            const desc = document.getElementById('post-desc').value.trim();
+            const heroImage = document.getElementById('post-hero').value.trim();
+            const content = tinymce.activeEditor ? tinymce.activeEditor.getContent() : '';
+            const errors = [];
+
+            if (!title || title.length < 10) {
+                errors.push('❌ El título debe tener al menos 10 caracteres');
+            }
+
+            if (title.length > 70) {
+                errors.push('⚠️ El título es muy largo (máx 70 caracteres para SEO)');
+            }
+
+            if (!desc || desc.length < 50) {
+                errors.push('❌ La descripción debe tener al menos 50 caracteres');
+            }
+
+            if (desc.length > 160) {
+                errors.push('⚠️ La descripción es muy larga (máx 160 para SEO)');
+            }
+
+            if (tags.length === 0) {
+                errors.push('❌ Agrega al menos un tag');
+            }
+
+            if (!heroImage) {
+                errors.push('❌ Agrega una imagen principal');
+            }
+
+            if (!content || content.length < 100) {
+                errors.push('❌ El contenido es muy corto (mínimo 100 caracteres)');
+            }
+
+            return errors;
+        }
+
+        window.publishCurrentPost = async () => {
+            // Validar antes de publicar
+            const errors = validatePost();
+            if (errors.length > 0) {
+                alert(errors.join('\n\n'));
+                return;
+            }
+
+            // Confirmation dialog with post summary
+            const title = document.getElementById('post-title').value;
+            const isUpdate = !!currentPostFilename;
+            const action = isUpdate ? 'actualizar' : 'publicar';
+            if (!confirm(`¿Deseas ${action} el artículo?\n\n📝 "${title}"\n🏷️ Tags: ${tags.join(', ')}\n${isUpdate ? '🔄 Actualizando: ' + currentPostFilename : '✨ Nueva publicación'}`)) {
+                return;
+            }
+
+            const btn = document.querySelector('button[onclick="publishCurrentPost()"]');
+            const orig = btn.innerText; btn.innerText = "Publicando..."; btn.disabled = true;
+            try {
+                const rawContent = tinymce.activeEditor.getContent();
+                let mdContent = turndownService.turndown(rawContent);
+                const postTitle = document.getElementById('post-title').value;
+                const postDesc = document.getElementById('post-desc').value;
+                const postDate = document.getElementById('post-date').value;
+                const postAuthor = document.getElementById('post-author').value;
+                const heroImage = document.getElementById('post-hero').value;
+                const flightDest = document.getElementById('flight-dest').value;
+                const tourCity = document.getElementById('tour-city').value;
+
+                let frontmatter = `---\ntitle: "${postTitle}"\ndescription: "${postDesc}"\npublishDate: "${postDate}"\nauthor: "${postAuthor}"\nheroImage: "${heroImage}"\nlayout: "../../layouts/BlogPost.astro"\ntags: [${tags.map(x => `"${x}"`).join(', ')}]`;
+
+                if (flightDest) frontmatter += `\nflight_destination: "${flightDest}"`;
+                if (tourCity) frontmatter += `\ntour_city: "${tourCity}"`;
+
+                frontmatter += `\n---\n\n`;
+                const finalFile = frontmatter + mdContent;
+                let fn = currentPostFilename;
+                if (!fn) { const slug = postTitle.toLowerCase().replace(/[^a-z0-9]+/g, '-'); fn = `${postDate}-${slug}.md`; }
+                const payload = { message: `Update ${fn}`, content: utf8ToBase64(finalFile), branch: githubConfig.branch };
+                if (currentPostSha) payload.sha = currentPostSha;
+                const res = await ghFetch(`/contents/${githubConfig.postsPath}${fn}`, 'PUT', payload);
+                currentPostSha = res.content.sha; currentPostFilename = fn;
+                showToast("✅ Publicado con éxito");
+            } catch (e) { showToast("Error: " + e.message, "error"); }
+            btn.innerText = orig; btn.disabled = false;
+        };
+
+        window.openLoadModal = async () => {
+            document.getElementById('load-post-modal').classList.add('open');
+            const files = await ghFetch(`/contents/${githubConfig.postsPath}`);
+            allPosts = files.filter(f => f.name.endsWith('.md')).map(f => ({ name: f.name, sha: f.sha }));
+            renderPostsList(allPosts);
+        };
+
+        window.loadPost = async (name) => {
+            try {
+                const d = await ghFetch(`/contents/${githubConfig.postsPath}${name}`);
+                const raw = base64ToUtf8(d.content);
+                const fmMatch = raw.match(/^---\n([\s\S]+?)\n---/);
+                if (fmMatch) {
+                    const get = k => {
+                        // Improved: handles quoted and unquoted values, multiline-safe
+                        const mQuoted = fmMatch[1].match(new RegExp(`${k}:\\s*["'](.+?)["']`));
+                        if (mQuoted) return mQuoted[1];
+                        const mUnquoted = fmMatch[1].match(new RegExp(`${k}:\\s*(.+)$`, 'm'));
+                        return mUnquoted ? mUnquoted[1].trim() : '';
+                    };
+                    document.getElementById('post-title').value = get('title');
+                    document.getElementById('post-desc').value = get('description');
+                    document.getElementById('post-date').value = get('publishDate');
+                    document.getElementById('post-author').value = get('author');
+                    document.getElementById('post-hero').value = get('heroImage');
+                    const tm = fmMatch[1].match(/tags:\s*\[(.*?)\]/);
+                    if (tm) tags = tm[1].split(',').map(x => x.trim().replace(/['"]/g, '')).filter(Boolean);
+                    renderTags();
+
+                    document.getElementById('flight-dest').value = get('flight_destination') || '';
+                    document.getElementById('tour-city').value = get('tour_city') || '';
+                }
+                const bodyMd = raw.replace(/^---[\s\S]+?---\s*/, '');
+                const bodyHtml = marked.parse(bodyMd);
+                tinymce.activeEditor.setContent(bodyHtml);
+                currentPostFilename = name; currentPostSha = d.sha;
+                closeLoadModal(); showToast("Post cargado"); renderLivePreview();
+            } catch (e) { showToast("Error cargando post", "error"); }
+        };
+
+        // Sanitize string for safe HTML attribute injection
+        function sanitizeAttr(str) {
+            return str.replace(/&/g, '&amp;').replace(/'/g, '&#39;').replace(/"/g, '&quot;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+        }
+
+        // Filter posts in Explorar modal
+        window.filterPosts = () => {
+            const query = document.getElementById('search-posts').value.toLowerCase().trim();
+            const filtered = allPosts.filter(p => p.name.toLowerCase().includes(query));
+            renderPostsList(filtered);
+        };
+
+        function renderPostsList(posts) {
+            if (posts.length === 0) {
+                document.getElementById('posts-list').innerHTML = '<p class="text-center text-gray-400 py-8">No se encontraron posts</p>';
+                return;
+            }
+            document.getElementById('posts-list').innerHTML = posts.map(p => {
+                const safeName = sanitizeAttr(p.name);
+                const safeSha = sanitizeAttr(p.sha);
+                return `<div class="flex justify-between items-center p-3 border-b dark:border-slate-700 hover:bg-gray-50 dark:hover:bg-slate-800 rounded-lg">
+                    <span onclick="loadPost('${safeName}')" class="cursor-pointer flex-1 truncate">${safeName}</span>
+                    ${canDelete() ? `<button onclick="deletePost('${safeName}', '${safeSha}')" class="text-red-500 ml-2 hover:text-red-700"><ion-icon name="trash-outline"></ion-icon></button>` : ''}
+                </div>`;
+            }).join('');
+        }
+
+        let authorsFileSha = null; // Track SHA for authors.ts updates
+
+        async function loadAuthorsFromRepo() {
+            try {
+                const f = await ghFetch(`/contents/src/data/authors.ts`);
+                authorsFileSha = f.sha;
+                const c = base64ToUtf8(f.content);
+                const r = /slug:\s*['"]([^'"]+)['"][\s\S]*?name:\s*['"]([^'"]+)['"]/g;
+                let m; const sel = document.getElementById('post-author');
+                sel.innerHTML = '<option>Selecciona...</option>';
+                while ((m = r.exec(c)) !== null) { sel.innerHTML += `<option value="${m[1]}">${m[2]}</option>`; }
+
+                // Auto-select author for non-admin users
+                const authorInfo = getCurrentAuthorInfo();
+                if (authorInfo && authorInfo.slug) {
+                    sel.value = authorInfo.slug;
+
+                    // Disable selector for non-admins (they can only post as themselves)
+                    if (!isAdmin()) {
+                        sel.disabled = true;
+                        sel.classList.add('opacity-60', 'cursor-not-allowed');
+                        sel.title = 'Tu autor está seleccionado automáticamente';
+                    }
+                }
+            } catch (e) {
+                showToast('Error cargando autores', 'error');
+            }
+        }
+
+        // Save new author to authors.ts via GitHub API
+        window.openAuthorModal = () => {
+            document.getElementById('author-modal').classList.add('open');
+            renderAuthorsList();
+        };
+
+        function renderAuthorsList() {
+            const sel = document.getElementById('post-author');
+            const options = Array.from(sel.options).filter(o => o.value && o.value !== 'Selecciona...');
+            const container = document.getElementById('authors-list-container');
+            if (options.length === 0) {
+                container.innerHTML = '<p class="text-xs text-gray-400">No hay autores registrados</p>';
+                return;
+            }
+            container.innerHTML = '<p class="text-xs font-bold text-gray-400 mb-2">Autores existentes:</p>' +
+                options.map(o => `<div class="flex items-center gap-2 py-1"><span class="dot dot-green"></span><span class="text-sm">${sanitizeAttr(o.textContent)}</span> <span class="text-xs text-gray-400">(${sanitizeAttr(o.value)})</span></div>`).join('');
+        }
+
+        window.saveNewAuthor = async () => {
+            const name = document.getElementById('new-auth-name').value.trim();
+            const role = document.getElementById('new-auth-role').value.trim();
+            const bio = document.getElementById('new-auth-bio').value.trim();
+
+            if (!name) { showToast('El nombre es obligatorio', 'error'); return; }
+
+            const slug = name.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '');
+            const btn = document.getElementById('btn-save-auth');
+            btn.textContent = 'Guardando...'; btn.disabled = true;
+
+            try {
+                // Handle avatar upload if file selected
+                let avatarPath = '/avatars/default.webp';
+                const fileInput = document.getElementById('new-auth-file');
+                if (fileInput.files.length > 0) {
+                    const file = fileInput.files[0];
+                    const compressed = await imageCompression(file, { maxSizeMB: 0.3 });
+                    const b64 = await toBase64(compressed);
+                    const ext = file.name.split('.').pop().toLowerCase() || 'webp';
+                    const avatarName = `${slug}.${ext}`;
+                    await ghFetch(`/contents/public/avatars/${avatarName}`, 'PUT', {
+                        message: `Add avatar for ${name}`,
+                        content: b64.split(',')[1],
+                        branch: githubConfig.branch
+                    });
+                    avatarPath = `/avatars/${avatarName}`;
+                }
+
+                // Read current authors.ts, append new author, and save
+                const f = await ghFetch(`/contents/src/data/authors.ts`);
+                let content = base64ToUtf8(f.content);
+
+                const newEntry = `  {
+    slug: '${slug}',
+    name: '${name.replace(/'/g, "\\'")}',
+    role: '${(role || 'Autor').replace(/'/g, "\\'")}',
+    bio: '${(bio || '').replace(/'/g, "\\'")}',
+    avatar: '${avatarPath}'
+  },\n`;
+
+                // Insert before the closing bracket of the array
+                const lastBracket = content.lastIndexOf(']');
+                if (lastBracket !== -1) {
+                    content = content.substring(0, lastBracket) + newEntry + content.substring(lastBracket);
+                }
+
+                await ghFetch(`/contents/src/data/authors.ts`, 'PUT', {
+                    message: `Add author: ${name}`,
+                    content: utf8ToBase64(content),
+                    sha: f.sha,
+                    branch: githubConfig.branch
+                });
+
+                // Refresh authors dropdown
+                await loadAuthorsFromRepo();
+
+                // Clear form
+                document.getElementById('new-auth-name').value = '';
+                document.getElementById('new-auth-role').value = '';
+                document.getElementById('new-auth-bio').value = '';
+                fileInput.value = '';
+
+                showToast(`✅ Autor "${name}" creado`);
+                renderAuthorsList();
+            } catch (e) {
+                showToast('Error creando autor: ' + e.message, 'error');
+            }
+            btn.textContent = 'Guardar'; btn.disabled = false;
+        };
+
+        window.deletePost = async (n, s) => { if (confirm("¿Borrar?")) { try { await deleteFile(`${githubConfig.postsPath}${n}`, s); showToast('🗑️ Post eliminado'); openLoadModal(); } catch (e) { showToast('Error al borrar: ' + e.message, 'error'); } } };
+        window.uploadHeroImage = async (inp) => {
+            const f = inp.files[0];
+            const b64 = await toBase64(await imageCompression(f, { maxSizeMB: 1 }));
+            const ext = f.name.split('.').pop().toLowerCase() || 'jpg';
+            const name = `${Date.now()}-hero.${ext}`;
+            await ghFetch(`/contents/public/uploads/${name}`, 'PUT', { message: 'Up', content: b64.split(',')[1], branch: githubConfig.branch });
+            document.getElementById('post-hero').value = `/uploads/${name}`;
+            renderLivePreview();
+        };
+
+        window.addTag = (e) => { if (e.key === 'Enter') { const v = e.target.value.trim(); if (v && !tags.includes(v)) { tags.push(v); e.target.value = ''; renderTags(); } } };
+        document.getElementById('tag-input').addEventListener('keydown', window.addTag);
+        function renderTags() {
+            document.getElementById('tags-container').innerHTML = tags.map((t, i) => {
+                const safe = sanitizeAttr(t);
+                return `<span class="bg-gray-200 dark:bg-slate-700 px-3 py-1 rounded-full text-xs font-medium inline-flex items-center gap-1">#${safe} <button onclick="tags.splice(${i},1);renderTags()" class="ml-1 hover:text-red-500">×</button></span>`;
+            }).join('');
+        }
+
+        // Dark mode: persist in localStorage
+        window.toggleDarkMode = () => {
+            document.body.classList.toggle('dark');
+            localStorage.setItem('editor-dark-mode', document.body.classList.contains('dark') ? '1' : '0');
+        };
+        // Restore dark mode on load
+        (function () {
+            const saved = localStorage.getItem('editor-dark-mode');
+            if (saved === '1' || (saved === null && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
+                document.body.classList.add('dark');
+            }
+        })();
+        window.closeLoadModal = () => document.getElementById('load-post-modal').classList.remove('open');
+        window.closeAuthorModal = () => document.getElementById('author-modal').classList.remove('open');
+        window.clearAll = () => {
+            if (confirm('¿Limpiar todo el formulario?')) {
+                tinymce.activeEditor.setContent('');
+                document.getElementById('post-title').value = '';
+                document.getElementById('post-desc').value = '';
+                document.getElementById('post-date').valueAsDate = new Date();
+                document.getElementById('post-hero').value = '';
+                document.getElementById('flight-dest').value = '';
+                document.getElementById('tour-city').value = '';
+                // Reset author only for admins
+                if (isAdmin()) {
+                    document.getElementById('post-author').selectedIndex = 0;
+                }
+                tags = [];
+                renderTags();
+                currentPostFilename = null;
+                currentPostSha = null;
+                renderLivePreview();
+                showToast('Formulario limpiado');
+            }
+        };
+        window.showToast = (msg, type) => {
+            const icon = type === 'error' ? '⚠️' : msg.includes('✅') || msg.includes('🗑') ? '' : 'ℹ️';
+            const styleClass = type === 'error' ? 'toast-error' : msg.includes('✅') ? 'toast-success' : 'toast-info';
+            const el = document.createElement('div');
+            el.className = `toast-notification ${styleClass}`;
+            el.innerHTML = `${icon ? `<span style="font-size:1.1rem">${icon}</span>` : ''}<span>${msg}</span>`;
+            document.getElementById('toast-container').appendChild(el);
+            setTimeout(() => {
+                el.classList.add('toast-exit');
+                setTimeout(() => el.remove(), 300);
+            }, 3000);
+        };
+        window.updateSEO = () => {
+            const t = document.getElementById('post-title').value.length;
+            document.getElementById('title-seo').className = `dot ${t >= 50 && t <= 65 ? 'dot-green' : t > 10 ? 'dot-yellow' : 'dot-red'}`;
+            document.getElementById('title-count').innerText = t;
+            renderLivePreview();
+        };
+        // API DELETE
+        async function deleteFile(path, sha) {
+            if (!canDelete()) throw new Error("Acceso denegado");
+            await ghFetch(`/contents/${path}`, 'DELETE', { message: `Delete ${path}`, sha, branch: githubConfig.branch });
+        }
+    </script>
+</body>
+
+</html>

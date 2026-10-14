@@ -1,0 +1,2444 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <base href="/admin/">
+    <meta name="robots" content="noindex, nofollow">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Panel Admin - Instantetrips</title>
+
+    <link rel="apple-touch-icon" href="logo-ios.png">
+    <link rel="icon" type="image/png" href="logo-ios.png">
+
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script
+        src="https://cdn.jsdelivr.net/npm/browser-image-compression@2.0.2/dist/browser-image-compression.js"></script>
+    <script type="module" src="https://unpkg.com/ionicons@7.1.0/dist/ionicons/ionicons.esm.js"></script>
+    <script nomodule src="https://unpkg.com/ionicons@7.1.0/dist/ionicons/ionicons.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    fontFamily: { sans: ['Inter', 'sans-serif'] },
+                    colors: { slate: { 850: '#1e293b' } }
+                }
+            }
+        }
+    </script>
+
+    <link rel="stylesheet" href="css/admin.css">
+    <script src="js/v3-editor.js"></script>
+    <script src="js/tours-manager.js?v=20260120" defer></script>
+
+    <!-- Modular JavaScript (NEW) -->
+    <script type="module" src="js/main.js"></script>
+</head>
+
+<body class="antialiased min-h-screen flex flex-col">
+
+    <div id="login-section" class="flex items-center justify-center min-h-screen p-4 gradient-bg fixed inset-0 z-50">
+        <div class="w-full max-w-sm text-center glass-card rounded-3xl p-8">
+            <div class="mb-8 flex flex-col items-center justify-center">
+                <div class="w-24 h-24 mb-4 flex items-center justify-center">
+                    <img src="admin.svg" alt="Admin Logo" class="w-full h-full object-contain drop-shadow-lg">
+                </div>
+                <h1
+                    class="text-2xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-orange-500 to-red-600">
+                    GOD MODE</h1>
+                <p class="text-xs text-gray-400 mt-1">Acceso Restringido - Solo SEO</p>
+            </div>
+            <form id="login-form" class="space-y-4">
+                <input type="email" id="email" placeholder="Email Admin"
+                    class="w-full p-4 bg-white/50 dark:bg-slate-800/50 rounded-xl accent-input border border-gray-200 dark:border-slate-700"
+                    required>
+                <input type="password" id="password" placeholder="Contraseña"
+                    class="w-full p-4 bg-white/50 dark:bg-slate-800/50 rounded-xl accent-input border border-gray-200 dark:border-slate-700"
+                    required>
+                <button type="submit" class="w-full btn-primary text-white font-bold py-4 rounded-xl">Acceder al
+                    Panel</button>
+            </form>
+            <p id="login-error" class="text-red-500 text-sm mt-4 hidden"></p>
+        </div>
+    </div>
+
+    <div id="dashboard-section" class="hidden flex-1 flex flex-col bg-gray-50 dark:bg-slate-900">
+
+        <div class="header-accent"></div>
+        <header
+            class="h-16 bg-white dark:bg-slate-800 border-b border-gray-200 dark:border-slate-700 flex items-center justify-between px-6 sticky top-0 z-40 shadow-sm">
+            <div class="flex items-center gap-3 cursor-pointer" onclick="switchTab('home')">
+                <div
+                    class="bg-gradient-to-r from-red-500 to-orange-500 text-white text-[10px] px-2.5 py-1 rounded-lg font-bold uppercase tracking-wider shadow-sm">
+                    SEO</div>
+                <h1 class="font-bold text-gray-700 dark:text-gray-200 text-sm md:text-base">Admin Panel</h1>
+            </div>
+            <div class="flex items-center gap-2">
+                <button onclick="switchTab('home')"
+                    class="quick-action p-2 text-gray-500 hover:text-orange-500 transition-colors rounded-lg hover:bg-orange-50 dark:hover:bg-orange-900/20"
+                    title="Inicio"><ion-icon name="grid-outline" class="text-xl"></ion-icon></button>
+                <span id="admin-user-display"
+                    class="text-xs text-gray-400 hidden md:block bg-gray-100 dark:bg-slate-700 px-3 py-1.5 rounded-lg"></span>
+                <button onclick="toggleDarkMode()"
+                    class="quick-action p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-slate-700 text-xl transition-colors"
+                    title="Modo Oscuro"><ion-icon name="moon-outline"></ion-icon></button>
+                <button onclick="logout()"
+                    class="quick-action p-2 rounded-lg text-red-500 hover:text-red-700 hover:bg-red-50 dark:hover:bg-red-900/20 text-xl transition-colors"
+                    title="Cerrar Sesión"><ion-icon name="log-out-outline"></ion-icon></button>
+            </div>
+        </header>
+
+        <main class="flex-1 p-6 max-w-7xl mx-auto w-full overflow-y-auto">
+
+            <div id="view-home" class="animate-fade-in">
+                <div
+                    class="mb-8 greeting-card bg-white dark:bg-slate-800 rounded-2xl p-6 border border-gray-200 dark:border-slate-700">
+                    <div class="flex items-center justify-between">
+                        <div>
+                            <h2 class="text-2xl font-bold text-gray-800 dark:text-white" id="greeting-text">Bienvenido,
+                                SEO</h2>
+                            <p class="text-gray-400 text-sm mt-1" id="greeting-date">Selecciona un módulo para comenzar
+                                a trabajar.</p>
+                        </div>
+                        <div class="hidden md:flex items-center gap-3">
+                            <a href="../editor/" target="_blank"
+                                class="quick-action flex items-center gap-2 bg-orange-50 dark:bg-orange-900/20 text-orange-600 dark:text-orange-400 px-4 py-2 rounded-xl text-xs font-bold hover:bg-orange-100 dark:hover:bg-orange-900/40 transition-colors">
+                                <ion-icon name="create-outline"></ion-icon> Editor Blog
+                            </a>
+                            <a href="/" target="_blank"
+                                class="quick-action flex items-center gap-2 bg-blue-50 dark:bg-blue-900/20 text-blue-600 dark:text-blue-400 px-4 py-2 rounded-xl text-xs font-bold hover:bg-blue-100 dark:hover:bg-blue-900/40 transition-colors">
+                                <ion-icon name="globe-outline"></ion-icon> Ver Blog
+                            </a>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+
+                    <div class="space-y-4">
+                        <h3 class="section-label">
+                            <ion-icon name="document-text-outline"></ion-icon> Gestión de Contenido
+                        </h3>
+
+                        <div onclick="switchTab('posts')"
+                            class="dash-card card-blog cursor-pointer bg-white dark:bg-slate-800 p-6 rounded-2xl border border-gray-200 dark:border-slate-700 relative overflow-hidden group">
+                            <div
+                                class="absolute right-0 top-0 p-4 opacity-10 group-hover:opacity-20 transition-opacity">
+                                <ion-icon name="newspaper-outline" class="text-8xl text-orange-500"></ion-icon>
+                            </div>
+                            <div class="relative z-10">
+                                <div
+                                    class="w-14 h-14 rounded-xl bg-gradient-to-br from-orange-100 to-amber-100 dark:from-orange-900/30 dark:to-amber-900/30 flex items-center justify-center mb-4">
+                                    <ion-icon name="newspaper-outline" class="text-2xl text-orange-600"></ion-icon>
+                                </div>
+                                <h4 class="text-lg font-bold mb-2">Blog</h4>
+                                <p class="text-xs text-gray-400 dark:text-gray-300 mb-3">Gestionar publicaciones del
+                                    blog.</p>
+                                <div class="flex items-center justify-between">
+                                    <span id="posts-count-badge"
+                                        class="inline-flex items-center gap-1 text-[10px] bg-orange-100 text-orange-700 px-2 py-1 rounded-full font-semibold">
+                                        <ion-icon name="document-text-outline" class="text-xs"></ion-icon>
+                                        <span id="posts-count">--</span> publicaciones
+                                    </span>
+                                    <span
+                                        class="text-[10px] text-orange-500 font-semibold group-hover:translate-x-1 transition-transform flex items-center gap-1">
+                                        Ver posts <ion-icon name="arrow-forward-outline"></ion-icon>
+                                    </span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div onclick="switchTab('authors')"
+                            class="dash-card card-authors cursor-pointer bg-white dark:bg-slate-800 p-6 rounded-2xl border border-gray-200 dark:border-slate-700 relative overflow-hidden group">
+                            <div
+                                class="absolute right-0 top-0 p-4 opacity-10 group-hover:opacity-20 transition-opacity">
+                                <ion-icon name="people-outline" class="text-8xl text-blue-500"></ion-icon>
+                            </div>
+                            <div class="relative z-10">
+                                <div
+                                    class="w-12 h-12 rounded-xl bg-blue-100 dark:bg-blue-900/30 flex items-center justify-center text-blue-600 mb-4">
+                                    <ion-icon name="person-circle-outline" class="text-2xl"></ion-icon>
+                                </div>
+                                <h4 class="text-lg font-bold mb-2">Autores</h4>
+                                <p class="text-xs text-gray-400 dark:text-gray-300 mb-3">Gestionar perfiles, roles y
+                                    fotos del equipo.</p>
+                                <span
+                                    class="inline-flex items-center gap-1 text-[10px] text-blue-500 font-semibold group-hover:translate-x-1 transition-transform">
+                                    Gestionar <ion-icon name="arrow-forward-outline"></ion-icon>
+                                </span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="space-y-4">
+                        <h3 class="section-label">
+                            <ion-icon name="analytics-outline"></ion-icon> Analíticas
+                        </h3>
+
+                        <div onclick="switchTab('stats')"
+                            class="dash-card card-stats cursor-pointer bg-white dark:bg-slate-800 p-6 rounded-2xl border border-gray-200 dark:border-slate-700 relative overflow-hidden group">
+                            <div
+                                class="absolute right-0 top-0 p-4 opacity-10 group-hover:opacity-20 transition-opacity">
+                                <ion-icon name="bar-chart-outline" class="text-8xl text-indigo-500"></ion-icon>
+                            </div>
+                            <div class="relative z-10">
+                                <div
+                                    class="w-14 h-14 rounded-xl bg-indigo-100 dark:bg-indigo-900/30 flex items-center justify-center mb-4">
+                                    <ion-icon name="bar-chart-outline" class="text-2xl text-indigo-600"></ion-icon>
+                                </div>
+                                <h4 class="text-lg font-bold mb-2">Estadísticas</h4>
+                                <p class="text-xs text-gray-400 dark:text-gray-300 mb-3">Visitas y rendimiento del blog.
+                                </p>
+                                <div class="flex items-center justify-between">
+                                    <span id="stats-total-views-badge"
+                                        class="inline-flex items-center gap-1 text-[10px] bg-indigo-100 text-indigo-700 px-2 py-1 rounded-full font-semibold">
+                                        <ion-icon name="eye-outline" class="text-xs"></ion-icon>
+                                        <span id="stats-total-views-summary">--</span> vistas
+                                    </span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="space-y-4">
+                        <h3 class="section-label">
+                            <ion-icon name="airplane-outline"></ion-icon> Gestión de Destinos
+                        </h3>
+
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+
+                            <!-- Argentina Card -->
+                            <div onclick="switchTab('destinations')"
+                                class="dash-card card-argentina cursor-pointer bg-white dark:bg-slate-800 p-6 rounded-2xl border border-gray-200 dark:border-slate-700 relative overflow-hidden group">
+                                <div
+                                    class="absolute right-0 top-0 p-4 opacity-10 group-hover:opacity-20 transition-opacity">
+                                    <ion-icon name="map-outline" class="text-8xl text-sky-500"></ion-icon>
+                                </div>
+                                <div class="relative z-10">
+                                    <div
+                                        class="w-14 h-14 rounded-xl bg-sky-100 dark:bg-sky-900/30 flex items-center justify-center mb-4">
+                                        <span class="text-3xl">🇦🇷</span>
+                                    </div>
+                                    <h4 class="text-lg font-bold mb-2">Destinos Argentina</h4>
+                                    <p class="text-xs text-gray-400 dark:text-gray-300 mb-3">Gestionar destinos
+                                        turísticos de
+                                        Argentina.</p>
+                                    <span
+                                        class="inline-flex items-center gap-1 text-[10px] badge-active px-2 py-1 rounded-full font-semibold badge-pulse">
+                                        ACTIVO
+                                    </span>
+                                </div>
+                            </div>
+
+                            <!-- Mexico Card -->
+                            <div onclick="switchTab('destinations-mexico')"
+                                class="dash-card card-mexico cursor-pointer bg-white dark:bg-slate-800 p-6 rounded-2xl border border-gray-200 dark:border-slate-700 relative overflow-hidden group">
+                                <div
+                                    class="absolute right-0 top-0 p-4 opacity-10 group-hover:opacity-20 transition-opacity">
+                                    <ion-icon name="map-outline" class="text-8xl text-emerald-500"></ion-icon>
+                                </div>
+                                <div class="relative z-10">
+                                    <div
+                                        class="w-14 h-14 rounded-xl bg-emerald-100 dark:bg-emerald-900/30 flex items-center justify-center mb-4">
+                                        <span class="text-3xl">🇲🇽</span>
+                                    </div>
+                                    <h4 class="text-lg font-bold mb-2">Destinos México</h4>
+                                    <p class="text-xs text-gray-400 dark:text-gray-300 mb-3">Gestionar destinos
+                                        turísticos de México.
+                                    </p>
+                                    <span
+                                        class="inline-flex items-center gap-1 text-[10px] badge-active px-2 py-1 rounded-full font-semibold badge-pulse">
+                                        ACTIVO
+                                    </span>
+                                </div>
+                            </div>
+
+                            <!-- España Card (En Construcción) -->
+                            <div onclick="switchTab('destinations-espana')"
+                                class="dash-card card-espana cursor-pointer bg-white dark:bg-slate-800 p-6 rounded-2xl border border-gray-200 dark:border-slate-700 relative overflow-hidden group">
+                                <div
+                                    class="absolute right-0 top-0 p-4 opacity-10 group-hover:opacity-20 transition-opacity">
+                                    <ion-icon name="map-outline" class="text-8xl text-red-500"></ion-icon>
+                                </div>
+                                <div class="relative z-10">
+                                    <div
+                                        class="w-14 h-14 rounded-xl bg-red-100 dark:bg-red-900/30 flex items-center justify-center mb-4">
+                                        <span class="text-3xl">🇪🇸</span>
+                                    </div>
+                                    <h4 class="text-lg font-bold mb-2">Destinos España</h4>
+                                    <p class="text-xs text-gray-400 dark:text-gray-300 mb-3">Gestionar destinos
+                                        turísticos de España.</p>
+                                    <span
+                                        class="inline-flex items-center gap-1 text-[10px] badge-construction px-2 py-1 rounded-full font-semibold">
+                                        <ion-icon name="construct-outline" class="text-xs"></ion-icon> EN CONSTRUCCIÓN
+                                    </span>
+                                </div>
+                            </div>
+
+                            <!-- Tours Card (Multi-País) -->
+                            <div onclick="switchTab('tours')"
+                                class="dash-card card-tours cursor-pointer bg-white dark:bg-slate-800 p-6 rounded-2xl border border-gray-200 dark:border-slate-700 relative overflow-hidden group">
+                                <div
+                                    class="absolute right-0 top-0 p-4 opacity-10 group-hover:opacity-20 transition-opacity">
+                                    <ion-icon name="ticket-outline" class="text-8xl text-amber-500"></ion-icon>
+                                </div>
+                                <div class="relative z-10">
+                                    <div
+                                        class="w-14 h-14 rounded-xl bg-amber-100 dark:bg-amber-900/30 flex items-center justify-center mb-4">
+                                        <span class="text-3xl">🎟️</span>
+                                    </div>
+                                    <h4 class="text-lg font-bold mb-2">Tours</h4>
+                                    <p class="text-xs text-gray-400 dark:text-gray-300 mb-3">Tours y experiencias
+                                        multi-país.</p>
+                                    <span
+                                        class="inline-flex items-center gap-1 text-[10px] badge-active px-2 py-1 rounded-full font-semibold badge-pulse">
+                                        ACTIVO
+                                    </span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="space-y-4">
+                        <h3 class="section-label">
+                            <ion-icon name="stats-chart-outline"></ion-icon> Data & Ads
+                        </h3>
+
+                        <div onclick="switchTab('affiliates')"
+                            class="dash-card card-apis cursor-pointer bg-white dark:bg-slate-800 p-6 rounded-2xl border border-gray-200 dark:border-slate-700 relative overflow-hidden group">
+                            <div
+                                class="absolute right-0 top-0 p-4 opacity-10 group-hover:opacity-20 transition-opacity">
+                                <ion-icon name="key-outline" class="text-8xl text-purple-500"></ion-icon>
+                            </div>
+                            <div class="relative z-10">
+                                <div
+                                    class="w-12 h-12 rounded-xl bg-purple-100 dark:bg-purple-900/30 flex items-center justify-center text-purple-600 mb-4">
+                                    <ion-icon name="key-outline" class="text-2xl"></ion-icon>
+                                </div>
+                                <h4 class="text-lg font-bold mb-2">APIs & Affiliates</h4>
+                                <p class="text-xs text-gray-400 dark:text-gray-300 mb-3">Configuración de Booking,
+                                    Skyscanner, Civitatis y
+                                    Adsense.</p>
+                                <span
+                                    class="inline-flex items-center gap-1 text-[10px] text-purple-500 font-semibold group-hover:translate-x-1 transition-transform">
+                                    Configurar <ion-icon name="arrow-forward-outline"></ion-icon>
+                                </span>
+                            </div>
+                        </div>
+
+                        <div
+                            class="bg-gray-100 dark:bg-slate-800/50 p-6 rounded-2xl border border-dashed border-gray-300 dark:border-slate-700 relative">
+                            <div
+                                class="w-10 h-10 rounded-lg bg-gray-200 dark:bg-slate-700 flex items-center justify-center text-gray-400 mb-3">
+                                <ion-icon name="images-outline" class="text-xl"></ion-icon>
+                            </div>
+                            <h4 class="font-bold text-gray-500 dark:text-gray-400">Media Manager</h4>
+                            <p class="text-[10px] text-gray-400 mt-1">Limpieza de imágenes huérfanas.</p>
+                            <span
+                                class="absolute top-4 right-4 text-[9px] font-bold badge-coming px-2 py-0.5 rounded-md">PRÓXIMAMENTE</span>
+                        </div>
+                    </div>
+
+                </div>
+
+                <!-- Footer -->
+                <div class="admin-footer mt-12">
+                    <p>©
+                        <script>document.write(new Date().getFullYear())</script> Instante Trips · Admin Panel v3.0
+                    </p>
+                </div>
+            </div>
+
+    </div>
+    </div>
+
+    <div id="view-posts" class="hidden space-y-6">
+        <!-- Header -->
+        <div class="flex justify-between items-center border-b pb-4 dark:border-slate-700 mb-6">
+            <div class="flex items-center gap-2">
+                <button onclick="switchTab('home')" class="text-gray-400 hover:text-orange-500">
+                    <ion-icon name="arrow-back-outline"></ion-icon>
+                </button>
+                <div>
+                    <h2 class="text-xl font-bold flex items-center gap-2">
+                        <ion-icon name="newspaper-outline" class="text-orange-500"></ion-icon>
+                        Publicaciones del Blog
+                    </h2>
+                    <p class="text-xs text-gray-400 mt-1">Gestiona los artículos publicados en el blog</p>
+                </div>
+            </div>
+            <div class="flex items-center gap-2">
+                <a href="../editor/" target="_blank"
+                    class="btn-primary text-white px-4 py-2 rounded-lg text-sm font-bold flex items-center gap-2">
+                    <ion-icon name="add-outline"></ion-icon>
+                    <span class="hidden md:inline">Nuevo Post</span>
+                </a>
+                <button onclick="loadPosts()" class="text-gray-400 hover:text-orange-500 p-2" title="Recargar">
+                    <ion-icon name="refresh-outline" class="text-xl"></ion-icon>
+                </button>
+            </div>
+        </div>
+
+        <!-- Stats Bar -->
+        <div class="flex flex-wrap gap-4 mb-4">
+            <div
+                class="flex items-center gap-2 bg-white dark:bg-slate-800 px-4 py-2 rounded-xl border border-gray-200 dark:border-slate-700">
+                <ion-icon name="document-text-outline" class="text-orange-500"></ion-icon>
+                <span class="text-sm"><strong id="stats-total-posts">--</strong> publicaciones</span>
+            </div>
+            <div class="flex-1 w-full md:max-w-md relative group">
+                <ion-icon name="search-outline"
+                    class="absolute left-3 top-3 text-gray-400 group-focus-within:text-orange-500"></ion-icon>
+                <input type="text" id="search-input" placeholder="Buscar por título o autor..."
+                    class="w-full pl-10 pr-4 py-2.5 rounded-xl bg-white dark:bg-slate-800 border border-gray-200 dark:border-slate-700 focus:ring-2 focus:ring-orange-500 outline-none transition-all shadow-sm accent-input"
+                    oninput="filterPosts(this.value)">
+            </div>
+        </div>
+
+        <div id="posts-loader" class="text-center py-20 hidden"><span class="loader"></span></div>
+        <div id="posts-grid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6"></div>
+        <div id="no-results" class="hidden text-center py-10 text-gray-400">
+            <ion-icon name="search-outline" class="text-4xl mb-2 opacity-50"></ion-icon>
+            <p>No se encontraron resultados.</p>
+        </div>
+    </div>
+
+    <div id="view-authors" class="hidden space-y-6">
+        <div class="flex items-center justify-between mb-4">
+            <div class="flex items-center gap-2">
+                <button onclick="switchTab('home')" class="text-gray-400 hover:text-orange-500"><ion-icon
+                        name="arrow-back-outline"></ion-icon></button>
+                <h2 class="text-xl font-bold">Gestión de Autores</h2>
+            </div>
+            <button onclick="openAuthorModal()"
+                class="btn-primary text-white px-4 py-2 rounded-lg text-sm font-bold flex items-center gap-2">
+                <ion-icon name="person-add-outline"></ion-icon> Crear
+            </button>
+        </div>
+        <div id="authors-loader" class="text-center py-20 hidden"><span class="loader"></span></div>
+        <div id="authors-list" class="space-y-4"></div>
+    </div>
+
+    <div id="view-destinations" class="hidden space-y-6">
+        <!-- Header -->
+        <div class="flex justify-between items-center border-b pb-4 dark:border-slate-700 mb-6">
+            <div class="flex items-center gap-2">
+                <button onclick="switchTab('home')" class="text-gray-400 hover:text-orange-500">
+                    <ion-icon name="arrow-back-outline"></ion-icon>
+                </button>
+                <div>
+                    <h2 class="text-xl font-bold flex items-center gap-2">
+                        <span class="text-2xl">🇦🇷</span> Destinos Argentina
+                    </h2>
+                    <p class="text-xs text-gray-400 mt-1">Edita información de destinos turísticos de Argentina
+                    </p>
+                </div>
+            </div>
+            <div class="flex items-center gap-2">
+                <button onclick="openNewDestinationModal()"
+                    class="btn-primary text-white px-4 py-2 rounded-xl text-sm font-bold flex items-center gap-2">
+                    <ion-icon name="add-outline"></ion-icon> Nuevo Destino
+                </button>
+                <button onclick="loadDestinations()" class="text-gray-400 hover:text-orange-500 p-2" title="Recargar">
+                    <ion-icon name="refresh-outline" class="text-xl"></ion-icon>
+                </button>
+            </div>
+        </div>
+
+        <!-- Loader -->
+        <div id="destinations-loader" class="text-center py-20 hidden">
+            <span class="loader"></span>
+            <p class="text-gray-400 text-sm mt-4">Cargando destinos...</p>
+        </div>
+
+        <!-- Grid de Destinos -->
+        <div id="destinations-grid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4"></div>
+
+        <!-- Empty State -->
+        <div id="destinations-empty" class="hidden text-center py-20">
+            <ion-icon name="map-outline" class="text-6xl text-gray-300 dark:text-slate-600"></ion-icon>
+            <p class="text-gray-400 mt-4">No se encontraron destinos</p>
+        </div>
+    </div>
+
+    <!-- VISTA MÉXICO -->
+    <div id="view-destinations-mexico" class="hidden space-y-6">
+        <!-- Header -->
+        <div class="flex justify-between items-center border-b pb-4 dark:border-slate-700 mb-6">
+            <div class="flex items-center gap-2">
+                <button onclick="switchTab('home')" class="text-gray-400 hover:text-orange-500">
+                    <ion-icon name="arrow-back-outline"></ion-icon>
+                </button>
+                <div>
+                    <h2 class="text-xl font-bold flex items-center gap-2">
+                        <span class="text-2xl">🇲🇽</span> Destinos México
+                    </h2>
+                    <p class="text-xs text-gray-400 mt-1">Edita información de destinos turísticos de México
+                    </p>
+                </div>
+            </div>
+            <div class="flex items-center gap-2">
+                <button onclick="openNewDestinationModal()"
+                    class="btn-primary-mexico bg-emerald-600 hover:bg-emerald-700 text-white px-4 py-2 rounded-xl text-sm font-bold flex items-center gap-2">
+                    <ion-icon name="add-outline"></ion-icon> Nuevo Destino
+                </button>
+                <button onclick="loadDestinationsMexico()" class="text-gray-400 hover:text-emerald-500 p-2"
+                    title="Recargar">
+                    <ion-icon name="refresh-outline" class="text-xl"></ion-icon>
+                </button>
+            </div>
+        </div>
+
+        <!-- Loader -->
+        <div id="destinations-mexico-loader" class="text-center py-20 hidden">
+            <span class="loader border-t-emerald-500"></span>
+            <p class="text-gray-400 text-sm mt-4">Cargando destinos de México...</p>
+        </div>
+
+        <!-- Grid de Destinos -->
+        <div id="destinations-mexico-grid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4"></div>
+
+        <!-- Empty State -->
+        <div id="destinations-mexico-empty" class="hidden text-center py-20">
+            <ion-icon name="map-outline" class="text-6xl text-gray-300 dark:text-slate-600"></ion-icon>
+            <p class="text-gray-400 mt-4">No se encontraron destinos en México</p>
+        </div>
+    </div>
+
+    <!-- VISTA ESTADÍSTICAS -->
+    <div id="view-stats" class="hidden space-y-6">
+        <div class="flex justify-between items-center border-b pb-4 dark:border-slate-700 mb-6">
+            <div class="flex items-center gap-2">
+                <button onclick="switchTab('home')" class="text-gray-400 hover:text-orange-500">
+                    <ion-icon name="arrow-back-outline"></ion-icon>
+                </button>
+                <div>
+                    <h2 class="text-xl font-bold flex items-center gap-2">
+                        <ion-icon name="bar-chart-outline" class="text-indigo-500"></ion-icon> Estadísticas
+                    </h2>
+                    <p class="text-xs text-gray-400 mt-1">Rendimiento de tus publicaciones</p>
+                </div>
+            </div>
+            <button onclick="loadStats()" class="text-gray-400 hover:text-orange-500 p-2" title="Recargar">
+                <ion-icon name="refresh-outline" class="text-xl"></ion-icon>
+            </button>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+            <div
+                class="bg-white dark:bg-slate-800 p-6 rounded-2xl border border-gray-200 dark:border-slate-700 shadow-sm relative overflow-hidden">
+                <div class="relative z-10">
+                    <p class="text-sm text-gray-500 mb-1">Total Vistas</p>
+                    <h3 class="text-3xl font-bold text-gray-800 dark:text-white" id="stat-total-views">--</h3>
+                </div>
+                <ion-icon name="eye-outline"
+                    class="absolute right-4 bottom-4 text-6xl text-gray-100 dark:text-slate-700"></ion-icon>
+            </div>
+            <div
+                class="bg-white dark:bg-slate-800 p-6 rounded-2xl border border-gray-200 dark:border-slate-700 shadow-sm relative overflow-hidden">
+                <div class="relative z-10">
+                    <p class="text-sm text-gray-500 mb-1">Post Más Leído</p>
+                    <h3 class="text-lg font-bold text-gray-800 dark:text-white line-clamp-2" id="stat-top-post">
+                        --</h3>
+                    <p class="text-xs text-indigo-500 mt-1" id="stat-top-post-views">-- vistas</p>
+                </div>
+                <ion-icon name="trophy-outline"
+                    class="absolute right-4 bottom-4 text-6xl text-yellow-100 dark:text-yellow-900/20"></ion-icon>
+            </div>
+        </div>
+
+        <div
+            class="bg-white dark:bg-slate-800 rounded-2xl border border-gray-200 dark:border-slate-700 overflow-hidden shadow-sm">
+            <div class="p-6 border-b border-gray-200 dark:border-slate-700 flex justify-between items-center">
+                <h3 class="font-bold">Desglose por Artículo</h3>
+            </div>
+            <div class="overflow-x-auto">
+                <table class="w-full text-left text-sm">
+                    <thead class="bg-gray-50 dark:bg-slate-900/50 text-gray-500 uppercase text-xs">
+                        <tr>
+                            <th class="px-6 py-4 font-semibold">Título</th>
+                            <th class="px-6 py-4 font-semibold text-right">Vistas</th>
+                        </tr>
+                    </thead>
+                    <tbody id="stats-table-body" class="divide-y divide-gray-200 dark:divide-slate-700">
+                        <!-- JS inserts rows here -->
+                    </tbody>
+                </table>
+            </div>
+            <div id="stats-loader" class="hidden text-center py-10"><span class="loader"></span></div>
+            <div id="stats-empty" class="hidden text-center py-10 text-gray-400">No hay datos aún.</div>
+        </div>
+    </div>
+
+    <!-- VISTA ESPAÑA (EN CONSTRUCCIÓN) -->
+    <div id="view-destinations-espana" class="hidden space-y-6">
+        <!-- Header -->
+        <div class="flex justify-between items-center border-b pb-4 dark:border-slate-700 mb-6">
+            <div class="flex items-center gap-2">
+                <button onclick="switchTab('home')" class="text-gray-400 hover:text-orange-500">
+                    <ion-icon name="arrow-back-outline"></ion-icon>
+                </button>
+                <div>
+                    <h2 class="text-xl font-bold flex items-center gap-2">
+                        <span class="text-2xl">🇪🇸</span> Destinos España
+                        <span class="text-[10px] bg-amber-100 text-amber-700 px-2 py-0.5 rounded-full">🚧 EN
+                            CONSTRUCCIÓN</span>
+                    </h2>
+                    <p class="text-xs text-gray-400 mt-1">Próximamente: Gestión de destinos turísticos de España
+                    </p>
+                </div>
+            </div>
+            <button onclick="loadDestinationsEspana()"
+                class="text-gray-400 hover:text-orange-500 p-2 opacity-50 cursor-not-allowed" disabled
+                title="Próximamente">
+                <ion-icon name="refresh-outline" class="text-xl"></ion-icon>
+            </button>
+        </div>
+
+        <!-- Under Construction Message -->
+        <div class="text-center py-20">
+            <div
+                class="inline-flex items-center justify-center w-24 h-24 rounded-full bg-amber-100 dark:bg-amber-900/30 mb-6">
+                <span class="text-5xl">🚧</span>
+            </div>
+            <h3 class="text-xl font-bold text-gray-700 dark:text-gray-300 mb-2">Módulo en Construcción</h3>
+            <p class="text-gray-500 max-w-md mx-auto mb-6">
+                Este módulo estará disponible próximamente. Permitirá gestionar los destinos turísticos de
+                España
+                conectándose al repositorio <code
+                    class="bg-gray-100 dark:bg-slate-700 px-2 py-1 rounded text-sm">destinos_espana</code>.
+            </p>
+            <div class="flex flex-col items-center gap-3">
+                <div class="flex items-center gap-2 text-sm text-gray-400">
+                    <ion-icon name="git-branch-outline"></ion-icon>
+                    <span>Repo: destinos_espana</span>
+                </div>
+                <div class="flex items-center gap-2 text-sm text-gray-400">
+                    <ion-icon name="folder-outline"></ion-icon>
+                    <span>Path: src/content/destinos</span>
+                </div>
+            </div>
+
+            <div
+                class="mt-8 p-4 bg-gray-50 dark:bg-slate-800/50 rounded-xl border border-dashed border-gray-300 dark:border-slate-600 max-w-md mx-auto">
+                <p class="text-xs text-gray-500">
+                    <strong>Próximos pasos:</strong><br>
+                    1. Crear repositorio <code>destinos_espana</code><br>
+                    2. Clonar estructura desde Argentina<br>
+                    3. Habilitar este módulo
+                </p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal de Edición de Destino -->
+    <div id="destination-modal" class="modal-overlay fixed inset-0 bg-black/60 backdrop-blur-sm z-50">
+        <div
+            class="modal-content bg-white dark:bg-slate-800 rounded-2xl w-full max-w-2xl max-h-[90vh] overflow-hidden shadow-2xl mx-4">
+            <!-- Modal Header -->
+            <div
+                class="flex items-center justify-between p-4 border-b dark:border-slate-700 bg-gray-50 dark:bg-slate-900/50">
+                <div class="flex items-center gap-3">
+                    <div
+                        class="w-10 h-10 rounded-xl bg-gradient-to-br from-orange-400 to-pink-500 flex items-center justify-center text-white">
+                        <ion-icon name="location-outline" class="text-xl"></ion-icon>
+                    </div>
+                    <div>
+                        <h3 class="font-bold text-lg" id="dest-modal-title">Editando Destino</h3>
+                        <p class="text-xs text-gray-400" id="dest-modal-slug">slug-destino</p>
+                    </div>
+                </div>
+                <button onclick="closeDestinationModal()" class="text-gray-400 hover:text-red-500 p-2">
+                    <ion-icon name="close-outline" class="text-2xl"></ion-icon>
+                </button>
+            </div>
+
+            <!-- Modal Body -->
+            <div class="p-6 overflow-y-auto max-h-[calc(90vh-140px)] space-y-6">
+                <!-- Slug field (only for new destinations) -->
+                <div id="dest-slug-container" class="hidden">
+                    <label class="block text-xs font-bold text-gray-500 mb-2 uppercase">
+                        Slug (nombre del archivo) *
+                    </label>
+                    <div class="flex items-center gap-2">
+                        <input type="text" id="dest-slug-input"
+                            class="accent-input flex-1 px-4 py-3 rounded-xl border dark:bg-slate-700 dark:border-slate-600 focus:ring-2 focus:ring-orange-500"
+                            placeholder="cordoba"
+                            oninput="this.value = this.value.toLowerCase().replace(/[^a-z0-9-]/g, '-')">
+                        <span class="text-gray-400 text-sm">.md</span>
+                    </div>
+                    <p class="text-xs text-gray-400 mt-1">Solo letras minúsculas, números y guiones. Ej:
+                        san-carlos-de-bariloche</p>
+                </div>
+
+                <!-- Campos Básicos -->
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div>
+                        <label class="block text-xs font-bold text-gray-500 mb-2 uppercase">Título *</label>
+                        <input type="text" id="dest-title"
+                            class="accent-input w-full px-4 py-3 rounded-xl border dark:bg-slate-700 dark:border-slate-600 focus:ring-2 focus:ring-orange-500 focus:border-transparent"
+                            placeholder="Buenos Aires">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-bold text-gray-500 mb-2 uppercase">Imagen Hero</label>
+                        <div class="flex gap-2">
+                            <input type="text" id="dest-img"
+                                class="accent-input flex-1 px-4 py-3 rounded-xl border dark:bg-slate-700 dark:border-slate-600 focus:ring-2 focus:ring-orange-500"
+                                placeholder="/argentina/ciudad.jpg">
+                            <button onclick="uploadDestinationImage()"
+                                class="px-4 py-3 bg-gray-100 dark:bg-slate-600 rounded-xl hover:bg-gray-200 dark:hover:bg-slate-500 transition-colors">
+                                <ion-icon name="cloud-upload-outline"></ion-icon>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <div>
+                    <label class="block text-xs font-bold text-gray-500 mb-2 uppercase">Descripción
+                        Corta</label>
+                    <input type="text" id="dest-desc"
+                        class="accent-input w-full px-4 py-3 rounded-xl border dark:bg-slate-700 dark:border-slate-600 focus:ring-2 focus:ring-orange-500"
+                        placeholder="La París de Sudamérica...">
+                </div>
+
+                <div>
+                    <label class="block text-xs font-bold text-gray-500 mb-2 uppercase">Historia /
+                        Bienvenida</label>
+                    <textarea id="dest-historia" rows="4"
+                        class="accent-input w-full px-4 py-3 rounded-xl border dark:bg-slate-700 dark:border-slate-600 focus:ring-2 focus:ring-orange-500 resize-none"
+                        placeholder="Texto de bienvenida al destino..."></textarea>
+                </div>
+
+                <!-- Secciones -->
+                <div>
+                    <div class="flex items-center justify-between mb-3">
+                        <label class="text-xs font-bold text-gray-500 uppercase">Secciones Informativas</label>
+                        <button onclick="addSection()"
+                            class="text-xs text-orange-500 hover:text-orange-600 font-bold flex items-center gap-1">
+                            <ion-icon name="add-circle-outline"></ion-icon> Agregar
+                        </button>
+                    </div>
+                    <div id="dest-secciones" class="space-y-3"></div>
+                </div>
+
+                <!-- FAQs Section -->
+                <div class="border-t dark:border-slate-700 pt-6">
+                    <div class="flex items-center justify-between mb-3">
+                        <div class="flex items-center gap-2">
+                            <ion-icon name="help-circle-outline" class="text-blue-500 text-lg"></ion-icon>
+                            <label class="text-xs font-bold text-gray-500 uppercase">Preguntas Frecuentes
+                                (FAQs)</label>
+                        </div>
+                        <button onclick="addFAQ()"
+                            class="text-xs text-blue-500 hover:text-blue-600 font-bold flex items-center gap-1">
+                            <ion-icon name="add-circle-outline"></ion-icon> Agregar FAQ
+                        </button>
+                    </div>
+                    <p class="text-xs text-gray-400 mb-3">Las FAQs aparecerán en la página del destino con
+                        Schema SEO para Google.</p>
+                    <div id="dest-faqs" class="space-y-3"></div>
+                </div>
+
+                <!-- Lead Magnet Section -->
+                <div class="border-t dark:border-slate-700 pt-6">
+                    <div class="flex items-center gap-2 mb-3">
+                        <ion-icon name="gift-outline" class="text-green-500 text-lg"></ion-icon>
+                        <label class="text-xs font-bold text-gray-500 uppercase">Lead Magnet (Descargable
+                            Gratis)</label>
+                    </div>
+                    <p class="text-xs text-gray-400 mb-3">Ofrece un recurso gratis para capturar leads. Deja
+                        vacío si no tienes uno aún.</p>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div>
+                            <label class="block text-[10px] text-gray-400 mb-1">Título del Recurso</label>
+                            <input type="text" id="dest-leadmagnet-titulo"
+                                class="accent-input w-full px-3 py-2 rounded-lg border dark:bg-slate-700 dark:border-slate-600 text-sm"
+                                placeholder="Checklist de viaje a Buenos Aires">
+                        </div>
+                        <div>
+                            <label class="block text-[10px] text-gray-400 mb-1">URL del Archivo (PDF)</label>
+                            <input type="text" id="dest-leadmagnet-archivo"
+                                class="accent-input w-full px-3 py-2 rounded-lg border dark:bg-slate-700 dark:border-slate-600 text-sm"
+                                placeholder="/downloads/checklist.pdf">
+                        </div>
+                    </div>
+                    <div class="mt-3">
+                        <label class="block text-[10px] text-gray-400 mb-1">Descripción</label>
+                        <input type="text" id="dest-leadmagnet-descripcion"
+                            class="accent-input w-full px-3 py-2 rounded-lg border dark:bg-slate-700 dark:border-slate-600 text-sm"
+                            placeholder="Todo lo que necesitas para tu viaje...">
+                    </div>
+                    <div class="mt-3">
+                        <label class="block text-[10px] text-gray-400 mb-1">Imagen de Preview (opcional)</label>
+                        <input type="text" id="dest-leadmagnet-imagen"
+                            class="accent-input w-full px-3 py-2 rounded-lg border dark:bg-slate-700 dark:border-slate-600 text-sm"
+                            placeholder="https://images.unsplash.com/...">
+                    </div>
+                </div>
+
+                <!-- V3: CHECKLIST -->
+                <div class="border-t dark:border-slate-700 pt-6">
+                    <div class="flex items-center justify-between mb-3">
+                        <div class="flex items-center gap-2">
+                            <ion-icon name="checkbox-outline" class="text-emerald-500 text-lg"></ion-icon>
+                            <label class="text-xs font-bold text-gray-500 uppercase">Checklist de
+                                Supervivencia</label>
+                        </div>
+                        <button onclick="addChecklist()"
+                            class="text-xs text-emerald-500 hover:text-emerald-600 font-bold flex items-center gap-1">
+                            <ion-icon name="add-circle-outline"></ion-icon> Agregar
+                        </button>
+                    </div>
+                    <p class="text-xs text-gray-400 mb-3">Tips esenciales: Dinero, Transporte, eSIM, Seguridad.
+                    </p>
+                    <div id="dest-checklist" class="space-y-3"></div>
+                </div>
+
+                <!-- V3: BARRIOS -->
+                <div class="border-t dark:border-slate-700 pt-6">
+                    <div class="flex items-center justify-between mb-3">
+                        <div class="flex items-center gap-2">
+                            <ion-icon name="location-outline" class="text-purple-500 text-lg"></ion-icon>
+                            <label class="text-xs font-bold text-gray-500 uppercase">Barrios (Dónde
+                                alojarse)</label>
+                        </div>
+                        <button onclick="addBarrio()"
+                            class="text-xs text-purple-500 hover:text-purple-600 font-bold flex items-center gap-1">
+                            <ion-icon name="add-circle-outline"></ion-icon> Agregar
+                        </button>
+                    </div>
+                    <p class="text-xs text-gray-400 mb-3">Barrios con "vibra" e "ideal para".</p>
+                    <div id="dest-barrios" class="space-y-3"></div>
+                </div>
+
+                <!-- V3: EXPERIENCIAS (Top 7) -->
+                <div class="border-t dark:border-slate-700 pt-6">
+                    <div class="flex items-center justify-between mb-3">
+                        <div class="flex items-center gap-2">
+                            <ion-icon name="star-outline" class="text-amber-500 text-lg"></ion-icon>
+                            <label class="text-xs font-bold text-gray-500 uppercase">Experiencias</label>
+                        </div>
+                        <button onclick="addExperiencia()"
+                            class="text-xs text-amber-500 hover:text-amber-600 font-bold flex items-center gap-1">
+                            <ion-icon name="add-circle-outline"></ion-icon> Agregar
+                        </button>
+                    </div>
+                    <p class="text-xs text-gray-400 mb-3">Mix de GRATIS/PREMIUM con tags y CTAs afiliados.</p>
+                    <div id="dest-experiencias" class="space-y-3"></div>
+                </div>
+
+                <!-- V3: PREMIUM GUIDE -->
+                <div class="border-t dark:border-slate-700 pt-6">
+                    <div class="flex items-center gap-2 mb-3">
+                        <ion-icon name="diamond-outline" class="text-yellow-500 text-lg"></ion-icon>
+                        <label class="text-xs font-bold text-gray-500 uppercase">Guía Premium (Upsell)</label>
+                    </div>
+                    <p class="text-xs text-gray-400 mb-3">Configura la oferta de guía premium con precio
+                        tachado.</p>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div>
+                            <label class="block text-[10px] text-gray-400 mb-1">Título</label>
+                            <input type="text" id="dest-premium-titulo"
+                                class="accent-input w-full px-3 py-2 rounded-lg border dark:bg-slate-700 text-sm"
+                                placeholder="¿Quieres el viaje PERFECTO?">
+                        </div>
+                        <div>
+                            <label class="block text-[10px] text-gray-400 mb-1">Subtítulo</label>
+                            <input type="text" id="dest-premium-subtitulo"
+                                class="accent-input w-full px-3 py-2 rounded-lg border dark:bg-slate-700 text-sm"
+                                placeholder="No pierdas horas investigando...">
+                        </div>
+                    </div>
+                    <div class="mt-3">
+                        <label class="block text-[10px] text-gray-400 mb-1">Beneficios (uno por línea)</label>
+                        <textarea id="dest-premium-beneficios" rows="4"
+                            class="accent-input w-full px-3 py-2 rounded-lg border dark:bg-slate-700 text-sm resize-none"
+                            placeholder="Itinerarios detallados día por día&#10;Mapas offline secretos&#10;Restaurantes de locales"></textarea>
+                    </div>
+                    <div class="grid grid-cols-3 gap-4 mt-3">
+                        <div>
+                            <label class="block text-[10px] text-gray-400 mb-1">Precio Original</label>
+                            <input type="text" id="dest-premium-precioOriginal"
+                                class="accent-input w-full px-3 py-2 rounded-lg border dark:bg-slate-700 text-sm"
+                                placeholder="29.99" value="29.99">
+                        </div>
+                        <div>
+                            <label class="block text-[10px] text-gray-400 mb-1">Precio Oferta</label>
+                            <input type="text" id="dest-premium-precioOferta"
+                                class="accent-input w-full px-3 py-2 rounded-lg border dark:bg-slate-700 text-sm"
+                                placeholder="9.99" value="9.99">
+                        </div>
+                        <div>
+                            <label class="block text-[10px] text-gray-400 mb-1">Link Checkout</label>
+                            <input type="text" id="dest-premium-link"
+                                class="accent-input w-full px-3 py-2 rounded-lg border dark:bg-slate-700 text-sm"
+                                placeholder="/planifica/?destino=slug">
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Modal Footer -->
+            <div class="flex justify-end gap-3 p-4 border-t dark:border-slate-700 bg-gray-50 dark:bg-slate-900/50">
+                <button onclick="closeDestinationModal()"
+                    class="px-6 py-2.5 rounded-xl text-gray-500 hover:bg-gray-100 dark:hover:bg-slate-700 transition-colors font-medium">
+                    Cancelar
+                </button>
+                <button id="dest-save-btn" onclick="saveDestination()"
+                    class="btn-primary text-white px-6 py-2.5 rounded-xl font-bold flex items-center gap-2">
+                    <ion-icon name="save-outline"></ion-icon> <span id="dest-save-text">Guardar Cambios</span>
+                </button>
+            </div>
+        </div>
+    </div>
+
+
+    <!-- ========== TOURS MANAGER ========== -->
+    <div id="view-tours" class="hidden space-y-6">
+        <div class="flex justify-between items-center border-b pb-4 dark:border-slate-700 mb-6">
+            <div class="flex items-center gap-2">
+                <button onclick="switchTab('home')" class="text-gray-400 hover:text-orange-500">
+                    <ion-icon name="arrow-back-outline"></ion-icon>
+                </button>
+                <div>
+                    <h2 class="text-xl font-bold flex items-center gap-2">
+                        <span class="text-2xl">🎟️</span> Tours Manager
+                    </h2>
+                    <p class="text-xs text-gray-400 mt-1">Gestiona tours y experiencias por país</p>
+                </div>
+            </div>
+            <button onclick="openTourModal()"
+                class="btn-primary text-white px-4 py-2 rounded-xl text-sm font-bold flex items-center gap-2">
+                <ion-icon name="add-outline"></ion-icon> Nuevo Tour
+            </button>
+        </div>
+
+        <!-- Country Tabs -->
+        <div id="tours-country-tabs" class="flex gap-2 mb-6"></div>
+
+        <!-- Tours Grid -->
+        <div id="tours-grid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4"></div>
+    </div>
+
+    <!-- TOUR MODAL -->
+    <div id="tour-modal"
+        class="fixed inset-0 bg-black/60 z-50 flex items-center justify-center p-4 opacity-0 pointer-events-none transition-opacity duration-200"
+        style="backdrop-filter: blur(4px);">
+        <div class="bg-white dark:bg-slate-800 rounded-2xl w-full max-w-lg shadow-2xl">
+            <div class="p-5 border-b dark:border-slate-700 flex items-center justify-between">
+                <h3 id="tour-modal-title" class="font-bold text-lg">Nuevo Tour</h3>
+                <button onclick="closeTourModal()" class="text-gray-400 hover:text-red-500">
+                    <ion-icon name="close-outline" class="text-2xl"></ion-icon>
+                </button>
+            </div>
+            <div class="p-5 space-y-4 max-h-[70vh] overflow-y-auto">
+                <div>
+                    <label class="text-xs font-bold text-gray-500 mb-1 block">Título del Tour</label>
+                    <input type="text" id="tour-titulo" placeholder="Tour de Tango & Cena Show"
+                        class="w-full px-4 py-3 rounded-xl border dark:border-slate-600 dark:bg-slate-700 text-sm">
+                </div>
+                <div class="grid grid-cols-2 gap-4">
+                    <div>
+                        <label class="text-xs font-bold text-gray-500 mb-1 block">Ciudad</label>
+                        <select id="tour-ciudad"
+                            class="w-full px-4 py-3 rounded-xl border dark:border-slate-600 dark:bg-slate-700 text-sm">
+                        </select>
+                    </div>
+                    <div>
+                        <label class="text-xs font-bold text-gray-500 mb-1 block">Precio</label>
+                        <input type="text" id="tour-precio" placeholder="US$ 80"
+                            class="w-full px-4 py-3 rounded-xl border dark:border-slate-600 dark:bg-slate-700 text-sm">
+                    </div>
+                </div>
+                <div>
+                    <label class="text-xs font-bold text-gray-500 mb-1 block">Duración</label>
+                    <input type="text" id="tour-duracion" placeholder="4 horas, Medio día, Día completo"
+                        class="w-full px-4 py-3 rounded-xl border dark:border-slate-600 dark:bg-slate-700 text-sm">
+                </div>
+                <div>
+                    <label class="text-xs font-bold text-gray-500 mb-1 block">Imagen (URL)</label>
+                    <input type="url" id="tour-imagen" placeholder="https://images.unsplash.com/..."
+                        class="w-full px-4 py-3 rounded-xl border dark:border-slate-600 dark:bg-slate-700 text-sm">
+                </div>
+                <div>
+                    <label class="text-xs font-bold text-gray-500 mb-1 block">Link de Afiliado
+                        (Civitatis/GYG)</label>
+                    <input type="url" id="tour-link" placeholder="https://www.civitatis.com/...?aid=12345"
+                        class="w-full px-4 py-3 rounded-xl border dark:border-slate-600 dark:bg-slate-700 text-sm">
+                </div>
+            </div>
+            <div class="p-5 border-t dark:border-slate-700 flex justify-end gap-3">
+                <button onclick="closeTourModal()"
+                    class="px-4 py-2 rounded-xl text-sm font-bold text-gray-500 hover:bg-gray-100 dark:hover:bg-slate-700">
+                    Cancelar
+                </button>
+                <button onclick="saveTour()"
+                    class="btn-primary px-6 py-2 rounded-xl text-sm font-bold text-white flex items-center gap-2">
+                    <ion-icon name="checkmark-outline"></ion-icon> Guardar
+                </button>
+            </div>
+        </div>
+    </div>
+
+
+    <div id="view-affiliates" class="hidden space-y-6">
+        <div class="flex items-center justify-between mb-4">
+            <div class="flex items-center gap-2">
+                <button onclick="switchTab('home')" class="text-gray-400 hover:text-orange-500"><ion-icon
+                        name="arrow-back-outline"></ion-icon></button>
+                <div>
+                    <h2 class="text-xl font-bold">APIs & Affiliates</h2>
+                    <p class="text-xs text-gray-400 mt-1">Configuración centralizada para todos los sitios</p>
+                </div>
+            </div>
+            <button onclick="saveAffiliates()"
+                class="btn-primary text-white px-4 py-2 rounded-lg text-sm font-bold flex items-center gap-2">
+                <ion-icon name="save-outline"></ion-icon> Guardar
+            </button>
+        </div>
+
+        <div id="affiliates-loader" class="text-center py-20 hidden"><span class="loader"></span></div>
+
+        <div id="affiliates-content" class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+            <!-- Booking -->
+            <div
+                class="bg-white dark:bg-slate-800 p-6 rounded-2xl border border-gray-200 dark:border-slate-700 shadow-sm">
+                <div class="flex items-center justify-between mb-4">
+                    <div class="flex items-center gap-3">
+                        <div
+                            class="w-10 h-10 rounded-lg bg-blue-100 dark:bg-blue-900/30 flex items-center justify-center">
+                            <span class="text-xl">🏨</span>
+                        </div>
+                        <div>
+                            <h3 class="font-bold text-sm">Booking.com</h3>
+                            <p class="text-[10px] text-gray-400">Hoteles y alojamientos</p>
+                        </div>
+                    </div>
+                    <label class="relative inline-flex items-center cursor-pointer">
+                        <input type="checkbox" id="booking-enabled" class="sr-only peer">
+                        <div
+                            class="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-orange-300 dark:peer-focus:ring-orange-800 rounded-full peer dark:bg-gray-700 peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all dark:border-gray-600 peer-checked:bg-orange-500">
+                        </div>
+                    </label>
+                </div>
+                <div class="space-y-3">
+                    <div>
+                        <label class="text-[10px] text-gray-400 uppercase font-bold">Affiliate ID</label>
+                        <input type="text" id="booking-affiliateId" placeholder="ej: 1234567"
+                            class="w-full p-2.5 rounded-lg bg-gray-50 dark:bg-slate-700 border dark:border-slate-600 accent-input text-sm">
+                    </div>
+                </div>
+            </div>
+
+            <!-- Skyscanner -->
+            <div
+                class="bg-white dark:bg-slate-800 p-6 rounded-2xl border border-gray-200 dark:border-slate-700 shadow-sm">
+                <div class="flex items-center justify-between mb-4">
+                    <div class="flex items-center gap-3">
+                        <div
+                            class="w-10 h-10 rounded-lg bg-cyan-100 dark:bg-cyan-900/30 flex items-center justify-center">
+                            <span class="text-xl">✈️</span>
+                        </div>
+                        <div>
+                            <h3 class="font-bold text-sm">Skyscanner</h3>
+                            <p class="text-[10px] text-gray-400">Vuelos y comparador</p>
+                        </div>
+                    </div>
+                    <label class="relative inline-flex items-center cursor-pointer">
+                        <input type="checkbox" id="skyscanner-enabled" class="sr-only peer">
+                        <div
+                            class="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-orange-300 dark:peer-focus:ring-orange-800 rounded-full peer dark:bg-gray-700 peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all dark:border-gray-600 peer-checked:bg-orange-500">
+                        </div>
+                    </label>
+                </div>
+                <div class="space-y-3">
+                    <div>
+                        <label class="text-[10px] text-gray-400 uppercase font-bold">Affiliate Tag</label>
+                        <input type="text" id="skyscanner-affiliateTag" placeholder="ej: instante_trips"
+                            class="w-full p-2.5 rounded-lg bg-gray-50 dark:bg-slate-700 border dark:border-slate-600 accent-input text-sm">
+                    </div>
+                </div>
+            </div>
+
+            <!-- Civitatis -->
+            <div
+                class="bg-white dark:bg-slate-800 p-6 rounded-2xl border border-gray-200 dark:border-slate-700 shadow-sm">
+                <div class="flex items-center justify-between mb-4">
+                    <div class="flex items-center gap-3">
+                        <div
+                            class="w-10 h-10 rounded-lg bg-orange-100 dark:bg-orange-900/30 flex items-center justify-center">
+                            <span class="text-xl">🎫</span>
+                        </div>
+                        <div>
+                            <h3 class="font-bold text-sm">Civitatis</h3>
+                            <p class="text-[10px] text-gray-400">Tours y actividades</p>
+                        </div>
+                    </div>
+                    <label class="relative inline-flex items-center cursor-pointer">
+                        <input type="checkbox" id="civitatis-enabled" class="sr-only peer">
+                        <div
+                            class="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-orange-300 dark:peer-focus:ring-orange-800 rounded-full peer dark:bg-gray-700 peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all dark:border-gray-600 peer-checked:bg-orange-500">
+                        </div>
+                    </label>
+                </div>
+                <div class="space-y-3">
+                    <div>
+                        <label class="text-[10px] text-gray-400 uppercase font-bold">Affiliate ID</label>
+                        <input type="text" id="civitatis-affiliateId" placeholder="ej: 12345"
+                            class="w-full p-2.5 rounded-lg bg-gray-50 dark:bg-slate-700 border dark:border-slate-600 accent-input text-sm">
+                    </div>
+                </div>
+            </div>
+
+            <!-- Adsense -->
+            <div
+                class="bg-white dark:bg-slate-800 p-6 rounded-2xl border border-gray-200 dark:border-slate-700 shadow-sm">
+                <div class="flex items-center justify-between mb-4">
+                    <div class="flex items-center gap-3">
+                        <div
+                            class="w-10 h-10 rounded-lg bg-green-100 dark:bg-green-900/30 flex items-center justify-center">
+                            <span class="text-xl">💰</span>
+                        </div>
+                        <div>
+                            <h3 class="font-bold text-sm">Google Adsense</h3>
+                            <p class="text-[10px] text-gray-400">Monetización de anuncios</p>
+                        </div>
+                    </div>
+                    <label class="relative inline-flex items-center cursor-pointer">
+                        <input type="checkbox" id="adsense-enabled" class="sr-only peer">
+                        <div
+                            class="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-orange-300 dark:peer-focus:ring-orange-800 rounded-full peer dark:bg-gray-700 peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all dark:border-gray-600 peer-checked:bg-orange-500">
+                        </div>
+                    </label>
+                </div>
+                <div class="space-y-3">
+                    <div>
+                        <label class="text-[10px] text-gray-400 uppercase font-bold">Publisher ID</label>
+                        <input type="text" id="adsense-publisherId" placeholder="ej: ca-pub-XXXXXXXX"
+                            class="w-full p-2.5 rounded-lg bg-gray-50 dark:bg-slate-700 border dark:border-slate-600 accent-input text-sm">
+                    </div>
+                    <div class="grid grid-cols-2 gap-2">
+                        <div>
+                            <label class="text-[10px] text-gray-400 uppercase font-bold">Slot Sidebar</label>
+                            <input type="text" id="adsense-slot-sidebar" placeholder="ID slot"
+                                class="w-full p-2.5 rounded-lg bg-gray-50 dark:bg-slate-700 border dark:border-slate-600 accent-input text-sm">
+                        </div>
+                        <div>
+                            <label class="text-[10px] text-gray-400 uppercase font-bold">Slot Inline</label>
+                            <input type="text" id="adsense-slot-inline" placeholder="ID slot"
+                                class="w-full p-2.5 rounded-lg bg-gray-50 dark:bg-slate-700 border dark:border-slate-600 accent-input text-sm">
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div
+            class="bg-gray-50 dark:bg-slate-800/50 p-4 rounded-xl border border-dashed border-gray-300 dark:border-slate-700 mt-6">
+            <p class="text-xs text-gray-500 flex items-center gap-2">
+                <ion-icon name="information-circle-outline" class="text-lg"></ion-icon>
+                Los cambios se aplicarán a todos los sitios (blog, argentina, etc.) después de rebuild.
+            </p>
+        </div>
+    </div>
+
+    </main>
+    </div>
+
+    <div id="author-modal" class="modal-overlay">
+        <div class="modal-content bg-white dark:bg-slate-900 w-full max-w-lg rounded-2xl shadow-2xl p-6 relative m-4">
+            <button onclick="closeAuthorModal()"
+                class="absolute top-4 right-4 text-2xl text-gray-400 hover:text-red-500"><ion-icon
+                    name="close-outline"></ion-icon></button>
+            <h3 class="text-xl font-bold mb-6 text-orange-500" id="modal-title">Gestión de Autor</h3>
+            <form id="author-form" class="space-y-4">
+                <input type="hidden" id="auth-slug-orig">
+                <div class="grid grid-cols-2 gap-4">
+                    <div><label class="text-[10px] text-gray-400 uppercase font-bold">Nombre</label><input type="text"
+                            id="auth-name"
+                            class="w-full p-2.5 rounded-lg bg-gray-50 dark:bg-slate-800 border dark:border-slate-700 accent-input"
+                            required oninput="generateSlug()"></div>
+                    <div><label class="text-[10px] text-gray-400 uppercase font-bold">Slug</label><input type="text"
+                            id="auth-slug"
+                            class="w-full p-2.5 rounded-lg bg-gray-50 dark:bg-slate-800 border dark:border-slate-700 accent-input text-gray-500"
+                            readonly></div>
+                </div>
+                <div><label class="text-[10px] text-gray-400 uppercase font-bold">Rol</label><input type="text"
+                        id="auth-role"
+                        class="w-full p-2.5 rounded-lg bg-gray-50 dark:bg-slate-800 border dark:border-slate-700 accent-input"
+                        required></div>
+                <div><label class="text-[10px] text-gray-400 uppercase font-bold">Email</label><input type="email"
+                        id="auth-email"
+                        class="w-full p-2.5 rounded-lg bg-gray-50 dark:bg-slate-800 border dark:border-slate-700 accent-input">
+                </div>
+                <div><label class="text-[10px] text-gray-400 uppercase font-bold">Bio</label><textarea id="auth-bio"
+                        rows="3"
+                        class="w-full p-2.5 rounded-lg bg-gray-50 dark:bg-slate-800 border dark:border-slate-700 accent-input resize-none"></textarea>
+                </div>
+                <div>
+                    <label class="text-[10px] text-gray-400 uppercase font-bold">Foto</label>
+                    <div class="flex items-center gap-4 mt-1">
+                        <img id="auth-preview" src="" class="w-12 h-12 rounded-full object-cover bg-gray-200">
+                        <input type="file" id="auth-file" class="text-xs text-gray-500" accept="image/*"
+                            onchange="previewImage(this)">
+                        <input type="hidden" id="auth-current-img">
+                    </div>
+                </div>
+                <div class="pt-2"><button type="submit"
+                        class="w-full btn-primary text-white py-3 rounded-xl font-bold shadow-lg text-sm">Guardar
+                        Autor</button></div>
+            </form>
+        </div>
+    </div>
+
+    <div id="toast-container" class="fixed bottom-6 right-6 z-[80] flex flex-col gap-2 pointer-events-none"></div>
+
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
+        import { getAuth, signInWithEmailAndPassword, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
+        import { getFirestore, doc, getDoc, setDoc, serverTimestamp, collection, query, getDocs, orderBy, limit } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+
+        const ADMIN_EMAIL = "danielaranadj@gmail.com";
+
+        const firebaseConfig = {
+            apiKey: "AIzaSyBdsu65Voj8en9u_7eL5q0YRFuCC7fUYWA",
+            authDomain: "instantetrips-editor.firebaseapp.com",
+            projectId: "instantetrips-editor",
+            storageBucket: "instantetrips-editor.firebasestorage.app",
+            messagingSenderId: "281917140804",
+            appId: "1:281917140804:web:ed712e65c9c4b77dd3b111"
+        };
+
+        const app = initializeApp(firebaseConfig);
+        const auth = getAuth(app);
+        const db = getFirestore(app);
+
+        // Expose Firestore globally for tours-manager.js
+        window.firestoreDB = db;
+        window.firestoreDoc = doc;
+        window.firestoreGetDoc = getDoc;
+        window.firestoreSetDoc = setDoc;
+
+        let githubConfig = null;
+        let authorsData = {};
+        let authorsSha = null;
+        let cachedPosts = [];
+        let affiliatesLoaded = false;
+
+        // AUTH
+        document.getElementById('login-form').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const email = document.getElementById('email').value;
+            const password = document.getElementById('password').value;
+            if (email.toLowerCase() !== ADMIN_EMAIL.toLowerCase()) {
+                showError("ACCESO DENEGADO: No tienes permisos."); return;
+            }
+            try { await signInWithEmailAndPassword(auth, email, password); }
+            catch (error) { showError("Credenciales incorrectas."); }
+        });
+
+        function showError(msg) {
+            const err = document.getElementById('login-error');
+            err.classList.remove('hidden'); err.textContent = msg;
+        }
+
+        window.logout = () => signOut(auth);
+
+        onAuthStateChanged(auth, async (user) => {
+            if (user && user.email.toLowerCase() === ADMIN_EMAIL.toLowerCase()) {
+                document.getElementById('login-section').classList.add('hidden');
+                document.getElementById('dashboard-section').classList.remove('hidden');
+                document.getElementById('admin-user-display').textContent = user.email;
+
+                // Dynamic greeting
+                const h = new Date().getHours();
+                const emoji = h < 6 ? '🌙' : h < 12 ? '☀️' : h < 19 ? '🌤️' : '🌙';
+                const saludo = h < 6 ? 'Buenas noches' : h < 12 ? 'Buenos días' : h < 19 ? 'Buenas tardes' : 'Buenas noches';
+                const gt = document.getElementById('greeting-text');
+                if (gt) gt.textContent = `${emoji} ${saludo}, SEO`;
+                const gd = document.getElementById('greeting-date');
+                if (gd) {
+                    const now = new Date();
+                    const dias = ['Domingo', 'Lunes', 'Martes', 'Miércoles', 'Jueves', 'Viernes', 'Sábado'];
+                    const meses = ['enero', 'febrero', 'marzo', 'abril', 'mayo', 'junio', 'julio', 'agosto', 'septiembre', 'octubre', 'noviembre', 'diciembre'];
+                    gd.textContent = `${dias[now.getDay()]} ${now.getDate()} de ${meses[now.getMonth()]} ${now.getFullYear()} · Selecciona un módulo`;
+                }
+
+                const docSnap = await getDoc(doc(db, "config", "main"));
+                if (docSnap.exists()) {
+                    githubConfig = docSnap.data();
+                    if (!githubConfig.postsPath.endsWith('/')) githubConfig.postsPath += '/';
+                    // No cargamos posts automáticamente al inicio para aligerar la carga del Dashboard
+                }
+            } else {
+                document.getElementById('login-section').classList.remove('hidden');
+                document.getElementById('dashboard-section').classList.add('hidden');
+                if (user) signOut(auth);
+            }
+        });
+
+        async function ghFetch(ep, m = 'GET', b = null) {
+            const opts = { method: m, headers: { 'Authorization': `token ${githubConfig.githubToken}`, 'Content-Type': 'application/json' } };
+            if (b) opts.body = JSON.stringify(b);
+            const res = await fetch(`https://api.github.com/repos/${githubConfig.repoOwner}/${githubConfig.repoName}${ep}`, opts);
+            if (!res.ok) throw new Error(`GitHub: ${res.status}`);
+            return res.json();
+        }
+
+        // --- NAVIGATION LOGIC (MODIFICADO PARA EL GRID) ---
+        // --- NAVIGATION LOGIC (MODIFICADO PARA EL GRID) ---
+        let toursLoaded = false;
+        window.switchTab = (tab) => {
+            // Ocultar todas las vistas
+            ['home', 'posts', 'authors', 'stats', 'destinations', 'destinations-mexico', 'destinations-espana', 'tours', 'affiliates'].forEach(t => {
+                const view = document.getElementById(`view-${t}`);
+                if (view) view.classList.add('hidden');
+            });
+
+            // Mostrar la seleccionada
+            document.getElementById(`view-${tab}`).classList.remove('hidden');
+
+            // Lógica de carga diferida
+            if (tab === 'posts' && cachedPosts.length === 0) loadPosts();
+            if (tab === 'authors' && Object.keys(authorsData).length === 0) fetchAuthors();
+            if (tab === 'stats') loadStats();
+            if (tab === 'affiliates' && !affiliatesLoaded) loadAffiliates();
+
+            if (tab === 'destinations') {
+                currentDestinationsRepo = 'argentina';
+                if (destinationsCache.length === 0) loadDestinations();
+            }
+            if (tab === 'destinations-mexico') {
+                currentDestinationsRepo = 'mexico';
+                if (destinationsCacheMexico.length === 0) loadDestinationsMexico();
+            }
+
+            if (tab === 'tours' && !toursLoaded) {
+                toursLoaded = true;
+                if (typeof initToursManager === 'function') initToursManager();
+            }
+            // España: cuando esté listo, descomentar:
+            // if (tab === 'destinations-espana' && destinationsEspanaCache.length === 0) loadDestinationsEspana();
+        };
+
+        // --- POSTS ---
+        window.loadPosts = async () => {
+            document.getElementById('posts-loader').classList.remove('hidden');
+            document.getElementById('posts-grid').innerHTML = '';
+            document.getElementById('no-results').classList.add('hidden');
+
+            try {
+                const files = await ghFetch(`/contents/${githubConfig.postsPath}`);
+                const mdFiles = files.filter(f => f.name.endsWith('.md'));
+                const promises = mdFiles.map(async (file) => {
+                    const data = await ghFetch(`/contents/${file.path}`);
+                    const content = decodeURIComponent(escape(atob(data.content)));
+                    const get = (k) => { const m = content.match(new RegExp(`${k}:\\s*["'](.+?)["']`)); return m ? m[1] : 'Unknown'; };
+                    return {
+                        name: file.name, path: file.path, sha: file.sha,
+                        title: get('title'), image: get('heroImage'),
+                        date: get('publishDate'), author: get('author')
+                    };
+                });
+                cachedPosts = await Promise.all(promises);
+                cachedPosts.sort((a, b) => new Date(b.date) - new Date(a.date));
+                updatePostsCount(cachedPosts.length);
+                renderGrid(cachedPosts);
+            } catch (e) { showToast("Error cargando posts", "error"); }
+            finally { document.getElementById('posts-loader').classList.add('hidden'); }
+        };
+
+        function updatePostsCount(count) {
+            // Update dashboard badge
+            const dashCount = document.getElementById('posts-count');
+            if (dashCount) dashCount.textContent = count;
+            // Update stats in view-posts
+            const statsCount = document.getElementById('stats-total-posts');
+            if (statsCount) statsCount.textContent = count;
+        }
+
+        function renderGrid(posts) {
+            const grid = document.getElementById('posts-grid');
+            if (posts.length === 0) { document.getElementById('no-results').classList.remove('hidden'); return; }
+            else { document.getElementById('no-results').classList.add('hidden'); }
+
+            grid.innerHTML = posts.map(p => `
+                <div class="bg-white dark:bg-slate-800 rounded-xl overflow-hidden shadow-sm hover:shadow-xl transition-all border border-gray-200 dark:border-slate-700 flex flex-col h-full group">
+                    <div class="h-40 overflow-hidden relative bg-gray-200">
+                        ${p.image && p.image !== 'Unknown' ? `<img src="${p.image}" class="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110">` : '<div class="flex items-center justify-center h-full text-gray-400"><ion-icon name="image-outline" class="text-4xl"></ion-icon></div>'}
+                        <div class="absolute top-2 right-2 bg-black/50 text-white text-[10px] px-2 py-1 rounded backdrop-blur-md">${p.date}</div>
+                    </div>
+                    <div class="p-4 flex-1 flex flex-col">
+                        <h3 class="font-bold text-gray-800 dark:text-white mb-2 leading-tight line-clamp-2 text-sm">${p.title}</h3>
+                        <p class="text-[10px] text-gray-500 mb-4 flex items-center gap-1"><ion-icon name="person-outline"></ion-icon> ${p.author}</p>
+                        <div class="mt-auto flex gap-2">
+                            <a href="https://github.com/${githubConfig.repoOwner}/${githubConfig.repoName}/blob/${githubConfig.branch}/${p.path}" target="_blank" class="flex-1 text-center py-2 bg-gray-100 dark:bg-slate-700 rounded text-xs font-bold hover:bg-gray-200 dark:hover:bg-slate-600">Ver Código</a>
+                            <button onclick="deletePost('${p.path}', '${p.sha}')" class="px-3 py-2 bg-red-50 text-red-500 rounded hover:bg-red-500 hover:text-white transition-colors"><ion-icon name="trash-outline"></ion-icon></button>
+                        </div>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        window.filterPosts = (q) => {
+            if (!q) { renderGrid(cachedPosts); return; }
+            const low = q.toLowerCase();
+            renderGrid(cachedPosts.filter(p => p.title.toLowerCase().includes(low) || p.author.toLowerCase().includes(low)));
+        };
+
+        window.deletePost = async (path, sha) => {
+            if (!confirm("¿Eliminar permanentemente?")) return;
+            try { await ghFetch(`/contents/${path}`, 'DELETE', { message: `[ADMIN] Del ${path}`, sha, branch: githubConfig.branch }); showToast("Post eliminado"); loadPosts(); }
+            catch (e) { showToast("Error: " + e.message, "error"); }
+        };
+
+        // --- AUTHORS ---
+        async function fetchAuthors() {
+            document.getElementById('authors-loader').classList.remove('hidden');
+            try {
+                const f = await ghFetch(`/contents/src/data/authors.ts`);
+                authorsSha = f.sha;
+                const content = decodeURIComponent(escape(atob(f.content)));
+                const jsonMatch = content.match(/export const AUTHORS: Record<string, Author> = ({[\s\S]*?});/);
+                if (jsonMatch) {
+                    authorsData = new Function(`return ${jsonMatch[1]}`)();
+                    renderAuthors();
+                }
+            } catch (e) { showToast("Error autores", "error"); }
+            finally { document.getElementById('authors-loader').classList.add('hidden'); }
+        }
+
+        function renderAuthors() {
+            const list = document.getElementById('authors-list');
+            list.innerHTML = Object.values(authorsData).map(a => `
+                <div class="flex items-center gap-4 bg-white dark:bg-slate-800 p-4 rounded-xl border border-gray-200 dark:border-slate-700 shadow-sm relative group">
+                    <img src="${a.image}" class="w-14 h-14 rounded-full object-cover border border-gray-200">
+                    <div class="flex-1">
+                        <h3 class="font-bold text-sm">${a.name}</h3>
+                        <p class="text-[10px] text-gray-500 uppercase">${a.role}</p>
+                        ${a.email ? `<span class="text-[9px] bg-blue-50 text-blue-500 px-1.5 rounded">${a.email}</span>` : ''}
+                    </div>
+                    <div class="flex gap-2">
+                        <button onclick="editAuthor('${a.slug}')" class="p-2 bg-gray-100 dark:bg-slate-700 rounded text-blue-500"><ion-icon name="create-outline"></ion-icon></button>
+                        <button onclick="deleteAuthor('${a.slug}')" class="p-2 bg-gray-100 dark:bg-slate-700 rounded text-red-500"><ion-icon name="trash-outline"></ion-icon></button>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        document.getElementById('author-form').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const btn = e.target.querySelector('button[type="submit"]');
+            btn.innerText = "Guardando..."; btn.disabled = true;
+            try {
+                const slug = document.getElementById('auth-slug').value;
+                const fileInput = document.getElementById('auth-file');
+                let imageUrl = document.getElementById('auth-current-img').value;
+
+                if (fileInput.files[0]) {
+                    const f = fileInput.files[0];
+                    const comp = await imageCompression(f, { maxSizeMB: 0.5, maxWidthOrHeight: 800 });
+                    const r = await new Promise(res => { const rd = new FileReader(); rd.onload = () => res(rd.result); rd.readAsDataURL(comp); });
+                    const fname = `${slug}-${Date.now()}.jpg`;
+                    await ghFetch(`/contents/public/assets/autores/${fname}`, 'PUT', { message: 'Up img', content: r.split(',')[1], branch: githubConfig.branch });
+                    imageUrl = `/assets/autores/${fname}`;
+                }
+
+                authorsData[slug] = {
+                    slug, name: document.getElementById('auth-name').value,
+                    role: document.getElementById('auth-role').value,
+                    bio: document.getElementById('auth-bio').value,
+                    email: document.getElementById('auth-email').value,
+                    image: imageUrl
+                };
+
+                const ts = `export type Author = {\n  slug: string;\n  name: string;\n  role: string;\n  bio: string;\n  image: string;\n  email?: string;\n};\n\nexport const AUTHORS: Record<string, Author> = {\n${Object.values(authorsData).map(a => `  '${a.slug}': {\n    slug: '${a.slug}',\n    name: '${a.name}',\n    role: '${a.role}',\n    bio: '${a.bio.replace(/'/g, "\\'")}',\n    image: '${a.image}',\n    ${a.email ? `email: '${a.email}',` : ''}\n  },`).join('\n')}\n};\n\nexport const DEFAULT_AUTHOR = AUTHORS['daniel-arana'] || Object.values(AUTHORS)[0];`;
+
+                const res = await ghFetch(`/contents/src/data/authors.ts`, 'PUT', { message: `Up auth ${slug}`, content: btoa(unescape(encodeURIComponent(ts))), sha: authorsSha, branch: githubConfig.branch });
+                authorsSha = res.content.sha;
+                closeAuthorModal(); fetchAuthors(); showToast("Autor Guardado");
+            } catch (err) { showToast("Error: " + err.message, "error"); }
+            btn.innerText = "Guardar Autor"; btn.disabled = false;
+        });
+
+        window.deleteAuthor = async (slug) => {
+            if (!confirm("¿Borrar autor y su foto?")) return;
+            try {
+                const img = authorsData[slug].image;
+                if (img.startsWith('/assets/')) {
+                    try { const iData = await ghFetch(`/contents/public${img}`); await ghFetch(`/contents/public${img}`, 'DELETE', { message: 'del img', sha: iData.sha, branch: githubConfig.branch }); } catch (e) { }
+                }
+                delete authorsData[slug];
+                const ts = `export type Author = {\n  slug: string;\n  name: string;\n  role: string;\n  bio: string;\n  image: string;\n  email?: string;\n};\n\nexport const AUTHORS: Record<string, Author> = {\n${Object.values(authorsData).map(a => `  '${a.slug}': {\n    slug: '${a.slug}',\n    name: '${a.name}',\n    role: '${a.role}',\n    bio: '${a.bio.replace(/'/g, "\\'")}',\n    image: '${a.image}',\n    ${a.email ? `email: '${a.email}',` : ''}\n  },`).join('\n')}\n};\n\nexport const DEFAULT_AUTHOR = AUTHORS['daniel-arana'] || Object.values(AUTHORS)[0];`;
+
+                const res = await ghFetch(`/contents/src/data/authors.ts`, 'PUT', { message: `Del auth ${slug}`, content: btoa(unescape(encodeURIComponent(ts))), sha: authorsSha, branch: githubConfig.branch });
+                authorsSha = res.content.sha;
+                fetchAuthors(); showToast("Autor eliminado");
+            } catch (e) { showToast("Error: " + e.message, "error"); }
+        };
+
+        // --- AFFILIATES ---
+        async function loadAffiliates() {
+            document.getElementById('affiliates-loader').classList.remove('hidden');
+            document.getElementById('affiliates-content').classList.add('opacity-50');
+            try {
+                const docSnap = await getDoc(doc(db, "config", "affiliates"));
+                if (docSnap.exists()) {
+                    const data = docSnap.data();
+
+                    // Booking
+                    if (data.booking) {
+                        document.getElementById('booking-enabled').checked = data.booking.enabled || false;
+                        document.getElementById('booking-affiliateId').value = data.booking.affiliateId || '';
+                    }
+
+                    // Skyscanner
+                    if (data.skyscanner) {
+                        document.getElementById('skyscanner-enabled').checked = data.skyscanner.enabled || false;
+                        document.getElementById('skyscanner-affiliateTag').value = data.skyscanner.affiliateTag || '';
+                    }
+
+                    // Civitatis
+                    if (data.civitatis) {
+                        document.getElementById('civitatis-enabled').checked = data.civitatis.enabled || false;
+                        document.getElementById('civitatis-affiliateId').value = data.civitatis.affiliateId || '';
+                    }
+
+                    // Adsense
+                    if (data.adsense) {
+                        document.getElementById('adsense-enabled').checked = data.adsense.enabled || false;
+                        document.getElementById('adsense-publisherId').value = data.adsense.publisherId || '';
+                        if (data.adsense.slots) {
+                            document.getElementById('adsense-slot-sidebar').value = data.adsense.slots.sidebar || '';
+                            document.getElementById('adsense-slot-inline').value = data.adsense.slots.inline || '';
+                        }
+                    }
+                }
+                affiliatesLoaded = true;
+            } catch (e) {
+                showToast("Error cargando affiliates: " + e.message, "error");
+            } finally {
+                document.getElementById('affiliates-loader').classList.add('hidden');
+                document.getElementById('affiliates-content').classList.remove('opacity-50');
+            }
+        }
+
+        window.saveAffiliates = async () => {
+            const btn = document.querySelector('#view-affiliates button[onclick=\"saveAffiliates()\"]');
+            const originalText = btn.innerHTML;
+            btn.innerHTML = '<ion-icon name="hourglass-outline" class="animate-spin"></ion-icon> Guardando...';
+            btn.disabled = true;
+
+            try {
+                const affiliatesData = {
+                    booking: {
+                        affiliateId: document.getElementById('booking-affiliateId').value.trim(),
+                        enabled: document.getElementById('booking-enabled').checked
+                    },
+                    skyscanner: {
+                        affiliateTag: document.getElementById('skyscanner-affiliateTag').value.trim(),
+                        enabled: document.getElementById('skyscanner-enabled').checked
+                    },
+                    civitatis: {
+                        affiliateId: document.getElementById('civitatis-affiliateId').value.trim(),
+                        enabled: document.getElementById('civitatis-enabled').checked
+                    },
+                    adsense: {
+                        publisherId: document.getElementById('adsense-publisherId').value.trim(),
+                        slots: {
+                            sidebar: document.getElementById('adsense-slot-sidebar').value.trim(),
+                            inline: document.getElementById('adsense-slot-inline').value.trim()
+                        },
+                        enabled: document.getElementById('adsense-enabled').checked
+                    },
+                    updatedAt: serverTimestamp(),
+                    updatedBy: auth.currentUser.email
+                };
+
+                await setDoc(doc(db, "config", "affiliates"), affiliatesData);
+                showToast("Configuración guardada correctamente");
+            } catch (e) {
+                showToast("Error guardando: " + e.message, "error");
+            } finally {
+                btn.innerHTML = originalText;
+                btn.disabled = false;
+            }
+        };
+
+        // --- ANALYTICS ---
+        async function loadStats() {
+            document.getElementById('stats-loader').classList.remove('hidden');
+            document.getElementById('stats-empty').classList.add('hidden');
+            document.getElementById('stats-table-body').innerHTML = '';
+
+            try {
+                // Fetch basic analytics (client-side aggregation for MVP)
+                const q = query(collection(db, "analytics_events"), orderBy("timestamp", "desc"), limit(500));
+                const snap = await getDocs(q);
+
+                if (snap.empty) {
+                    document.getElementById('stats-empty').classList.remove('hidden');
+                    return;
+                }
+
+                let totalViews = 0;
+                const pageCounts = {};
+                const pageTitles = {};
+
+                snap.forEach(doc => {
+                    const d = doc.data();
+                    if (d.type === 'page_view') {
+                        totalViews++;
+                        const p = d.path;
+                        pageCounts[p] = (pageCounts[p] || 0) + 1;
+                        if (d.title && !pageTitles[p]) pageTitles[p] = d.title;
+                    }
+                });
+
+                // Update Summary Cards
+                document.getElementById('stat-total-views').innerText = totalViews;
+                document.getElementById('stats-total-views-summary').innerText = totalViews;
+
+                // Sort Pages
+                const sortedPages = Object.keys(pageCounts).map(path => ({
+                    path,
+                    count: pageCounts[path],
+                    title: pageTitles[path] || path
+                })).sort((a, b) => b.count - a.count);
+
+                if (sortedPages.length > 0) {
+                    const top = sortedPages[0];
+                    document.getElementById('stat-top-post').innerText = top.title;
+                    document.getElementById('stat-top-post-views').innerText = `${top.count} vistas`;
+                }
+
+                // Render Table
+                const tbody = document.getElementById('stats-table-body');
+                tbody.innerHTML = sortedPages.map(p => `
+                    <tr class="hover:bg-gray-50 dark:hover:bg-slate-700/50 transition-colors">
+                        <td class="px-6 py-4 font-medium text-gray-900 dark:text-white max-w-xs truncate" title="${p.title}">${p.title}</td>
+                        <td class="px-6 py-4 text-right text-gray-500">${p.count}</td>
+                    </tr>
+                `).join('');
+
+            } catch (e) {
+                showToast("Error cargando estadísticas: " + e.message, "error");
+            } finally {
+                document.getElementById('stats-loader').classList.add('hidden');
+            }
+        }
+
+        // --- UTILS ---
+        window.toggleDarkMode = () => document.body.classList.toggle('dark');
+        window.openAuthorModal = () => { document.getElementById('author-form').reset(); document.getElementById('auth-slug-orig').value = ''; document.getElementById('auth-preview').src = ''; document.getElementById('auth-slug').readOnly = true; document.getElementById('author-modal').classList.add('open'); };
+        window.closeAuthorModal = () => document.getElementById('author-modal').classList.remove('open');
+        window.editAuthor = (s) => { const d = authorsData[s]; document.getElementById('auth-slug-orig').value = s; document.getElementById('auth-slug').value = d.slug; document.getElementById('auth-name').value = d.name; document.getElementById('auth-role').value = d.role; document.getElementById('auth-bio').value = d.bio; document.getElementById('auth-email').value = d.email || ''; document.getElementById('auth-current-img').value = d.image; document.getElementById('auth-preview').src = d.image; document.getElementById('author-modal').classList.add('open'); };
+        window.generateSlug = () => { if (!document.getElementById('auth-slug-orig').value) document.getElementById('auth-slug').value = document.getElementById('auth-name').value.toLowerCase().replace(/[^\w\s-]/g, '').replace(/\s+/g, '-'); };
+        window.previewImage = (i) => { if (i.files[0]) { const r = new FileReader(); r.onload = (e) => document.getElementById('auth-preview').src = e.target.result; r.readAsDataURL(i.files[0]); } };
+        window.showToast = (m, t) => { const d = document.createElement('div'); d.className = `p-3 rounded-lg text-white text-sm font-bold shadow-lg flex items-center gap-2 animate-bounce ${t === 'error' ? 'bg-red-500' : 'bg-gray-900'}`; d.innerHTML = t === 'error' ? `<ion-icon name="alert-circle"></ion-icon> ${m}` : `<ion-icon name="checkmark-circle"></ion-icon> ${m}`; document.getElementById('toast-container').appendChild(d); setTimeout(() => d.remove(), 3000); };
+
+        // ==================================================
+        // DESTINATIONS MANAGER
+        // ==================================================
+        // Configuración de Repositorios (dynamic)
+        let currentDestinationsRepo = 'argentina'; // default
+        const REPOS = {
+            'argentina': 'argentina', // danielaranadj-prog/argentina
+            'mexico': 'mexico',       // danielaranadj-prog/mexico
+            'espana': 'destinos_espana'
+        };
+        const DESTINATIONS_PATH = 'src/content/destinos';
+
+        let currentDestination = null;
+        let destinationsCache = [];        // Cache Argentina
+        let destinationsCacheMexico = [];  // Cache México 
+        let isCreatingNewDestination = false;
+
+        // Fetch específico para destinos (apunta al repo actual)
+        async function ghFetchDestinos(ep, m = 'GET', b = null) {
+            // Verificar qué repo usar
+            const targetRepo = REPOS[currentDestinationsRepo] || 'argentina';
+
+            const opts = { method: m, headers: { 'Authorization': `token ${githubConfig.githubToken}`, 'Content-Type': 'application/json' } };
+            if (b) opts.body = JSON.stringify(b);
+            const res = await fetch(`https://api.github.com/repos/${githubConfig.repoOwner}/${targetRepo}${ep}`, opts);
+            if (!res.ok) throw new Error(`GitHub (${targetRepo}): ${res.status}`);
+            return res.json();
+        }
+
+        // Cargar Destinos de Argentina (Wrapper)
+        window.loadDestinations = async () => {
+            currentDestinationsRepo = 'argentina';
+            await loadDestinationsGeneric('destinations-loader', 'destinations-grid', 'destinations-empty', destinationsCache, (data) => destinationsCache = data);
+        };
+
+        // Cargar Destinos de México (Wrapper)
+        window.loadDestinationsMexico = async () => {
+            currentDestinationsRepo = 'mexico';
+            await loadDestinationsGeneric('destinations-mexico-loader', 'destinations-mexico-grid', 'destinations-mexico-empty', destinationsCacheMexico, (data) => destinationsCacheMexico = data);
+        };
+
+        // Función Genérica de Carga
+        async function loadDestinationsGeneric(loaderId, gridId, emptyId, cacheVar, setCacheCallback) {
+            const loader = document.getElementById(loaderId);
+            const grid = document.getElementById(gridId);
+            const empty = document.getElementById(emptyId);
+
+            loader.classList.remove('hidden');
+            grid.innerHTML = '';
+            empty.classList.add('hidden');
+
+            try {
+                const files = await ghFetchDestinos(`/contents/${DESTINATIONS_PATH}`);
+                const mdFiles = files.filter(f => f.name.endsWith('.md'));
+
+                if (mdFiles.length === 0) {
+                    empty.classList.remove('hidden');
+                    return;
+                }
+
+                const newCache = [];
+
+                for (const file of mdFiles) {
+                    const data = await ghFetchDestinos(`/contents/${file.path}`);
+                    const content = decodeURIComponent(escape(atob(data.content)));
+                    const parsed = parseDestinationMD(content);
+                    parsed.slug = file.name.replace('.md', '');
+                    parsed.sha = data.sha;
+                    parsed.path = file.path;
+                    parsed._rawContent = content;
+                    newCache.push(parsed);
+                }
+
+                setCacheCallback(newCache);
+                renderDestinationsGridGeneric(gridId, newCache);
+
+            } catch (e) {
+                showToast("Error cargando destinos: " + e.message, "error");
+            } finally {
+                loader.classList.add('hidden');
+            }
+        }
+
+        function renderDestinationsGridGeneric(gridId, data) {
+            const grid = document.getElementById(gridId);
+            // Determinar prefijo de URL de imagen según repo
+            const githubPagePrefix = currentDestinationsRepo === 'mexico' ? '/mexico' : '';
+
+            grid.innerHTML = data.map(dest => `
+                <div class="bg-white dark:bg-slate-800 rounded-2xl border border-gray-200 dark:border-slate-700 overflow-hidden shadow-sm hover:shadow-lg transition-shadow group cursor-pointer" onclick="openDestinationEditor('${dest.slug}')">
+                    <div class="h-32 bg-gradient-to-br from-orange-400 to-pink-500 relative overflow-hidden">
+                        ${dest.img ? `<img src="${dest.img.startsWith('/') ? 'https://danielaranadj-prog.github.io' + githubPagePrefix + dest.img : dest.img}" class="w-full h-full object-cover opacity-80 group-hover:scale-105 transition-transform" onerror="this.style.display='none'">` : ''}
+                        <div class="absolute inset-0 bg-gradient-to-t from-black/50 to-transparent"></div>
+                        <div class="absolute bottom-3 left-4">
+                            <h3 class="text-white font-bold text-lg">${dest.title}</h3>
+                            <p class="text-white/80 text-xs">${dest.slug}.md</p>
+                        </div>
+                    </div>
+                    <div class="p-4">
+                        <p class="text-sm text-gray-600 dark:text-gray-400 line-clamp-2">${dest.desc || 'Sin descripción'}</p>
+                        <div class="flex items-center gap-2 mt-3 text-xs text-gray-400">
+                            <span class="flex items-center gap-1"><ion-icon name="list-outline"></ion-icon> ${dest.secciones.length} secciones</span>
+                            <span class="flex items-center gap-1"><ion-icon name="ticket-outline"></ion-icon> ${dest.tours.length} tours</span>
+                        </div>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        // Reemplazar la función global renderDestinationsGrid por uso interno si es necesario, pero mantenemos compatibilidad
+        function renderDestinationsGrid() {
+            // Fallback para Argentina
+            renderDestinationsGridGeneric('destinations-grid', destinationsCache);
+        }
+
+        function parseDestinationMD(content) {
+            const parts = content.split('---');
+            if (parts.length < 3) return { title: 'Error', secciones: [], tours: [], faqs: [], leadMagnet: null };
+
+            const frontmatter = parts[1];
+            const body = parts.slice(2).join('---').trim();
+
+            const result = {
+                title: extractYAMLValue(frontmatter, 'title'),
+                img: extractYAMLValue(frontmatter, 'img'),
+                desc: extractYAMLValue(frontmatter, 'desc'),
+                historia: extractYAMLValue(frontmatter, 'historia'),
+                secciones: extractYAMLArray(frontmatter, 'secciones'),
+                tours: extractYAMLArray(frontmatter, 'tours'),
+                faqs: extractYAMLArray(frontmatter, 'faqs'),
+                leadMagnet: extractNestedObject(frontmatter, 'leadMagnet'),
+                // V3 fields
+                checklist: extractYAMLArray(frontmatter, 'checklist'),
+                barrios: extractYAMLArray(frontmatter, 'barrios'),
+                experiencias: extractYAMLArray(frontmatter, 'experiencias'),
+                premiumGuide: extractNestedObject(frontmatter, 'premiumGuide'),
+                body: body
+            };
+
+            return result;
+        }
+
+        function extractNestedObject(yaml, key) {
+            const lines = yaml.split('\n');
+            let inObject = false;
+            let depth = 0;
+            const obj = {};
+            let arrayKey = null;
+            let arrayItems = [];
+
+            for (const line of lines) {
+                if (line.match(new RegExp(`^${key}:`))) {
+                    inObject = true;
+                    continue;
+                }
+
+                if (inObject) {
+                    if (line.match(/^\w+:/) && !line.match(/^\s+/)) {
+                        break;
+                    }
+
+                    // Check for array property
+                    const arrayMatch = line.match(/^\s{2}(\w+):$/);
+                    if (arrayMatch) {
+                        if (arrayKey && arrayItems.length > 0) {
+                            obj[arrayKey] = arrayItems;
+                        }
+                        arrayKey = arrayMatch[1];
+                        arrayItems = [];
+                        continue;
+                    }
+
+                    // Array item
+                    const arrayItemMatch = line.match(/^\s{4}-\s*["']?(.+?)["']?$/);
+                    if (arrayItemMatch && arrayKey) {
+                        arrayItems.push(arrayItemMatch[1].replace(/^["']|["']$/g, ''));
+                        continue;
+                    }
+
+                    const keyVal = line.match(/^\s+(\w+):\s*["']?(.+?)["']?\s*$/);
+                    if (keyVal) {
+                        obj[keyVal[1]] = keyVal[2].replace(/^["']|["']$/g, '');
+                    }
+                }
+            }
+
+            // Save last array
+            if (arrayKey && arrayItems.length > 0) {
+                obj[arrayKey] = arrayItems;
+            }
+
+            return Object.keys(obj).length > 0 ? obj : null;
+        }
+
+        function extractLeadMagnet(yaml) {
+            const lines = yaml.split('\n');
+            let inLeadMagnet = false;
+            const lm = {};
+
+            for (const line of lines) {
+                if (line.match(/^leadMagnet:/)) {
+                    inLeadMagnet = true;
+                    continue;
+                }
+
+                if (inLeadMagnet) {
+                    if (line.match(/^\w+:/) && !line.match(/^\s+/)) {
+                        break;
+                    }
+
+                    const keyVal = line.match(/^\s+(\w+):\s*["']?(.+?)["']?\s*$/);
+                    if (keyVal) {
+                        lm[keyVal[1]] = keyVal[2].replace(/^["']|["']$/g, '');
+                    }
+                }
+            }
+
+            return Object.keys(lm).length > 0 ? lm : null;
+        }
+
+        function extractYAMLValue(yaml, key) {
+            const regex = new RegExp(`^${key}:\\s*["']?(.+?)["']?\\s*$`, 'm');
+            const match = yaml.match(regex);
+            return match ? match[1].replace(/^["']|["']$/g, '') : '';
+        }
+
+        function extractYAMLArray(yaml, key) {
+            const lines = yaml.split('\n');
+            const result = [];
+            let inArray = false;
+            let currentItem = null;
+
+            for (const line of lines) {
+                if (line.match(new RegExp(`^${key}:`))) {
+                    inArray = true;
+                    continue;
+                }
+
+                if (inArray) {
+                    if (line.match(/^\w+:/) && !line.match(/^\s+-/)) {
+                        break;
+                    }
+
+                    if (line.match(/^\s+-\s+\w+:/)) {
+                        if (currentItem) result.push(currentItem);
+                        currentItem = {};
+                    }
+
+                    const keyVal = line.match(/^\s+-?\s*(\w+):\s*["']?(.+?)["']?\s*$/);
+                    if (keyVal && currentItem) {
+                        currentItem[keyVal[1]] = keyVal[2].replace(/^["']|["']$/g, '');
+                    }
+                }
+            }
+
+            if (currentItem && Object.keys(currentItem).length > 0) {
+                result.push(currentItem);
+            }
+
+            return result;
+        }
+
+
+
+        window.openDestinationEditor = (slug) => {
+            // Determinar en qué cache buscar
+            let targetCache = destinationsCache;
+            if (currentDestinationsRepo === 'mexico') targetCache = destinationsCacheMexico;
+
+            currentDestination = targetCache.find(d => d.slug === slug);
+            if (!currentDestination) return;
+
+            // Set to edit mode
+            isCreatingNewDestination = false;
+            document.getElementById('dest-slug-container').classList.add('hidden');
+            document.getElementById('dest-save-text').textContent = 'Guardar Cambios';
+            document.getElementById('dest-modal-title').textContent = `Editando: ${currentDestination.title}`;
+            document.getElementById('dest-modal-slug').textContent = currentDestination.slug + '.md';
+
+            // Fill form fields
+            document.getElementById('dest-title').value = currentDestination.title;
+            document.getElementById('dest-img').value = currentDestination.img;
+            document.getElementById('dest-desc').value = currentDestination.desc;
+            document.getElementById('dest-historia').value = currentDestination.historia;
+
+            renderSectionsEditor(currentDestination.secciones);
+            renderFAQsEditor(currentDestination.faqs || []);
+
+            // Load Lead Magnet data
+            const lm = currentDestination.leadMagnet || {};
+            document.getElementById('dest-leadmagnet-titulo').value = lm.titulo || '';
+            document.getElementById('dest-leadmagnet-archivo').value = lm.archivo || '';
+            document.getElementById('dest-leadmagnet-descripcion').value = lm.descripcion || '';
+            document.getElementById('dest-leadmagnet-imagen').value = lm.imagen || '';
+
+            // V3: Load Checklist, Barrios, Experiencias, Premium Guide
+            if (typeof renderChecklistEditor === 'function') {
+                renderChecklistEditor(currentDestination.checklist || []);
+            }
+            if (typeof renderBarriosEditor === 'function') {
+                renderBarriosEditor(currentDestination.barrios || []);
+            }
+            if (typeof renderExperienciasEditor === 'function') {
+                renderExperienciasEditor(currentDestination.experiencias || []);
+            }
+            if (typeof loadPremiumGuide === 'function') {
+                loadPremiumGuide(currentDestination.premiumGuide || {});
+            }
+
+            document.getElementById('destination-modal').classList.add('open');
+        };
+
+
+
+        window.openNewDestinationModal = () => {
+            // Set to create mode
+            isCreatingNewDestination = true;
+            currentDestination = null;
+
+            // Show slug field and update UI
+            document.getElementById('dest-slug-container').classList.remove('hidden');
+            document.getElementById('dest-save-text').textContent = 'Crear Destino';
+            document.getElementById('dest-modal-title').textContent = 'Nuevo Destino';
+            document.getElementById('dest-modal-slug').textContent = 'Ingresa un slug abajo';
+
+            // Clear all form fields
+            document.getElementById('dest-slug-input').value = '';
+            document.getElementById('dest-title').value = '';
+            document.getElementById('dest-img').value = '/argentina/placeholder.jpg';
+            document.getElementById('dest-desc').value = '';
+            document.getElementById('dest-historia').value = '';
+
+            // Clear sections and FAQs
+            document.getElementById('dest-secciones').innerHTML = '';
+            document.getElementById('dest-faqs').innerHTML = '';
+
+            // Clear Lead Magnet
+            document.getElementById('dest-leadmagnet-titulo').value = '';
+            document.getElementById('dest-leadmagnet-archivo').value = '';
+            document.getElementById('dest-leadmagnet-descripcion').value = '';
+            document.getElementById('dest-leadmagnet-imagen').value = '';
+
+            // V3: Clear containers
+            document.getElementById('dest-checklist').innerHTML = '';
+            document.getElementById('dest-barrios').innerHTML = '';
+            document.getElementById('dest-experiencias').innerHTML = '';
+            if (typeof loadPremiumGuide === 'function') loadPremiumGuide({});
+
+            // Add default sections
+            addSection();
+            addSection();
+            addSection();
+            addSection();
+
+            document.getElementById('destination-modal').classList.add('open');
+        };
+
+        window.closeDestinationModal = () => {
+            document.getElementById('destination-modal').classList.remove('open');
+            document.getElementById('dest-slug-container').classList.add('hidden');
+            currentDestination = null;
+            isCreatingNewDestination = false;
+        };
+
+        // Iconos disponibles para secciones
+        const SECTION_ICONS = [
+            { icon: 'fa-calendar-check', label: '📅 Tiempo', emoji: '📅' },
+            { icon: 'fa-thermometer-half', label: '🌡️ Clima', emoji: '🌡️' },
+            { icon: 'fa-wallet', label: '💰 Presupuesto', emoji: '💰' },
+            { icon: 'fa-plane-arrival', label: '✈️ Llegada', emoji: '✈️' },
+            { icon: 'fa-bed', label: '🏨 Alojamiento', emoji: '🏨' },
+            { icon: 'fa-utensils', label: '🍽️ Comida', emoji: '🍽️' },
+            { icon: 'fa-lightbulb', label: '💡 Tips', emoji: '💡' },
+            { icon: 'fa-exclamation-triangle', label: '⚠️ Seguridad', emoji: '⚠️' },
+            { icon: 'fa-clock', label: '⏰ Horarios', emoji: '⏰' },
+            { icon: 'fa-map-marker-alt', label: '📍 Ubicación', emoji: '📍' },
+            { icon: 'fa-money-bill-wave', label: '💵 Cambio', emoji: '💵' },
+            { icon: 'fa-bus', label: '🚌 Transporte', emoji: '🚌' }
+        ];
+
+        function renderSectionsEditor(secciones) {
+            const container = document.getElementById('dest-secciones');
+            container.innerHTML = secciones.map((sec, idx) => createSectionHTML(sec, idx)).join('');
+        }
+
+        function createSectionHTML(sec, idx) {
+            const iconData = SECTION_ICONS.find(i => i.icon === sec.icon) || { emoji: '❓' };
+            return `
+                <div class="bg-gray-50 dark:bg-slate-700/50 rounded-xl p-4 border border-gray-200 dark:border-slate-600" data-section-idx="${idx}">
+                    <div class="flex justify-between items-start mb-3">
+                        <span class="text-xs font-bold text-gray-400">Sección ${idx + 1}</span>
+                        <button onclick="removeSection(${idx})" class="text-gray-400 hover:text-red-500">
+                            <ion-icon name="trash-outline"></ion-icon>
+                        </button>
+                    </div>
+                    <div class="flex gap-3 mb-3">
+                        <div class="relative">
+                            <button type="button" onclick="toggleIconPicker(${idx})" class="section-icon-btn w-12 h-12 rounded-xl border-2 border-dashed border-gray-300 dark:border-slate-500 hover:border-orange-400 flex items-center justify-center text-2xl transition-colors" data-icon="${sec.icon || ''}">
+                                ${iconData.emoji}
+                            </button>
+                            <input type="hidden" class="section-icon" value="${sec.icon || ''}">
+                            <div id="icon-picker-${idx}" class="hidden absolute top-14 left-0 z-50 bg-white dark:bg-slate-800 rounded-xl shadow-xl border dark:border-slate-600 p-3 w-64">
+                                <p class="text-xs text-gray-400 mb-2 font-bold">Selecciona un icono:</p>
+                                <div class="grid grid-cols-4 gap-2">
+                                    ${SECTION_ICONS.map(i => `
+                                        <button type="button" onclick="selectIcon(${idx}, '${i.icon}', '${i.emoji}')" class="w-10 h-10 rounded-lg hover:bg-orange-100 dark:hover:bg-slate-600 flex items-center justify-center text-xl transition-colors" title="${i.label}">
+                                            ${i.emoji}
+                                        </button>
+                                    `).join('')}
+                                </div>
+                            </div>
+                        </div>
+                        <input type="text" class="section-label flex-1 px-3 py-2 rounded-lg border dark:bg-slate-600 dark:border-slate-500 text-sm" placeholder="Título (ej: Tiempo Sugerido)" value="${sec.label || ''}">
+                    </div>
+                    <div class="relative">
+                        <textarea class="section-text w-full px-3 py-2 pr-10 rounded-lg border dark:bg-slate-600 dark:border-slate-500 text-sm resize-none" rows="2" placeholder="Contenido... Usa [texto](url) para links">${sec.text || ''}</textarea>
+                        <button type="button" onclick="insertLink(${idx})" class="absolute right-2 top-2 text-gray-400 hover:text-orange-500 transition-colors" title="Insertar hipervínculo">
+                            <ion-icon name="link-outline" class="text-lg"></ion-icon>
+                        </button>
+                    </div>
+                    <p class="text-[10px] text-gray-400 mt-1">Formato links: [texto visible](https://url.com)</p>
+                </div>
+            `;
+        }
+
+        window.toggleIconPicker = (idx) => {
+            // Close all other pickers
+            document.querySelectorAll('[id^="icon-picker-"]').forEach(p => {
+                if (p.id !== `icon-picker-${idx}`) p.classList.add('hidden');
+            });
+            document.getElementById(`icon-picker-${idx}`).classList.toggle('hidden');
+        };
+
+        window.selectIcon = (idx, icon, emoji) => {
+            const section = document.querySelector(`[data-section-idx="${idx}"]`);
+            section.querySelector('.section-icon').value = icon;
+            section.querySelector('.section-icon-btn').innerHTML = emoji;
+            section.querySelector('.section-icon-btn').dataset.icon = icon;
+            document.getElementById(`icon-picker-${idx}`).classList.add('hidden');
+        };
+
+        window.insertLink = (idx) => {
+            const section = document.querySelector(`[data-section-idx="${idx}"]`);
+            const textarea = section.querySelector('.section-text');
+            const linkText = prompt('Texto del enlace:', 'Ver más');
+            if (!linkText) return;
+            const linkUrl = prompt('URL del enlace:', 'https://');
+            if (!linkUrl) return;
+
+            const start = textarea.selectionStart;
+            const end = textarea.selectionEnd;
+            const text = textarea.value;
+            const linkMarkdown = `[${linkText}](${linkUrl})`;
+
+            textarea.value = text.substring(0, start) + linkMarkdown + text.substring(end);
+            textarea.focus();
+            textarea.setSelectionRange(start + linkMarkdown.length, start + linkMarkdown.length);
+        };
+
+        window.addSection = () => {
+            const container = document.getElementById('dest-secciones');
+            const idx = container.children.length;
+            container.insertAdjacentHTML('beforeend', createSectionHTML({ icon: '', label: '', text: '' }, idx));
+        };
+
+        window.removeSection = (idx) => {
+            const sections = document.querySelectorAll('#dest-secciones > div');
+            if (sections[idx]) sections[idx].remove();
+            // Reindex
+            document.querySelectorAll('#dest-secciones > div').forEach((el, i) => {
+                el.querySelector('span').textContent = `Sección ${i + 1}`;
+                el.dataset.sectionIdx = i;
+            });
+        };
+
+        // === FAQ MANAGEMENT ===
+        function renderFAQsEditor(faqs) {
+            const container = document.getElementById('dest-faqs');
+            container.innerHTML = faqs.map((faq, idx) => createFAQHTML(faq, idx)).join('');
+        }
+
+        function createFAQHTML(faq, idx) {
+            return `
+                <div class="bg-blue-50 dark:bg-blue-900/20 rounded-xl p-4 border border-blue-200 dark:border-blue-800" data-faq-idx="${idx}">
+                    <div class="flex items-center justify-between mb-2">
+                        <span class="text-xs font-bold text-blue-600 dark:text-blue-400">FAQ ${idx + 1}</span>
+                        <button onclick="removeFAQ(${idx})" class="text-red-400 hover:text-red-600 text-sm">
+                            <ion-icon name="trash-outline"></ion-icon>
+                        </button>
+                    </div>
+                    <input type="text" class="faq-pregunta w-full px-3 py-2 rounded-lg border dark:bg-slate-700 dark:border-slate-600 text-sm mb-2" 
+                        value="${(faq.pregunta || '').replace(/"/g, '&quot;')}" placeholder="¿Pregunta frecuente?">
+                    <textarea class="faq-respuesta w-full px-3 py-2 rounded-lg border dark:bg-slate-700 dark:border-slate-600 text-sm resize-none" 
+                        rows="2" placeholder="Respuesta...">${faq.respuesta || ''}</textarea>
+                </div>
+            `;
+        }
+
+        window.addFAQ = () => {
+            const container = document.getElementById('dest-faqs');
+            const idx = container.children.length;
+            container.insertAdjacentHTML('beforeend', createFAQHTML({ pregunta: '', respuesta: '' }, idx));
+        };
+
+        window.removeFAQ = (idx) => {
+            const faqs = document.querySelectorAll('#dest-faqs > div');
+            if (faqs[idx]) faqs[idx].remove();
+            // Reindex
+            document.querySelectorAll('#dest-faqs > div').forEach((el, i) => {
+                el.querySelector('span').textContent = `FAQ ${i + 1}`;
+                el.dataset.faqIdx = i;
+            });
+        };
+
+        // Close icon pickers when clicking outside
+        document.addEventListener('click', (e) => {
+            if (!e.target.closest('.section-icon-btn') && !e.target.closest('[id^="icon-picker-"]')) {
+                document.querySelectorAll('[id^="icon-picker-"]').forEach(p => p.classList.add('hidden'));
+            }
+        });
+
+        window.uploadDestinationImage = async () => {
+            const input = document.createElement('input');
+            input.type = 'file';
+            input.accept = 'image/*';
+            input.onchange = async (e) => {
+                const file = e.target.files[0];
+                if (!file) return;
+
+                try {
+                    const compressed = await imageCompression(file, { maxSizeMB: 0.5, maxWidthOrHeight: 1920 });
+                    const reader = new FileReader();
+                    reader.onload = async (ev) => {
+                        const base64 = ev.target.result.split(',')[1];
+                        const filename = file.name.toLowerCase().replace(/[^a-z0-9.]/g, '-');
+
+                        // Determinar ruta de subida (física en el repo)
+                        // Para México, usamos public/uploads igual que en Argentina
+                        const path = `public/uploads/${filename}`;
+
+                        await ghFetchDestinos(`/contents/${path}`, 'PUT', {
+                            message: `Upload: ${filename}`,
+                            content: base64
+                        });
+
+                        // Determinar valor para el markdown (URL relativa)
+                        let displayPath = `/uploads/${filename}`;
+                        if (currentDestinationsRepo === 'mexico') {
+                            displayPath = `/mexico/uploads/${filename}`;
+                        }
+
+                        document.getElementById('dest-img').value = displayPath;
+                        showToast('Imagen subida correctamente');
+                    };
+                    reader.readAsDataURL(compressed);
+                } catch (err) {
+                    showToast('Error subiendo imagen: ' + err.message, 'error');
+                }
+            };
+            input.click();
+        };
+
+        window.saveDestination = async () => {
+            // Validation for create mode
+            if (isCreatingNewDestination) {
+                const slug = document.getElementById('dest-slug-input').value.trim();
+                if (!slug) {
+                    showToast('El slug es obligatorio', 'error');
+                    return;
+                }
+                // Check if slug already exists
+                if (destinationsCache.some(d => d.slug === slug)) {
+                    showToast('Ya existe un destino con ese slug', 'error');
+                    return;
+                }
+            } else if (!currentDestination) {
+                return;
+            }
+
+            const btn = document.getElementById('dest-save-btn');
+            const originalText = btn.innerHTML;
+            btn.innerHTML = '<ion-icon name="hourglass-outline" class="animate-spin"></ion-icon> ' +
+                (isCreatingNewDestination ? 'Creando...' : 'Guardando...');
+            btn.disabled = true;
+
+            try {
+                const title = document.getElementById('dest-title').value.trim();
+                const img = document.getElementById('dest-img').value.trim();
+                const desc = document.getElementById('dest-desc').value.trim();
+                const historia = document.getElementById('dest-historia').value.trim();
+
+                if (!title) {
+                    showToast('El título es obligatorio', 'error');
+                    btn.innerHTML = originalText;
+                    btn.disabled = false;
+                    return;
+                }
+
+                const secciones = [];
+                document.querySelectorAll('#dest-secciones > div').forEach(el => {
+                    const icon = el.querySelector('.section-icon').value.trim();
+                    const label = el.querySelector('.section-label').value.trim();
+                    const text = el.querySelector('.section-text').value.trim();
+                    if (label) {
+                        secciones.push({ icon, label, text });
+                    }
+                });
+
+                // Collect FAQs
+                const faqs = [];
+                document.querySelectorAll('#dest-faqs > div').forEach(el => {
+                    const pregunta = el.querySelector('.faq-pregunta').value.trim();
+                    const respuesta = el.querySelector('.faq-respuesta').value.trim();
+                    if (pregunta && respuesta) {
+                        faqs.push({ pregunta, respuesta });
+                    }
+                });
+
+                // Collect Lead Magnet
+                const leadMagnet = {
+                    titulo: document.getElementById('dest-leadmagnet-titulo').value.trim(),
+                    descripcion: document.getElementById('dest-leadmagnet-descripcion').value.trim(),
+                    archivo: document.getElementById('dest-leadmagnet-archivo').value.trim(),
+                    imagen: document.getElementById('dest-leadmagnet-imagen').value.trim()
+                };
+
+                // V3: Collect data
+                const checklist = typeof collectChecklist === 'function' ? collectChecklist() : [];
+                const barrios = typeof collectBarrios === 'function' ? collectBarrios() : [];
+                const experiencias = typeof collectExperiencias === 'function' ? collectExperiencias() : [];
+                const premiumGuide = typeof collectPremiumGuide === 'function' ? collectPremiumGuide() : null;
+
+                // Generate YAML content
+                const yamlContent = generateDestinationYAML({
+                    title, img, desc, historia, secciones,
+                    tours: isCreatingNewDestination ? [] : currentDestination.tours,
+                    faqs,
+                    leadMagnet: leadMagnet.titulo ? leadMagnet : null,
+                    checklist,
+                    barrios,
+                    experiencias,
+                    premiumGuide,
+                    body: isCreatingNewDestination ? '' : currentDestination.body
+                });
+
+                if (isCreatingNewDestination) {
+                    // CREATE new file
+                    const slug = document.getElementById('dest-slug-input').value.trim();
+                    const path = `src/content/destinos/${slug}.md`;
+
+                    await ghFetchDestinos(`/contents/${path}`, 'PUT', {
+                        message: `Create destination: ${slug}`,
+                        content: btoa(unescape(encodeURIComponent(yamlContent)))
+                    });
+
+                    showToast(`Destino "${title}" creado correctamente 🎉`);
+                } else {
+                    // UPDATE existing file
+                    await ghFetchDestinos(`/contents/${currentDestination.path}`, 'PUT', {
+                        message: `Update: ${currentDestination.slug}`,
+                        content: btoa(unescape(encodeURIComponent(yamlContent))),
+                        sha: currentDestination.sha
+                    });
+
+                    showToast('Destino guardado correctamente');
+                }
+
+                closeDestinationModal();
+                closeDestinationModal();
+                if (currentDestinationsRepo === 'mexico') {
+                    loadDestinationsMexico();
+                } else {
+                    loadDestinations();
+                }
+
+            } catch (e) {
+                showToast('Error: ' + e.message, 'error');
+            } finally {
+                btn.innerHTML = originalText;
+                btn.disabled = false;
+            }
+        };
+
+        function generateDestinationYAML(data) {
+            let yaml = '---\n';
+            yaml += `title: "${data.title}"\n`;
+            yaml += `img: "${data.img}"\n`;
+            yaml += `desc: "${data.desc}"\n`;
+            yaml += `historia: "${data.historia.replace(/"/g, '\\"')}"\n`;
+
+            if (data.secciones && data.secciones.length > 0) {
+                yaml += 'secciones:\n';
+                data.secciones.forEach(sec => {
+                    yaml += `  - icon: "${sec.icon}"\n`;
+                    yaml += `    label: "${sec.label}"\n`;
+                    yaml += `    text: "${sec.text.replace(/"/g, '\\"')}"\n`;
+                });
+            } else {
+                yaml += 'secciones: []\n';
+            }
+
+            // Tours (handle empty array properly)
+            if (data.tours && data.tours.length > 0) {
+                yaml += 'tours:\n';
+                data.tours.forEach(tour => {
+                    yaml += `  - titulo: "${tour.titulo || ''}"\n`;
+                    yaml += `    precio: "${tour.precio || ''}"\n`;
+                    yaml += `    duracion: "${tour.duracion || ''}"\n`;
+                    yaml += `    link: "${tour.link || ''}"\n`;
+                    yaml += `    imagen: "${tour.imagen || ''}"\n`;
+                });
+            } else {
+                yaml += 'tours: []\n';
+            }
+
+            // FAQs (optional)
+            if (data.faqs && data.faqs.length > 0) {
+                yaml += 'faqs:\n';
+                data.faqs.forEach(faq => {
+                    yaml += `  - pregunta: "${faq.pregunta.replace(/"/g, '\\"')}"\n`;
+                    yaml += `    respuesta: "${faq.respuesta.replace(/"/g, '\\"')}"\n`;
+                });
+            }
+
+            // Lead Magnet (optional)
+            if (data.leadMagnet) {
+                yaml += 'leadMagnet:\n';
+                yaml += `  titulo: "${data.leadMagnet.titulo}"\n`;
+                yaml += `  descripcion: "${data.leadMagnet.descripcion.replace(/"/g, '\\"')}"\n`;
+                yaml += `  archivo: "${data.leadMagnet.archivo}"\n`;
+                if (data.leadMagnet.imagen) {
+                    yaml += `  imagen: "${data.leadMagnet.imagen}"\n`;
+                }
+            }
+
+            // V3: Checklist
+            if (data.checklist && data.checklist.length > 0) {
+                yaml += 'checklist:\n';
+                data.checklist.forEach(item => {
+                    yaml += `  - icono: "${item.icono || 'fa-check'}"\n`;
+                    yaml += `    titulo: "${item.titulo}"\n`;
+                    yaml += `    emoji: "${item.emoji || '✅'}"\n`;
+                    yaml += `    detalle: "${(item.detalle || '').replace(/"/g, '\\"')}"\n`;
+                    if (item.cta) yaml += `    cta: "${item.cta}"\n`;
+                    if (item.ctaLink) yaml += `    ctaLink: "${item.ctaLink}"\n`;
+                    if (item.ctaRecomendado) yaml += `    ctaRecomendado: true\n`;
+                });
+            }
+
+            // V3: Barrios
+            if (data.barrios && data.barrios.length > 0) {
+                yaml += 'barrios:\n';
+                data.barrios.forEach(b => {
+                    yaml += `  - nombre: "${b.nombre}"\n`;
+                    yaml += `    vibra: "${b.vibra || ''}"\n`;
+                    yaml += `    idealPara: "${b.idealPara || ''}"\n`;
+                    if (b.imagen) yaml += `    imagen: "${b.imagen}"\n`;
+                    if (b.colorTag) yaml += `    colorTag: "${b.colorTag}"\n`;
+                });
+            }
+
+            // V3: Experiencias
+            if (data.experiencias && data.experiencias.length > 0) {
+                yaml += 'experiencias:\n';
+                data.experiencias.forEach(e => {
+                    yaml += `  - titulo: "${e.titulo}"\n`;
+                    yaml += `    icono: "${e.icono || '🎯'}"\n`;
+                    yaml += `    tag: "${e.tag || 'GRATIS'}"\n`;
+                    yaml += `    tagColor: "${e.tagColor || '#10b981'}"\n`;
+                    yaml += `    descripcion: "${(e.descripcion || '').replace(/"/g, '\\"')}"\n`;
+                    if (e.cta) yaml += `    cta: "${e.cta}"\n`;
+                    if (e.ctaLink) yaml += `    ctaLink: "${e.ctaLink}"\n`;
+                });
+            }
+
+            // V3: Premium Guide
+            if (data.premiumGuide) {
+                yaml += 'premiumGuide:\n';
+                yaml += `  titulo: "${data.premiumGuide.titulo}"\n`;
+                yaml += `  subtitulo: "${data.premiumGuide.subtitulo || ''}"\n`;
+                yaml += '  beneficios:\n';
+                (data.premiumGuide.beneficios || []).forEach(b => {
+                    yaml += `    - "${b}"\n`;
+                });
+                yaml += `  precioOriginal: "${data.premiumGuide.precioOriginal || '29.99'}"\n`;
+                yaml += `  precioOferta: "${data.premiumGuide.precioOferta || '9.99'}"\n`;
+                yaml += `  moneda: "${data.premiumGuide.moneda || 'USD'}"\n`;
+                yaml += `  link: "${data.premiumGuide.link || ''}"\n`;
+            }
+
+            yaml += '---\n';
+            if (data.body) yaml += data.body;
+
+            return yaml;
+        }
+    </script>
+</body>
+
+</html>
