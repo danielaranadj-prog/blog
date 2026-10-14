@@ -10,7 +10,7 @@
 
     <script src="https://cdn.tailwindcss.com"></script>
     <script
-        src="https://cdn.jsdelivr.net/npm/browser-image-compression@2.0.2/dist/browser-image-compression.js"></script>
+        src="/vendor/browser-image-compression/2.0.2/browser-image-compression.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
 
     <script src="https://cdn.tiny.cloud/1/mzaiavt8ne1jnylgt9u8ns2j7xbaofg5gexdmktmbfa09jh3/tinymce/6/tinymce.min.js"
@@ -19,8 +19,8 @@
     <script src="https://unpkg.com/turndown/dist/turndown.js"></script>
     <script src="https://unpkg.com/turndown-plugin-gfm/dist/turndown-plugin-gfm.js"></script>
 
-    <script type="module" src="https://unpkg.com/ionicons@7.1.0/dist/ionicons/ionicons.esm.js"></script>
-    <script nomodule src="https://unpkg.com/ionicons@7.1.0/dist/ionicons/ionicons.js"></script>
+    <script type="module" src="/vendor/ionicons/7.1.0/ionicons.esm.js"></script>
+    <script nomodule src="/vendor/ionicons/7.1.0/ionicons.js"></script>
 
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
 
@@ -922,7 +922,7 @@
                 images_upload_handler: (blobInfo, progress) => new Promise(async (resolve, reject) => {
                     try {
                         const file = blobInfo.blob();
-                        const b64 = await toBase64(await imageCompression(file, { maxSizeMB: 1 }));
+                        const b64 = await toBase64(await imageCompression(file, { libURL: '/vendor/browser-image-compression/2.0.2/browser-image-compression.js', maxSizeMB: 1 }));
                         const name = `${Date.now()}-${file.name.replace(/[^a-z0-9]/gi, '-')}`;
                         await ghFetch(`/contents/public/uploads/${name}`, 'PUT', { message: 'Tiny Upload', content: b64.split(',')[1], branch: githubConfig.branch });
                         resolve(`/uploads/${name}`);
@@ -1288,7 +1288,7 @@
                 const fileInput = document.getElementById('new-auth-file');
                 if (fileInput.files.length > 0) {
                     const file = fileInput.files[0];
-                    const compressed = await imageCompression(file, { maxSizeMB: 0.3 });
+                    const compressed = await imageCompression(file, { libURL: '/vendor/browser-image-compression/2.0.2/browser-image-compression.js', maxSizeMB: 0.3 });
                     const b64 = await toBase64(compressed);
                     const ext = file.name.split('.').pop().toLowerCase() || 'webp';
                     const avatarName = `${slug}.${ext}`;
@@ -1345,7 +1345,7 @@
         window.deletePost = async (n, s) => { if (confirm("¿Borrar?")) { try { await deleteFile(`${githubConfig.postsPath}${n}`, s); showToast('🗑️ Post eliminado'); openLoadModal(); } catch (e) { showToast('Error al borrar: ' + e.message, 'error'); } } };
         window.uploadHeroImage = async (inp) => {
             const f = inp.files[0];
-            const b64 = await toBase64(await imageCompression(f, { maxSizeMB: 1 }));
+            const b64 = await toBase64(await imageCompression(f, { libURL: '/vendor/browser-image-compression/2.0.2/browser-image-compression.js', maxSizeMB: 1 }));
             const ext = f.name.split('.').pop().toLowerCase() || 'jpg';
             const name = `${Date.now()}-hero.${ext}`;
             await ghFetch(`/contents/public/uploads/${name}`, 'PUT', { message: 'Up', content: b64.split(',')[1], branch: githubConfig.branch });

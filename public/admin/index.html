@@ -16,9 +16,9 @@
 
     <script src="https://cdn.tailwindcss.com"></script>
     <script
-        src="https://cdn.jsdelivr.net/npm/browser-image-compression@2.0.2/dist/browser-image-compression.js"></script>
-    <script type="module" src="https://unpkg.com/ionicons@7.1.0/dist/ionicons/ionicons.esm.js"></script>
-    <script nomodule src="https://unpkg.com/ionicons@7.1.0/dist/ionicons/ionicons.js"></script>
+        src="/vendor/browser-image-compression/2.0.2/browser-image-compression.js"></script>
+    <script type="module" src="/vendor/ionicons/7.1.0/ionicons.esm.js"></script>
+    <script nomodule src="/vendor/ionicons/7.1.0/ionicons.js"></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
 
     <script>
@@ -1443,7 +1443,7 @@
 
                 if (fileInput.files[0]) {
                     const f = fileInput.files[0];
-                    const comp = await imageCompression(f, { maxSizeMB: 0.5, maxWidthOrHeight: 800 });
+                    const comp = await imageCompression(f, { libURL: '/vendor/browser-image-compression/2.0.2/browser-image-compression.js', maxSizeMB: 0.5, maxWidthOrHeight: 800 });
                     const r = await new Promise(res => { const rd = new FileReader(); rd.onload = () => res(rd.result); rd.readAsDataURL(comp); });
                     const fname = `${slug}-${Date.now()}.jpg`;
                     await ghFetch(`/contents/public/assets/autores/${fname}`, 'PUT', { message: 'Up img', content: r.split(',')[1], branch: githubConfig.branch });
@@ -2173,7 +2173,7 @@
                 if (!file) return;
 
                 try {
-                    const compressed = await imageCompression(file, { maxSizeMB: 0.5, maxWidthOrHeight: 1920 });
+                    const compressed = await imageCompression(file, { libURL: '/vendor/browser-image-compression/2.0.2/browser-image-compression.js', maxSizeMB: 0.5, maxWidthOrHeight: 1920 });
                     const reader = new FileReader();
                     reader.onload = async (ev) => {
                         const base64 = ev.target.result.split(',')[1];
