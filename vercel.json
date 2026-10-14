@@ -95,5 +95,10 @@
       "destination": "https://www.instantetrips.com/:path*",
       "permanent": true
     }
-  ]
+  ],
+  "functions": {
+    "api/editor.js": {
+      "maxDuration": 60
+    }
+  }
 }

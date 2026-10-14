@@ -44,6 +44,7 @@
         }
     </script>
 
+    <link rel="stylesheet" href="/editor/planner.css">
     <style>
         :root {
             --paper:#FAF7F2; --surface:#FDFBF7; --white:#FFFFFF; --ink:#18181B;
@@ -300,7 +301,7 @@
             <div class="header-row">
                 <div class="header-brand-group">
                     <div class="masthead">INSTANTE<small>Trips & Tips</small></div>
-                    <div class="edition-label"><strong>Sala de Redacción</strong><small>EDICIÓN V6.3</small><p id="save-status"></p></div>
+                    <div class="edition-label"><strong>Sala de Redacción</strong><small>EDICIÓN V7 · PLANIFICADOR</small><p id="save-status"></p></div>
                     <div id="greeting-container" class="hidden md:flex">
                         <span id="greeting-emoji" aria-hidden="true"></span>
                         <div><p id="greeting-text"></p><p id="author-role-text"></p></div>
@@ -358,7 +359,7 @@
                                     <input id="hero-upload" type="file" class="sr-only" accept="image/*" onchange="uploadHeroImage(this)">
                                 </label>
                                 <label class="field-label" for="post-hero">O pega una dirección de imagen</label>
-                                <input type="text" id="post-hero" class="input-modern" placeholder="https://… o /uploads/…" oninput="renderLivePreview()" aria-describedby="hero-help">
+                                <input type="text" id="post-hero" class="input-modern" placeholder="https://… o /uploads/…" oninput="heroPreviewUrlReset()" aria-describedby="hero-help">
                                 <p class="field-help" id="hero-help">Usa una foto horizontal. Comprueba el encuadre en la vista previa.</p>
                             </div>
                             <div><label class="field-label" for="tag-input">Destinos y temas</label><input type="text" id="tag-input" class="input-modern" placeholder="Por ejemplo: España. Pulsa Enter para añadir." aria-describedby="tags-help"><p id="tags-help" class="field-help">Añade al menos una etiqueta para identificar el artículo.</p></div>
@@ -402,6 +403,7 @@
     <div id="toast-container" class="fixed bottom-6 left-6 z-[80] flex flex-col gap-2"></div>
 
     <script type="module">
+        import { initPlanner } from "/editor/planner.js";
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
         import { getAuth, signInWithEmailAndPassword, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
         import { getFirestore, doc, getDoc } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
@@ -498,8 +500,10 @@
 
         // INIT TINYMCE
         function initTinyMCE(initialContent = '') {
-            tinymce.init({
+            return tinymce.init({
                 selector: '#tiny-editor',
+                language: 'es',
+                language_url: '/vendor/tinymce-i18n/26.9.28/es.js',
                 height: 600,
                 menubar: false,
                 skin: window.matchMedia('(prefers-color-scheme: dark)').matches ? 'oxide-dark' : 'oxide',
@@ -527,13 +531,7 @@ body[data-editor-theme='dark'] blockquote { background:#242427; }
                     editor.ui.registry.addButton('customVideoBtn', {
                         icon: 'embed',
                         tooltip: 'Insertar Video (YouTube/TikTok)',
-                        onAction: function (_) {
-                            const url = prompt('Pega el enlace del video (YouTube o TikTok):');
-                            if (url && url.trim()) {
-                                const cleanUrl = url.trim();
-                                editor.insertContent(`\n\n${cleanUrl}\n\n`);
-                            }
-                        }
+                        onAction: () => window.insertVideoLink()
                     });
 
                     editor.ui.registry.addButton('customCtaBtn', {
@@ -544,15 +542,13 @@ body[data-editor-theme='dark'] blockquote { background:#242427; }
                         }
                     });
                 },
-                images_upload_handler: (blobInfo, progress) => new Promise(async (resolve, reject) => {
-                    try {
-                        const file = blobInfo.blob();
-                        const b64 = await toBase64(await imageCompression(file, { libURL: '/vendor/browser-image-compression/2.0.2/browser-image-compression.js', maxSizeMB: 1 }));
-                        const name = `${Date.now()}-${file.name.replace(/[^a-z0-9]/gi, '-')}`;
-                        await ghFetch(`/contents/public/uploads/${name}`, 'PUT', { message: 'Tiny Upload', content: b64.split(',')[1], branch: githubConfig.branch });
-                        resolve(`/uploads/${name}`);
-                    } catch (e) { reject('Error subida: ' + e.message); }
-                })
+                images_upload_handler: async (blobInfo, progress) => {
+                    if (!window.plannerUpload) throw new Error('Espera a que termine de cargar la redacción.');
+                    const upload = await window.plannerUpload(blobInfo.blob(), progress);
+                    const image = tinymce.activeEditor.getBody().querySelector(`img[src="${blobInfo.blobUri()}"]`);
+                    if(image) image.setAttribute('data-media-id', upload.id);
+                    return upload.url;
+                }
             });
         }
 
@@ -586,39 +582,34 @@ body[data-editor-theme='dark'] blockquote { background:#242427; }
         };
 
         window.insertVideoLink = () => {
-            const input = prompt('Pega el enlace o código embed (YouTube/TikTok):');
-            if (!input || !input.trim()) return;
-
-            let cleanUrl = input.trim();
-
-            // Basic check for HTML embed code
-            if (cleanUrl.includes('<iframe') || cleanUrl.includes('<blockquote')) {
-                const div = document.createElement('div');
-                div.innerHTML = cleanUrl;
-
-                const iframe = div.querySelector('iframe');
-                const blockquote = div.querySelector('blockquote');
-
-                if (iframe && iframe.src) {
-                    cleanUrl = iframe.src;
-                } else if (blockquote && blockquote.getAttribute('cite')) {
-                    cleanUrl = blockquote.getAttribute('cite');
+            const raw=prompt('Pega el enlace del video (YouTube o TikTok):');
+            if(!raw) return;
+            try {
+                const url=new URL(raw.trim());
+                if(url.protocol!=='https:') throw Error('Usa un enlace https.');
+                let src='';
+                if(['www.youtube.com','youtube.com','m.youtube.com'].includes(url.hostname)) {
+                    const id=url.searchParams.get('v') || url.pathname.split('/').filter(Boolean).pop();
+                    if(/^[a-zA-Z0-9_-]{11}$/.test(id||'')) src='https://www.youtube.com/embed/'+id;
+                } else if(url.hostname==='youtu.be') {
+                    const id=url.pathname.slice(1);if(/^[a-zA-Z0-9_-]{11}$/.test(id))src='https://www.youtube.com/embed/'+id;
+                } else if(['www.tiktok.com','tiktok.com'].includes(url.hostname)) {
+                    const id=url.pathname.match(/\/video\/(\d+)/)?.[1];if(id)src='https://www.tiktok.com/player/v1/'+id;
                 }
-            }
-
-            if (tinymce.activeEditor) {
-                tinymce.activeEditor.insertContent(`\n\n${cleanUrl}\n\n`);
-            }
+                if(!src) throw Error('Usa el enlace completo de un video de YouTube o TikTok.');
+                tinymce.activeEditor.insertContent(`<p><iframe src="${src}" title="Video del viaje" width="560" height="315" allowfullscreen="allowfullscreen"></iframe></p><p></p>`);
+            } catch(error){ showToast(error.message,'error'); }
         };
 
+        let heroPreviewUrl = "";
         function renderLivePreview() {
             let content = '';
             if (tinymce.activeEditor) content = tinymce.activeEditor.getContent();
             const t = document.getElementById('post-title').value;
-            const h = document.getElementById('post-hero').value;
+            const h = heroPreviewUrl || document.getElementById('post-hero').value;
             let finalHtml = '';
-            if (h) finalHtml += `<img src="${h}" alt="Imagen principal del artículo" class="preview-hero">`;
-            if (t) finalHtml += `<h1 class="preview-headline">${t}</h1>`;
+            if (h && !h.startsWith("media:")) finalHtml += `<img src="${sanitizeAttr(h)}" alt="Imagen principal del artículo" class="preview-hero">`;
+            if (t) finalHtml += `<h1 class="preview-headline">${sanitizeAttr(t)}</h1>`;
             finalHtml += content;
             const deskPreview = document.getElementById('live-preview-content');
             if (deskPreview) deskPreview.innerHTML = finalHtml;
@@ -626,6 +617,8 @@ body[data-editor-theme='dark'] blockquote { background:#242427; }
             if (mobPreview) mobPreview.innerHTML = finalHtml;
         }
 
+        window.heroPreviewUrlReset = () => {heroPreviewUrl='';renderLivePreview();};
+        window.renderLivePreview = renderLivePreview;
         window.openMobilePreview = () => { renderLivePreview(); document.getElementById('preview-modal-mobile').classList.add('open'); }
         window.closeMobilePreview = () => document.getElementById('preview-modal-mobile').classList.remove('open');
 
@@ -654,13 +647,42 @@ body[data-editor-theme='dark'] blockquote { background:#242427; }
                 // Show personalized greeting
                 showGreeting();
 
+                try {
                 const docSnap = await getDoc(doc(db, "config", "main"));
                 if (docSnap.exists()) {
                     githubConfig = docSnap.data();
                     if (!githubConfig.postsPath.endsWith('/')) githubConfig.postsPath += '/';
-                    loadAuthorsFromRepo();
-                    initTinyMCE();
+                    if (tinymce.activeEditor) tinymce.activeEditor.remove();
+                    await loadAuthorsFromRepo();
+                    await initTinyMCE();
+                    await initPlanner({
+                        auth, isAdmin: isAdmin(),
+                        read: () => ({
+                            title: document.getElementById('post-title').value,
+                            description: document.getElementById('post-desc').value,
+                            date: document.getElementById('post-date').value,
+                            author: document.getElementById('post-author').value,
+                            hero: document.getElementById('post-hero').value,
+                            tags: [...tags], html: tinymce.activeEditor.getContent(),
+                            flightDestination: document.getElementById('flight-dest').value,
+                            tourCity: document.getElementById('tour-city').value
+                        }),
+                        write: p => {
+                            for (const [id,key] of Object.entries({'post-title':'title','post-desc':'description','post-date':'date','post-hero':'hero','flight-dest':'flightDestination','tour-city':'tourCity'})) document.getElementById(id).value=p[key] || '';
+                            if(p.author) document.getElementById('post-author').value=p.author;
+                            tags=p.tags||[]; renderTags();
+                            tinymce.activeEditor.setContent(p.html||'');
+                            currentPostFilename=null;currentPostSha=null;
+                            heroPreviewUrl=''; updateSEO();
+                        },
+                        insert: html => tinymce.activeEditor.insertContent(html),
+                        fromMarkdown: md => marked.parse(md),
+                        heroPreview: url => { heroPreviewUrl=url; renderLivePreview(); },
+                        onChange: fn => tinymce.activeEditor.on('input change undo redo',fn),
+                        toast: (m,t) => showToast(m,t)
+                    });
                 }
+                } catch(error) { showToast('No se pudo cargar la redacción: '+error.message,'error'); }
             } else {
                 document.getElementById('login-section').classList.remove('hidden');
                 document.getElementById('app-section').classList.add('hidden');
@@ -733,52 +755,7 @@ body[data-editor-theme='dark'] blockquote { background:#242427; }
             return errors;
         }
 
-        window.publishCurrentPost = async () => {
-            // Validar antes de publicar
-            const errors = validatePost();
-            if (errors.length > 0) {
-                alert(errors.join('\n\n'));
-                return;
-            }
-
-            // Confirmation dialog with post summary
-            const title = document.getElementById('post-title').value;
-            const isUpdate = !!currentPostFilename;
-            const action = isUpdate ? 'actualizar' : 'publicar';
-            if (!confirm(`¿Deseas ${action} el artículo?\n\n📝 "${title}"\n🏷️ Tags: ${tags.join(', ')}\n${isUpdate ? '🔄 Actualizando: ' + currentPostFilename : '✨ Nueva publicación'}`)) {
-                return;
-            }
-
-            const btn = document.querySelector('button[onclick="publishCurrentPost()"]');
-            const orig = btn.innerText; btn.innerText = "Publicando..."; btn.disabled = true;
-            try {
-                const rawContent = tinymce.activeEditor.getContent();
-                let mdContent = turndownService.turndown(rawContent);
-                const postTitle = document.getElementById('post-title').value;
-                const postDesc = document.getElementById('post-desc').value;
-                const postDate = document.getElementById('post-date').value;
-                const postAuthor = document.getElementById('post-author').value;
-                const heroImage = document.getElementById('post-hero').value;
-                const flightDest = document.getElementById('flight-dest').value;
-                const tourCity = document.getElementById('tour-city').value;
-
-                let frontmatter = `---\ntitle: "${postTitle}"\ndescription: "${postDesc}"\npublishDate: "${postDate}"\nauthor: "${postAuthor}"\nheroImage: "${heroImage}"\nlayout: "../../layouts/BlogPost.astro"\ntags: [${tags.map(x => `"${x}"`).join(', ')}]`;
-
-                if (flightDest) frontmatter += `\nflight_destination: "${flightDest}"`;
-                if (tourCity) frontmatter += `\ntour_city: "${tourCity}"`;
-
-                frontmatter += `\n---\n\n`;
-                const finalFile = frontmatter + mdContent;
-                let fn = currentPostFilename;
-                if (!fn) { const slug = postTitle.toLowerCase().replace(/[^a-z0-9]+/g, '-'); fn = `${postDate}-${slug}.md`; }
-                const payload = { message: `Update ${fn}`, content: utf8ToBase64(finalFile), branch: githubConfig.branch };
-                if (currentPostSha) payload.sha = currentPostSha;
-                const res = await ghFetch(`/contents/${githubConfig.postsPath}${fn}`, 'PUT', payload);
-                currentPostSha = res.content.sha; currentPostFilename = fn;
-                showToast("✅ Publicado con éxito");
-            } catch (e) { showToast("Error: " + e.message, "error"); }
-            btn.innerText = orig; btn.disabled = false;
-        };
+        window.publishCurrentPost = () => showToast('Espera a que termine de cargar la redacción.', 'error');
 
         window.openLoadModal = async () => {
             document.getElementById('load-post-modal').classList.add('open');
@@ -974,22 +951,18 @@ body[data-editor-theme='dark'] blockquote { background:#242427; }
         };
 
         window.deletePost = async (n, s) => { if (confirm("¿Borrar?")) { try { await deleteFile(`${githubConfig.postsPath}${n}`, s); showToast('🗑️ Post eliminado'); openLoadModal(); } catch (e) { showToast('Error al borrar: ' + e.message, 'error'); } } };
-        window.uploadHeroImage = async (inp) => {
-            const f = inp.files[0];
-            const b64 = await toBase64(await imageCompression(f, { libURL: '/vendor/browser-image-compression/2.0.2/browser-image-compression.js', maxSizeMB: 1 }));
-            const ext = f.name.split('.').pop().toLowerCase() || 'jpg';
-            const name = `${Date.now()}-hero.${ext}`;
-            await ghFetch(`/contents/public/uploads/${name}`, 'PUT', { message: 'Up', content: b64.split(',')[1], branch: githubConfig.branch });
-            document.getElementById('post-hero').value = `/uploads/${name}`;
-            renderLivePreview();
-        };
+        window.uploadHeroImage = () => showToast('Espera a que termine de cargar la biblioteca.', 'error');
 
         window.addTag = (e) => { if (e.key === 'Enter') { const v = e.target.value.trim(); if (v && !tags.includes(v)) { tags.push(v); e.target.value = ''; renderTags(); } } };
         document.getElementById('tag-input').addEventListener('keydown', window.addTag);
+        document.getElementById('tags-container').addEventListener('click', event => {
+            const b=event.target.closest('[data-remove-tag]');
+            if(b) { tags.splice(Number(b.dataset.removeTag),1);renderTags();document.getElementById('tag-input').dispatchEvent(new Event('change',{bubbles:true})); }
+        });
         function renderTags() {
             document.getElementById('tags-container').innerHTML = tags.map((t, i) => {
                 const safe = sanitizeAttr(t);
-                return `<span class="editorial-tag">#${safe} <button onclick="tags.splice(${i},1);renderTags()" class="tag-remove" aria-label="Quitar etiqueta">×</button></span>`;
+                return `<span class="editorial-tag">#${safe} <button data-remove-tag="${i}" class="tag-remove" aria-label="Quitar etiqueta">×</button></span>`;
             }).join('');
         }
 
@@ -1039,7 +1012,7 @@ body[data-editor-theme='dark'] blockquote { background:#242427; }
             const styleClass = type === 'error' ? 'toast-error' : msg.includes('✅') ? 'toast-success' : 'toast-info';
             const el = document.createElement('div');
             el.className = `toast-notification ${styleClass}`;
-            el.innerHTML = `${icon ? `<span style="font-size:1.1rem">${icon}</span>` : ''}<span>${msg}</span>`;
+            el.textContent = `${icon} ${msg}`;
             document.getElementById('toast-container').appendChild(el);
             setTimeout(() => {
                 el.classList.add('toast-exit');

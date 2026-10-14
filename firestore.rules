@@ -14,6 +14,12 @@ service cloud.firestore {
       allow write: if false; // LOCKED DOWN
     }
 
+    // Editorial drafts, media, notes, membership and scheduler: server API only.
+    // Authentication + ownership checks are performed by the Admin SDK API.
+    match /{collection}/{document} {
+      allow read, write: if false;
+    }
+
     // Config: Allow public read for site configuration (Adsense, etc)
     // Only allow writes by authenticated admins
     match /config/{configId} {

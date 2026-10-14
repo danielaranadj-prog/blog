@@ -28,6 +28,22 @@
     }
   }
 
+  // Aggregate outbound clicks without sending destination query strings.
+  document.addEventListener('click', async (event) => {
+    if (navigator.webdriver) return;
+    const anchor = event.target instanceof Element ? event.target.closest('a[href]') : null;
+    if (!anchor) return;
+    try {
+      const target = new URL(anchor.href);
+      if (target.protocol !== 'https:' || target.origin === location.origin) return;
+      await fetch('/api/analytics', {
+        method: 'POST', keepalive: true,
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ type: 'outbound_click', path: location.pathname, title: target.hostname })
+      });
+    } catch {}
+  });
+
   // Run on load and on client-side navigation
   logPageView();
   document.addEventListener('astro:page-load', logPageView);
