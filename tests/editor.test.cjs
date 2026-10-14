@@ -128,3 +128,7 @@ test('private photographs and the article are published together in one commit',
   const article=mock.state.tree.tree.find(x=>x.path.endsWith('.md')).content;
   assert(article.includes(`/uploads/${m.id}.jpg`));assert(!article.includes('blob:local'));assert(!article.includes('heroImage: "media:'));
 });
+test('statistics group canonical paths and strip query strings',async()=>{
+  const {api,db}=setup();for(const [id,path]of [['a','/posts/madrid/'],['b','/posts/madrid?campaign=example']])await db.doc(`analytics_events/${id}`).set({type:'page_view',path,timestamp:1000000});
+  const result=await api.stats(user);assert.equal(result.views,2);assert.deepEqual(result.pages,[{path:'/posts/madrid',views:2}]);
+});

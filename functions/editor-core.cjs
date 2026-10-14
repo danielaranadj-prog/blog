@@ -289,7 +289,7 @@ function service({ db, admin, bucket, fetcher = fetch, now = () => Date.now() })
     const since=admin.firestore.Timestamp.fromMillis(now()-30*86400000);
     const snap=await db.collection('analytics_events').where('timestamp','>=',since).limit(1500).get();
     const totals={}; let clicks=0,views=0;
-    snap.forEach(d=>{ const e=d.data(); if(e.type==='pageview'||e.type==='page_view') {views++; totals[e.path]=(totals[e.path]||0)+1;} else if(/click/i.test(e.type)) clicks++; });
+    snap.forEach(d=>{ const e=d.data();let path=String(e.path||'/').split(/[?#]/)[0].replace(/\/+$/,'')||'/';if(!path.startsWith('/')||path.startsWith('//'))path='/';if(e.type==='pageview'||e.type==='page_view') {views++; totals[path]=(totals[path]||0)+1;} else if(/click/i.test(e.type)) clicks++; });
     return {views,clicks,sampled:snap.size===1500,days:30,pages:Object.entries(totals).sort((a,b)=>b[1]-a[1]).slice(0,20).map(([path,views])=>({path,views}))};
   }
   return {authorized,save,list,getPost,publish,verify,tick,mediaSave,mediaGet,mediaList,library,saveItem,importPosts,stats,archive,reloadPublished};
