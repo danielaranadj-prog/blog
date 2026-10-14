@@ -258,6 +258,28 @@ function service({ db, admin, bucket, fetcher = fetch, now = () => Date.now() })
     }
     return {count};
   }
+  async function archive(user,id,archived) {
+    await getPost(user,id);
+    await db.runTransaction(async tx=>{
+      const ref=posts.doc(id),snap=await tx.get(ref),p=snap.data();
+      if(['publishing','deploying'].includes(p.status))fail('Espera a que termine la publicación.',409);
+      tx.update(ref,{archived:archived===true,status:p.status==='scheduled'?'draft':p.status,scheduledAt:p.status==='scheduled'?null:p.scheduledAt||null,updatedAt:now(),version:p.version+1});
+    });
+    return getPost(user,id);
+  }
+  async function reloadPublished(user,id) {
+    const p=await getPost(user,id);if(!p.filename)fail('Este borrador todavía no tiene versión publicada.');
+    const cfg=await config(),raw=await gh(`/contents/${encodeURI(`${cfg.path}/${p.filename}`)}?ref=${encodeURIComponent(cfg.branch)}`);
+    const parsed=matter(Buffer.from(raw.content,'base64').toString()),f=parsed.data;
+    const updated=normalizePost({...p,title:f.title,description:f.description,date:f.publishDate instanceof Date?f.publishDate.toISOString().slice(0,10):String(f.publishDate||'').slice(0,10),author:f.author,hero:f.heroImage,heroAlt:f.alt||'',tags:f.tags||[],html:'',markdown:parsed.content,flightDestination:f.flight_destination||'',tourCity:f.tour_city||''});
+    await db.runTransaction(async tx=>{
+      const ref=posts.doc(id),current=await tx.get(ref);
+      if(current.data().version!==p.version||['publishing','deploying'].includes(current.data().status))fail('La ficha cambió; vuelve a abrirla.',409);
+      tx.set(db.doc(`editor_history/${id}-${p.version}`),p);
+      tx.update(ref,{...updated,status:'published',sourceSha:raw.sha,version:p.version+1,updatedAt:now(),error:'',scheduledAt:null});
+    });
+    return getPost(user,id);
+  }
   async function stats(user) {
     if(!user.admin) fail('Solo el administrador puede ver resultados.',403);
     const since=admin.firestore.Timestamp.fromMillis(now()-30*86400000);
@@ -266,6 +288,6 @@ function service({ db, admin, bucket, fetcher = fetch, now = () => Date.now() })
     snap.forEach(d=>{ const e=d.data(); if(e.type==='pageview'||e.type==='page_view') {views++; totals[e.path]=(totals[e.path]||0)+1;} else if(/click/i.test(e.type)) clicks++; });
     return {views,clicks,sampled:snap.size===1500,days:30,pages:Object.entries(totals).sort((a,b)=>b[1]-a[1]).slice(0,20).map(([path,views])=>({path,views}))};
   }
-  return {authorized,save,list,getPost,publish,verify,tick,mediaSave,mediaGet,mediaList,library,saveItem,importPosts,stats};
+  return {authorized,save,list,getPost,publish,verify,tick,mediaSave,mediaGet,mediaList,library,saveItem,importPosts,stats,archive,reloadPublished};
 }
 module.exports={service,normalizePost,validate,markdownFile,cleanHtml,slug,safeId};

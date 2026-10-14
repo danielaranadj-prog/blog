@@ -37,6 +37,14 @@ module.exports=async(req,res)=>{
       }
       case 'items': if(!['ideas','trips','questions'].includes(b.kind)) throw Error('Tipo inválido.'); result=await api.library(user,b.kind);break;
       case 'saveItem':result=await api.saveItem(user,b.kind,b.item);break;
+      case 'reviewed': {
+        const p=await api.getPost(user,b.id);
+        if(b.version!==p.version) {const e=new Error('La ficha cambió. Vuelve a abrirla.');e.status=409;throw e;}
+        if(!/^\d{4}-\d{2}-\d{2}$/.test(b.reviewAt||'')) {const e=new Error('Selecciona la próxima fecha de revisión.');e.status=400;throw e;}
+        await admin.firestore().doc(`editor_posts/${b.id}`).update({reviewAt:b.reviewAt,lastReviewedAt:Date.now()});result={ok:true};break;
+      }
+      case 'archive':result=await api.archive(user,b.id,b.archived);break;
+      case 'reloadPublished':result=await api.reloadPublished(user,b.id);break;
       case 'import':result=await api.importPosts(user);break;
       case 'checkLinks': {
         const links=[...new Set(Array.isArray(b.links)?b.links:[])].filter(x=>typeof x==='string'&&x.length<2000).slice(0,10);

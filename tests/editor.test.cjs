@@ -104,3 +104,9 @@ test('link checker blocks private, loopback, link-local and mapped addresses',()
   for(const ip of ['127.0.0.1','10.0.0.1','169.254.169.254','192.168.0.1','172.16.1.1','100.64.0.1','::1','::ffff:127.0.0.1','fc00::1','2001:db8::1'])assert.equal(isPublic(ip),false,ip);
   assert.equal(isPublic('8.8.8.8'),true);assert.equal(isPublic('2606:4700::1111'),true);
 });
+test('archive cancels scheduling without deleting work and allows restoration',async()=>{
+  const {api,db}=setup();await db.doc('editor_system/scheduler').set({lastHeartbeat:999999});
+  const p=await api.save(user,{...fixture,scheduledAt:1200000},'scheduled');
+  const archived=await api.archive(user,p.id,true);assert.equal(archived.status,'draft');assert.equal(archived.scheduledAt,null);assert.equal(archived.archived,true);
+  assert.equal((await api.archive(user,p.id,false)).archived,false);
+});
