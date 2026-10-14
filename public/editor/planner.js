@@ -8,11 +8,12 @@ export async function initPlanner(bridge) {
   let posts=[],active=null,view='calendar',month=new Date(),zone='America/Mazatlan',saveTimer,dirty=false,editing=false,loading=false,items=[],media=[],busy=false,disposed=false;
   const urls=new Map(),mediaMetadata=new Map();
   const auth=bridge.auth;
+  const sessionUid=auth.currentUser.uid;
   let recovered=null;
   async function recovery(op,value){
     try {
       const database=await new Promise((resolve,reject)=>{const r=indexedDB.open('instante-editor-recovery',1);r.onupgradeneeded=()=>r.result.createObjectStore('pending');r.onsuccess=()=>resolve(r.result);r.onerror=()=>reject(r.error);});
-      const result=await new Promise((resolve,reject)=>{const tx=database.transaction('pending',op==='get'?'readonly':'readwrite');const store=tx.objectStore('pending');const r=op==='get'?store.get(auth.currentUser.uid):op==='put'?store.put(value,auth.currentUser.uid):store.delete(auth.currentUser.uid);r.onsuccess=()=>resolve(r.result);r.onerror=()=>reject(r.error);});database.close();return result;
+      const result=await new Promise((resolve,reject)=>{const tx=database.transaction('pending',op==='get'?'readonly':'readwrite');const store=tx.objectStore('pending');const r=op==='get'?store.get(sessionUid):op==='put'?store.put(value,sessionUid):store.delete(sessionUid);r.onsuccess=()=>resolve(r.result);r.onerror=()=>reject(r.error);});database.close();return result;
     }catch{return null;}
   }
   const workspace=document.querySelector('#app-section .workspace');
@@ -31,7 +32,7 @@ export async function initPlanner(bridge) {
   const state=$('draft-state');
   function notify(message,error=false){state.textContent=message;state.classList.toggle('planner-error',error);}
   async function api(action,data={}) {
-    if(!auth.currentUser) throw Error('Tu sesión terminó. Inicia sesión para guardar.');
+    if(!auth.currentUser||auth.currentUser.uid!==sessionUid) throw Error('Tu sesión cambió. Vuelve a abrir el editor para guardar.');
     const token=await auth.currentUser.getIdToken();
     const res=await fetch('/api/editor',{method:'POST',headers:{'Content-Type':'application/json',Authorization:`Bearer ${token}`},body:JSON.stringify({action,...data})});
     const result=await res.json();if(!res.ok) {const e=Error(result.error||'No se pudo completar la operación.');e.status=res.status;throw e;} return result;
