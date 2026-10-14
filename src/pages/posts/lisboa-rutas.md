@@ -4,7 +4,7 @@ title: "Lisboa en 48 horas: Subidas, bajadas y pasteles"
 publishDate: "2026-05-28"
 author: "Daniel Arana"
 description: "Una ruta express para no morir en el intento subiendo las 7 colinas. Tranvía 28, Alfama y dónde ver el atardecer."
-heroImageLink: "https://images.unsplash.com/photo-1548707304-411622079234?auto=format&fit=crop&w=800&q=80"
+heroImageLink: "https://images.unsplash.com/photo-1555881400-74d7acaacd8b?auto=format&fit=crop&w=800&q=80"
 ---
 
 Lisboa es preciosa, pero tus pantorrillas van a sufrir. Aquí la estrategia es clave para no acabar agotado a las 2 de la tarde.
