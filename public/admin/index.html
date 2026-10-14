@@ -1334,7 +1334,7 @@
             document.getElementById('no-results').classList.add('hidden');
 
             try {
-                const files = await ghFetch(`/contents/${githubConfig.postsPath}`);
+                const files = await ghFetch(`/contents/${githubConfig.postsPath.replace(/\/+$/, '')}`);
                 const mdFiles = files.filter(f => f.name.endsWith('.md'));
                 const promises = mdFiles.map(async (file) => {
                     const data = await ghFetch(`/contents/${file.path}`);

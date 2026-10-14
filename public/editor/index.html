@@ -1163,7 +1163,7 @@
             list.textContent = 'Cargando publicaciones…';
             try {
                 if (!githubConfig) throw new Error('Espera a que termine de cargar la sesión.');
-                const files = await ghFetch(`/contents/${githubConfig.postsPath}`);
+                const files = await ghFetch(`/contents/${githubConfig.postsPath.replace(/\/+$/, '')}`);
                 if (!Array.isArray(files)) throw new Error('La carpeta de publicaciones no está disponible.');
                 allPosts = files.filter(f => f.name.endsWith('.md')).map(f => ({ name: f.name, sha: f.sha }));
                 renderPostsList(allPosts);

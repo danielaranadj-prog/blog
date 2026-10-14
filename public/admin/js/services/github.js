@@ -36,11 +36,11 @@ export class GitHubService {
     }
 
     async getFile(path) {
-        return this.fetch(`/contents/${path}`);
+        return this.fetch(`/contents/${path.replace(/\/+$/, '')}`);
     }
 
     async getFiles(path) {
-        return this.fetch(`/contents/${path}`);
+        return this.fetch(`/contents/${path.replace(/\/+$/, '')}`);
     }
 
     async updateFile(path, content, message, sha) {
