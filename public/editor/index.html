@@ -282,7 +282,7 @@
             <div class="pass-body">
                 <div class="pass-mark"><span>Credencial de prensa</span><span>Trips & Tips</span></div>
                 <h1 class="pass-title">Instante Trips</h1>
-                <p class="pass-subtitle">Sala de Redacción V6.3</p>
+                <p class="pass-subtitle">Sala de Redacción V7</p>
                 <form id="login-form" class="field-stack">
                     <div><label for="email" class="field-label">Tu correo de editor</label>
                         <input type="email" id="email" autocomplete="username" placeholder="nombre@correo.com" class="input-modern" required></div>
@@ -630,7 +630,10 @@ body[data-editor-theme='dark'] blockquote { background:#242427; }
         });
         document.getElementById('btn-logout').addEventListener('click', () => signOut(auth));
 
+        let initializedEditorUid = null;
         onAuthStateChanged(auth, async (user) => {
+            if (user && initializedEditorUid === user.uid) return;
+            initializedEditorUid = user ? user.uid : null;
             if (user) {
                 document.getElementById('login-section').classList.add('hidden');
                 document.getElementById('app-section').classList.remove('hidden');
@@ -682,7 +685,7 @@ body[data-editor-theme='dark'] blockquote { background:#242427; }
                         toast: (m,t) => showToast(m,t)
                     });
                 }
-                } catch(error) { showToast('No se pudo cargar la redacción: '+error.message,'error'); }
+                } catch(error) { initializedEditorUid=null; showToast('No se pudo cargar la redacción: '+error.message,'error'); }
             } else {
                 document.getElementById('login-section').classList.remove('hidden');
                 document.getElementById('app-section').classList.add('hidden');

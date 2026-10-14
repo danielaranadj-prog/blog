@@ -2,7 +2,9 @@ import { localToUtc, dayKey, escapeHtml, auditContent, templates, blocks, buildT
 const labels={draft:'Borrador',scheduled:'Programado',publishing:'Publicando',deploying:'Actualizando web',published:'Publicado',error:'Error'};
 const $=id=>document.getElementById(id);
 const esc=escapeHtml;
+let disposeCurrentPlanner=null;
 export async function initPlanner(bridge) {
+  if(disposeCurrentPlanner)disposeCurrentPlanner();
   let posts=[],active=null,view='calendar',month=new Date(),zone='America/Mazatlan',saveTimer,dirty=false,editing=false,loading=false,items=[],media=[],busy=false,disposed=false;
   const urls=new Map(),mediaMetadata=new Map();
   const auth=bridge.auth;
@@ -20,10 +22,12 @@ export async function initPlanner(bridge) {
   const panel=document.createElement('main');panel.className='planner-panel';workspace.before(panel);
   const dialog=document.createElement('dialog');dialog.className='planner-dialog';dialog.setAttribute('aria-label','Herramientas de contenido');document.body.append(dialog);
   const publication=$('publish-card');
-  publication.insertAdjacentHTML('beforeend',`<div class="schedule-fields"><label>Fecha y hora programada<input id="schedule-date" type="datetime-local" class="input-modern"></label><label>Zona horaria<select id="schedule-zone" class="input-modern">${['America/Mazatlan','America/Mexico_City','America/Cancun','America/Argentina/Buenos_Aires','Europe/Madrid','UTC'].map(z=>`<option>${z}</option>`).join('')}</select></label><label>Revisar información el<input id="review-date" type="date" class="input-modern"></label></div><div class="planner-publish-actions"><button id="save-draft" class="planner-button">Guardar borrador</button><button id="schedule-post" class="planner-button primary">Programar</button><button id="cancel-schedule" class="planner-button" hidden>Cancelar programación</button></div><p id="draft-state" role="status" aria-live="polite"></p><button id="audit-post" class="text-action">Revisar artículo y enlaces</button><button id="check-links" class="text-action">Comprobar enlaces del relato</button><ul id="post-audit" class="planner-audit"></ul>`);
+  const publicationControls=document.createElement('div');publicationControls.id='planner-publication-controls';publication.append(publicationControls);
+  publicationControls.innerHTML=`<div class="schedule-fields"><label>Fecha y hora programada<input id="schedule-date" type="datetime-local" class="input-modern"></label><label>Zona horaria<select id="schedule-zone" class="input-modern">${['America/Mazatlan','America/Mexico_City','America/Cancun','America/Argentina/Buenos_Aires','Europe/Madrid','UTC'].map(z=>`<option>${z}</option>`).join('')}</select></label><label>Revisar información el<input id="review-date" type="date" class="input-modern"></label></div><div class="planner-publish-actions"><button id="save-draft" class="planner-button">Guardar borrador</button><button id="schedule-post" class="planner-button primary">Programar</button><button id="cancel-schedule" class="planner-button" hidden>Cancelar programación</button></div><p id="draft-state" role="status" aria-live="polite"></p><button id="audit-post" class="text-action">Revisar artículo y enlaces</button><button id="check-links" class="text-action">Comprobar enlaces del relato</button><ul id="post-audit" class="planner-audit"></ul>`;
   $('btn-publish').textContent='Publicar ahora';
-  document.querySelector('.writing-shortcuts').insertAdjacentHTML('beforeend','<button id="insert-template">Plantilla</button><button id="insert-block">Añadir bloque</button><button id="open-library">Biblioteca de fotos</button><button id="editor-assistant">Asistente editorial</button>');
-  $('post-hero').insertAdjacentHTML('afterend','<label class="field-label" for="hero-alt">Descripción de la portada</label><input id="hero-alt" class="input-modern" placeholder="Describe lo que aparece en la foto">');
+  const shortcuts=document.createElement('span');shortcuts.className='planner-writing-shortcuts';document.querySelector('.writing-shortcuts').append(shortcuts);
+  shortcuts.innerHTML='<button id="insert-template">Plantilla</button><button id="insert-block">Añadir bloque</button><button id="open-library">Biblioteca de fotos</button><button id="editor-assistant">Asistente editorial</button>';
+  const heroFields=document.createElement('div');$('post-hero').after(heroFields);heroFields.innerHTML='<label class="field-label" for="hero-alt">Descripción de la portada</label><input id="hero-alt" class="input-modern" placeholder="Describe lo que aparece en la foto">';
   const state=$('draft-state');
   function notify(message,error=false){state.textContent=message;state.classList.toggle('planner-error',error);}
   async function api(action,data={}) {
@@ -234,7 +238,15 @@ export async function initPlanner(bridge) {
   window.plannerUpload=async(file,progress)=>{const m=await uploadFile(file,progress);return {url:m.url,id:m.id};};
   const beforeUnload=e=>{if(dirty){e.preventDefault();e.returnValue='';}};window.addEventListener('beforeunload',beforeUnload);
   const timer=setInterval(()=>{if(editing&&active?.status==='deploying'&&!busy)protect(async()=>{const p=await api('verify',{id:active.id});setCurrent(p);notify(labels[p.status]+(p.error?` · ${p.error}`:''));})();},30000);
-  const unsubscribe=auth.onAuthStateChanged(user=>{if(!user){disposed=true;clearTimeout(saveTimer);clearInterval(timer);window.removeEventListener('beforeunload',beforeUnload);urls.forEach(url=>URL.revokeObjectURL(url));nav.remove();panel.remove();dialog.remove();unsubscribe();}});
+  let unsubscribe=()=>{};
+  const dispose=()=>{
+    if(disposed)return;disposed=true;clearTimeout(saveTimer);clearInterval(timer);
+    window.removeEventListener('beforeunload',beforeUnload);workspace.removeEventListener('input',queueSave);workspace.removeEventListener('change',queueSave);
+    urls.forEach(url=>URL.revokeObjectURL(url));nav.remove();panel.remove();dialog.remove();publicationControls.remove();shortcuts.remove();heroFields.remove();unsubscribe();
+    if(disposeCurrentPlanner===dispose)disposeCurrentPlanner=null;
+  };
+  disposeCurrentPlanner=dispose;
+  unsubscribe=auth.onAuthStateChanged(user=>{if(!user)dispose();});
   recovered=await recovery('get');
   await showView('calendar');
 }
