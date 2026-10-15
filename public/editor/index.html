@@ -451,7 +451,6 @@
 
         const MASTER_ADMIN_EMAIL = "danielaranadj@gmail.com";
         const isAdmin = () => auth.currentUser && auth.currentUser.email.toLowerCase() === MASTER_ADMIN_EMAIL.toLowerCase();
-        const canDelete = isAdmin;  // Alias for backwards compatibility
 
         // Email → Author mapping (add new authors here)
         const EMAIL_TO_AUTHOR = {
@@ -792,10 +791,8 @@ body[data-editor-theme='dark'] blockquote { background:#242427; }
             }
             document.getElementById('posts-list').innerHTML = posts.map(p => {
                 const safeName = sanitizeAttr(p.name);
-                const safeSha = sanitizeAttr(p.sha);
                 return `<div class="flex justify-between items-center p-3 border-b dark:border-slate-700 hover:bg-gray-50 dark:hover:bg-slate-800 rounded-lg">
                     <span onclick="loadPost('${safeName}')" class="cursor-pointer flex-1 truncate">${safeName}</span>
-                    ${canDelete() ? `<button onclick="deletePost('${safeName}', '${safeSha}')" class="text-red-500 ml-2 hover:text-red-700"><ion-icon name="trash-outline"></ion-icon></button>` : ''}
                 </div>`;
             }).join('');
         }
@@ -912,7 +909,6 @@ body[data-editor-theme='dark'] blockquote { background:#242427; }
             btn.textContent = 'Guardar'; btn.disabled = false;
         };
 
-        window.deletePost = async (n, s) => { if (confirm("¿Borrar?")) { try { await deleteFile(`${githubConfig.postsPath}${n}`, s); showToast('🗑️ Post eliminado'); openLoadModal(); } catch (e) { showToast('Error al borrar: ' + e.message, 'error'); } } };
         window.uploadHeroImage = () => showToast('Espera a que termine de cargar la biblioteca.', 'error');
 
         window.addTag = (e) => { if (e.key === 'Enter') { const v = e.target.value.trim(); if (v && !tags.includes(v)) { tags.push(v); e.target.value = ''; renderTags(); } } };
@@ -987,11 +983,6 @@ body[data-editor-theme='dark'] blockquote { background:#242427; }
             document.getElementById('title-count').innerText = t;
             renderLivePreview();
         };
-        // API DELETE
-        async function deleteFile(path, sha) {
-            if (!canDelete()) throw new Error("Acceso denegado");
-            await ghFetch(`/contents/${path}`, 'DELETE', { message: `Delete ${path}`, sha, branch: githubConfig.branch });
-        }
     </script>
 </body>
 

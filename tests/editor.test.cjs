@@ -128,3 +128,56 @@ test('statistics group canonical paths and strip query strings',async()=>{
 });
 
 test('legacy integration credentials move atomically to private server configuration',async()=>{const {db,api}=setup();await db.doc('config/main').set({repoOwner:'owner',repoName:'repo',branch:'main',postsPath:'src/pages/posts/',githubToken:'test-only-secret',geminiToken:'test-only-ai'});await api.repository.secureConfig();const publicData=(await db.doc('config/main').get()).data(),privateData=(await db.doc('server_config/main').get()).data();assert.equal(publicData.githubToken,undefined);assert.equal(publicData.geminiToken,undefined);assert.equal(privateData.githubToken,'test-only-secret');assert.equal((await api.repository.config()).branch,'main');await api.repository.secureConfig();assert.equal((await db.doc('server_config/main').get()).data().githubToken,'test-only-secret');});
+
+function removalSetup({file=true,conflict=false,liveStatus=200,deleteStatus=200}={}) {
+  const log=[],state={file:file?{sha:conflict?'external-sha':'original-sha',content:Buffer.from('---\ntitle: Original\n---\nContenido público original').toString('base64')}:null,liveStatus};
+  const response=(body,status=200)=>({ok:status>=200&&status<300,status,json:async()=>body,text:async()=>String(body)});
+  const {api,db}=setup(async(url,options={})=>{
+    const body=options.body?JSON.parse(options.body):null;log.push({url,method:options.method||'GET',body});
+    if(url.startsWith('https://www.instantetrips.com/'))return response('',state.liveStatus);
+    if(options.method==='DELETE'){if(deleteStatus!==200)return response({},deleteStatus);assert.equal(body.sha,'original-sha');state.file=null;return response({commit:{sha:'removal-commit'}});}
+    return state.file?response(state.file):response({},404);
+  });
+  async function seed(extra={}){await db.doc('config/main').set({repoOwner:'o',repoName:'r',githubToken:'test-only',branch:'main'});const p=await api.save(user,fixture);await db.doc(`editor_posts/${p.id}`).update({status:'published',filename:'prueba.md',sourceSha:'original-sha',publishedUrl:'https://www.instantetrips.com/posts/prueba/',...extra});return api.getPost(user,p.id);}
+  return {api,db,seed,log,state};
+}
+test('removal deletes only the public source, keeps private work and verifies live 404 before trash',async()=>{
+  const {api,db,seed,log,state}=removalSetup();const p=await seed();
+  const removing=await api.trash(user,p.id,p.version);assert.equal(removing.status,'removing');assert.equal(removing.removalReady,true);assert.equal(removing.scheduledAt,null);assert.equal(removing.html,p.html);
+  assert.equal(log.filter(x=>x.method==='DELETE').length,1);assert(log.find(x=>x.method==='DELETE').url.endsWith('/src/pages/posts/prueba.md'));
+  const history=(await db.doc(`editor_history/${p.id}-removed-${p.version}`).get()).data();assert(history.publicSource.includes('Contenido público original'));assert.equal((await api.getPost(user,p.id)).html,p.html);
+  assert.equal((await api.verifyRemoval(user,p.id)).status,'removing');
+  state.liveStatus=500;assert.equal((await api.verifyRemoval(user,p.id)).status,'removing');
+  state.liveStatus=404;const trashed=await api.verifyRemoval(user,p.id);assert.equal(trashed.status,'trashed');assert.equal(trashed.sourceSha,'');
+  const count=log.length;const restored=await api.restore(user,p.id,trashed.version);assert.equal(restored.status,'draft');assert.equal(restored.html,p.html);assert.equal(restored.filename,'prueba.md');assert.equal(log.length,count);
+});
+test('removal is admin-only and requires the current version',async()=>{
+  const {api,seed,log}=removalSetup();const p=await seed();
+  await assert.rejects(api.trash({uid:user.uid,admin:false},p.id,p.version),{status:403});
+  await assert.rejects(api.trash(user,p.id,p.version-1),{status:409});assert.equal(log.length,0);
+});
+test('simultaneous removal makes only one GitHub deletion',async()=>{
+  const {api,seed,log}=removalSetup();const p=await seed();const results=await Promise.allSettled([api.trash(user,p.id,p.version),api.trash(user,p.id,p.version)]);
+  assert.equal(results.filter(r=>r.status==='fulfilled').length,1);assert.equal(log.filter(x=>x.method==='DELETE').length,1);
+});
+test('removal refuses external edits and never retries via the scheduler',async()=>{
+  const {api,seed,log}=removalSetup({conflict:true});const p=await seed({scheduledAt:1,nextAttemptAt:1});
+  await assert.rejects(api.trash(user,p.id,p.version),{status:409});assert.equal(log.filter(x=>x.method==='DELETE').length,0);
+  const failed=await api.getPost(user,p.id);assert.equal(failed.status,'removal_error');assert.equal(failed.nextAttemptAt,0);assert.equal(failed.scheduledAt,null);
+  const count=log.length;await api.tick();assert.equal(log.length,count);await assert.rejects(api.publish(user,p.id,failed.version),{status:409});
+});
+test('failed GitHub deletion retains content and offers an explicit retry',async()=>{
+  const {api,seed}=removalSetup({deleteStatus:502});const p=await seed();await assert.rejects(api.trash(user,p.id,p.version),{status:502});const failed=await api.getPost(user,p.id);assert.equal(failed.status,'removal_error');assert.equal(failed.html,p.html);
+});
+test('private drafts move to trash with no network request and cancel scheduling',async()=>{
+  const {api,db,log}=removalSetup();const p=await api.save(user,fixture);await db.doc(`editor_posts/${p.id}`).update({status:'scheduled',scheduledAt:1200000});
+  const trashed=await api.trash(user,p.id,p.version);assert.equal(trashed.status,'trashed');assert.equal(trashed.scheduledAt,null);assert.equal(log.length,0);
+  await assert.rejects(api.save(user,trashed),{status:409});await assert.rejects(api.publish(user,p.id,trashed.version),{status:409});await assert.rejects(api.archive(user,p.id,false),{status:409});await assert.rejects(api.restore(user,p.id,p.version),{status:409});
+});
+test('already missing source is removable and cannot be republished from the trash',async()=>{
+  const {api,seed,state,log}=removalSetup({file:false,liveStatus:404});const p=await seed();await api.trash(user,p.id,p.version);const trashed=await api.verifyRemoval(user,p.id);assert.equal(trashed.status,'trashed');assert.equal(log.filter(x=>x.method==='DELETE').length,0);
+  await assert.rejects(api.publish(user,p.id,trashed.version),{status:409});await assert.rejects(api.reloadPublished(user,p.id),{status:404});
+});
+test('malformed filenames cannot escape the article directory during removal',async()=>{
+  const {api,seed,log}=removalSetup();const p=await seed({filename:'../authors.ts.md'});await assert.rejects(api.trash(user,p.id,p.version),{status:400});assert.equal(log.length,0);
+});

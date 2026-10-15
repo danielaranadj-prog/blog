@@ -50,6 +50,9 @@ module.exports=async(req,res)=>{
         if(!/^\d{4}-\d{2}-\d{2}$/.test(b.reviewAt||'')) {const e=new Error('Selecciona la próxima fecha de revisión.');e.status=400;throw e;}
         await admin.firestore().doc(`editor_posts/${b.id}`).update({reviewAt:b.reviewAt,lastReviewedAt:Date.now()});result={ok:true};break;
       }
+      case 'trash':result=await api.trash(user,b.id,b.version);break;
+      case 'restore':result=await api.restore(user,b.id,b.version);break;
+      case 'verifyRemoval':result=await api.verifyRemoval(user,b.id);break;
       case 'archive':result=await api.archive(user,b.id,b.archived);break;
       case 'reloadPublished':result=await api.reloadPublished(user,b.id);break;
       case 'import':result=await api.importPosts(user);break;

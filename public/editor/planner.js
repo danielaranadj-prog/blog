@@ -1,5 +1,5 @@
 import { localToUtc, dayKey, escapeHtml, auditContent, templates, blocks, buildTripDraft } from './planner-utils.js';
-const labels={draft:'Borrador',scheduled:'Programado',publishing:'Publicando',deploying:'Actualizando web',published:'Publicado',error:'Error'};
+const labels={draft:'Borrador',scheduled:'Programado',publishing:'Publicando',deploying:'Actualizando web',published:'Publicado',error:'Error',removing:'Retirando de la web',removal_error:'No se pudo retirar',trashed:'En la papelera'};
 const $=id=>document.getElementById(id);
 const esc=escapeHtml;
 let disposeCurrentPlanner=null;
@@ -18,7 +18,7 @@ export async function initPlanner(bridge) {
   }
   const workspace=document.querySelector('#app-section .workspace');
   const nav=document.createElement('nav'); nav.className='planner-nav';nav.setAttribute('aria-label','Redacción');
-  nav.innerHTML=[['calendar','Calendario'],['articles','Artículos'],['reviews','Revisiones'],['ideas','Ideas'],['trips','Mi viaje'],['questions','Preguntas'],['media','Fotografías'],['stats','Resultados']].map(([key,title])=>`<button data-view="${key}" aria-current="false">${title}</button>`).join('');
+  nav.innerHTML=[['calendar','Calendario'],['articles','Artículos'],['trash','Papelera'],['reviews','Revisiones'],['ideas','Ideas'],['trips','Mi viaje'],['questions','Preguntas'],['media','Fotografías'],['stats','Resultados']].map(([key,title])=>`<button data-view="${key}" aria-current="false">${title}</button>`).join('');
   workspace.before(nav);
   const panel=document.createElement('main');panel.className='planner-panel';workspace.before(panel);
   const dialog=document.createElement('dialog');dialog.className='planner-dialog';dialog.setAttribute('aria-label','Herramientas de contenido');document.body.append(dialog);
@@ -77,7 +77,7 @@ export async function initPlanner(bridge) {
     nav.querySelectorAll('button').forEach(b=>b.setAttribute('aria-current',String(b.dataset.view===next)));
     panel.innerHTML='<div class="planner-wrap"><p role="status">Cargando…</p></div>';
     try{
-      if(next==='calendar'||next==='articles')await refresh();
+      if(['calendar','articles','trash'].includes(next))await refresh();
       else if(['ideas','trips','questions'].includes(next))await renderItems(next);
       else if(next==='reviews')await renderReviews();
       else if(next==='media')await renderMedia();
@@ -85,7 +85,7 @@ export async function initPlanner(bridge) {
     }catch(e){panel.innerHTML=`<div class="planner-wrap"><h1>No se pudo cargar esta sección</h1><p role="alert">${esc(e.message)}</p><button class="planner-button" data-retry>Reintentar</button><button class="planner-button" data-new>Escribir un artículo</button></div>`;}
   }
   async function refresh(){
-    const data=await api('list');posts=data.posts;aiReady=data.aiReady===true;
+    const data=await api('list');posts=data.posts;for(const p of posts.filter(p=>p.status==='removing'&&p.removalReady).slice(0,5)){try{const updated=await api('verifyRemoval',{id:p.id});posts=posts.map(x=>x.id===p.id?updated:x);}catch{}}aiReady=data.aiReady===true;
     if(!posts.length&&bridge.isAdmin){await api('import');posts=(await api('list')).posts;}
     const ready=data.scheduler&&Date.now()-data.scheduler<180000;
     $('schedule-post').disabled=!ready;
@@ -94,18 +94,21 @@ export async function initPlanner(bridge) {
     renderMain(ready);
   }
   function matches(p,q,filter){return (!q||`${p.title} ${(p.tags||[]).join(' ')} ${p.author}`.toLowerCase().includes(q.toLowerCase()))&&(filter==='archived'?p.archived:!p.archived&&(!filter||p.status===filter));}
-  function entries(){const q=$('planner-search')?.value||'',filter=$('planner-filter')?.value||'';return posts.filter(p=>matches(p,q,filter));}
+  function entries(){const q=$('planner-search')?.value||'',filter=$('planner-filter')?.value||'';return posts.filter(p=>(view==='trash'?p.status==='trashed':p.status!=='trashed')&&matches(p,q,filter));}
   function postDay(p){return p.status==='scheduled'&&p.scheduledAt?dayKey(p.scheduledAt,zone):(p.date||dayKey(p.updatedAt,zone));}
-  function card(p){return `<article class="planner-card state-${p.status}"><span class="state-label">${esc(labels[p.status]||p.status)}</span><h2>${esc(p.title||'Sin título')}</h2><p>${esc(postDay(p))} · ${esc((p.tags||[]).join(' · '))}</p>${p.reviewAt&&p.reviewAt<=dayKey(Date.now(),zone)?'<p class="planner-review">Pendiente de revisar información</p>':''}${p.error?`<p class="planner-error">${esc(p.error)}</p>`:''}<button class="planner-button" data-open="${p.id}">Abrir</button>${p.publishedUrl?`<a class="text-action" href="${esc(p.publishedUrl)}" target="_blank" rel="noopener">Ver artículo ↗</a>`:''}${p.status==='deploying'?`<button class="planner-button" data-verify="${p.id}">Comprobar publicación</button>`:''}${!['publishing','deploying'].includes(p.status)?`<button class="text-action" data-archive-post="${p.id}" data-restore="${p.archived?'true':'false'}">${p.archived?'Restaurar':'Archivar ficha'}</button>`:''}${p.filename&&p.status==='error'?`<button class="planner-button" data-reload-post="${p.id}">Recargar versión publicada</button>`:''}</article>`;}
+  function card(p){
+    const removed=p.status==='trashed',removing=p.status==='removing',failed=p.status==='removal_error',stalled=removing&&!p.removalReady&&Date.now()-p.updatedAt>=600000,locked=removed||removing||failed;
+    return `<article class="planner-card state-${p.status}"><span class="state-label">${esc(labels[p.status]||p.status)}</span><h2>${esc(p.title||'Sin título')}</h2><p>${esc(postDay(p))} · ${esc((p.tags||[]).join(' · '))}</p>${!locked&&p.reviewAt&&p.reviewAt<=dayKey(Date.now(),zone)?'<p class="planner-review">Pendiente de revisar información</p>':''}${p.error?`<p class="planner-error">${esc(p.error)}</p>`:''}${locked?'':`<button class="planner-button" data-open="${p.id}">Abrir</button>`}${p.publishedUrl&&!removed?`<a class="text-action" href="${esc(p.publishedUrl)}" target="_blank" rel="noopener">Ver artículo ↗</a>`:''}${p.status==='deploying'?`<button class="planner-button" data-verify="${p.id}">Comprobar publicación</button>`:''}${removing?`<p>La web se está actualizando. El artículo puede seguir visible durante unos minutos.</p><button class="planner-button" data-verify-removal="${p.id}">Comprobar retirada</button>`:''}${removed?`<p>El contenido sigue guardado aquí. Restaurarlo no lo publica.</p>${bridge.isAdmin?`<button class="planner-button" data-restore-post="${p.id}">Restaurar como borrador</button>`:''}`:''}${!locked&&!['publishing','deploying'].includes(p.status)?`<button class="text-action" data-archive-post="${p.id}" data-restore="${p.archived?'true':'false'}">${p.archived?'Mostrar ficha':'Ocultar ficha (no elimina)'}</button>`:''}${bridge.isAdmin&&!removed&&(!removing||stalled)&&!['publishing','deploying'].includes(p.status)?`<button class="planner-button danger" data-trash-post="${p.id}">${failed||stalled?'Reintentar retirada':p.filename?'Eliminar de la web':'Mover a la papelera'}</button>`:''}${p.filename&&['error','removal_error'].includes(p.status)?`<button class="planner-button" data-reload-post="${p.id}">Recargar versión publicada</button>`:''}</article>`;
+  }
   function renderMain(ready){
     const monthName=month.toLocaleDateString('es',{month:'long',year:'numeric'});
-    panel.innerHTML=`<div class="planner-wrap"><div class="planner-heading"><div><span class="eyebrow">Tu mesa de trabajo</span><h1>${view==='calendar'?'Calendario editorial':'Todos tus artículos'}</h1><p class="planner-subtitle">Organiza las historias que vienen. Zona del calendario: ${esc(zone)}.</p></div><div class="planner-tools"><button class="planner-button" data-import>Sincronizar publicados</button><button class="planner-button primary" data-new>+ Nueva historia</button></div></div>${!ready?'<p class="planner-notice">La publicación automática está pendiente de activación. Ya puedes escribir y guardar borradores privados.</p>':''}${recovered?'<p class="planner-notice">Encontramos cambios locales que no terminaron de guardarse. <button class="planner-button" data-recover>Recuperar trabajo</button></p>':''}<div class="planner-tools"><input id="planner-search" class="input-modern planner-search" placeholder="Buscar título, destino o autor" aria-label="Buscar artículos"><select id="planner-filter" class="input-modern" aria-label="Filtrar estado"><option value="">Todos los estados</option>${Object.entries(labels).map(([k,l])=>`<option value="${k}">${l}</option>`).join('')}<option value="archived">Archivados</option></select>${view==='calendar'?`<button class="planner-button" data-month="-1" aria-label="Mes anterior">←</button><strong>${esc(monthName)}</strong><button class="planner-button" data-month="1" aria-label="Mes siguiente">→</button><button class="planner-button" data-today>Hoy</button>`:''}</div><div id="planner-content"></div></div>`;
+    panel.innerHTML=`<div class="planner-wrap"><div class="planner-heading"><div><span class="eyebrow">Tu mesa de trabajo</span><h1>${view==='calendar'?'Calendario editorial':view==='trash'?'Papelera':'Todos tus artículos'}</h1><p class="planner-subtitle">${view==='trash'?'Los artículos retirados se conservan aquí. Puedes recuperarlos como borrador.':'Organiza las historias que vienen. Zona del calendario: '+esc(zone)+'.'}</p></div><div class="planner-tools"><button class="planner-button" data-import>Sincronizar publicados</button><button class="planner-button primary" data-new>+ Nueva historia</button></div></div>${!ready?'<p class="planner-notice">La publicación automática está pendiente de activación. Ya puedes escribir y guardar borradores privados.</p>':''}${recovered?'<p class="planner-notice">Encontramos cambios locales que no terminaron de guardarse. <button class="planner-button" data-recover>Recuperar trabajo</button></p>':''}<div class="planner-tools"><input id="planner-search" class="input-modern planner-search" placeholder="Buscar título, destino o autor" aria-label="Buscar artículos"><select id="planner-filter" class="input-modern" aria-label="Filtrar estado"><option value="">Todos los estados</option>${Object.entries(labels).filter(([k])=>k!=='trashed').map(([k,l])=>`<option value="${k}">${l}</option>`).join('')}<option value="archived">Archivados</option></select>${view==='calendar'?`<button class="planner-button" data-month="-1" aria-label="Mes anterior">←</button><strong>${esc(monthName)}</strong><button class="planner-button" data-month="1" aria-label="Mes siguiente">→</button><button class="planner-button" data-today>Hoy</button>`:''}</div><div id="planner-content"></div></div>`;
     drawContent();
     $('planner-search').addEventListener('input',drawContent);$('planner-filter').addEventListener('change',drawContent);
   }
   function drawContent(){
     const filtered=entries();
-    if(view==='articles'){$('planner-content').innerHTML=filtered.length?`<div class="planner-cards">${filtered.sort((a,b)=>b.updatedAt-a.updatedAt).map(card).join('')}</div>`:'<p class="planner-empty">No hay artículos con este filtro.</p>';return;}
+    if(view==='articles'||view==='trash'){$('planner-content').innerHTML=filtered.length?`<div class="planner-cards">${filtered.sort((a,b)=>b.updatedAt-a.updatedAt).map(card).join('')}</div>`:'<p class="planner-empty">No hay artículos con este filtro.</p>';return;}
     const first=new Date(month.getFullYear(),month.getMonth(),1,12),start=new Date(first);start.setDate(1-((first.getDay()+6)%7));
     let grid='<div class="calendar-weekdays" style="display:grid;grid-template-columns:repeat(7,1fr)">'+['Lun','Mar','Mié','Jue','Vie','Sáb','Dom'].map(d=>`<span class="calendar-weekday">${d}</span>`).join('')+'</div><div class="calendar-grid">';
     for(let i=0;i<42;i++){
@@ -125,7 +128,7 @@ export async function initPlanner(bridge) {
     if(editing&&!await leave())return;
     loading=true;
     try{
-      const p=await api('get',{id});setCurrent(p);
+      const p=await api('get',{id});if(['trashed','removing','removal_error'].includes(p.status))throw Error('Este artículo está en retirada o en la papelera. Adminístralo desde Artículos o Papelera.');setCurrent(p);
       const html=await hydrate(p.html||bridge.fromMarkdown(p.markdown||''));
       bridge.write({...p,html});$('hero-alt').value=p.heroAlt||'';$('review-date').value=p.reviewAt||'';$('schedule-zone').value=p.timezone||zone;
       $('schedule-date').value=p.scheduledAt?localInput(p.scheduledAt,p.timezone||zone):`${p.date||dayKey(Date.now(),zone)}T10:00`;
@@ -188,7 +191,7 @@ export async function initPlanner(bridge) {
   }
   async function renderReviews(){
     posts=(await api('list')).posts;const today=dayKey(Date.now(),zone);
-    const pending=posts.filter(p=>!p.archived&&p.reviewAt).sort((a,b)=>a.reviewAt.localeCompare(b.reviewAt));
+    const pending=posts.filter(p=>!p.archived&&!['trashed','removing','removal_error'].includes(p.status)&&p.reviewAt).sort((a,b)=>a.reviewAt.localeCompare(b.reviewAt));
     panel.innerHTML=`<div class="planner-wrap"><h1>Revisar y mantener al día</h1><p class="planner-subtitle">Precios, horarios y requisitos cambian. Abre cada artículo, comprueba las fuentes y actualiza la próxima revisión.</p><div class="planner-cards">${pending.map(p=>`<article class="planner-card"><span class="${p.reviewAt<=today?'planner-review':'planner-pending'}">${p.reviewAt<=today?'Revisión pendiente':'Próxima revisión'} · ${esc(p.reviewAt)}</span><h2>${esc(p.title)}</h2><button class="planner-button" data-open="${p.id}">Abrir artículo</button><button class="planner-button" data-reviewed="${p.id}">Registrar revisión</button></article>`).join('')||'<p class="planner-empty">Añade una fecha de revisión desde la ficha de un artículo.</p>'}</div></div>`;
   }
   async function renderStats(){const s=await api('stats');panel.innerHTML=`<div class="planner-wrap"><h1>Resultados del blog</h1><p class="planner-subtitle">Últimos ${s.days} días · Eventos registrados por el sitio. No representan visitantes únicos.${s.sampled?' Muestra limitada a 1.500 eventos.':''}</p><div class="planner-cards"><article class="planner-card"><h2>${s.views}</h2><p>Visitas registradas</p></article><article class="planner-card"><h2>${s.clicks}</h2><p>Clics registrados</p></article></div><h2>Páginas más consultadas</h2>${s.pages.length?s.pages.map(p=>`<p><a href="${esc(p.path.startsWith('/')?p.path:'/')}" target="_blank" rel="noopener">${esc(p.path==='/'?'Portada del blog':posts.find(article=>article.publishedUrl?.replace(/\/$/,'').endsWith(p.path.replace(/\/$/,'')))?.title||p.path)}</a> · ${p.views}</p>`).join(''):'<p class="planner-empty">Todavía no hay visitas registradas en este período.</p>'}</div>`;}
@@ -221,6 +224,17 @@ export async function initPlanner(bridge) {
     }
     if(b.hasAttribute('data-insert-ai')){bridge.insert('<h2>Propuesta para revisar</h2>'+aiOutput.split(/\n\n+/).map(p=>'<p>'+esc(p).replace(/\n/g,'<br>')+'</p>').join(''));queueSave();dialog.close();return;}
     if(b.dataset.reviewed){const p=posts.find(p=>p.id===b.dataset.reviewed);openForm('Registrar revisión',`<p>Confirma que comprobaste los datos del artículo. Esto registra la revisión; los cambios en el texto se publican desde el editor.</p><label>Próxima revisión<input class="input-modern" name="reviewAt" type="date" required></label>`,async f=>{await api('reviewed',{id:p.id,version:p.version,reviewAt:f.get('reviewAt')});await renderReviews();});return;}
+    if(b.dataset.trashPost){
+      let p=await api('get',{id:b.dataset.trashPost});
+      openForm(p.filename?'Eliminar artículo de la web':'Mover a la papelera',`<p>${p.filename?'Se retirará de la portada, las listas y su dirección pública cuando termine la actualización de la web.':'Se cancelará cualquier programación.'} Conservaremos el contenido en la papelera y las fotografías en tu biblioteca.</p><p><strong>${esc(p.title||'Sin título')}</strong></p><label>Escribe ELIMINAR para confirmar<input class="input-modern" name="confirmation" required autocomplete="off" placeholder="ELIMINAR"></label>`,async f=>{
+        if(f.get('confirmation')!=='ELIMINAR')throw Error('Escribe ELIMINAR para confirmar.');
+        try{await api('trash',{id:p.id,version:p.version});bridge.toast(p.filename?'Retirada enviada. La web se está actualizando.':'Artículo movido a la papelera.');await refresh();}
+        catch(e){p=await api('get',{id:p.id});await refresh();throw e;}
+      });
+      const submit=dialog.querySelector('[type="submit"]');submit.textContent=p.filename?'Eliminar de la web':'Mover a la papelera';submit.className='planner-button danger';return;
+    }
+    if(b.dataset.restorePost){const p=await api('get',{id:b.dataset.restorePost});await api('restore',{id:p.id,version:p.version});bridge.toast('Restaurado como borrador privado.');return refresh();}
+    if(b.dataset.verifyRemoval){b.disabled=true;try{const p=await api('verifyRemoval',{id:b.dataset.verifyRemoval});bridge.toast(p.status==='trashed'?'Artículo retirado de la web.':'La retirada sigue pendiente. Vuelve a comprobarla en unos minutos.');return await refresh();}finally{b.disabled=false;}}
     if(b.dataset.archivePost){
       const restoring=b.dataset.restore==='true';
       if(!restoring&&!confirm('¿Archivar esta ficha? Se cancelará su programación si la tiene. Si el artículo ya está publicado, seguirá visible en el blog.'))return;

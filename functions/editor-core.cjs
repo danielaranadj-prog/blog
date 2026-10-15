@@ -2,7 +2,7 @@ const crypto = require('node:crypto');
 const sanitizeHtml = require('sanitize-html');
 const matter = require('gray-matter');
 const SITE = 'https://www.instantetrips.com';
-const statuses = new Set(['draft', 'scheduled', 'publishing', 'deploying', 'published', 'error']);
+const statuses = new Set(['draft', 'scheduled', 'publishing', 'deploying', 'published', 'error', 'removing', 'removal_error', 'trashed']);
 const safeId = id => typeof id === 'string' && /^[a-zA-Z0-9_-]{1,100}$/.test(id);
 const slug = value => String(value).normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '').slice(0, 100) || 'historia';
 const hash = value => crypto.createHash('sha256').update(value).digest('hex');
@@ -115,7 +115,7 @@ function service({ db, admin, bucket, fetcher = fetch, now = () => Date.now() })
     await db.runTransaction(async tx => {
       const ref = posts.doc(id), snap = await tx.get(ref), old = snap.data();
       if (old && !user.admin && old.owner !== user.uid) fail('Sin acceso.', 403);
-      if (old && ['publishing', 'deploying'].includes(old.status)) fail('Espera a que termine la publicación.', 409);
+      if (old && ['publishing', 'deploying', 'removing', 'removal_error', 'trashed'].includes(old.status)) fail('Espera a que termine la publicación.', 409);
       if (old && input.version !== old.version) fail('Hay una versión más reciente. Vuelve a abrir el artículo antes de guardar.', 409);
       tx.set(ref, { ...post, owner: old?.owner || user.uid, status: mode, scheduledAt: mode === 'scheduled' ? scheduledAt : null, version: (old?.version || 0) + 1, createdAt: old?.createdAt || now(), updatedAt: now(), filename: old?.filename || '', sourceSha: old?.sourceSha || '', publishedUrl: old?.publishedUrl || '', error: '', attempts: 0, nextAttemptAt: 0 }, { merge: true });
     });
@@ -162,7 +162,7 @@ function service({ db, admin, bucket, fetcher = fetch, now = () => Date.now() })
     await db.runTransaction(async tx => {
       const snap = await tx.get(ref); post = snap.data();
       if (expectedVersion != null && expectedVersion !== post.version) fail('La versión cambió. Vuelve a abrir el artículo.', 409);
-      if (['publishing', 'deploying', 'published'].includes(post.status)) fail('El artículo ya se está publicando o está publicado.', 409);
+      if (['publishing', 'deploying', 'published', 'removing', 'removal_error', 'trashed'].includes(post.status)) fail('El artículo ya se está publicando o está publicado.', 409);
       const errors = validate(post); if (errors.length) fail(errors.join('\n'));
       tx.update(ref, { status: 'publishing', claim, leaseUntil: now()+600000, attempts: (post.attempts || 0)+1, updatedAt: now(), error: '' });
     });
@@ -178,6 +178,7 @@ function service({ db, admin, bucket, fetcher = fetch, now = () => Date.now() })
         return getPost(user,id);
       }
       if (post.sourceSha && current?.sha !== post.sourceSha) fail('El artículo cambió en GitHub. Importa la versión reciente antes de actualizar.', 409);
+      if (post.filename && current && !post.sourceSha) fail('Ya existe una versión en esta dirección. Recárgala antes de publicar.',409);
       if (!post.filename && current) fail('Ya existe otro artículo con esta dirección.', 409);
       const ids = new Set(post.mediaIds);
       for (const m of post.html.matchAll(/data-media-id="([\w-]+)"/g)) ids.add(m[1]);
@@ -282,7 +283,7 @@ function service({ db, admin, bucket, fetcher = fetch, now = () => Date.now() })
     await getPost(user,id);
     await db.runTransaction(async tx=>{
       const ref=posts.doc(id),snap=await tx.get(ref),p=snap.data();
-      if(['publishing','deploying'].includes(p.status))fail('Espera a que termine la publicación.',409);
+      if(['publishing','deploying','removing','removal_error','trashed'].includes(p.status))fail('Espera a que termine la publicación.',409);
       tx.update(ref,{archived:archived===true,status:p.status==='scheduled'?'draft':p.status,scheduledAt:p.status==='scheduled'?null:p.scheduledAt||null,updatedAt:now(),version:p.version+1});
     });
     return getPost(user,id);
@@ -294,9 +295,60 @@ function service({ db, admin, bucket, fetcher = fetch, now = () => Date.now() })
     const updated=normalizePost({...p,title:f.title,description:f.description,date:f.publishDate instanceof Date?f.publishDate.toISOString().slice(0,10):String(f.publishDate||'').slice(0,10),author:f.author,hero:f.heroImage,heroAlt:f.alt||'',tags:f.tags||[],html:'',markdown:parsed.content,flightDestination:f.flight_destination||'',tourCity:f.tour_city||''});
     await db.runTransaction(async tx=>{
       const ref=posts.doc(id),current=await tx.get(ref);
-      if(current.data().version!==p.version||['publishing','deploying'].includes(current.data().status))fail('La ficha cambió; vuelve a abrirla.',409);
+      if(current.data().version!==p.version||['publishing','deploying','removing','trashed'].includes(current.data().status))fail('La ficha cambió; vuelve a abrirla.',409);
       tx.set(db.doc(`editor_history/${id}-${p.version}`),p);
       tx.update(ref,{...updated,status:'published',sourceSha:raw.sha,version:p.version+1,updatedAt:now(),error:'',scheduledAt:null});
+    });
+    return getPost(user,id);
+  }
+  // Removal keeps the private article and Git history; only its public source is removed.
+  async function trash(user,id,expectedVersion) {
+    if(!user.admin) fail('Solo el administrador puede eliminar artículos.',403);
+    await getPost(user,id);
+    const ref=posts.doc(id);let p;
+    await db.runTransaction(async tx=>{
+      p=(await tx.get(ref)).data();
+      if(expectedVersion!==p.version)fail('La ficha cambió. Actualiza la lista antes de eliminar.',409);
+      if(['publishing','deploying','trashed'].includes(p.status)||(p.status==='removing'&&(p.removalReady||now()-p.updatedAt<600000)))fail('Espera a que termine la operación actual.',409);
+      if(p.filename && !/^[^/\\?#%\x00-\x1f]+\.md$/.test(p.filename))fail('La ruta del artículo no es válida.');
+      tx.update(ref,{status:'removing',scheduledAt:null,nextAttemptAt:0,version:p.version+1,updatedAt:now(),error:'',removalReady:false});
+    });
+    try {
+      if(p.filename) {
+        const cfg=await config(),ep=`/contents/${cfg.path}/${encodeURIComponent(p.filename)}`;
+        let file;
+        try {file=await gh(`${ep}?ref=${encodeURIComponent(cfg.branch)}`);}catch(e){if(e.status!==404)throw e;}
+        if(file) {
+          if(!p.sourceSha || file.sha!==p.sourceSha)fail('El artículo cambió en GitHub. Recarga la versión publicada antes de eliminarlo.',409);
+          // Preserve the exact public Markdown as well as the current private working copy.
+          await db.doc(`editor_history/${id}-removed-${p.version}`).set({publicSource:Buffer.from(file.content,'base64').toString(),filename:p.filename,removedBy:user.uid,removedAt:now()});
+          const result=await gh(ep,'DELETE',{message:`Remove article ${p.filename} [editor:${id}]`,sha:file.sha,branch:cfg.branch});
+          await ref.update({removalCommit:result.commit?.sha||''});
+        }
+        await ref.update({removalReady:true,removedAt:now(),updatedAt:now(),error:''});
+      } else await ref.update({status:'trashed',removedAt:now(),updatedAt:now(),archived:false});
+      return getPost(user,id);
+    }catch(e){await ref.update({status:'removal_error',error:e.message,updatedAt:now()});throw e;}
+  }
+  async function verifyRemoval(user,id) {
+    const p=await getPost(user,id);
+    if(p.status!=='removing'||!p.removalReady)return p;
+    const response=await fetcher(`${SITE}/posts/${encodeURIComponent(p.filename.slice(0,-3))}/`,{redirect:'error',signal:AbortSignal.timeout(15000),headers:{'Cache-Control':'no-cache'}});
+    if(response.status===404) {
+      await db.runTransaction(async tx=>{
+        const ref=posts.doc(id),current=(await tx.get(ref)).data();
+        if(current.status==='removing'&&current.version===p.version)tx.update(ref,{status:'trashed',archived:false,sourceSha:'',publishedUrl:'',updatedAt:now(),error:''});
+      });
+    } else if(now()-p.updatedAt>1800000)await posts.doc(id).update({error:'La retirada sigue pendiente. Comprueba la actualización de la web.'});
+    return getPost(user,id);
+  }
+  async function restore(user,id,expectedVersion) {
+    if(!user.admin)fail('Solo el administrador puede restaurar artículos.',403);
+    await getPost(user,id);
+    await db.runTransaction(async tx=>{
+      const ref=posts.doc(id),p=(await tx.get(ref)).data();
+      if(p.status!=='trashed'||p.version!==expectedVersion)fail('Actualiza la papelera antes de restaurar.',409);
+      tx.update(ref,{status:'draft',archived:false,sourceSha:'',scheduledAt:null,nextAttemptAt:0,version:p.version+1,updatedAt:now(),error:'',removalReady:false});
     });
     return getPost(user,id);
   }
@@ -308,6 +360,6 @@ function service({ db, admin, bucket, fetcher = fetch, now = () => Date.now() })
     snap.forEach(d=>{ const e=d.data();let path=String(e.path||'/').split(/[?#]/)[0].replace(/\/+$/,'')||'/';if(!path.startsWith('/')||path.startsWith('//'))path='/';if(e.type==='pageview'||e.type==='page_view') {views++; totals[path]=(totals[path]||0)+1;} else if(/click/i.test(e.type)) clicks++; });
     return {views,clicks,sampled:snap.size===1500,days:30,pages:Object.entries(totals).sort((a,b)=>b[1]-a[1]).slice(0,20).map(([path,views])=>({path,views}))};
   }
-  return {authorized,save,list,getPost,publish,verify,tick,mediaSave,mediaGet,mediaList,library,saveItem,importPosts,stats,archive,reloadPublished,repository:{request:gh,config,secureConfig}};
+  return {authorized,save,list,getPost,publish,verify,tick,mediaSave,mediaGet,mediaList,library,saveItem,importPosts,stats,archive,reloadPublished,trash,restore,verifyRemoval,repository:{request:gh,config,secureConfig}};
 }
 module.exports={service,normalizePost,validate,markdownFile,cleanHtml,slug,safeId};
