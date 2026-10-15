@@ -464,7 +464,16 @@ const schemaData = {
       .article-sticky-sidebar { border-left: 0; padding-left: 0; }
       .article-breadcrumb { flex-wrap: wrap; }
     }
-  </style>
+  /* 1180px outer shell leaves 1140px of content and clear space for the side rails. */
+    @media (min-width: 1540px) {
+      .post-page-shell {
+        box-sizing: border-box;
+        max-width: 1180px;
+        padding-left: 20px;
+        padding-right: 20px;
+      }
+    }
+</style>
 </head>
 
 <body>

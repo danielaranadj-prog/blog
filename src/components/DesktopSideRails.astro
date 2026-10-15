@@ -1,0 +1,79 @@
+---
+// Pass the advertising markup through the named slots when AdSense is configured.
+---
+
+<aside class="desktop-side-rail desktop-side-rail--left" aria-label="Publicidad lateral izquierda">
+  <span class="desktop-side-rail__label">PUBLICIDAD</span>
+  <div class="desktop-side-rail__slot" id="desktop-ad-slot-left">
+    <slot name="left" />
+  </div>
+</aside>
+
+<aside class="desktop-side-rail desktop-side-rail--right" aria-label="Publicidad lateral derecha">
+  <span class="desktop-side-rail__label">PUBLICIDAD</span>
+  <div class="desktop-side-rail__slot" id="desktop-ad-slot-right">
+    <slot name="right" />
+  </div>
+</aside>
+
+<style>
+  .desktop-side-rail {
+    display: none;
+    position: fixed;
+    top: 96px;
+    z-index: 30;
+    box-sizing: border-box;
+    width: 174px;
+    height: 636px;
+    padding: 6px;
+    flex-direction: column;
+    align-items: center;
+    gap: 6px;
+    background-color: #F3EFE6;
+    border: 1.5px solid #18181B;
+    border-radius: 12px;
+    box-shadow: 0 4px 0 rgba(24, 24, 27, 0.08);
+  }
+
+  .desktop-side-rail--left {
+    left: max(16px, calc((100vw - 1180px) / 2 - 190px));
+  }
+
+  .desktop-side-rail--right {
+    right: max(16px, calc((100vw - 1180px) / 2 - 190px));
+  }
+
+  .desktop-side-rail__label {
+    flex: 0 0 12px;
+    width: 100%;
+    text-align: center;
+    font-family: var(--font-sans, sans-serif);
+    font-size: 8.5px;
+    line-height: 12px;
+    font-weight: 800;
+    letter-spacing: 1.8px;
+    color: #78716C;
+  }
+
+  .desktop-side-rail__slot {
+    box-sizing: border-box;
+    flex: 0 0 600px;
+    width: 160px;
+    height: 600px;
+    border-radius: 8px;
+    overflow: hidden;
+    background: #FAF7F2;
+  }
+
+  @media (min-width: 1540px) {
+    .desktop-side-rail {
+      display: flex;
+    }
+  }
+
+  @media print {
+    .desktop-side-rail {
+      display: none;
+    }
+  }
+</style>
