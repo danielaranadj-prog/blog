@@ -108,6 +108,11 @@
       "source": "/destinos",
       "destination": "/#explorar",
       "permanent": true
+    },
+    {
+      "source": "/destinos/",
+      "destination": "/#explorar",
+      "permanent": true
     }
   ],
   "functions": {
