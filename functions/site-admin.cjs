@@ -25,8 +25,20 @@ function validateSettings(input){
  if(value.ads.publisherId&&!/^ca-pub-\d{16}$/.test(value.ads.publisherId))fail('El identificador AdSense debe tener formato ca-pub- y 16 dígitos.');
  for(const name of ['homeSlot','articleSlot','sidebarSlot']){value.ads[name]=String(ads[name]||'').trim();if(value.ads[name]&&!/^\d{6,20}$/.test(value.ads[name]))fail('El identificador de cada bloque debe contener solo números.');}
  if(value.ads.enabled&&(!value.ads.publisherId||!['homeSlot','articleSlot','sidebarSlot'].some(k=>value.ads[k])))fail('Añade el editor y al menos un bloque antes de activar AdSense.');
- const sponsor=input.sponsor||{};value.sponsor={enabled:sponsor.enabled===true,title:String(sponsor.title||'').slice(0,180),text:String(sponsor.text||'').slice(0,600),button:String(sponsor.button||'').slice(0,80),url:safeUrl(sponsor.url)};
+ const sponsor=input.sponsor||{};value.sponsor={confirmed:sponsor.confirmed===true,enabled:sponsor.enabled===true,title:String(sponsor.title||'').slice(0,180),text:String(sponsor.text||'').slice(0,600),button:String(sponsor.button||'').slice(0,80),url:safeUrl(sponsor.url)};
+ if(value.sponsor.enabled&&!value.sponsor.confirmed)fail('Confirma las condiciones y el enlace de la tarjeta patrocinada.');
  if(value.sponsor.enabled&&(!value.sponsor.title||!value.sponsor.button||!value.sponsor.url?.startsWith('https:')))fail('Completa el título, botón y enlace https de la tarjeta patrocinada.');
+ value.catalog=(Array.isArray(input.catalog)?input.catalog:[]).slice(0,100).map(item=>{
+  const id=String(item.id||'');if(!/^[a-z0-9-]{1,80}$/.test(id))fail('Cada recomendación necesita un identificador válido.');
+  const type=item.type==='download'?'download':'affiliate',url=safeUrl(item.url),enabled=item.enabled===true,confirmed=item.confirmed===true;
+  const title=String(item.title||'').trim().slice(0,180),provider=String(item.provider||'').slice(0,100);
+  if(enabled&&(!title||!url||!confirmed))fail('Para activar una recomendación completa su título, enlace y confirmación.');
+  if(url&&!/^(https:\/\/|\/downloads\/)/.test(url))fail('Usa https o un PDF subido al sitio.');
+  return {id,type,title,url,provider,partnerId:String(item.partnerId||'').slice(0,150),text:String(item.text||'').slice(0,600),button:String(item.button||'').slice(0,100),tags:String(item.tags||'').slice(0,300),placement:item.placement==='manual'?'manual':'sidebar',enabled,confirmed};
+ });
+ if(new Set(value.catalog.map(x=>x.id)).size!==value.catalog.length)fail('Los identificadores del catálogo no pueden repetirse.');
+ const audience=input.audience||{};value.audience={newsletterUrl:safeUrl(audience.newsletterUrl),newsletterTitle:String(audience.newsletterTitle||'Recibe las próximas historias').slice(0,180),newsletterText:String(audience.newsletterText||'').slice(0,400)};
+ if(value.audience.newsletterUrl&&!value.audience.newsletterUrl.startsWith('https:'))fail('Usa el enlace https de tu formulario de suscripción.');
  return value;
 }
 function manifest(s){return {id:'/',name:s.name,short_name:s.shortName,description:s.description,start_url:'/',scope:'/',display:'standalone',background_color:s.backgroundColor,theme_color:s.themeColor,lang:'es',icons:[{src:s.assets.icon192,sizes:'192x192',type:'image/png',purpose:'any'},{src:s.assets.icon512,sizes:'512x512',type:'image/png',purpose:'any'},{src:s.assets.appleTouchIcon,sizes:'180x180',type:'image/png',purpose:'any'}]};}
@@ -41,9 +53,10 @@ function adminService({db,repository,now=()=>Date.now(),fetcher=fetch}){
  const request=repository.request;
  async function read(path,revision){try{const c=await repository.config();return await request(`/contents/${encodeURI(path)}?ref=${encodeURIComponent(revision||c.branch)}`);}catch(e){if(e.status===404)return null;throw e;}}
  async function published(){const f=await read(SETTINGS);return {settings:f?JSON.parse(Buffer.from(f.content,'base64').toString()):structuredClone(DEFAULT),sha:f?.sha||''};}
- async function load(){const p=await published();const draft=(await db.doc('admin_site/draft').get()).data();return {published:p.settings,publishedSha:p.sha,draft:draft||null,connection:{connected:true,branch:(await repository.config()).branch},release:(await db.doc('admin_site/release').get()).data()||null};}
+ async function load(){const p=await published();let draft=(await db.doc('admin_site/draft').get()).data();if(draft&&draft.version===draft.publishedVersion&&draft.baseSha!==p.sha)draft={...draft,settings:p.settings,baseSha:p.sha,assetIds:[]};return {published:p.settings,publishedSha:p.sha,draft:draft||null,connection:{connected:true,branch:(await repository.config()).branch},release:(await db.doc('admin_site/release').get()).data()||null};}
  async function saveDraft(input){const settings=validateSettings(input.settings);const ref=db.doc('admin_site/draft');await db.runTransaction(async tx=>{const old=(await tx.get(ref)).data();const lock=(await tx.get(db.doc('admin_site/lock'))).data();if(lock?.until>now())fail('Hay una publicación en curso. Espera antes de guardar.',409);if((old?.version||0)!==(input.version||0))fail('Otra pestaña guardó cambios. Recarga antes de continuar.',409);tx.set(ref,{settings,version:(old?.version||0)+1,baseSha:String(input.baseSha||''),assetIds:Array.isArray(input.assetIds)?input.assetIds.filter(i=>/^[\w-]{1,100}$/.test(i)).slice(0,30):[],updatedAt:now()});});return (await ref.get()).data();}
  async function prepareAsset(user,input){
+  if(input.kind==='pdf'){const bytes=Buffer.from(String(input.base64||''),'base64');if(bytes.length>1500000||bytes.length<10||!bytes.subarray(0,5).equals(Buffer.from('%PDF-'))||!bytes.subarray(-2048).includes(Buffer.from('%%EOF')))fail('Sube un PDF válido de hasta 1,5 MB.');const id=crypto.randomUUID(),fileId=crypto.randomUUID(),path=`public/downloads/${id}.pdf`;await db.doc(`admin_asset_files/${fileId}`).set({owner:user.uid,group:id,path,mime:'application/pdf',base64:bytes.toString('base64')});await db.doc(`admin_assets/${id}`).set({owner:user.uid,kind:'pdf',files:[{id:fileId,path,mime:'application/pdf'}],refs:{download:path.replace(/^public/,'')},createdAt:now()});return {id,refs:{download:path.replace(/^public/,'')}};}
   if(!['icons','logo','social','avatar'].includes(input.kind))fail('Tipo de imagen no válido.');
   const bytes=Buffer.from(String(input.base64||''),'base64');if(!bytes.length||bytes.length>1600000)fail('Sube una imagen JPG, PNG o WebP de menos de 1,5 MB.');
   if(input.backgroundColor&&!/^#[a-f0-9]{6}$/i.test(input.backgroundColor))fail('El color de fondo no es válido.');
@@ -59,7 +72,7 @@ function adminService({db,repository,now=()=>Date.now(),fetcher=fetch}){
   await db.doc(`admin_assets/${id}`).set({owner:user.uid,kind:input.kind,files,refs,createdAt:now()});
   const previewFile=await db.doc(`admin_asset_files/${files.at(-1).id}`).get();return {id,refs,preview:`data:${files.at(-1).mime};base64,${previewFile.data().base64}`};
  }
- async function assetFiles(ids){const out=[];for(const id of ids){if(!/^[\w-]{1,100}$/.test(id))fail('Imagen inválida.');const group=(await db.doc(`admin_assets/${id}`).get()).data();if(!group)fail('No se encontró una imagen pendiente.');for(const file of group.files){const f=(await db.doc(`admin_asset_files/${file.id}`).get()).data();if(!f||!/^public\/branding\/[\w.-]+$/.test(f.path))fail('Ruta de imagen inválida.');out.push(f);}}return out;}
+ async function assetFiles(ids){const out=[];for(const id of ids){if(!/^[\w-]{1,100}$/.test(id))fail('Imagen inválida.');const group=(await db.doc(`admin_assets/${id}`).get()).data();if(!group)fail('No se encontró una imagen pendiente.');for(const file of group.files){const f=(await db.doc(`admin_asset_files/${file.id}`).get()).data();if(!f||!/^public\/(?:branding|downloads)\/[\w.-]+$/.test(f.path))fail('Ruta de imagen inválida.');out.push(f);}}return out;}
  async function previewAsset(id){const group=(await db.doc(`admin_assets/${id}`).get()).data();if(!group)fail('Imagen no disponible.',404);const f=(await db.doc(`admin_asset_files/${group.files.at(-1).id}`).get()).data();return {refs:group.refs,preview:`data:${f.mime};base64,${f.base64}`};}
  async function commit(files,message,expected){
   const cfg=await repository.config();
@@ -77,7 +90,7 @@ function adminService({db,repository,now=()=>Date.now(),fetcher=fetch}){
   try{
    const settings=validateSettings(draft.settings);settings.revision=crypto.randomUUID();
    const current=await published();if(current.sha!==draft.baseSha)fail('El sitio tiene una versión nueva. Recarga antes de publicar.',409);
-   const files=(await assetFiles(draft.assetIds)).filter(file=>Object.values(settings.assets).includes(file.path.replace(/^public/,'')));
+   const files=(await assetFiles(draft.assetIds)).filter(file=>[...Object.values(settings.assets),...settings.catalog.map(x=>x.url)].includes(file.path.replace(/^public/,'')));
    files.push({path:SETTINGS,content:JSON.stringify(settings,null,2)+'\n'},{path:'public/manifest.json',content:JSON.stringify(manifest(settings),null,2)+'\n'},{path:'public/ads.txt',content:settings.ads.publisherId?`google.com, ${settings.ads.publisherId.replace('ca-','')}, DIRECT, f08c47fec0942fa0\n`:''});
    const sha=await commit(files,'Update website settings from the online admin',{[SETTINGS]:draft.baseSha});
    await db.doc('admin_site/release').set({revision:settings.revision,commitSha:sha,status:'deploying',createdAt:now()});

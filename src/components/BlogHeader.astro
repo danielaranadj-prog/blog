@@ -13,21 +13,19 @@ import SiteSocialLinks from './SiteSocialLinks.astro';
 
     <!-- SEARCH BAR WITH [ESC] SHORTCUT -->
     <div class="header-search-wrap">
-      <div class="search-input-pill">
+      <form class="search-input-pill" action="/buscar" role="search">
         <svg class="search-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
           <circle cx="11" cy="11" r="8"></circle>
           <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
         </svg>
         <input 
           type="text" 
-          id="globalSearchInput" 
+          id="globalSearchInput" name="q" maxlength="200" autocomplete="off" aria-controls="global-search-results"
           placeholder="Buscar destinos..." 
           aria-label="Buscar destinos"
-          oninput="if(typeof window.searchPosts === 'function') window.searchPosts();"
-          onkeydown="if(event.key === 'Escape') { this.value = ''; if(typeof window.resetFilters === 'function') window.resetFilters(); }"
         />
-        <kbd class="kbd-shortcut">[ESC]</kbd>
-      </div>
+        <button type="submit" aria-label="Buscar en todas las guías">→</button>
+      </form><div id="global-search-results" role="region" aria-label="Resultados de búsqueda" hidden></div>
     </div>
 
     <!-- NAVIGATION & SOCIALS -->
@@ -239,3 +237,10 @@ import SiteSocialLinks from './SiteSocialLinks.astro';
     .kbd-shortcut { display: none; }
   }
 </style>
+<script>
+ const input=document.querySelector<HTMLInputElement>('#globalSearchInput'),results=document.querySelector<HTMLElement>('#global-search-results');
+ let indexPromise;let sequence=0,timer;
+ const normal=s=>String(s).normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLowerCase();
+ if(input&&results){input.addEventListener('input',()=>{clearTimeout(timer);const version=++sequence;timer=setTimeout(async()=>{const q=normal(input.value.trim());results.replaceChildren();results.hidden=!q;if(!q)return;try{indexPromise??=fetch('/search-index.json').then(r=>{if(!r.ok)throw Error();return r.json();}).catch(e=>{indexPromise=null;throw e;});const list=await indexPromise;if(version!==sequence)return;const matches=list.filter(p=>q.split(/\s+/).every(w=>normal([p.title,p.description,...p.tags,p.text].join(' ')).includes(w))).slice(0,5);for(const p of matches){const a=document.createElement('a');a.href=p.url;a.textContent=p.title;results.append(a);}const a=document.createElement('a');a.href='/buscar?q='+encodeURIComponent(input.value);a.textContent=matches.length?'Ver todos los resultados →':'No encontramos esa historia. Probar otra búsqueda →';results.append(a);}catch{results.textContent='No se pudo cargar la búsqueda. Inténtalo otra vez.';}},180);});input.addEventListener('keydown',e=>{if(e.key==='Escape'){++sequence;clearTimeout(timer);results.hidden=true;input.value='';}});document.addEventListener('click',e=>{if(e.target instanceof Node&&!input.parentElement?.parentElement?.contains(e.target))results.hidden=true;});}
+</script>
+<style>.header-search-wrap{position:relative}#global-search-results{position:absolute;top:100%;left:0;right:0;min-width:240px;background:#FAF7F2;border:1.5px solid #18181B;border-radius:12px;box-shadow:0 6px 20px #18181b20;padding:.6rem;z-index:120}#global-search-results[hidden]{display:none}#global-search-results a{display:block;padding:.8rem;color:#18181B;text-decoration:none;font-size:.8rem;line-height:1.5}#global-search-results a:hover,#global-search-results a:focus{background:#F3EFE6}.search-input-pill button{border:0;background:transparent;color:#C23E0B;font-weight:800;cursor:pointer;min-height:32px}</style>

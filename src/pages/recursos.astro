@@ -1,0 +1,6 @@
+---
+import EditorialPage from '../layouts/EditorialPage.astro';
+import settings from '../data/site-settings.json';
+const items=settings.catalog.filter(i=>i.enabled&&i.confirmed&&i.type==='download');
+---
+<EditorialPage title="Recursos para viajar" description="Itinerarios y recursos descargables de Instante Trips." eyebrow="Prepara tu próxima historia"><p>Materiales para llevar contigo en el próximo viaje.</p>{items.length?items.map(i=><section><h2>{i.title}</h2><p>{i.text}</p><a href={i.url} data-track="download_click" data-catalog-id={i.id}>{i.button||'Descargar PDF'} →</a></section>):<p>Estamos preparando los primeros recursos. Mientras tanto, <a href="/#explorar">explora nuestras guías</a>.</p>}</EditorialPage>

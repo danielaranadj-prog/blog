@@ -1,0 +1,1 @@
+export async function get(){const modules=import.meta.glob('./posts/*.md');const posts=await Promise.all(Object.values(modules).map(load=>load()));return {body:JSON.stringify(posts.map(p=>({title:p.frontmatter.title,description:p.frontmatter.description||'',url:p.url,tags:p.frontmatter.tags||[],text:p.rawContent().replace(/<[^>]*>/g,' ').slice(0,30000)})))};}

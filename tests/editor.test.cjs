@@ -122,9 +122,8 @@ test('private photographs and the article are published together in one commit',
   const article=mock.state.tree.tree.find(x=>x.path.endsWith('.md')).content;
   assert(article.includes(`/uploads/${m.id}.jpg`));assert(!article.includes('blob:local'));assert(!article.includes('heroImage: "media:'));
 });
-test('statistics group canonical paths and strip query strings',async()=>{
-  const {api,db}=setup();for(const [id,path]of [['a','/posts/madrid/'],['b','/posts/madrid?campaign=example']])await db.doc(`analytics_events/${id}`).set({type:'page_view',path,timestamp:1000000});
-  const result=await api.stats(user);assert.equal(result.views,2);assert.deepEqual(result.pages,[{path:'/posts/madrid',views:2}]);
+test('statistics use new daily aggregates and exclude legacy individual events',async()=>{
+ const {api,db}=setup();await db.doc('analytics_events/old').set({type:'page_view',path:'/old',timestamp:1000000});await db.doc('analytics_daily/a').set({day:'1970-01-01',type:'page_view',path:'/posts/madrid',count:2});await db.doc('analytics_daily/b').set({day:'1970-01-01',type:'affiliate_click',path:'/posts/madrid',target:'madrid-tour',count:3});const result=await api.stats(user);assert.equal(result.views,2);assert.equal(result.clicks,3);assert.deepEqual(result.pages,[{path:'/posts/madrid',views:2}]);assert.deepEqual(result.targets,[{id:'madrid-tour',clicks:3}]);
 });
 
 test('legacy integration credentials move atomically to private server configuration',async()=>{const {db,api}=setup();await db.doc('config/main').set({repoOwner:'owner',repoName:'repo',branch:'main',postsPath:'src/pages/posts/',githubToken:'test-only-secret',geminiToken:'test-only-ai'});await api.repository.secureConfig();const publicData=(await db.doc('config/main').get()).data(),privateData=(await db.doc('server_config/main').get()).data();assert.equal(publicData.githubToken,undefined);assert.equal(publicData.geminiToken,undefined);assert.equal(privateData.githubToken,'test-only-secret');assert.equal((await api.repository.config()).branch,'main');await api.repository.secureConfig();assert.equal((await db.doc('server_config/main').get()).data().githubToken,'test-only-secret');});
@@ -180,4 +179,10 @@ test('already missing source is removable and cannot be republished from the tra
 });
 test('malformed filenames cannot escape the article directory during removal',async()=>{
   const {api,seed,log}=removalSetup();const p=await seed({filename:'../authors.ts.md'});await assert.rejects(api.trash(user,p.id,p.version),{status:400});assert.equal(log.length,0);
+});
+test('summary survives normalization, Markdown publication and links are validated',()=>{
+ const p=normalizePost({...fixture,quickSummary:{budget:'120 EUR',bestSeason:'Octubre',ctaText:'Descargar mi PDF',ctaLink:'/downloads/prueba.pdf'}});const f=require('gray-matter')(markdownFile(p,p.html,'v')).data;assert.equal(f.quickSummary.budget,'120 EUR');assert.equal(f.quickSummary.ctaLink,'/downloads/prueba.pdf');assert.throws(()=>normalizePost({...fixture,quickSummary:{ctaLink:'javascript:alert(1)'}}),{status:400});
+});
+test('versions are recoverable as private drafts without publishing or overwriting other authors',async()=>{
+ let calls=0;const {api}=setup(()=>{calls++;throw Error('No network');});const p=await api.save(user,fixture);const updated=await api.save(user,{...p,title:'Versión más reciente del viaje'});const list=await api.history(user,p.id);assert.equal(list.length,1);assert.equal(list[0].version,1);await assert.rejects(api.restoreVersion({uid:'other',admin:false},p.id,1,2),{status:403});await assert.rejects(api.restoreVersion(user,p.id,1,1),{status:409});const restored=await api.restoreVersion(user,p.id,1,updated.version);assert.equal(restored.title,p.title);assert.equal(restored.status,'draft');assert.equal(calls,0);
 });

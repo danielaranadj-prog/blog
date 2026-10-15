@@ -1,0 +1,8 @@
+---
+import settings from '../data/site-settings.json';
+const {tags=[]}=Astro.props;
+const normalized=tags.join(' ').normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLowerCase();
+const items=(settings.catalog||[]).filter(i=>i.enabled&&i.confirmed&&i.placement!=='manual'&&(!i.tags||i.tags.split(',').some(t=>normalized.includes(t.trim().normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLowerCase())))).slice(0,3);
+---
+{items.length>0&&<section class="recommendations" aria-label="Recursos y recomendaciones"><h3>Para preparar tu viaje</h3>{items.map(i=><article><small>{i.type==='affiliate'?'ENLACE DE AFILIACIÓN':'RECURSO DESCARGABLE'}</small><h4>{i.title}</h4><p>{i.text}</p><a href={i.url} data-catalog-id={i.id} data-track={i.type==='affiliate'?'affiliate_click':'download_click'} target="_blank" rel={i.type==='affiliate'?'sponsored nofollow noopener':'noopener'}>{i.button||(i.type==='affiliate'?'Consultar disponibilidad':'Descargar PDF')} →</a></article>)}{items.some(i=>i.type==='affiliate')&&<p class="disclosure">Si reservas mediante estos enlaces, podemos recibir una comisión. Consulta el precio y las condiciones en el proveedor.</p>}</section>}
+<style>.recommendations article{background:#F3EFE6;border:1.5px solid #18181B;border-radius:12px;padding:1.2rem;margin:1rem 0}.recommendations h4{font:700 1.3rem var(--font-serif);margin:.7rem 0}.recommendations small{font-size:.6rem;letter-spacing:.1em;font-weight:800;color:#736D64}.recommendations p{font-size:.85rem;line-height:1.7}.recommendations a{color:#C23E0B;font-weight:800}.recommendations .disclosure{font-size:.7rem;color:#736D64}</style>

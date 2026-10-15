@@ -14,7 +14,7 @@ quickSummary:
   budget: "€7 - €19 (Tren OUIGO/Iryo o Aerobús)"
   bestSeason: "Abril a Junio / Septiembre a Noviembre"
   pitfall: "Llevar mochilas a la espalda en transbordos de metro aeropuerto"
-  ctaText: "Ver Trenes Madrid-Barcelona desde 7€"
+  ctaText: "Consultar horarios y precios actuales"
   ctaLink: "https://www.omio.com"
   badge: "NOTA DE CAMPO // BARCELONA REAL"
 ---

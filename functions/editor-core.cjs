@@ -10,7 +10,7 @@ function fail(message, status = 400) { const e = new Error(message); e.status = 
 function cleanHtml(html) {
   return sanitizeHtml(String(html || ''), {
     allowedTags: [...sanitizeHtml.defaults.allowedTags, 'img', 'figure', 'figcaption', 'iframe'],
-    allowedAttributes: { ...sanitizeHtml.defaults.allowedAttributes, '*': ['class'], a: ['href', 'title', 'target', 'rel', 'class'], img: ['src', 'alt', 'title', 'width', 'height', 'data-media-id'], iframe: ['src', 'title', 'allowfullscreen', 'width', 'height'] },
+    allowedAttributes: { ...sanitizeHtml.defaults.allowedAttributes, '*': ['class'], a: ['href', 'title', 'target', 'rel', 'class', 'data-catalog-id'], img: ['src', 'alt', 'title', 'width', 'height', 'data-media-id'], iframe: ['src', 'title', 'allowfullscreen', 'width', 'height'] },
     allowedIframeHostnames: ['www.youtube.com', 'www.youtube-nocookie.com', 'www.tiktok.com'],
     allowedSchemes: ['http', 'https'], allowProtocolRelative: false
   });
@@ -20,6 +20,7 @@ function normalizePost(input) {
   const post = {
     title: text('title', 180), description: text('description', 320), html: cleanHtml(text('html', 600000)),
     markdown: text('markdown', 600000), date: text('date', 10), author: text('author', 100), hero: text('hero', 2000),
+    quickSummary: Object.fromEntries(['budget','bestSeason','pitfall','ctaText','ctaLink'].map(k=>[k,String(input.quickSummary?.[k]||'').trim().slice(0,k==='ctaLink'?2000:240)])),
     heroAlt: text('heroAlt', 300), tags: Array.isArray(input.tags) ? input.tags.slice(0, 30).map(t => String(t).slice(0, 80)) : [],
     flightDestination: text('flightDestination', 100), tourCity: text('tourCity', 100),
     timezone: text('timezone', 100) || 'America/Mazatlan', reviewAt: text('reviewAt', 10),
@@ -30,6 +31,7 @@ function normalizePost(input) {
   if (post.date && !/^\d{4}-\d{2}-\d{2}$/.test(post.date)) fail('Fecha inválida.');
   if (Buffer.byteLength(JSON.stringify(post)) > 850000) fail('El artículo supera el tamaño permitido.');
   if (post.hero && !/^(https:\/\/|\/uploads\/|\/assets\/|media:)/.test(post.hero)) fail('La portada debe ser una imagen https o de la biblioteca.');
+  if(post.quickSummary.ctaLink&&!/^(https:\/\/|\/(?!\/))[^\s\\]*$/.test(post.quickSummary.ctaLink))fail('Usa un enlace https o un recurso del sitio en el resumen.');
   return post;
 }
 function validate(post) {
@@ -46,6 +48,7 @@ function validate(post) {
 function yaml(value) { return JSON.stringify(String(value || '')); }
 function markdownFile(post, body, revision) {
   const lines = ['---', `title: ${yaml(post.title)}`, `description: ${yaml(post.description)}`, `publishDate: ${yaml(post.date)}`, `author: ${yaml(post.author)}`, `heroImage: ${yaml(post.hero)}`, `alt: ${yaml(post.heroAlt || post.title)}`, 'layout: "../../layouts/BlogPost.astro"', `tags: ${JSON.stringify(post.tags)}`, `editorRevision: ${yaml(revision)}`];
+  if(post.quickSummary) lines.push(`quickSummary: ${JSON.stringify(post.quickSummary)}`);
   if (post.flightDestination) lines.push(`flight_destination: ${yaml(post.flightDestination)}`);
   if (post.tourCity) lines.push(`tour_city: ${yaml(post.tourCity)}`);
   return lines.join('\n') + '\n---\n\n' + body;
@@ -117,6 +120,7 @@ function service({ db, admin, bucket, fetcher = fetch, now = () => Date.now() })
       if (old && !user.admin && old.owner !== user.uid) fail('Sin acceso.', 403);
       if (old && ['publishing', 'deploying', 'removing', 'removal_error', 'trashed'].includes(old.status)) fail('Espera a que termine la publicación.', 409);
       if (old && input.version !== old.version) fail('Hay una versión más reciente. Vuelve a abrir el artículo antes de guardar.', 409);
+      if(old)tx.set(db.doc(`editor_history/${id}-${old.version}`),{...old,postId:id,savedAt:now()});
       tx.set(ref, { ...post, owner: old?.owner || user.uid, status: mode, scheduledAt: mode === 'scheduled' ? scheduledAt : null, version: (old?.version || 0) + 1, createdAt: old?.createdAt || now(), updatedAt: now(), filename: old?.filename || '', sourceSha: old?.sourceSha || '', publishedUrl: old?.publishedUrl || '', error: '', attempts: 0, nextAttemptAt: 0 }, { merge: true });
     });
     return getPost(user, id);
@@ -275,7 +279,7 @@ function service({ db, admin, bucket, fetcher = fetch, now = () => Date.now() })
       const raw=await gh(`/contents/${encodeURI(`${cfg.path}/${file.name}`)}?ref=${encodeURIComponent(cfg.branch)}`);
       const parsed=matter(Buffer.from(raw.content,'base64').toString()); const f=parsed.data;
       const id=`import-${hash(file.name).slice(0,24)}`;
-      await posts.doc(id).set({owner:user.uid,title:String(f.title||file.name),description:String(f.description||''),date:f.publishDate instanceof Date?f.publishDate.toISOString().slice(0,10):String(f.publishDate||'').slice(0,10),author:String(f.author||''),hero:String(f.heroImage||''),heroAlt:String(f.alt||''),tags:Array.isArray(f.tags)?f.tags:[],html:'',markdown:parsed.content,filename:file.name,sourceSha:raw.sha,version:1,status:'published',createdAt:now(),updatedAt:now(),publishedUrl:`${SITE}/posts/${file.name.slice(0,-3)}/`,mediaIds:[],timezone:'America/Mazatlan',flightDestination:f.flight_destination||'',tourCity:f.tour_city||'',reviewAt:'',scheduledAt:null}); count++;
+      await posts.doc(id).set({owner:user.uid,quickSummary:f.quickSummary||{},title:String(f.title||file.name),description:String(f.description||''),date:f.publishDate instanceof Date?f.publishDate.toISOString().slice(0,10):String(f.publishDate||'').slice(0,10),author:String(f.author||''),hero:String(f.heroImage||''),heroAlt:String(f.alt||''),tags:Array.isArray(f.tags)?f.tags:[],html:'',markdown:parsed.content,filename:file.name,sourceSha:raw.sha,version:1,status:'published',createdAt:now(),updatedAt:now(),publishedUrl:`${SITE}/posts/${file.name.slice(0,-3)}/`,mediaIds:[],timezone:'America/Mazatlan',flightDestination:f.flight_destination||'',tourCity:f.tour_city||'',reviewAt:'',scheduledAt:null}); count++;
     }
     return {count};
   }
@@ -292,7 +296,7 @@ function service({ db, admin, bucket, fetcher = fetch, now = () => Date.now() })
     const p=await getPost(user,id);if(!p.filename)fail('Este borrador todavía no tiene versión publicada.');
     const cfg=await config(),raw=await gh(`/contents/${encodeURI(`${cfg.path}/${p.filename}`)}?ref=${encodeURIComponent(cfg.branch)}`);
     const parsed=matter(Buffer.from(raw.content,'base64').toString()),f=parsed.data;
-    const updated=normalizePost({...p,title:f.title,description:f.description,date:f.publishDate instanceof Date?f.publishDate.toISOString().slice(0,10):String(f.publishDate||'').slice(0,10),author:f.author,hero:f.heroImage,heroAlt:f.alt||'',tags:f.tags||[],html:'',markdown:parsed.content,flightDestination:f.flight_destination||'',tourCity:f.tour_city||''});
+    const updated=normalizePost({...p,quickSummary:f.quickSummary||{},title:f.title,description:f.description,date:f.publishDate instanceof Date?f.publishDate.toISOString().slice(0,10):String(f.publishDate||'').slice(0,10),author:f.author,hero:f.heroImage,heroAlt:f.alt||'',tags:f.tags||[],html:'',markdown:parsed.content,flightDestination:f.flight_destination||'',tourCity:f.tour_city||''});
     await db.runTransaction(async tx=>{
       const ref=posts.doc(id),current=await tx.get(ref);
       if(current.data().version!==p.version||['publishing','deploying','removing','trashed'].includes(current.data().status))fail('La ficha cambió; vuelve a abrirla.',409);
@@ -352,14 +356,16 @@ function service({ db, admin, bucket, fetcher = fetch, now = () => Date.now() })
     });
     return getPost(user,id);
   }
+  async function history(user,id){await getPost(user,id);const docs=(await db.collection('editor_history').where('postId','==',id).limit(100).get()).docs;return docs.map(d=>({id:d.id,version:d.data().version,title:d.data().title,savedAt:d.data().savedAt||d.data().updatedAt})).sort((a,b)=>b.version-a.version);}
+  async function restoreVersion(user,id,version,currentVersion){const current=await getPost(user,id);if(current.version!==currentVersion)fail('La ficha cambió. Recarga antes de recuperar.',409);const snapshot=(await db.doc(`editor_history/${id}-${Number(version)}`).get()).data();if(!snapshot||snapshot.postId!==id)fail('No se encontró esa versión.',404);return save(user,{...snapshot,id,version:currentVersion},'draft');}
   async function stats(user) {
     if(!user.admin) fail('Solo el administrador puede ver resultados.',403);
-    const since=admin.firestore.Timestamp.fromMillis(now()-30*86400000);
-    const snap=await db.collection('analytics_events').where('timestamp','>=',since).limit(1500).get();
-    const totals={}; let clicks=0,views=0;
-    snap.forEach(d=>{ const e=d.data();let path=String(e.path||'/').split(/[?#]/)[0].replace(/\/+$/,'')||'/';if(!path.startsWith('/')||path.startsWith('//'))path='/';if(e.type==='pageview'||e.type==='page_view') {views++; totals[path]=(totals[path]||0)+1;} else if(/click/i.test(e.type)) clicks++; });
-    return {views,clicks,sampled:snap.size===1500,days:30,pages:Object.entries(totals).sort((a,b)=>b[1]-a[1]).slice(0,20).map(([path,views])=>({path,views}))};
+    const day=new Date(now()-29*86400000).toISOString().slice(0,10);
+    const snap=await db.collection('analytics_daily').where('day','>=',day).limit(5000).get();
+    const totals={},targets={};let views=0,clicks=0;
+    snap.forEach(d=>{const e=d.data(),count=Number(e.count)||0;if(e.type==='page_view'){views+=count;totals[e.path]=(totals[e.path]||0)+count;}else {clicks+=count;if(e.target)targets[e.target]=(targets[e.target]||0)+count;}});
+    return {views,clicks,sampled:snap.size===5000,days:30,version:2,pages:Object.entries(totals).sort((a,b)=>b[1]-a[1]).slice(0,20).map(([path,views])=>({path,views})),targets:Object.entries(targets).sort((a,b)=>b[1]-a[1]).map(([id,clicks])=>({id,clicks}))};
   }
-  return {authorized,save,list,getPost,publish,verify,tick,mediaSave,mediaGet,mediaList,library,saveItem,importPosts,stats,archive,reloadPublished,trash,restore,verifyRemoval,repository:{request:gh,config,secureConfig}};
+  return {authorized,save,list,getPost,publish,verify,tick,mediaSave,mediaGet,mediaList,library,saveItem,importPosts,stats,archive,reloadPublished,trash,restore,verifyRemoval,history,restoreVersion,repository:{request:gh,config,secureConfig}};
 }
 module.exports={service,normalizePost,validate,markdownFile,cleanHtml,slug,safeId};

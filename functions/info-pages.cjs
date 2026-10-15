@@ -1,12 +1,13 @@
 const crypto = require('node:crypto');
 const sanitizeHtml = require('sanitize-html');
 const DEFINITIONS = {
+  manifesto: {label:'Manifiesto',url:'/manifiesto'},
   about: {label:'Sobre nosotros',url:'/sobre-mi'},
   cookies: {label:'Cookies',url:'/cookies'},
   privacy: {label:'Privacidad',url:'/legal/privacidad'},
   terms: {label:'Términos',url:'/legal/terminos'}
 };
-const DEFAULTS = {about:require('../src/data/info-pages/about.json'),cookies:require('../src/data/info-pages/cookies.json'),privacy:require('../src/data/info-pages/privacy.json'),terms:require('../src/data/info-pages/terms.json')};
+const DEFAULTS = {manifesto:require('../src/data/info-pages/manifesto.json'),about:require('../src/data/info-pages/about.json'),cookies:require('../src/data/info-pages/cookies.json'),privacy:require('../src/data/info-pages/privacy.json'),terms:require('../src/data/info-pages/terms.json')};
 function fail(message,status=400){const error=new Error(message);error.status=status;throw error;}
 function keyOf(key){if(!Object.hasOwn(DEFINITIONS,key))fail('Página no válida.',404);return key;}
 function validatePage(input){
@@ -29,7 +30,7 @@ function infoPagesService({db,read,commit,now=()=>Date.now(),fetcher=fetch,conta
   const path=key=>`src/data/info-pages/${keyOf(key)}.json`;
   const ref=key=>db.doc(`admin_pages/${keyOf(key)}`);
   async function source(key){const file=await read(path(key));return {page:file?JSON.parse(Buffer.from(file.content,'base64').toString()):DEFAULTS[key],sha:file?.sha||''};}
-  async function load(key){keyOf(key);const current=await source(key),draft=(await ref(key).get()).data();return {key,...DEFINITIONS[key],contactEmail:await contact(),page:draft?.page||current.page,version:draft?.version||0,baseSha:draft?.baseSha??current.sha,hasDraft:!!draft&&draft.version!==draft.publishedVersion,release:draft?.release||null};}
+  async function load(key){keyOf(key);const current=await source(key),draft=(await ref(key).get()).data();const fresh=!!draft&&draft.version===draft.publishedVersion&&draft.baseSha!==current.sha;return {key,...DEFINITIONS[key],publishedSha:current.sha,contactEmail:await contact(),page:fresh?current.page:draft?.page||current.page,version:draft?.version||0,baseSha:fresh?current.sha:draft?.baseSha??current.sha,hasDraft:!!draft&&draft.version!==draft.publishedVersion,release:draft?.release||null};}
   async function list(){return Promise.all(Object.keys(DEFINITIONS).map(async key=>{const d=(await ref(key).get()).data();return {key,...DEFINITIONS[key],hasDraft:!!d&&d.version!==d.publishedVersion,release:d?.release||null};}));}
   async function save(input){const key=keyOf(input.key),page=validatePage(input.page);if(!Number.isInteger(input.version)||input.version<0)fail('Versión de borrador inválida.');await db.runTransaction(async tx=>{
     const target=ref(key),old=(await tx.get(target)).data();

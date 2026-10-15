@@ -17,6 +17,7 @@ export async function getStaticPaths({ paginate }) {
   
   // El artículo más reciente siempre ocupa la cabecera.
   const featuredPost = allPosts[0];
+  if(!featuredPost)return [{params:{page:undefined},props:{featuredPost:null,page:{data:[],currentPage:1,lastPage:1,url:{current:'/'}}}}];
 
   return paginate(allPosts, { 
     pageSize: 13,
@@ -36,13 +37,13 @@ const title = settings.homeTitle;
 const description = settings.description;
 const permalink = Astro.url.href;
 
-const featuredHeroImage = featuredPost.frontmatter.heroImage || featuredPost.frontmatter.heroImageLink || 'https://res.cloudinary.com/dbwdmu9k2/image/upload/v1769926152/DSCF3740_ava5eg.jpg';
-const featuredData = `${featuredPost.frontmatter.title} ${(featuredPost.frontmatter.tags || []).join(' ')}`;
+const featuredHeroImage = featuredPost?.frontmatter.heroImage || featuredPost?.frontmatter.heroImageLink || 'https://res.cloudinary.com/dbwdmu9k2/image/upload/v1769926152/DSCF3740_ava5eg.jpg';
+const featuredData = `${featuredPost?.frontmatter.title||''} ${(featuredPost?.frontmatter.tags || []).join(' ')}`;
 const featuredTag = /vallarta|oaxaca|méxico/i.test(featuredData) ? 'MÉXICO'
   : /argentina|patagonia|ushuaia|mendoza|buenos aires/i.test(featuredData) ? 'ARGENTINA'
   : /españa|madrid|barcelona|segovia/i.test(featuredData) ? 'ESPAÑA'
-  : (featuredPost.frontmatter.tags?.[0] || 'VIAJES');
-const featuredSearch = `${featuredData} ${featuredPost.frontmatter.description || ''} ${featuredPost.url}`;
+  : (featuredPost?.frontmatter.tags?.[0] || 'VIAJES');
+const featuredSearch = `${featuredData} ${featuredPost?.frontmatter.description || ''} ${featuredPost?.url||''}`;
 ---
 
 <html lang="es">

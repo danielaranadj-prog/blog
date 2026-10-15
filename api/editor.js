@@ -29,7 +29,7 @@ module.exports=async(req,res)=>{
         result=await api.repository.request(ep);break;
       }
       case 'list': result={posts:await api.list(user),scheduler:(await admin.firestore().doc('editor_system/scheduler').get()).data()?.lastHeartbeat || 0,aiReady:!!(process.env.EDITOR_GEMINI_API_KEY&&process.env.EDITOR_GEMINI_MODEL),storage:process.env.EDITOR_USE_STORAGE==='true'?'storage':'private-compressed'};break;
-      case 'get':result=await api.getPost(user,b.id);break;
+      case 'get':{result=await api.getPost(user,b.id);if(result.filename&&!result.quickSummary){const cfg=await api.repository.config();try{const raw=await api.repository.request(`/contents/${cfg.path}/${encodeURIComponent(result.filename)}?ref=${encodeURIComponent(cfg.branch)}`);result.quickSummary=require('gray-matter')(Buffer.from(raw.content,'base64').toString()).data.quickSummary||{};}catch(e){if(e.status!==404)throw e;}}break;}
       case 'save':result=await api.save(user,b.post,'draft');break;
       case 'schedule':result=await api.save(user,b.post,'scheduled');break;
       case 'publish':result=await api.publish(user,b.id,b.version);break;
@@ -50,6 +50,9 @@ module.exports=async(req,res)=>{
         if(!/^\d{4}-\d{2}-\d{2}$/.test(b.reviewAt||'')) {const e=new Error('Selecciona la próxima fecha de revisión.');e.status=400;throw e;}
         await admin.firestore().doc(`editor_posts/${b.id}`).update({reviewAt:b.reviewAt,lastReviewedAt:Date.now()});result={ok:true};break;
       }
+      case 'history':result=await api.history(user,b.id);break;
+      case 'restoreVersion':result=await api.restoreVersion(user,b.id,b.historyVersion,b.version);break;
+      case 'catalog':{const cfg=await api.repository.config();const raw=await api.repository.request(`/contents/src/data/site-settings.json?ref=${encodeURIComponent(cfg.branch)}`);const settings=JSON.parse(Buffer.from(raw.content,'base64').toString());result=(settings.catalog||[]).filter(i=>i.enabled&&i.confirmed);break;}
       case 'trash':result=await api.trash(user,b.id,b.version);break;
       case 'restore':result=await api.restore(user,b.id,b.version);break;
       case 'verifyRemoval':result=await api.verifyRemoval(user,b.id);break;

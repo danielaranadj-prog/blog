@@ -1,10 +1,13 @@
 ---
 import settings from '../data/site-settings.json';
 import SiteSocialLinks from './SiteSocialLinks.astro';
+import Analytics from './Analytics.astro';
+import Audience from './Audience.astro';
 import SiteRuntime from './SiteRuntime.astro';
 const today = new Date();
 ---
 
+<Audience/>
 <footer class="editorial-site-footer">
     <div class="footer-container">
         <div class="footer-col">
@@ -34,6 +37,7 @@ const today = new Date();
     </div>
 </footer>
 <SiteRuntime />
+<Analytics/>
 
 <style>
     .editorial-site-footer {

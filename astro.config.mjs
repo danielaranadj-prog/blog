@@ -1,5 +1,6 @@
 import { defineConfig } from 'astro/config';
 import sitemap from '@astrojs/sitemap';
+import { remarkCatalog } from './src/plugins/remark-catalog.mjs';
 import { remarkVideo } from './src/plugins/remark-video.mjs';
 
 export default defineConfig({
@@ -10,7 +11,7 @@ export default defineConfig({
   // base: '/blog', 
 
   markdown: {
-    remarkPlugins: [remarkVideo],
+    remarkPlugins: [remarkVideo,remarkCatalog],
   },
 
   integrations: [

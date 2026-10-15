@@ -12,7 +12,7 @@ quickSummary:
   budget: "9€ - 18€ (OUIGO / Iryo)"
   bestSeason: "Reserva con 3-4 meses de antelación"
   pitfall: "Metro de noche con maletas (blanco fácil carteristas)"
-  ctaText: "Buscar billetes OUIGO desde 9€"
+  ctaText: "Consultar horarios y precios actuales"
   ctaLink: "https://www.omio.com"
 ---
 

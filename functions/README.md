@@ -45,3 +45,17 @@ npm run test:editor
 npm run build
 
 Las pruebas usan datos aislados y un GitHub simulado; no publican artículos reales. La prueba final del servicio automático requiere la activación y comprobación indicadas arriba.
+
+
+## Herramientas editoriales y medición (octubre de 2026)
+
+- El resumen rápido es opcional y pertenece a cada artículo. El editor conserva `quickSummary` al guardar/publicar; no se rellenan presupuestos ni descargas de ejemplo.
+- Afiliados y recursos se administran en los ajustes del sitio. Usar enlaces completos oficiales, verificar las condiciones y marcar la confirmación. No se generan IDs, comisiones ni descuentos. Los enlaces insertados con `data-catalog-id` se resuelven durante la compilación; una ficha desactivada conserva su texto sin enlace.
+- PDF: hasta 1.500.000 bytes, preparado de forma privada. Solo se publica si su URL forma parte del catálogo al publicar los ajustes. Se sirve como archivo adjunto. Mantener hasta 30 grupos de archivos pendientes por publicación.
+- El manifiesto ahora forma parte de las cinco páginas informativas editables.
+- Los guardados de artículos conservan la versión previa desde esta actualización. Historial recupera como borrador; no publica. Papelera sigue siendo independiente.
+- Respaldos del editor: JSON descargado en el dispositivo, hasta 500 artículos y 250 fotos privadas, más notas activas. Las imágenes externas/publicadas se conservan como enlaces. Importar crea nuevos borradores y copias de las fotos incluidas, nunca publica ni restablece programaciones. Respaldos del admin: ajustes y cinco páginas, sin secretos ni archivos del alojamiento; recuperar reemplaza borradores tras confirmación. Guardar los JSON en un lugar privado.
+- La medición v2 espera permiso, respeta No rastrear y agrupa página/tipo/referencia por día. No mezcla los registros antiguos de `analytics_events`. El endpoint valida origen, tipo, ruta, tamaño e IDs; limita frecuencia con Firestore, deduplica reintentos recientes y aplica un cupo global diario. Los límites reducen abuso; no sustituyen la protección de infraestructura.
+- Los agregados caducan a los 90 días y las cuotas a los dos días. Se limpian hasta 20 documentos de cada colección cada 20 eventos aceptados; no es una tarea programada ni una garantía de borrado exacto en ausencia de tráfico. No se guardan IP, user-agent ni referrer en los nuevos registros. La clave privada del servidor se usa para derivar una huella diaria de control de abuso; no se exporta al navegador.
+- RSS y búsqueda se regeneran desde los artículos publicados. La suscripción por correo solo aparece al configurar un formulario https real desde Audiencia; el sitio no mantiene una lista de correos propia.
+- El calendario automático continúa desactivado hasta configurar y comprobar el servicio. Esta entrega no activa facturación ni IA.

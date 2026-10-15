@@ -1,50 +1,14 @@
+<div class="measurement-controls"><button id="measurement-preferences" type="button">Preferencias de medición</button><div id="measurement-choice" hidden role="region" aria-label="Preferencias de medición"><p>¿Nos permites contar las lecturas y los clics para mejorar el blog? No guardamos tu IP, correo ni un identificador de visitante en las estadísticas. Puedes cambiar tu elección aquí.</p><button id="measurement-yes">Permitir medición</button><button id="measurement-no">No permitir</button></div><p id="measurement-status" role="status" aria-live="polite"></p></div>
 <script>
-  async function logPageView() {
-    // Bot detection
-    if (navigator.webdriver) return;
-
-    try {
-      const payload = {
-        type: "page_view",
-        path: window.location.pathname,
-        title: document.title,
-        referrer: document.referrer || "",
-        screenSize: `${window.innerWidth}x${window.innerHeight}`
-      };
-
-      // Send to Secure Backend (Vercel API)
-      await fetch('/api/analytics', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(payload)
-      });
-      
-      if (import.meta.env.DEV) {
-        console.log("Analytics: Page view logged securely");
-      }
-
-    } catch (e) {
-      console.error("Analytics Error:", e);
-    }
-  }
-
-  // Aggregate outbound clicks without sending destination query strings.
-  document.addEventListener('click', async (event) => {
-    if (navigator.webdriver) return;
-    const anchor = event.target instanceof Element ? event.target.closest('a[href]') : null;
-    if (!anchor) return;
-    try {
-      const target = new URL(anchor.href);
-      if (target.protocol !== 'https:' || target.origin === location.origin) return;
-      await fetch('/api/analytics', {
-        method: 'POST', keepalive: true,
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ type: 'outbound_click', path: location.pathname, title: target.hostname })
-      });
-    } catch {}
-  });
-
-  // Run on load and on client-side navigation
-  logPageView();
-  document.addEventListener('astro:page-load', logPageView);
+ let consent=false,sent=false;const panel=document.querySelector<HTMLElement>('#measurement-choice'),status=document.querySelector('#measurement-status');
+ const storageKey='instante-measurement-v1';let choice=null;try{choice=localStorage.getItem(storageKey);}catch{}
+ const optedOut=navigator.doNotTrack==='1';consent=choice==='yes'&&!optedOut;
+ if(choice===null&&!optedOut)panel.hidden=false;
+ async function send(type,path,target=''){if(!consent||navigator.webdriver||optedOut)return;try{const id=crypto.randomUUID();await fetch('/api/analytics',{method:'POST',keepalive:true,headers:{'Content-Type':'application/json'},body:JSON.stringify({id,type,path,target})});}catch{}}
+ function page(){if(!sent&&consent){sent=true;send('page_view',location.pathname);}}
+ document.querySelector('#measurement-preferences')?.addEventListener('click',()=>{panel.hidden=!panel.hidden;});
+ function choose(value){consent=value==='yes'&&!optedOut;try{localStorage.setItem(storageKey,value);}catch{}panel.hidden=true;status.textContent=optedOut?'Respetamos la opción No rastrear de tu navegador.':consent?'Medición permitida. Puedes desactivarla cuando quieras.':'Medición desactivada.';page();}
+ document.querySelector('#measurement-yes')?.addEventListener('click',()=>choose('yes'));document.querySelector('#measurement-no')?.addEventListener('click',()=>choose('no'));
+ document.addEventListener('click',e=>{const a=e.target instanceof Element?e.target.closest<HTMLAnchorElement>('a[href]'):null;if(!a||!consent)return;try{const url=new URL(a.href);if(!['https:','http:'].includes(url.protocol))return;const type=a.dataset.track|| (url.origin!==location.origin?'outbound_click':'');if(['outbound_click','affiliate_click','download_click'].includes(type))send(type,location.pathname,a.dataset.catalogId||'');}catch{}});page();
 </script>
+<style>.measurement-controls{max-width:1180px;margin:1rem auto;padding:0 20px;font:400 .75rem/1.7 var(--font-sans);color:#736D64}.measurement-controls button{background:#FAF7F2;border:1px solid #18181B;border-radius:999px;padding:.6rem 1rem;margin:.2rem;color:#18181B;cursor:pointer}.measurement-controls [hidden]{display:none}#measurement-choice{padding:1rem;border:1px solid #D6D1C4;border-radius:12px;background:#F3EFE6;max-width:620px}#measurement-yes{background:#18181B;color:#FAF7F2}</style>

@@ -5,7 +5,7 @@ import Footer from '../components/Footer.astro';
 import settings from '../data/site-settings.json';
 import { DEFAULT_AUTHOR } from '../data/authors';
 const {title,description,eyebrow='Información del sitio',summary='',profile=false,revision=''}=Astro.props;
-const links=[['/sobre-mi','Sobre nosotros'],['/cookies','Cookies'],['/legal/privacidad','Privacidad'],['/legal/terminos','Términos de uso']];
+const links=[['/manifiesto','Manifiesto'],['/sobre-mi','Sobre nosotros'],['/cookies','Cookies'],['/legal/privacidad','Privacidad'],['/legal/terminos','Términos de uso']];
 const current=Astro.url.pathname.replace(/\/$/,'');
 ---
 <html lang="es">

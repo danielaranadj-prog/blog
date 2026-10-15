@@ -6,7 +6,7 @@ import SiteAds from '../components/SiteAds.astro';
 import BlogHeader from '../components/BlogHeader.astro';
 import Footer from '../components/Footer.astro';
 import QuickSummaryBox from '../components/QuickSummaryBox.astro';
-import LeadMagnetBanner from '../components/LeadMagnetBanner.astro';
+import Recommendations from '../components/Recommendations.astro';
 import SocialShare from '../components/SocialShare.astro';
 
 import type { Author } from '../data/authors';
@@ -44,11 +44,14 @@ const author: Author =
 const finalImage = post.heroImage || post.heroImageLink;
 const permalink = Astro.url.href;
 
+
 /* -----------------------------
    INTERLINKING INTELIGENTE (POSTS RELACIONADOS)
 ----------------------------- */
 const allPosts = await Astro.glob('../pages/posts/*.md');
 const currentPath = decodeURIComponent(Astro.url.pathname).replace(/\/$/, '');
+const currentModule=allPosts.find(p=>decodeURIComponent(p.url||'').replace(/\/$/,'')===currentPath);
+const readingMinutes=Math.max(1,Math.ceil(String(currentModule?.rawContent?.()||'').replace(/<[^>]*>/g,' ').split(/\s+/).filter(Boolean).length/220));
 const currentTitle = (post.title || '').trim().toLowerCase();
 const currentTags = (post.tags || []).map((t: string) => t.toLowerCase());
 
@@ -497,19 +500,14 @@ const schemaData = {
               })}
             </time>
             <span>•</span>
-            <span>4 min de lectura</span>
+            <span>{readingMinutes} min de lectura</span>
           </div>
 
       <SocialShare title={post.title} url={permalink} compact />
     </header>
           <!-- TL;DR TICKET COMPONENT -->
-          <QuickSummaryBox 
-            budget={post.quickSummary?.budget || "7€ - 15€"}
-            bestSeason={post.quickSummary?.bestSeason || "Todo el año"}
-            pitfall={post.quickSummary?.pitfall || "No reservar online con antelación"}
-            ctaText={post.quickSummary?.ctaText || "Descargar itinerario completo"}
-            ctaLink={post.quickSummary?.ctaLink || "https://www.omio.com"}
-          />
+          {post.quickSummary && Object.values(post.quickSummary).some(Boolean) && <QuickSummaryBox {...post.quickSummary} />}
+
 
 
     <div class="article-two-cols-layout">
@@ -541,7 +539,7 @@ const schemaData = {
           <SocialShare title={post.title} url={permalink} />
 
           <!-- LEAD MAGNET IN-CONTENT -->
-          <LeadMagnetBanner />
+
 
           <!-- FIRMA EDITORIAL -->
           <div class="signature-card-box">
@@ -609,21 +607,8 @@ const schemaData = {
 
         <!-- WIDGET B: TARJETA NATIVA DE DESCUENTO EN SEGURO DE VIAJE (MOCKUP 2) -->
         <SiteAds placement="sidebar" />
-        {settings.sponsor.enabled && <div class="insurance-card-widget">
-          <span class="insurance-medal-icon" aria-hidden="true">🎖️</span>
-          <h4 class="insurance-title">{settings.sponsor.title}</h4>
-          <p class="insurance-text">
-            {settings.sponsor.text}
-          </p>
-          <a 
-            href={settings.sponsor.url}
-            target="_blank" 
-            rel="sponsored nofollow noopener" 
-            class="insurance-calc-btn"
-          >
-            {settings.sponsor.button}
-          </a>
-        </div>}
+        <Recommendations tags={post.tags}/>
+        {settings.sponsor.enabled && settings.sponsor.confirmed && <div class="insurance-card-widget"><span class="eyebrow">ENLACE PATROCINADO</span><h4>{settings.sponsor.title}</h4><p>{settings.sponsor.text}</p><a href={settings.sponsor.url} target="_blank" rel="sponsored nofollow noopener" class="insurance-calc-btn">{settings.sponsor.button}</a></div>}
 
       </aside>
 
@@ -642,7 +627,7 @@ const schemaData = {
         const updateToc = () => {
           let currentIdx = 0;
           const scrollPos = window.scrollY + 180;
-          
+
           headings.forEach((h, i) => {
             if (h && h.getBoundingClientRect().top + window.scrollY <= scrollPos) {
               currentIdx = i;

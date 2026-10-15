@@ -18,7 +18,7 @@ test('page HTML retains formatting and contact binding but removes executable co
 test('empty pages and oversized metadata are rejected',()=>{
  assert.throws(()=>validatePage({...initial,title:''}));assert.throws(()=>validatePage({...initial,html:'<p> </p>'}));assert.throws(()=>validatePage({...initial,description:'x'.repeat(321)}));assert.throws(()=>validatePage({...initial,html:'x'.repeat(180001)}));
 });
-test('only the four fixed information pages can be accessed',async()=>{
+test('only the fixed information pages can be accessed',async()=>{
  const {api,repo}=setup();for(const key of ['../config/main','constructor','privacy/../../x'])await assert.rejects(api.load(key),{status:404});assert.equal(repo.calls.length,0);assert.deepEqual((await api.list()).map(p=>p.key),Object.keys(DEFINITIONS));
 });
 test('saving drafts is private, survives reload and rejects an older version',async()=>{
