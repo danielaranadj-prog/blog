@@ -14,7 +14,7 @@ El editor se sirve en Vercel. Los borradores, notas y fotografías comprimidas s
 4. Esperar la primera ejecución y confirmar que `editor_system/scheduler.lastHeartbeat` cambia cada minuto. La interfaz habilita Programar únicamente cuando la última ejecución es reciente.
 5. Programar una publicación de prueba autorizada. Verificar la zona horaria, cerrar el editor y comprobar en GitHub un solo commit, y en la web el marcador `editor-revision` correspondiente. Solo entonces el estado pasa a Publicado.
 
-La función utiliza las credenciales administradas de Firebase y la conexión GitHub existente en `config/main`. Se recomienda migrar el token GitHub a un secreto del servidor con permisos exclusivos sobre el repositorio. No copiar credenciales a archivos de código.
+La función utiliza las credenciales administradas de Firebase y la conexión GitHub privada en `server_config/main`. El admin migra la configuración antigua a esa colección privada y deja solo metadatos públicos en `config/main`. El editor accede a GitHub mediante la API del servidor; también se admite `EDITOR_GITHUB_TOKEN` como secreto de Vercel. No copiar credenciales a archivos de código.
 
 ## Vercel
 

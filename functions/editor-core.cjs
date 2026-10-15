@@ -52,9 +52,25 @@ function markdownFile(post, body, revision) {
 }
 function service({ db, admin, bucket, fetcher = fetch, now = () => Date.now() }) {
   const posts = db.collection('editor_posts');
+  async function connectionConfig() {
+    const privateConfig=(await db.doc('server_config/main').get()).data();
+    return privateConfig || (await db.doc('config/main').get()).data() || {};
+  }
+  async function secureConfig() {
+    await db.runTransaction(async tx=>{
+      const privateRef=db.doc('server_config/main'),publicRef=db.doc('config/main');
+      const saved=(await tx.get(privateRef)).data(),legacy=(await tx.get(publicRef)).data();
+      if(!legacy)return;
+      if(!saved)tx.set(privateRef,legacy);
+      if('githubToken' in legacy || 'geminiToken' in legacy){
+        const safe={};for(const key of ['repoOwner','repoName','branch','postsPath'])if(legacy[key]!==undefined)safe[key]=legacy[key];
+        tx.set(publicRef,safe);
+      }
+    });
+    return {secured:true};
+  }
   async function gh(ep, method = 'GET', body) {
-    const snap = await db.doc('config/main').get();
-    const cfg = snap.data() || {};
+    const cfg = await connectionConfig();
     const token = process.env.EDITOR_GITHUB_TOKEN || cfg.githubToken;
     if (!token || !/^[\w.-]+$/.test(cfg.repoOwner || '') || !/^[\w.-]+$/.test(cfg.repoName || '')) fail('Falta la conexión con GitHub.', 503);
     const res = await fetcher(`https://api.github.com/repos/${cfg.repoOwner}/${cfg.repoName}${ep}`, { method, headers: { Authorization: `Bearer ${token}`, Accept: 'application/vnd.github+json', 'Content-Type': 'application/json' }, body: body ? JSON.stringify(body) : undefined, signal: AbortSignal.timeout(20000) });
@@ -62,7 +78,7 @@ function service({ db, admin, bucket, fetcher = fetch, now = () => Date.now() })
     return res.status === 204 ? {} : res.json();
   }
   async function config() {
-    const c = (await db.doc('config/main').get()).data() || {};
+    const c = await connectionConfig();
     const path = (c.postsPath || 'src/pages/posts/').replace(/\/+$/, '');
     if (path !== 'src/pages/posts') fail('La carpeta de artículos debe ser src/pages/posts.', 503);
     return { branch: c.branch || 'main', path };
@@ -292,6 +308,6 @@ function service({ db, admin, bucket, fetcher = fetch, now = () => Date.now() })
     snap.forEach(d=>{ const e=d.data();let path=String(e.path||'/').split(/[?#]/)[0].replace(/\/+$/,'')||'/';if(!path.startsWith('/')||path.startsWith('//'))path='/';if(e.type==='pageview'||e.type==='page_view') {views++; totals[path]=(totals[path]||0)+1;} else if(/click/i.test(e.type)) clicks++; });
     return {views,clicks,sampled:snap.size===1500,days:30,pages:Object.entries(totals).sort((a,b)=>b[1]-a[1]).slice(0,20).map(([path,views])=>({path,views}))};
   }
-  return {authorized,save,list,getPost,publish,verify,tick,mediaSave,mediaGet,mediaList,library,saveItem,importPosts,stats,archive,reloadPublished,repository:{request:gh,config}};
+  return {authorized,save,list,getPost,publish,verify,tick,mediaSave,mediaGet,mediaList,library,saveItem,importPosts,stats,archive,reloadPublished,repository:{request:gh,config,secureConfig}};
 }
 module.exports={service,normalizePost,validate,markdownFile,cleanHtml,slug,safeId};

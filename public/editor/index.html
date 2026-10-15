@@ -651,9 +651,9 @@ body[data-editor-theme='dark'] blockquote { background:#242427; }
                 showGreeting();
 
                 try {
-                const docSnap = await getDoc(doc(db, "config", "main"));
-                if (docSnap.exists()) {
-                    githubConfig = docSnap.data();
+                const bootstrap = await editorRequest('bootstrap');
+                {
+                    githubConfig = {postsPath: bootstrap.connection.path, branch: bootstrap.connection.branch};
                     if (!githubConfig.postsPath.endsWith('/')) githubConfig.postsPath += '/';
                     if (tinymce.activeEditor) tinymce.activeEditor.remove();
                     await loadAuthorsFromRepo();
@@ -693,14 +693,14 @@ body[data-editor-theme='dark'] blockquote { background:#242427; }
             }
         });
 
-        async function ghFetch(ep, m = 'GET', b = null) {
-            const res = await fetch(`https://api.github.com/repos/${githubConfig.repoOwner}/${githubConfig.repoName}${ep}`, {
-                method: m,
-                headers: { 'Authorization': `token ${githubConfig.githubToken}`, 'Content-Type': 'application/json' },
-                body: b ? JSON.stringify(b) : null
-            });
-            if (!res.ok) throw new Error(`GitHub: ${res.status}`);
-            return res.json();
+        async function editorRequest(action,data={}) {
+            const token=await auth.currentUser.getIdToken();
+            const response=await fetch('/api/editor',{method:'POST',headers:{Authorization:`Bearer ${token}`,'Content-Type':'application/json'},body:JSON.stringify({action,...data})});
+            const result=await response.json();if(!response.ok)throw Error(result.error||'No se pudo completar la operación.');return result;
+        }
+        async function ghFetch(ep, m = 'GET') {
+            if(m!=='GET')throw Error('Gestiona los autores desde el panel de administración y las publicaciones desde el calendario.');
+            return editorRequest('readPublished',{path:ep});
         }
 
         const toBase64 = file => new Promise(r => { const rd = new FileReader(); rd.readAsDataURL(file); rd.onload = () => r(rd.result); });
@@ -839,13 +839,10 @@ body[data-editor-theme='dark'] blockquote { background:#242427; }
 
         async function loadAuthorsFromRepo() {
             try {
-                const f = await ghFetch(`/contents/src/data/authors.ts`);
-                authorsFileSha = f.sha;
-                const c = base64ToUtf8(f.content);
-                const r = /slug:\s*['"]([^'"]+)['"][\s\S]*?name:\s*['"]([^'"]+)['"]/g;
-                let m; const sel = document.getElementById('post-author');
-                sel.innerHTML = '<option>Selecciona...</option>';
-                while ((m = r.exec(c)) !== null) { sel.innerHTML += `<option value="${m[1]}">${m[2]}</option>`; }
+                const data = await editorRequest('authors');
+                authorsFileSha=data.sha;
+                const sel=document.getElementById('post-author');sel.replaceChildren(new Option('Selecciona...',''));
+                for(const author of Object.values(data.authors))sel.add(new Option(author.name,author.slug));
 
                 // Auto-select author for non-admin users
                 const authorInfo = getCurrentAuthorInfo();
@@ -865,10 +862,7 @@ body[data-editor-theme='dark'] blockquote { background:#242427; }
         }
 
         // Save new author to authors.ts via GitHub API
-        window.openAuthorModal = () => {
-            document.getElementById('author-modal').classList.add('open');
-            renderAuthorsList();
-        };
+        window.openAuthorModal = () => { window.open('/admin/', '_blank', 'noopener'); };
 
         function renderAuthorsList() {
             const sel = document.getElementById('post-author');

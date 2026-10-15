@@ -12,7 +12,7 @@ module.exports=async(req,res)=>{
   if(!user.admin)return res.status(403).json({error:'Solo los administradores pueden modificar el sitio.'});
   const b=typeof req.body==='string'?JSON.parse(req.body):req.body||{},api=adminService({db,repository:editor.repository});let result;
   switch(b.action){
-   case 'load':result=await api.load();break;
+   case 'load':await editor.repository.secureConfig();result=await api.load();break;
    case 'saveDraft':result=await api.saveDraft(b);break;
    case 'resetDraft':result=await api.resetDraft(b);break;
    case 'prepareAsset':result=await api.prepareAsset(user,b);break;
