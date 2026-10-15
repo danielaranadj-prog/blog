@@ -103,9 +103,3 @@ De octubre a marzo puedes ver colonias de pingüinos Magallánicos en Isla Marti
 **Por aire:** Aeropuerto Internacional de Ushuaia (USH). Vuelos directos desde Buenos Aires, Bariloche y El Calafate.
 
 **Por tierra:** Es posible pero larguísimo. Requiere cruzar a Chile y volver a entrar a Argentina. Solo para los muy aventureros.
-
-* * *
-
-## ¿Quieres toda la info práctica?
-
-<a class="cta-destination-card" style="display: block; margin: 2.5rem 0; padding: 1.75rem; background: linear-gradient(135deg, rgba(244,185,66,0.08), rgba(117,170,219,0.08)); border-radius: 16px; border-left: 4px solid #F4B942; text-decoration: none; color: inherit;" href="../argentina/destinos/ushuaia/" target="_blank" rel="noopener"><span style="display: inline-flex; align-items: center; gap: 8px; margin-bottom: 1rem;"><span style="font-size: 1.5rem;">🇦🇷</span> <span style="font-size: 0.7rem; font-weight: 800; text-transform: uppercase; letter-spacing: 1.5px; color: #75aadb; background: rgba(117,170,219,0.12); padding: 6px 12px; border-radius: 20px;">Guía de Destino</span></span><br><strong style="font-size: 1.4rem; font-weight: 800; color: #2d3748;">Ushuaia: El Fin del Mundo</strong><br><span style="color: #718096; font-size: 0.95rem;">Clima, presupuesto, tours y experiencias imperdibles →</span></a>

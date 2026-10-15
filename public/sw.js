@@ -1,5 +1,5 @@
 // Public pages only. Never cache admin, editor or API requests.
-const CACHE='instante-public-v2';
+const CACHE='instante-public-v3';
 self.addEventListener('install',event=>{event.waitUntil(caches.open(CACHE).then(cache=>cache.add('/offline.html')));self.skipWaiting();});
 self.addEventListener('activate',event=>{event.waitUntil(caches.keys().then(keys=>Promise.all(keys.filter(key=>key.startsWith('instante-')&&key!==CACHE).map(key=>caches.delete(key)))));self.clients.claim();});
 self.addEventListener('fetch',event=>{

@@ -103,6 +103,11 @@
       ],
       "destination": "https://www.instantetrips.com/:path*",
       "permanent": true
+    },
+    {
+      "source": "/destinos",
+      "destination": "/#explorar",
+      "permanent": true
     }
   ],
   "functions": {

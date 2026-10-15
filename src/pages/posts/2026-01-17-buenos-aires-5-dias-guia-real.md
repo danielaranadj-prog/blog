@@ -106,18 +106,3 @@ Antes de irte al aeropuerto: **Choripán en la Costanera**. Es tradición.
 2. **Tarjeta SUBE:** Cómprala apenas llegues, sirve para todo el transporte
 3. **Seguridad:** Buenos Aires es segura si usas sentido común. Evita sacar el celular en la calle de noche
 4. **Propinas:** 10% está bien en restaurantes, no es obligatorio
-
----
-
-## ¿Quieres toda la info práctica?
-
-<a href="https://www.instantetrips.com/argentina/buenos-aires" target="_blank" style="display:block; margin:2.5rem 0; padding:1.75rem; background:linear-gradient(135deg, rgba(244,185,66,0.08), rgba(117,170,219,0.08)); border-radius:16px; border-left:4px solid #F4B942; text-decoration:none; color:inherit;">
-  <span style="display:inline-flex; align-items:center; gap:8px; margin-bottom:1rem;">
-    <span style="font-size:1.5rem;">🇦🇷</span>
-    <span style="font-size:0.7rem; font-weight:800; text-transform:uppercase; letter-spacing:1.5px; color:#75AADB; background:rgba(117,170,219,0.12); padding:6px 12px; border-radius:20px;">Guía de Destino</span>
-  </span>
-  <br>
-  <strong style="font-size:1.4rem; font-weight:800; color:#2D3748;">¿Vas a Buenos Aires?</strong>
-  <br>
-  <span style="color:#718096; font-size:0.95rem;">Clima, presupuesto, cómo moverte y experiencias imperdibles →</span>
-</a>

@@ -375,7 +375,7 @@
 
                     <section id="writing-card" class="writing-card" aria-label="Escribir el contenido del artículo">
                         <div class="writing-header"><span class="section-badge">02 / El relato</span><p>Escribe o pega tu historia. Usa la barra del editor para añadir títulos, listas y fotos dentro del texto.</p>
-                            <div class="writing-shortcuts"><button onclick="tinymce.activeEditor.execCommand('mceImage')"><ion-icon name="image-outline" aria-hidden="true"></ion-icon> Añadir foto al texto</button><button onclick="insertVideoLink()"><ion-icon name="logo-youtube" aria-hidden="true"></ion-icon> Añadir video</button><button onclick="insertCtaLink()"><ion-icon name="link-outline" aria-hidden="true"></ion-icon> Añadir tarjeta de destino</button></div>
+                            <div class="writing-shortcuts"><button onclick="tinymce.activeEditor.execCommand('mceImage')"><ion-icon name="image-outline" aria-hidden="true"></ion-icon> Añadir foto al texto</button><button onclick="insertVideoLink()"><ion-icon name="logo-youtube" aria-hidden="true"></ion-icon> Añadir video</button></div>
                         </div>
                         <textarea id="tiny-editor" class="w-full h-full" aria-label="Contenido del artículo"></textarea>
                     </section>
@@ -509,7 +509,7 @@
                 skin: window.matchMedia('(prefers-color-scheme: dark)').matches ? 'oxide-dark' : 'oxide',
                 content_css: window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'default',
                 plugins: 'image media link lists table code preview wordcount help',
-                toolbar: 'undo redo | blocks fontsize | bold italic underline | bullist numlist | alignleft aligncenter alignright | link image media | customCtaBtn customVideoBtn | removeformat code',
+                toolbar: 'undo redo | blocks fontsize | bold italic underline | bullist numlist | alignleft aligncenter alignright | link image media | customVideoBtn | removeformat code',
                 content_style: `@import url('https://fonts.googleapis.com/css2?family=Fraunces:ital,wght@0,700;0,800;1,700;1,800&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap');
 body { font-family:'Plus Jakarta Sans',sans-serif; font-size:16px; line-height:1.85; color:#18181B; background:#FDFBF7; padding:12px; }
 h1,h2,h3 { font-family:'Fraunces',Georgia,serif; font-weight:700; line-height:1.18; letter-spacing:-.025em; color:#18181B; }
@@ -534,13 +534,7 @@ body[data-editor-theme='dark'] blockquote { background:#242427; }
                         onAction: () => window.insertVideoLink()
                     });
 
-                    editor.ui.registry.addButton('customCtaBtn', {
-                        icon: 'bookmark',
-                        tooltip: 'Insertar CTA Destino',
-                        onAction: function (_) {
-                            window.insertCtaLink();
-                        }
-                    });
+
                 },
                 images_upload_handler: async (blobInfo, progress) => {
                     if (!window.plannerUpload) throw new Error('Espera a que termine de cargar la redacción.');
@@ -551,35 +545,6 @@ body[data-editor-theme='dark'] blockquote { background:#242427; }
                 }
             });
         }
-
-        window.insertCtaLink = () => {
-            // 1. Pedir datos al usuario
-            const url = prompt('URL del Destino (Ej: https://.../ushuaia)', 'https://www.instantetrips.com/argentina/destinos/ushuaia/');
-            if (!url) return;
-
-            const emoji = prompt('Emoji / Bandera (Ej: 🇦🇷)', '🇦🇷');
-            const label = prompt('Etiqueta Pequeña (Ej: Guía de Destino)', 'Guía de Destino');
-            const title = prompt('Título Principal (Ej: Ushuaia: El Fin del Mundo)', 'Ushuaia: El Fin del Mundo');
-            const desc = prompt('Descripción (Ej: Clima, presupuesto...)', 'Clima, presupuesto, tours y experiencias imperdibles →');
-
-            // Tarjeta editorial conservada por la regla CTA de Turndown.
-            const html = `
-            <a href="${url}" target="_blank" class="cta-destination-card" style="display:block; margin:2rem 0; padding:1.5rem; background:#F3EFE6; border:1.5px solid #18181B; border-radius:14px; text-decoration:none; color:#18181B;">
-              <span style="display:inline-flex; align-items:center; gap:8px; margin-bottom:1rem;">
-                <span style="font-size:1.5rem;">${emoji}</span>
-                <span style="font-family:'Plus Jakarta Sans',sans-serif; font-size:0.7rem; font-weight:700; text-transform:uppercase; letter-spacing:1px; color:#FFFFFF; background:#E04F16; padding:6px 12px; border-radius:20px;">${label}</span>
-              </span><br>
-              <strong style="display:block; font-family:'Fraunces',Georgia,serif; font-size:1.6rem; line-height:1.2; font-weight:800; color:#18181B;">${title}</strong>
-              <span style="display:block; margin-top:1rem; padding-top:1rem; border-top:1px dashed #938D83; font-family:'Plus Jakarta Sans',sans-serif; font-size:0.95rem; line-height:1.6; color:#4D4841;">${desc} <span style="color:#E04F16; font-weight:700;" aria-hidden="true">→</span></span>
-            </a>
-            <p>&nbsp;</p>
-            `;
-
-            // 3. Insertar en TinyMCE
-            if (tinymce.activeEditor) {
-                tinymce.activeEditor.insertContent(html);
-            }
-        };
 
         window.insertVideoLink = () => {
             const raw=prompt('Pega el enlace del video (YouTube o TikTok):');

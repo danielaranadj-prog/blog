@@ -1,82 +1,36 @@
 ---
 import BaseHead from '../components/BaseHead.astro';
 import BlogHeader from '../components/BlogHeader.astro';
-import Footer from '../components/Footer.astro'; // Importamos el footer nuevo si ya lo hiciste
-
-let title = '404 - Perdido en el Mapa';
-let description = 'Parece que te has desviado de la ruta. Regresa al inicio para seguir viajando.';
+import Footer from '../components/Footer.astro';
+import settings from '../data/site-settings.json';
 ---
-
 <html lang="es">
-	<head>
-		<BaseHead title={title} description={description} permalink={Astro.site.href} />
-        <style>
-             @import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;800&display=swap');
-             
-             body {
-                font-family: 'Montserrat', sans-serif;
-                margin: 0;
-                background-color: #F8F9FA;
-                color: #2D3748;
-                display: flex;
-                flex-direction: column;
-                min-height: 100vh;
-             }
-             .error-container {
-                flex: 1;
-                display: flex;
-                flex-direction: column;
-                align-items: center;
-                justify-content: center;
-                text-align: center;
-                padding: 2rem;
-             }
-             h1 {
-                font-size: clamp(3rem, 10vw, 8rem);
-                font-weight: 800;
-                color: #75AADB; /* Azul Marca */
-                margin: 0;
-                line-height: 1;
-             }
-             h2 {
-                font-size: 1.5rem;
-                margin-top: 1rem;
-                margin-bottom: 1rem;
-             }
-             p {
-                max-width: 500px;
-                color: #718096;
-                margin-bottom: 2rem;
-                line-height: 1.6;
-             }
-             .btn-home {
-                background-color: #F4B942; /* Dorado Acento */
-                color: #ffffff;
-                padding: 1rem 2rem;
-                border-radius: 50px;
-                text-decoration: none;
-                font-weight: 700;
-                transition: transform 0.2s;
-                box-shadow: 0 4px 10px rgba(244, 185, 66, 0.3);
-             }
-             .btn-home:hover {
-                transform: translateY(-3px);
-             }
-        </style>
-	</head>
-	<body>
-		<BlogHeader />
-        
-        <div class="error-container">
-            <h1>404</h1>
-            <h2>¡Ups! Te saliste de la ruta.</h2>
-            <p>
-                Parece que la página que buscas tomó un vuelo sin escalas a la dimensión desconocida. 
-                No te preocupes, el viaje continúa.
-            </p>
-            <a href="/" class="btn-home">← Volver al Inicio</a>
+<head>
+  <BaseHead title={`Página no encontrada | ${settings.name}`} description="Esta página se salió de la ruta. Encuentra tu próxima historia en las guías de Instante Trips." permalink={new URL('/404.html',Astro.site).href} noindex />
+  <link href="https://fonts.googleapis.com/css2?family=Fraunces:wght@700;800&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+</head>
+<body>
+  <BlogHeader />
+  <main class="error-page">
+    <section class="error-ticket" aria-labelledby="error-title">
+      <div class="ticket-ribbon"><span>INSTANTE / FUERA DE RUTA</span><span>PÁGINA NO ENCONTRADA</span></div>
+      <div class="ticket-body">
+        <div class="error-number" aria-hidden="true">404<span>El viaje continúa</span></div>
+        <div class="error-message">
+          <span class="eyebrow">A veces, el mapa cambia.</span>
+          <h1 id="error-title">Esta página se salió de la ruta.</h1>
+          <p>El enlace puede haber cambiado o la página ya no está disponible. Tu próxima historia sigue aquí.</p>
+          <div class="error-actions"><a class="primary" href="/#explorar">Explorar las guías →</a><a href="/">Volver al inicio</a></div>
         </div>
-
-        <Footer />
-	</body>
+      </div>
+      <div class="ticket-footer"><span>Hay más caminos por descubrir.</span><a href="/sobre-mi">Conoce Instante Trips ↗</a></div>
+    </section>
+  </main>
+  <Footer />
+</body>
 </html>
+<style is:global>
+:root{--font-serif:'Fraunces',Georgia,serif;--font-sans:'Plus Jakarta Sans',sans-serif;--font-body:var(--font-sans);--bg-page:#FAF7F2;--text-main:#18181B;--text-muted:#736D64;--text-prose:#353538;--accent-terracotta:#E04F16;--accent-terracotta-hover:#C23E0B}
+body{margin:0;background:#FAF7F2;color:#18181B;font-family:var(--font-sans)}
+.error-page{max-width:1040px;margin:auto;padding:clamp(2rem,6vw,5rem) 20px;min-height:55vh;display:grid;align-items:center}.error-ticket{border:1.5px solid #18181B;border-radius:18px;overflow:hidden;background:#FDFBF7;box-shadow:0 5px 0 #18181b14}.ticket-ribbon{display:flex;justify-content:space-between;gap:1rem;padding:1rem 1.5rem;background:#18181B;color:#FAF7F2;font-size:.6rem;font-weight:800;letter-spacing:.14em}.ticket-body{display:grid;grid-template-columns:210px minmax(0,1fr);gap:2.5rem;padding:clamp(1.5rem,4vw,3rem);align-items:center}.error-number{font:800 6.5rem/1 var(--font-serif);letter-spacing:-.08em;color:#E04F16;border-right:1px dashed #D6D1C4;padding-right:1rem}.error-number span{display:block;margin-top:1rem;font:600 .65rem/1.5 var(--font-sans);letter-spacing:0;color:#736D64}.eyebrow{font-size:.65rem;font-weight:800;letter-spacing:.08em;color:#C23E0B}.error-message h1{font:800 clamp(2rem,4vw,3rem)/1.12 var(--font-serif);letter-spacing:-.035em;margin:.8rem 0 1rem}.error-message p{font-size:.9rem;line-height:1.9;color:#736D64;max-width:530px}.error-actions{display:flex;gap:.7rem;flex-wrap:wrap;margin-top:1.5rem}.error-actions a{display:inline-flex;align-items:center;justify-content:center;padding:.8rem 1.1rem;min-height:44px;box-sizing:border-box;border:1.5px solid #18181B;border-radius:999px;font-size:.75rem;font-weight:800;color:#18181B;background:#FAF7F2;text-decoration:none}.error-actions a.primary{background:#E04F16;color:#fff;box-shadow:0 3px 0 #18181b14}.error-actions a:hover{background:#F3EFE6}.error-actions a.primary:hover{background:#C23E0B}.error-ticket a:focus-visible{outline:3px solid #E04F16;outline-offset:4px}.ticket-footer{display:flex;justify-content:space-between;align-items:center;gap:1rem;flex-wrap:wrap;border-top:1px dashed #D6D1C4;padding:1rem 1.5rem;font-size:.7rem;color:#736D64}.ticket-footer a{color:#C23E0B;font-weight:700;text-decoration:none}@media(max-width:650px){.error-page{padding:2rem 16px}.ticket-ribbon{padding:1rem;flex-wrap:wrap;font-size:.55rem}.ticket-body{grid-template-columns:minmax(0,1fr);gap:1.5rem;padding:1.5rem}.error-number{border-right:0;border-bottom:1px dashed #D6D1C4;padding:0 0 1.5rem;font-size:5rem}.error-number span{margin-top:.5rem}.error-actions a{flex:1 1 auto}.ticket-footer{padding:1rem}}
+</style>

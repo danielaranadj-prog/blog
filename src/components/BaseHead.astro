@@ -7,9 +7,10 @@ export interface Props {
     description: string;
     permalink: string;
     image?: string;
+    noindex?: boolean;
 }
 
-const { title, description, permalink, image } = Astro.props;
+const { title, description, permalink, image, noindex = false } = Astro.props;
 
 const rawImage = image || settings.assets.socialImage;
 const socialImageUrl = rawImage.startsWith('http') 
@@ -29,7 +30,7 @@ const socialImageUrl = rawImage.startsWith('http')
 <meta name="site-settings-version" content={settings.revision} />
 
 <!-- Google Discover & Search Indexing Optimization -->
-<meta name="robots" content="index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1" />
+<meta name="robots" content={noindex ? "noindex, follow" : "index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1"} />
 
 <title>{title}</title>
 <meta name="title" content={title} />
