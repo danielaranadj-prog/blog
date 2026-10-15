@@ -9,7 +9,8 @@
     "build": "astro build",
     "preview": "astro preview",
     "test:editor": "node --test tests/editor.test.cjs",
-    "test:admin": "node --test tests/admin.test.cjs"
+    "test:admin": "node --test tests/admin.test.cjs",
+    "test:pages": "node --test tests/pages.test.cjs"
   },
   "dependencies": {
     "@astrojs/sitemap": "^3.0.0",

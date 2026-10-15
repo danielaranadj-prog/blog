@@ -21,6 +21,13 @@ module.exports=async(req,res)=>{
    case 'status':result=await api.releaseStatus();break;
    case 'authors':result=await api.authors();break;
    case 'saveAuthor':result=await api.saveAuthor(b);break;
+   case 'pageList':result=await api.pages.list();break;
+   case 'pageLoad':result=await api.pages.load(b.key);break;
+   case 'pageSave':result=await api.pages.save(b);break;
+   case 'pageReset':result=await api.pages.reset(b);break;
+   case 'pagePublish':result=await api.pages.publish(b);break;
+   case 'pageStatus':result=await api.pages.status(b.key);break;
+   case 'pagePreview':result=require('../functions/info-pages.cjs').validatePage(b.page);break;
    case 'stats':result=await editor.stats(user);break;
    default:return res.status(400).json({error:'Acción desconocida.'});
   }

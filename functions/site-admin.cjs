@@ -1,6 +1,7 @@
 const crypto=require('node:crypto');
 const sharp=require('sharp');
 const acorn=require('acorn');
+const {infoPagesService}=require('./info-pages.cjs');
 const DEFAULT=require('../src/data/site-settings.json');
 const SETTINGS='src/data/site-settings.json';
 const hash=x=>crypto.createHash('sha256').update(x).digest('hex').slice(0,20);
@@ -87,6 +88,6 @@ function adminService({db,repository,now=()=>Date.now(),fetcher=fetch}){
  async function authors(){const file=await read('src/data/authors.ts');if(!file)fail('No se encontraron los autores.',404);return {authors:readAuthors(Buffer.from(file.content,'base64').toString()),sha:file.sha};}
  async function saveAuthor(input){const current=await authors();if(input.sha!==current.sha)fail('La lista de autores cambió. Recarga antes de guardar.',409);const a=input.author||{},slug=String(a.slug||'');if(!/^[a-z0-9]+(?:-[a-z0-9]+)*$/.test(slug))fail('Usa un identificador con letras minúsculas y guiones.');const author={slug,name:String(a.name||'').trim().slice(0,120),role:String(a.role||'').slice(0,150),bio:String(a.bio||'').slice(0,1200),image:safeUrl(a.image),email:String(a.email||'').trim().slice(0,160)};if(author.image&&!/^(https:\/\/|\/(?!\/))/.test(author.image))fail('La foto del autor debe ser una imagen local o https.');if(!author.name||!author.image)fail('Completa el nombre y la imagen.');if(author.email&&!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(author.email))fail('Correo del autor no válido.');current.authors[slug]=author;const content='export type Author = { slug: string; name: string; role: string; bio: string; image: string; email?: string; };\n\nexport const AUTHORS: Record<string, Author> = '+JSON.stringify(current.authors,null,2)+';\n\nexport const DEFAULT_AUTHOR = AUTHORS[\'daniel-arana\'] || Object.values(AUTHORS)[0];\n';const files=(await assetFiles(input.assetIds||[])).filter(file=>file.path.replace(/^public/,'')===author.image);files.push({path:'src/data/authors.ts',content});const sha=await commit(files,`Update author ${slug} from online admin`,{'src/data/authors.ts':current.sha});return {commitSha:sha};}
  async function resetDraft(input){const p=await published();return saveDraft({version:input.version,settings:p.settings,baseSha:p.sha,assetIds:[]});}
- return {load,saveDraft,resetDraft,prepareAsset,previewAsset,publish,releaseStatus,authors,saveAuthor};
+ return {load,saveDraft,resetDraft,prepareAsset,previewAsset,publish,releaseStatus,authors,saveAuthor,pages:infoPagesService({db,read,commit,now,fetcher,contact:async()=>{const p=await published();if(p.settings.contactEmail)return p.settings.contactEmail;const a=await authors();return a.authors['daniel-arana']?.email||'';}})};
 }
 module.exports={adminService,validateSettings,manifest,readAuthors};

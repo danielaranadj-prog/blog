@@ -1,0 +1,10 @@
+---
+import EditorialPage from './EditorialPage.astro';
+import settings from '../data/site-settings.json';
+import { DEFAULT_AUTHOR } from '../data/authors';
+const {page,profile=false}=Astro.props;
+const candidate=settings.contactEmail || DEFAULT_AUTHOR.email || '';
+const contactEmail=/^[\w.+-]+@[\w.-]+\.[a-z]{2,}$/i.test(candidate)?candidate:'';
+const html=page.html.replaceAll('{{contactEmail}}',contactEmail);
+---
+<EditorialPage title={page.title} description={page.description} eyebrow={page.eyebrow} summary={page.summary} revision={page.revision} {profile}><Fragment set:html={html}/></EditorialPage>
