@@ -1,281 +1,51 @@
 ---
-/**
- * SocialShare.astro
- * Botones para compartir artículo en redes sociales
- * Versión sticky sidebar + final de artículo
- */
-
-interface Props {
-  title: string;
-  url: string;
-  variant?: 'sticky' | 'inline';
-}
-
-const { title, url, variant = 'inline' } = Astro.props;
-
-// Encode para URLs
-const encodedUrl = encodeURIComponent(url);
-const encodedTitle = encodeURIComponent(title);
+interface Props { title: string; url: string; compact?: boolean; }
+const {title,url,compact=false}=Astro.props;
+const encodedUrl=encodeURIComponent(url);
+const whatsappText=encodeURIComponent(`${title}\n${url}`);
 ---
-
-<div class={`social-share ${variant === 'sticky' ? 'sticky-sidebar' : 'inline-share'}`}>
-  {variant === 'sticky' && (
-    <p class="share-label">Compartir</p>
-  )}
-  
+<section class:list={['social-share',{'compact':compact}]} aria-label="Compartir artículo">
+  <div class="share-heading"><span>COMPARTE EL VIAJE</span>{!compact&&<h2>¿A quién le vendría bien esta guía?</h2>}</div>
   <div class="share-buttons">
-    <!-- WhatsApp -->
-    <a 
-      href={`https://wa.me/?text=${encodedTitle}%20${encodedUrl}`}
-      target="_blank"
-      rel="noopener noreferrer"
-      class="share-btn whatsapp"
-      aria-label="Compartir en WhatsApp"
-    >
-      <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
+    <a href={`https://wa.me/?text=${whatsappText}`} target="_blank" rel="noopener noreferrer" class="share-btn" aria-label="Compartir en WhatsApp"><svg aria-hidden="true" width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
         <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.890-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413Z"/>
-      </svg>
-      {variant === 'inline' && <span>WhatsApp</span>}
-    </a>
-
-    <!-- Facebook -->
-    <a 
-      href={`https://www.facebook.com/sharer/sharer.php?u=${encodedUrl}`}
-      target="_blank"
-      rel="noopener noreferrer"
-      class="share-btn facebook"
-      aria-label="Compartir en Facebook"
-    >
-      <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
+      </svg><span>WhatsApp</span></a>
+    <a href={`https://www.facebook.com/sharer/sharer.php?u=${encodedUrl}`} target="_blank" rel="noopener noreferrer" class="share-btn" aria-label="Compartir en Facebook"><svg aria-hidden="true" width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
         <path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"/>
-      </svg>
-      {variant === 'inline' && <span>Facebook</span>}
-    </a>
-
-    <!-- Twitter/X -->
-    <a 
-      href={`https://twitter.com/intent/tweet?text=${encodedTitle}&url=${encodedUrl}`}
-      target="_blank"
-      rel="noopener noreferrer"
-      class="share-btn twitter"
-      aria-label="Compartir en X (Twitter)"
-    >
-      <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
-        <path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/>
-      </svg>
-      {variant === 'inline' && <span>X</span>}
-    </a>
-
-    <!-- Copy Link -->
-    <button 
-      class="share-btn copy-link"
-      data-url={url}
-      aria-label="Copiar enlace"
-    >
-      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+      </svg><span>Facebook</span></a>
+    <button type="button" class="share-btn copy-link" data-url={url} aria-label="Copiar enlace"><svg aria-hidden="true" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
         <path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/>
         <path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/>
-      </svg>
-      {variant === 'inline' && <span>Copiar</span>}
-    </button>
+      </svg><span data-copy-label>Copiar enlace</span></button>
   </div>
-</div>
-
+  <p class="share-status" role="status" aria-live="polite"></p>
+  <label class="copy-fallback" hidden>Selecciona y copia el enlace<input type="url" value={url} readonly aria-label="Enlace del artículo"/></label>
+</section>
 <script>
-  function initSocialShare() {
-    const copyButtons = document.querySelectorAll('.copy-link');
-    
-    copyButtons.forEach(button => {
-      button.addEventListener('click', async () => {
-        const url = button.getAttribute('data-url');
-        if (!url) return;
-        
-        try {
+  function initSocialShare(){
+    document.querySelectorAll<HTMLButtonElement>('.social-share .copy-link').forEach(button=>{
+      if(button.dataset.bound)return;button.dataset.bound='true';
+      button.addEventListener('click',async()=>{
+        const url=button.dataset.url;if(!url)return;
+        const group=button.closest('.social-share')!;
+        const status=group.querySelector<HTMLElement>('.share-status')!;
+        const label=button.querySelector<HTMLElement>('[data-copy-label]')!;
+        const fallback=group.querySelector<HTMLElement>('.copy-fallback')!;
+        button.disabled=true;
+        try{
           await navigator.clipboard.writeText(url);
-          
-          // Feedback visual
-          const originalHTML = button.innerHTML;
-          button.innerHTML = `
-            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-              <polyline points="20 6 9 17 4 12"/>
-            </svg>
-            ${button.querySelector('span') ? '<span>¡Copiado!</span>' : ''}
-          `;
+          fallback.hidden=true;label.textContent='¡Copiado!';status.textContent='Enlace copiado. Ya puedes compartirlo.';
           button.classList.add('copied');
-          
-          // Restaurar después de 2s
-          setTimeout(() => {
-            button.innerHTML = originalHTML;
-            button.classList.remove('copied');
-          }, 2000);
-        } catch (err) {
-          console.error('Error al copiar:', err);
-        }
+          setTimeout(()=>{label.textContent='Copiar enlace';status.textContent='';button.classList.remove('copied');},2500);
+        }catch{
+          status.textContent='No se pudo copiar automáticamente. Puedes copiarlo desde este campo.';
+          fallback.hidden=false;const input=fallback.querySelector('input')!;input.focus();input.select();
+        }finally{button.disabled=false;}
       });
     });
   }
-  
-  initSocialShare();
-  document.addEventListener('astro:page-load', initSocialShare);
+  initSocialShare();document.addEventListener('astro:page-load',initSocialShare);
 </script>
-
 <style>
-  /* Sticky Sidebar */
-  .sticky-sidebar {
-    position: sticky;
-    top: 120px;
-    display: flex;
-    flex-direction: column;
-    gap: 0.5rem;
-    align-items: center;
-  }
-  
-  .share-label {
-    font-size: 0.75rem;
-    font-weight: 700;
-    color: var(--text-muted);
-    text-transform: uppercase;
-    letter-spacing: 0.5px;
-    margin-bottom: 0.5rem;
-  }
-  
-  /* Inline Share */
-  .inline-share {
-    padding: 2rem 0;
-    text-align: center;
-  }
-  
-  .inline-share .share-buttons {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 1rem;
-    justify-content: center;
-  }
-  
-  .sticky-sidebar .share-buttons {
-    display: flex;
-    flex-direction: column;
-    gap: 0.75rem;
-  }
-  
-  /* Buttons - Minimal Icon Style */
-  .share-btn {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    gap: 0.5rem;
-    padding: 0.75rem;
-    border-radius: 12px;
-    border: none;
-    background: transparent;
-    font-weight: 600;
-    font-size: 0.9rem;
-    cursor: pointer;
-    transition: all 0.3s ease;
-    text-decoration: none;
-    color: var(--text-main);
-  }
-  
-  .share-btn svg {
-    transition: all 0.3s ease;
-  }
-  
-  .sticky-sidebar .share-btn {
-    width: 48px;
-    height: 48px;
-    padding: 0.75rem;
-    border-radius: 50%;
-  }
-  
-  .sticky-sidebar .share-btn span {
-    display: none;
-  }
-  
-  /* Icon colors */
-  .whatsapp svg {
-    color: #25D366;
-  }
-  
-  .facebook svg {
-    color: #1877F2;
-  }
-  
-  .twitter svg {
-    color: #000000;
-  }
-  
-  :root[data-theme="dark"] .twitter svg {
-    color: #ffffff;
-  }
-  
-  .copy-link svg {
-    color: var(--brand-blue, #75AADB);
-  }
-  
-  .copy-link.copied svg {
-    color: #10B981;
-  }
-  
-  /* Hover - subtle background */
-  .share-btn:hover {
-    background: var(--hover-bg, rgba(117, 170, 219, 0.1));
-    transform: translateY(-2px);
-  }
-  
-  .whatsapp:hover {
-    background: rgba(37, 211, 102, 0.1);
-  }
-  
-  .facebook:hover {
-    background: rgba(24, 119, 242, 0.1);
-  }
-  
-  .twitter:hover {
-    background: rgba(0, 0, 0, 0.05);
-  }
-  
-  :root[data-theme="dark"] .twitter:hover {
-    background: rgba(255, 255, 255, 0.1);
-  }
-  
-  .copy-link:hover {
-    background: rgba(117, 170, 219, 0.1);
-  }
-  
-  .sticky-sidebar .share-btn:hover {
-    transform: scale(1.1);
-  }
-  
-  .share-btn:active {
-    transform: translateY(0) scale(0.98);
-  }
-  
-  /* Responsive */
-  @media (max-width: 1200px) {
-    .sticky-sidebar {
-      display: none;
-    }
-  }
-  
-  @media (max-width: 768px) {
-    .inline-share .share-buttons {
-      display: flex;
-      justify-content: center;
-      gap: 1rem;
-    }
-    
-    .share-btn {
-      padding: 0.75rem;
-      min-width: 48px;
-    }
-    
-    .share-btn span {
-      display: none; /* Solo iconos en mobile */
-    }
-    
-    .share-btn svg {
-      width: 24px;
-      height: 24px;
-    }
-  }
+.social-share{border:1.5px solid #18181B;border-radius:14px;background:#F3EFE6;padding:1.4rem;margin:2rem 0;box-shadow:0 4px 0 #18181b0d;color:#18181B}.share-heading>span{font:800 .6rem/1.5 var(--font-sans);letter-spacing:.14em;color:#736D64}.share-heading h2{font:700 clamp(1.3rem,2vw,1.7rem)/1.25 var(--font-serif);letter-spacing:-.02em;margin:.45rem 0 1rem;color:#18181B}.share-buttons{display:flex;flex-wrap:wrap;gap:.6rem}.share-btn{display:inline-flex;align-items:center;justify-content:center;gap:.55rem;min-height:44px;padding:.65rem 1rem;border:1.5px solid #18181B;border-radius:999px;background:#FAF7F2;color:#18181B;font:700 .75rem/1.3 var(--font-sans);text-decoration:none;cursor:pointer;transition:background .15s,color .15s}.share-btn svg{width:17px;height:17px;flex-shrink:0}.share-btn:hover,.share-btn.copied{background:var(--accent-terracotta,#E04F16);color:#fff}.share-btn:focus-visible,.copy-fallback input:focus-visible{outline:3px solid var(--accent-terracotta,#E04F16);outline-offset:4px}.share-btn:disabled{opacity:.6;cursor:wait}.share-status{font:500 .75rem/1.6 var(--font-sans);margin:.7rem 0 0;color:#736D64}.share-status:empty{display:none}.copy-fallback{display:block;margin-top:1rem;font:600 .75rem var(--font-sans)}.copy-fallback[hidden]{display:none}.copy-fallback input{box-sizing:border-box;display:block;width:100%;min-width:0;margin-top:.5rem;padding:.7rem;border:1px solid #736D64;border-radius:8px;font:inherit;color:#18181B;background:#FAF7F2}.compact{display:flex;flex-wrap:wrap;align-items:center;gap:.65rem 1rem;background:transparent;border:0;border-radius:0;box-shadow:none;margin:1rem 0 0;padding:0}.compact .share-status,.compact .copy-fallback{flex-basis:100%;margin:0}.compact .share-btn{padding:.55rem .8rem}.compact .share-heading{flex-shrink:0}@media(max-width:520px){.social-share:not(.compact){padding:1.1rem}.share-buttons{width:100%;gap:.45rem}.share-btn{flex:1 1 auto;padding:.65rem .7rem;font-size:.7rem;gap:.4rem}.compact{gap:.5rem}.compact .share-btn{padding:.55rem .65rem}.compact .share-heading>span{font-size:.58rem}}
 </style>

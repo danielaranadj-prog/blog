@@ -7,6 +7,7 @@ import BlogHeader from '../components/BlogHeader.astro';
 import Footer from '../components/Footer.astro';
 import QuickSummaryBox from '../components/QuickSummaryBox.astro';
 import LeadMagnetBanner from '../components/LeadMagnetBanner.astro';
+import SocialShare from '../components/SocialShare.astro';
 
 import type { Author } from '../data/authors';
 import { AUTHORS, DEFAULT_AUTHOR } from '../data/authors';
@@ -499,6 +500,7 @@ const schemaData = {
             <span>4 min de lectura</span>
           </div>
 
+      <SocialShare title={post.title} url={permalink} compact />
     </header>
           <!-- TL;DR TICKET COMPONENT -->
           <QuickSummaryBox 
@@ -535,6 +537,8 @@ const schemaData = {
             <slot />
             <SiteAds placement="article" />
           </div>
+
+          <SocialShare title={post.title} url={permalink} />
 
           <!-- LEAD MAGNET IN-CONTENT -->
           <LeadMagnetBanner />
