@@ -1,5 +1,5 @@
 {
-  "revision": "initial-admin-v1",
+  "revision": "6fe5c143-75c1-42de-b815-e061bb3c5bce",
   "name": "Instante Trips & Tips",
   "shortName": "Instante Trips",
   "brandTitle": "INSTANTE",
@@ -21,23 +21,63 @@
     "socialImage": "/hero-bg.jpg"
   },
   "navigation": [
-    { "label": "Guías", "url": "/#explorar", "enabled": true },
-    { "label": "Sobre nosotros", "url": "/sobre-mi", "enabled": true },
-    { "label": "Contacto", "url": "/#contacto", "enabled": true }
+    {
+      "label": "Guías",
+      "url": "/#explorar",
+      "enabled": true
+    },
+    {
+      "label": "Sobre nosotros",
+      "url": "/sobre-mi",
+      "enabled": true
+    },
+    {
+      "label": "Contacto",
+      "url": "/#contacto",
+      "enabled": true
+    }
   ],
   "footerLinks": [
-    { "label": "Inicio", "url": "/", "enabled": true },
-    { "label": "Guías y categorías", "url": "/#explorar", "enabled": true },
-    { "label": "Privacidad", "url": "/legal/privacidad", "enabled": true },
-    { "label": "Cookies", "url": "/cookies", "enabled": true }
+    {
+      "label": "Inicio",
+      "url": "/",
+      "enabled": true
+    },
+    {
+      "label": "Guías y categorías",
+      "url": "/#explorar",
+      "enabled": true
+    },
+    {
+      "label": "Privacidad",
+      "url": "/legal/privacidad",
+      "enabled": true
+    },
+    {
+      "label": "Cookies",
+      "url": "/cookies",
+      "enabled": true
+    }
   ],
-  "social": { "instagram": "", "facebook": "", "x": "", "youtube": "", "tiktok": "" },
-  "ads": { "enabled": false, "publisherId": "ca-pub-5650296070135561", "homeSlot": "", "articleSlot": "", "sidebarSlot": "" },
+  "social": {
+    "instagram": "",
+    "facebook": "",
+    "x": "",
+    "youtube": "",
+    "tiktok": ""
+  },
+  "ads": {
+    "enabled": false,
+    "publisherId": "ca-pub-5650296070135561",
+    "homeSlot": "",
+    "articleSlot": "",
+    "sidebarSlot": ""
+  },
   "sponsor": {
     "enabled": true,
     "title": "5% Descuento en Seguro de Viaje",
     "text": "Cobertura médica completa, cancelación sin franquicia y repatriación en español 24/7.",
     "button": "Calcular Descuento",
-    "url": "https://www.iatiseguros.com"
+    "url": "https://www.iatiseguros.com/"
   }
 }

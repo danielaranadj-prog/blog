@@ -2,12 +2,12 @@
   "id": "/",
   "name": "Instante Trips & Tips",
   "short_name": "Instante Trips",
-  "description": "Gu\u00edas de viaje reales, sin filtros y directo al grano: trenes, vuelos, presupuestos honestos y decisiones inteligentes.",
+  "description": "Guías de viaje reales, sin filtros y directo al grano: trenes, vuelos, presupuestos honestos y decisiones inteligentes.",
   "start_url": "/",
   "scope": "/",
   "display": "standalone",
-  "theme_color": "#E04F16",
   "background_color": "#FAF7F2",
+  "theme_color": "#E04F16",
   "lang": "es",
   "icons": [
     {
