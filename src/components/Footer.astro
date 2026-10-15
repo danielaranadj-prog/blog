@@ -1,38 +1,39 @@
 ---
+import settings from '../data/site-settings.json';
+import SiteSocialLinks from './SiteSocialLinks.astro';
+import SiteRuntime from './SiteRuntime.astro';
 const today = new Date();
 ---
 
 <footer class="editorial-site-footer">
     <div class="footer-container">
         <div class="footer-col">
-            <span class="footer-brand-title">INSTANTE TRIPS</span>
+            <span class="footer-brand-title">{settings.name}</span>
             <p class="footer-desc">
-                Guías de viaje reales, sin filtros y directo al grano. Probamos cada ruta en persona.
+                {settings.footerText}
             </p>
         </div>
 
         <div class="footer-col">
             <h4 class="footer-title">Explorar</h4>
             <ul class="footer-links">
-                <li><a href="/">Inicio</a></li>
-                <li><a href="/#explorar">Destinos & Categorías</a></li>
-                <li><a href="/posts/barcelona-10-minutos-de-terror-y-lo-único-que-me-salvó">Historias Reales</a></li>
+                {settings.footerLinks.filter(link => link.enabled).map(link => <li><a href={link.url}>{link.label}</a></li>)}
             </ul>
         </div>
 
         <div class="footer-col">
             <h4 class="footer-title">Síguenos</h4>
-            <div class="social-links">
-                <a href="#" target="_blank" rel="noopener">Instagram</a>
-                <a href="#" target="_blank" rel="noopener">X / Twitter</a>
-                <a href="#" target="_blank" rel="noopener">YouTube</a>
+            <div class="social-links" id="contacto">
+                <SiteSocialLinks text />
+                {settings.contactEmail && <a href={`mailto:${settings.contactEmail}`}>{settings.contactEmail}</a>}
             </div>
         </div>
     </div>
     <div class="copyright-bar">
-        &copy; {today.getFullYear()} Daniel Arana — Instante Trips & Tips. Todos los derechos reservados.
+        &copy; {today.getFullYear()} {settings.copyrightName}. Todos los derechos reservados.
     </div>
 </footer>
+<SiteRuntime />
 
 <style>
     .editorial-site-footer {

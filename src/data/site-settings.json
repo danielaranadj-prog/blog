@@ -1,0 +1,43 @@
+{
+  "revision": "initial-admin-v1",
+  "name": "Instante Trips & Tips",
+  "shortName": "Instante Trips",
+  "brandTitle": "INSTANTE",
+  "brandSubtitle": "TRIPS & TIPS",
+  "description": "Guías de viaje reales, sin filtros y directo al grano: trenes, vuelos, presupuestos honestos y decisiones inteligentes.",
+  "homeTitle": "Instante Trips & Tips | Guías Reales de Viaje sin Filtros",
+  "tagline": "Guías de viaje reales, sin filtros y directo al grano",
+  "footerText": "Guías de viaje reales, sin filtros y directo al grano. Probamos cada ruta en persona.",
+  "copyrightName": "Daniel Arana — Instante Trips & Tips",
+  "contactEmail": "",
+  "themeColor": "#E04F16",
+  "backgroundColor": "#FAF7F2",
+  "assets": {
+    "logo": "",
+    "favicon": "/logo.svg",
+    "appleTouchIcon": "/apple-touch-icon.png",
+    "icon192": "/pwa-icon-192.png",
+    "icon512": "/pwa-icon-512.png",
+    "socialImage": "/hero-bg.jpg"
+  },
+  "navigation": [
+    { "label": "Guías", "url": "/#explorar", "enabled": true },
+    { "label": "Sobre nosotros", "url": "/sobre-mi", "enabled": true },
+    { "label": "Contacto", "url": "/#contacto", "enabled": true }
+  ],
+  "footerLinks": [
+    { "label": "Inicio", "url": "/", "enabled": true },
+    { "label": "Guías y categorías", "url": "/#explorar", "enabled": true },
+    { "label": "Privacidad", "url": "/legal/privacidad", "enabled": true },
+    { "label": "Cookies", "url": "/cookies", "enabled": true }
+  ],
+  "social": { "instagram": "", "facebook": "", "x": "", "youtube": "", "tiktok": "" },
+  "ads": { "enabled": false, "publisherId": "ca-pub-5650296070135561", "homeSlot": "", "articleSlot": "", "sidebarSlot": "" },
+  "sponsor": {
+    "enabled": true,
+    "title": "5% Descuento en Seguro de Viaje",
+    "text": "Cobertura médica completa, cancelación sin franquicia y repatriación en español 24/7.",
+    "button": "Calcular Descuento",
+    "url": "https://www.iatiseguros.com"
+  }
+}

@@ -1,0 +1,21 @@
+---
+import settings from '../data/site-settings.json';
+---
+{settings.ads.enabled && <div id="site-ad-preferences" data-publisher={settings.ads.publisherId} hidden><p>¿Permites cargar publicidad de Google en esta visita?</p><a href="/cookies">Ver política de cookies</a><button data-ads-accept>Permitir publicidad</button><button data-ads-decline>Ahora no</button></div>}
+<script>
+  if('serviceWorker' in navigator) window.addEventListener('load',()=>navigator.serviceWorker.register('/sw.js').catch(()=>{}),{once:true});
+  const box=document.querySelector<HTMLElement>('#site-ad-preferences');
+  if(box){
+    let preference=null;try{preference=sessionStorage.getItem('instante-ad-consent');}catch{}
+    function enableAds(){
+      if(!box||document.querySelector('[data-ads-loader]'))return;
+      const script=document.createElement('script');script.async=true;script.crossOrigin='anonymous';script.dataset.adsLoader='true';script.src=`https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=${box.dataset.publisher}`;
+      script.onload=()=>document.querySelectorAll('[data-site-ad] ins').forEach(()=>{try{((window as any).adsbygoogle=(window as any).adsbygoogle||[]).push({});}catch{}});document.head.append(script);box.hidden=true;
+    }
+    if(preference==='yes')enableAds();else if(preference!=='no')box.hidden=false;
+    box.querySelector('[data-ads-accept]')?.addEventListener('click',()=>{try{sessionStorage.setItem('instante-ad-consent','yes');}catch{}enableAds();});
+    box.querySelector('[data-ads-decline]')?.addEventListener('click',()=>{try{sessionStorage.setItem('instante-ad-consent','no');}catch{}box.hidden=true;document.querySelectorAll<HTMLElement>('[data-site-ad]').forEach(el=>el.hidden=true);});
+    if(preference==='no')document.querySelectorAll<HTMLElement>('[data-site-ad]').forEach(el=>el.hidden=true);
+  }
+</script>
+<style>#site-ad-preferences{position:fixed;bottom:1rem;left:50%;transform:translateX(-50%);z-index:1100;width:min(600px,calc(100% - 2rem));padding:1rem;border:1.5px solid #18181B;border-radius:12px;background:#FAF7F2;color:#18181B;box-shadow:0 5px 20px #0002;font-size:.85rem}#site-ad-preferences button{margin:.4rem;padding:.6rem .9rem;border:1px solid #18181B;border-radius:999px;cursor:pointer}#site-ad-preferences [data-ads-accept]{background:#E04F16;color:white}</style>

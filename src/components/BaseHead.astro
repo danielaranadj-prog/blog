@@ -1,5 +1,6 @@
 ---
 import '../styles/blog.css';
+import settings from '../data/site-settings.json';
 
 export interface Props {
     title: string;
@@ -10,7 +11,7 @@ export interface Props {
 
 const { title, description, permalink, image } = Astro.props;
 
-const rawImage = image || '/social-default.jpg';
+const rawImage = image || settings.assets.socialImage;
 const socialImageUrl = rawImage.startsWith('http') 
     ? rawImage 
     : (Astro.site ? new URL(rawImage, Astro.site).href : rawImage);
@@ -18,7 +19,14 @@ const socialImageUrl = rawImage.startsWith('http')
 
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
-<link rel="icon" type="image/svg+xml" href="/logo.svg" />
+<link rel="icon" type={settings.assets.favicon.endsWith('.svg')?'image/svg+xml':'image/png'} href={settings.assets.favicon} />
+<link rel="apple-touch-icon" sizes="180x180" href={settings.assets.appleTouchIcon} />
+<link rel="manifest" href="/manifest.json" />
+<meta name="theme-color" content={settings.themeColor} />
+<meta name="apple-mobile-web-app-capable" content="yes" />
+<meta name="apple-mobile-web-app-title" content={settings.shortName} />
+<meta name="apple-mobile-web-app-status-bar-style" content="default" />
+<meta name="site-settings-version" content={settings.revision} />
 
 <!-- Google Discover & Search Indexing Optimization -->
 <meta name="robots" content="index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1" />
@@ -35,7 +43,7 @@ const socialImageUrl = rawImage.startsWith('http')
 <meta property="og:title" content={title} />
 <meta property="og:description" content={description} />
 <meta property="og:image" content={socialImageUrl} />
-<meta property="og:site_name" content="Instante Trips & Tips" />
+<meta property="og:site_name" content={settings.name} />
 <meta property="og:locale" content="es_ES" />
 
 <!-- Twitter Card -->

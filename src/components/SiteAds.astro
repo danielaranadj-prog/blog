@@ -1,0 +1,7 @@
+---
+import settings from '../data/site-settings.json';
+const { placement = 'article' } = Astro.props;
+const slot = settings.ads[`${placement}Slot`];
+---
+{settings.ads.enabled && slot && <aside class="site-ad" data-site-ad aria-label="Publicidad"><span>PUBLICIDAD</span><ins class="adsbygoogle" style="display:block" data-ad-client={settings.ads.publisherId} data-ad-slot={slot} data-ad-format="auto" data-full-width-responsive="true"></ins></aside>}
+<style>.site-ad{margin:1.5rem 0;padding:.5rem;border:1px solid #E6E1D6;border-radius:12px;background:#FAF7F2;max-width:100%;overflow:hidden}.site-ad>span{display:block;text-align:center;font:800 9px/1.5 var(--font-sans,sans-serif);letter-spacing:1.8px;color:#78716C}.site-ad ins{min-height:250px}</style>

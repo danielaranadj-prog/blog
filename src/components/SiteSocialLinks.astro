@@ -1,0 +1,17 @@
+---
+import settings from '../data/site-settings.json';
+const { text = false } = Astro.props;
+const names = { instagram:'Instagram', facebook:'Facebook', x:'X', youtube:'YouTube', tiktok:'TikTok' };
+const paths = {
+ instagram:'M7 2h10a5 5 0 0 1 5 5v10a5 5 0 0 1-5 5H7a5 5 0 0 1-5-5V7a5 5 0 0 1 5-5Zm0 2a3 3 0 0 0-3 3v10a3 3 0 0 0 3 3h10a3 3 0 0 0 3-3V7a3 3 0 0 0-3-3H7Zm5 3a5 5 0 1 1 0 10 5 5 0 0 1 0-10Zm0 2a3 3 0 1 0 0 6 3 3 0 0 0 0-6Zm5.5-3a1.5 1.5 0 1 1 0 3 1.5 1.5 0 0 1 0-3Z',
+ facebook:'M14 22v-9h3l1-4h-4V7c0-1 .5-2 2-2h2V1h-3c-4 0-6 2-6 6v2H6v4h3v9h5Z',
+ x:'M18 2h3l-7 8 8 12h-6l-5-7-6 7H2l8-9L2 2h6l5 7 5-7ZM5 4l12 16h2L7 4H5Z',
+ youtube:'M22 7s0-3-3-3H5C2 4 2 7 2 7S1 10 1 12s1 5 1 5 0 3 3 3h14c3 0 3-3 3-3s1-3 1-5-1-5-1-5ZM10 16V8l7 4-7 4Z',
+ tiktok:'M15 2h3c0 3 2 5 5 5v3c-2 0-4-1-5-2v8a7 7 0 1 1-7-7v3a4 4 0 1 0 4 4V2Z'
+};
+const links = Object.entries(settings.social).filter(([,url]) => !!url);
+---
+{links.map(([key,url]) => <a href={url} target="_blank" rel="noopener noreferrer" aria-label={names[key]} class={text?'site-social-text':'site-social-icon'}>{text?names[key]:<svg width="17" height="17" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d={paths[key]} /></svg>}</a>)}
+<style>
+.site-social-icon{display:inline-flex;align-items:center;justify-content:center;width:30px;height:30px;border-radius:50%;color:var(--text-main,#18181B);text-decoration:none}.site-social-icon:hover{color:var(--accent-terracotta,#E04F16)}.site-social-text{color:inherit;text-decoration:none}.site-social-text:hover{text-decoration:underline}
+</style>

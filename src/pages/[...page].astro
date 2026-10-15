@@ -5,6 +5,8 @@ import BlogHeader from '../components/BlogHeader.astro';
 import BlogPostPreview from '../components/BlogPostPreview.astro';
 import Footer from '../components/Footer.astro';
 import { SITE } from '../config';
+import settings from '../data/site-settings.json';
+import SiteAds from '../components/SiteAds.astro';
 
 // --- MAGIA DE PAGINACIÓN (Astro) ---
 export async function getStaticPaths({ paginate }) {
@@ -30,8 +32,8 @@ const gridPosts = isFirstPage
   ? page.data.filter((p) => p.url !== featuredPost.url)
   : page.data;
 
-const title = 'Instante Trips & Tips | Guías Reales de Viaje sin Filtros';
-const description = 'Guías de viaje reales, sin filtros y directo al grano: trenes, vuelos, presupuestos honestos y decisiones inteligentes.';
+const title = settings.homeTitle;
+const description = settings.description;
 const permalink = Astro.url.href;
 
 const featuredHeroImage = featuredPost.frontmatter.heroImage || featuredPost.frontmatter.heroImageLink || 'https://res.cloudinary.com/dbwdmu9k2/image/upload/v1769926152/DSCF3740_ava5eg.jpg';
@@ -45,7 +47,7 @@ const featuredSearch = `${featuredData} ${featuredPost.frontmatter.description |
 
 <html lang="es">
     <head>
-        <BaseHead {title} {description} {permalink} image={featuredHeroImage} />
+        <BaseHead {title} {description} {permalink} image={settings.assets.socialImage} />
 
         <style>
             .home-shell { max-width: 1440px; margin: auto; padding: 0 2rem 4rem; box-sizing: border-box; }
@@ -104,7 +106,7 @@ const featuredSearch = `${featuredData} ${featuredPost.frontmatter.description |
             
             <!-- SUB-HEADER CON TAGLINE Y PÍLDORAS DE CATEGORÍA -->
             <section class="subbar-container" id="explorar" aria-label="Filtro de categorías">
-                <p class="subbar-tagline">Guías de viaje reales, sin filtros y directo al grano</p>
+                <p class="subbar-tagline">{settings.tagline}</p>
                 
                 <div class="categories-pills-row">
                     <button class="cat-pill active" aria-pressed="true" data-category="all" onclick="filterPosts('all', this)">Todo</button>
@@ -154,6 +156,7 @@ const featuredSearch = `${featuredData} ${featuredPost.frontmatter.description |
             )}
 
             <!-- GRID INFERIOR DE 4 COLUMNAS (PROPOSAL) -->
+            <SiteAds placement="home" />
             <main class="posts-grid-4cols" id="postsGrid" aria-label="Listado de guías y crónicas">
                 
                 {gridPosts.map((p, index) => {

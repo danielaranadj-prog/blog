@@ -1,6 +1,8 @@
 ---
 // Component Imports
 import BaseHead from '../components/BaseHead.astro';
+import settings from '../data/site-settings.json';
+import SiteAds from '../components/SiteAds.astro';
 import BlogHeader from '../components/BlogHeader.astro';
 import Footer from '../components/Footer.astro';
 import QuickSummaryBox from '../components/QuickSummaryBox.astro';
@@ -531,6 +533,7 @@ const schemaData = {
 
 
             <slot />
+            <SiteAds placement="article" />
           </div>
 
           <!-- LEAD MAGNET IN-CONTENT -->
@@ -601,21 +604,22 @@ const schemaData = {
         </div>}
 
         <!-- WIDGET B: TARJETA NATIVA DE DESCUENTO EN SEGURO DE VIAJE (MOCKUP 2) -->
-        <div class="insurance-card-widget">
+        <SiteAds placement="sidebar" />
+        {settings.sponsor.enabled && <div class="insurance-card-widget">
           <span class="insurance-medal-icon" aria-hidden="true">🎖️</span>
-          <h4 class="insurance-title">5% Descuento en Seguro de Viaje</h4>
+          <h4 class="insurance-title">{settings.sponsor.title}</h4>
           <p class="insurance-text">
-            Cobertura médica completa, cancelación sin franquicia y repatriación en español 24/7.
+            {settings.sponsor.text}
           </p>
           <a 
-            href="https://www.iatiseguros.com" 
+            href={settings.sponsor.url}
             target="_blank" 
             rel="sponsored nofollow noopener" 
             class="insurance-calc-btn"
           >
-            Calcular Descuento
+            {settings.sponsor.button}
           </a>
-        </div>
+        </div>}
 
       </aside>
 
