@@ -15,16 +15,20 @@ export async function mountBackup(panel,api,toast){
   const file=panel.querySelector('#backup-file').files[0];if(!file||file.size>200000000)throw Error('Selecciona un respaldo JSON de hasta 200 MB.');const b=JSON.parse(await file.text());
   if(b.format!=='instante-editor'||b.version!==1||!Array.isArray(b.posts)||!Array.isArray(b.media)||b.posts.length>500||b.media.length>250)throw Error('Este archivo no es un respaldo compatible.');
   const review=panel.querySelector('#backup-review');review.innerHTML=`<p>${b.posts.length} artículos · ${b.media.length} fotografías. Las programaciones y los estados publicados no se recuperan.</p><button class="planner-button primary" id="confirm-backup">Crear borradores desde este respaldo</button>`;
+  const batchId=crypto.randomUUID(),map=new Map();
   review.querySelector('button').onclick=e=>task(e.target,async()=>{
-   const map=new Map();for(const m of b.media){status.textContent=`Recuperando fotos: ${map.size+1}/${b.media.length}…`;const saved=await api('mediaSave',{media:m});map.set(m.id,saved.id);}
-   let count=0,unresolved=0;for(const original of b.posts){const p={...original,id:undefined,version:undefined,tripId:''};
-    p.mediaIds=(p.mediaIds||[]).flatMap(id=>map.has(id)?[map.get(id)]:[]);
-    if(p.hero?.startsWith('media:')){const id=p.hero.slice(6);if(map.has(id))p.hero='media:'+map.get(id);else{p.hero='';unresolved++;}}
-    p.html=String(p.html||'').replace(/data-media-id="([\w-]+)"/g,(all,id)=>map.has(id)?`data-media-id="${map.get(id)}"`:'').replace(/\ssrc="blob:[^"]*"/g,'');
+   for(const m of b.media){if(map.has(m.id))continue;status.textContent=`Recuperando fotos: ${map.size+1}/${b.media.length}…`;const saved=await api('mediaSave',{media:m});map.set(m.id,saved.id);}
+   let count=0,unresolved=0;for(const [index,original] of b.posts.entries()){const restoreId=`restore-${batchId}-${index}`;try{await api('get',{id:restoreId});count++;continue;}catch(e){if(e.status!==404)throw e;}const {post:p,missing}=restorePostInput(original,map,restoreId);unresolved+=missing;
     await api('save',{post:p});status.textContent=`Recuperando borradores: ${++count}/${b.posts.length}…`;
    }
-   for(const kind of ['ideas','trips','questions'])for(const item of (b.library?.[kind]||[]).slice(0,300))await api('saveItem',{kind,item:{...item,id:undefined}});
-   review.replaceChildren();status.textContent=`${count} borradores recuperados. Revisa el contenido y sus fotos antes de publicar.${unresolved?' Algunas portadas privadas no estaban en el respaldo.':''}`;toast('Recuperación terminada como borradores privados.');
+   for(const kind of ['ideas','trips','questions'])for(const [index,item] of (b.library?.[kind]||[]).slice(0,300).entries())await api('saveItem',{kind,item:{...item,id:`restore-${batchId}-${kind}-${index}`}});
+   review.replaceChildren();status.textContent=`${count} borradores recuperados. Revisa el contenido y sus fotos antes de publicar.${unresolved?' Algunas fotos privadas no estaban en el respaldo; revísalas antes de publicar.':''}`;toast('Recuperación terminada como borradores privados.');
   });
  });
 }
+
+export function restorePostInput(original,map,id){let missing=0;const p={...original,id:id,version:undefined,tripId:''};
+    p.mediaIds=(p.mediaIds||[]).flatMap(id=>map.has(id)?[map.get(id)]:[]);
+    if(p.hero?.startsWith('media:')){const id=p.hero.slice(6);if(map.has(id))p.hero='media:'+map.get(id);else{p.hero='';missing++;}}
+    p.html=String(p.html||'').replace(/data-media-id="([\w-]+)"/g,(all,id)=>{if(map.has(id))return `data-media-id="${map.get(id)}"`;missing++;return '';}).replace(/\ssrc="blob:[^"]*"/g,'');
+return {post:p,missing};}
