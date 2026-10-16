@@ -1,5 +1,5 @@
 import { escapeHtml as esc } from './planner-utils.js';
-export const articleTypes={experiencia:'Experiencia',opinion:'Opinión',guia:'Guía práctica',comparativa:'Comparativa',seleccion:'Selección',entrevista:'Entrevista'};
+export const articleTypes={experiencia:'Experiencia',opinion:'Opinión',guia:'Guía práctica',comparativa:'Comparativa',seleccion:'Listas y recomendaciones',entrevista:'Entrevista'};
 export const budgetLevels={gratis:'Gratis',economico:'Económico',intermedio:'Intermedio',premium:'Premium',mixto:'Mixto'};
 export const editorialStructures={
  experiencia:['Antes del viaje','Lo que viví','Gastos y condiciones reales','Lo que haría diferente','A quién se lo recomendaría'],

@@ -1,4 +1,4 @@
-export const typeLabels={experiencia:'Experiencia',opinion:'Opinión',guia:'Guía práctica',comparativa:'Comparativa',seleccion:'Selección',entrevista:'Entrevista'};
+export const typeLabels={experiencia:'Experiencia',opinion:'Opinión',guia:'Guía práctica',comparativa:'Comparativa',seleccion:'Listas y recomendaciones',entrevista:'Entrevista'};
 export const budgetLabels={gratis:'Gratis',economico:'Económico',intermedio:'Intermedio',premium:'Premium',mixto:'Mixto'};
 export function absoluteUrl(value,site){try{const url=new URL(value,site);return /^https?:$/.test(url.protocol)?url.href:undefined;}catch{return undefined;}}
 export function isoDate(value){if(!value)return undefined;const date=new Date(value);return Number.isNaN(date.valueOf())?undefined:date.toISOString();}
