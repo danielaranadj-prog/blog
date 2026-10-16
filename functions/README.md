@@ -59,3 +59,12 @@ Las pruebas usan datos aislados y un GitHub simulado; no publican artículos rea
 - Los agregados caducan a los 90 días y las cuotas a los dos días. Se limpian hasta 20 documentos de cada colección cada 20 eventos aceptados; no es una tarea programada ni una garantía de borrado exacto en ausencia de tráfico. No se guardan IP, user-agent ni referrer en los nuevos registros. La clave privada del servidor se usa para derivar una huella diaria de control de abuso; no se exporta al navegador.
 - RSS y búsqueda se regeneran desde los artículos publicados. La suscripción por correo solo aparece al configurar un formulario https real desde Audiencia; el sitio no mantiene una lista de correos propia.
 - El calendario automático continúa desactivado hasta configurar y comprobar el servicio. Esta entrega no activa facturación ni IA.
+
+
+## Presentación de publicidad y recomendaciones
+
+Los bloques AdSense se muestran dentro de la portada, al finalizar el relato y dentro de la columna del artículo. La columna sigue el flujo de la página y pasa debajo del contenido por debajo de 1024 px; no hay anuncios fijos en los márgenes. Los bloques horizontales usan el formato horizontal, la columna el rectangular y no fuerzan una expansión fuera del contenedor. Los marcos permanecen ocultos hasta permitir publicidad y cargar el script; fallos de carga y respuestas sin inventario los ocultan.
+
+El catálogo admite categoría visual (actividad, alojamiento, transporte, seguro o recurso) e imagen opcional https/local. La primera ficha tiene imagen o ilustración y botón; las siguientes usan una presentación compacta. No se utilizan fotos, marcas, descuentos o enlaces ficticios como contenido público.
+
+En el editor, Enlace / recurso permite insertar texto, botón o tarjeta. La selección de texto se conserva antes de abrir el selector. `data-catalog-id` y `data-catalog-format` sobreviven al guardado. En la compilación se resuelven el enlace vigente y, para tarjetas, los datos actuales del catálogo. Al desactivar una ficha, se retira su tarjeta y los enlaces de texto conservan su texto sin destino. Los artículos con enlaces activos del catálogo muestran un aviso de afiliación.

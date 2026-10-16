@@ -34,7 +34,8 @@ function validateSettings(input){
   const title=String(item.title||'').trim().slice(0,180),provider=String(item.provider||'').slice(0,100);
   if(enabled&&(!title||!url||!confirmed))fail('Para activar una recomendación completa su título, enlace y confirmación.');
   if(url&&!/^(https:\/\/|\/downloads\/)/.test(url))fail('Usa https o un PDF subido al sitio.');
-  return {id,type,title,url,provider,partnerId:String(item.partnerId||'').slice(0,150),text:String(item.text||'').slice(0,600),button:String(item.button||'').slice(0,100),tags:String(item.tags||'').slice(0,300),placement:item.placement==='manual'?'manual':'sidebar',enabled,confirmed};
+  const image=safeUrl(item.image);if(image&&!/^(https:\/\/|\/(?!\/))/.test(image))fail('La imagen de la recomendación debe usar https o una ruta del sitio.');
+  return {id,type,title,url,provider,image,category:['activity','stay','transport','insurance','resource'].includes(item.category)?item.category:(type==='download'?'resource':'activity'),partnerId:String(item.partnerId||'').slice(0,150),text:String(item.text||'').slice(0,600),button:String(item.button||'').slice(0,100),tags:String(item.tags||'').slice(0,300),placement:item.placement==='manual'?'manual':'sidebar',enabled,confirmed};
  });
  if(new Set(value.catalog.map(x=>x.id)).size!==value.catalog.length)fail('Los identificadores del catálogo no pueden repetirse.');
  const audience=input.audience||{};value.audience={newsletterUrl:safeUrl(audience.newsletterUrl),newsletterTitle:String(audience.newsletterTitle||'Recibe las próximas historias').slice(0,180),newsletterText:String(audience.newsletterText||'').slice(0,400)};

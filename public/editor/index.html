@@ -513,13 +513,13 @@
 body { font-family:'Plus Jakarta Sans',sans-serif; font-size:16px; line-height:1.85; color:#18181B; background:#FDFBF7; padding:12px; }
 h1,h2,h3 { font-family:'Fraunces',Georgia,serif; font-weight:700; line-height:1.18; letter-spacing:-.025em; color:#18181B; }
 h1 { font-size:2.2rem; } h2 { font-size:1.8rem; } h3 { font-size:1.4rem; }
-a { color:#E04F16; } img { max-width:100%; height:auto; border:1.5px solid #18181B; border-radius:14px; }
+a { color:#E04F16; } a.catalog-inline-card { display:block;padding:20px;border:1px solid #18181B;border-radius:12px;background:#F3EFE6;text-decoration:none;color:#18181B; } a.catalog-inline-card strong,a.catalog-inline-card span,a.catalog-inline-card small { display:block;margin:8px 0; } .catalog-inline-label { font-size:11px; } .catalog-inline-button { display:inline-block!important;padding:8px 14px;background:#E04F16;color:white;border-radius:999px;text-decoration:none; } img { max-width:100%; height:auto; border:1.5px solid #18181B; border-radius:14px; }
 blockquote { border-left:3px solid #E04F16; background:#F3EFE6; padding:1rem; margin:1.5rem 0; }
 body[data-editor-theme='dark'] { background:#1C1C1F; color:#F5F1E9; }
 body[data-editor-theme='dark'] h1,body[data-editor-theme='dark'] h2,body[data-editor-theme='dark'] h3 { color:#F5F1E9; }
 body[data-editor-theme='dark'] blockquote { background:#242427; }
 .cta-destination-card { color:#18181B; text-decoration:none; }`,
-                extended_valid_elements: 'a[href|target|rel|title|class|data-catalog-id],img[src|alt|title|width|height|data-media-id]',
+                extended_valid_elements: 'a[href|target|rel|title|class|data-catalog-id|data-catalog-format],img[src|alt|title|width|height|data-media-id]',
                 convert_urls: false,
                 relative_urls: false,
                 remove_script_host: false,
@@ -643,6 +643,8 @@ body[data-editor-theme='dark'] blockquote { background:#242427; }
                             currentPostFilename=null;currentPostSha=null;
                             heroPreviewUrl=''; updateSEO();
                         },
+                        captureSelection: () => ({bookmark:tinymce.activeEditor.selection.getBookmark(2,true),text:tinymce.activeEditor.selection.getContent({format:'text'})}),
+                        restoreSelection: saved => {if(saved?.bookmark){tinymce.activeEditor.focus();tinymce.activeEditor.selection.moveToBookmark(saved.bookmark);}},
                         insert: html => tinymce.activeEditor.insertContent(html),
                         fromMarkdown: md => marked.parse(md),
                         heroPreview: url => { heroPreviewUrl=url; renderLivePreview(); },

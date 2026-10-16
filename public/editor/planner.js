@@ -9,7 +9,7 @@ export async function initPlanner(bridge) {
   const urls=new Map(),mediaMetadata=new Map();
   const auth=bridge.auth;
   const sessionUid=auth.currentUser.uid;
-  let recovered=null,aiReady=false,aiOutput='';
+  let recovered=null,aiReady=false,aiOutput='',catalogSelection=null;
   async function recovery(op,value){
     try {
       const database=await new Promise((resolve,reject)=>{const r=indexedDB.open('instante-editor-recovery',1);r.onupgradeneeded=()=>r.result.createObjectStore('pending');r.onsuccess=()=>resolve(r.result);r.onerror=()=>reject(r.error);});
@@ -224,7 +224,13 @@ export async function initPlanner(bridge) {
       try{const p=snapshot(),plain=new DOMParser().parseFromString(p.html,'text/html').body.textContent;const r=await api('generate',{consent:true,mode:$('ai-mode').value,text:p.title+'\n'+plain});aiOutput=r.text;$('ai-output').textContent=aiOutput;$('ai-output').hidden=false;dialog.querySelector('[data-insert-ai]').hidden=false;$('ai-status').textContent='Propuesta lista para tu revisión.';}finally{b.disabled=false;}return;
     }
     if(b.hasAttribute('data-insert-ai')){bridge.insert('<h2>Propuesta para revisar</h2>'+aiOutput.split(/\n\n+/).map(p=>'<p>'+esc(p).replace(/\n/g,'<br>')+'</p>').join(''));queueSave();dialog.close();return;}
-    if(b.dataset.catalog){const item=(await api('catalog')).find(i=>i.id===b.dataset.catalog);if(!item)throw Error('La ficha ya no está disponible.');bridge.insert(`<p><a href="${esc(item.url)}" data-catalog-id="${esc(item.id)}" target="_blank" rel="${item.type==='affiliate'?'sponsored nofollow noopener':'noopener'}">${esc(item.button||item.title)} →</a></p>`);queueSave();dialog.close();return;}
+    if(b.dataset.catalog){
+      const item=(await api('catalog')).find(i=>i.id===b.dataset.catalog);if(!item)throw Error('La ficha ya no está disponible.');
+      const format=$('catalog-format').value,text=$('catalog-link-text').value.trim()||item.button||item.title;
+      if(format==='card'&&!item.presentations?.card)throw Error('Recarga el editor para insertar esta tarjeta.');
+      const html=format==='card'?item.presentations.card:`<a href="${esc(item.url)}" data-catalog-id="${esc(item.id)}" data-catalog-format="${format}" ${format==='button'?'class="catalog-inline-button"':''} target="_blank" rel="${item.type==='affiliate'?'sponsored nofollow noopener':'noopener'}">${esc(text)}${format==='button'?' →':''}</a>`;
+      dialog.close();bridge.restoreSelection?.(catalogSelection);bridge.insert(format==='card'?'<p>'+html+'</p><p></p>':html);queueSave();return;
+    }
     if(b.dataset.history){if(dirty)throw Error('Guarda los cambios actuales antes de recuperar una versión.');if(!confirm('¿Recuperar esta versión como borrador? La versión pública seguirá igual.'))return;const result=await api('restoreVersion',{id:active.id,version:active.version,historyVersion:Number(b.dataset.history)});setCurrent(result);dialog.close();return openPost(result.id);}
     if(b.dataset.reviewed){const p=posts.find(p=>p.id===b.dataset.reviewed);openForm('Registrar revisión',`<p>Confirma que comprobaste los datos del artículo. Esto registra la revisión; los cambios en el texto se publican desde el editor.</p><label>Próxima revisión<input class="input-modern" name="reviewAt" type="date" required></label>`,async f=>{await api('reviewed',{id:p.id,version:p.version,reviewAt:f.get('reviewAt')});await renderReviews();});return;}
     if(b.dataset.trashPost){
@@ -269,7 +275,10 @@ export async function initPlanner(bridge) {
     const results=await api('checkLinks',{links});
     $('post-audit').innerHTML=results.map(r=>`<li class="${r.status==='broken'?'planner-error':''}">${r.status==='ok'?'✓':'⚠'} ${esc(r.message)} · <a href="${esc(r.url)}" target="_blank" rel="noopener noreferrer">${esc(r.url)}</a></li>`).join('');notify('Revisión terminada · máximo 10 enlaces por revisión.');
   });
-  $('insert-catalog').onclick=protect(async()=>{const catalog=await api('catalog');dialog.innerHTML='<h2>Insertar recomendación o recurso</h2><p>Las fichas activas se administran en Afiliados y recursos. Sus enlaces se actualizan al publicar el catálogo.</p>'+catalog.map(i=>`<button class="planner-button" data-catalog="${esc(i.id)}">${esc(i.title)}</button>`).join('')+'<footer><button class="planner-button" data-close-dialog>Cerrar</button></footer>';if(!catalog.length)dialog.insertAdjacentHTML('beforeend','<p>Aún no tienes fichas activas en el catálogo.</p>');dialog.showModal();});
+  $('insert-catalog').onclick=protect(async()=>{
+    catalogSelection=bridge.captureSelection?.();const catalog=await api('catalog');
+    dialog.innerHTML='<h2>Insertar recomendación o recurso</h2><p>El catálogo del admin controla los enlaces. Elige cómo mostrar esta recomendación.</p><label class="field-label">Presentación<select id="catalog-format" class="input-modern"><option value="text">Enlace dentro del texto</option><option value="button">Botón</option><option value="card">Tarjeta editorial</option></select></label><label class="field-label">Texto del enlace o botón<input id="catalog-link-text" class="input-modern" placeholder="Se usará el texto de la ficha si lo dejas vacío" value="'+esc(catalogSelection?.text||'')+'"></label><p>La tarjeta utiliza el título, la descripción y el botón de la ficha.</p>'+catalog.map(i=>`<button class="planner-button" data-catalog="${esc(i.id)}">${esc(i.title)}</button>`).join('')+'<footer><button class="planner-button" data-close-dialog>Cerrar</button></footer>';if(!catalog.length)dialog.insertAdjacentHTML('beforeend','<p>Aún no tienes fichas activas en el catálogo.</p>');dialog.showModal();
+  });
   $('article-history').onclick=protect(async()=>{if(!active?.id)throw Error('Guarda primero el artículo.');const history=await api('history',{id:active.id});dialog.innerHTML='<h2>Versiones guardadas</h2><p>Recuperar crea un borrador. La versión pública no cambia hasta que publiques.</p>'+history.map(h=>`<p>Versión ${h.version} · ${esc(new Date(h.savedAt).toLocaleString('es'))} <button class="planner-button" data-history="${h.version}">Recuperar</button></p>`).join('')+'<footer><button class="planner-button" data-close-dialog>Cerrar</button></footer>';if(!history.length)dialog.insertAdjacentHTML('beforeend','<p>Las versiones se conservan desde esta actualización, cada vez que guardas cambios.</p>');dialog.showModal();});
   $('audit-post').onclick=runAudit;$('insert-template').onclick=chooseTemplate;$('insert-block').onclick=chooseBlock;$('open-library').onclick=protect(()=>renderMedia(true));$('editor-assistant').onclick=assistant;
   $('schedule-zone').onchange=()=>{zone=$('schedule-zone').value;};

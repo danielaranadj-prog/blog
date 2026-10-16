@@ -1,7 +1,15 @@
 ---
 import settings from '../data/site-settings.json';
-const { placement = 'article' } = Astro.props;
-const slot = settings.ads[`${placement}Slot`];
+const {placement='article',preview=false,config=settings.ads}=Astro.props;
+const validPlacement=['home','article','sidebar'].includes(placement);
+const slot=validPlacement?config[`${placement}Slot`]:'';
+const enabled=validPlacement&&config.enabled&&/^ca-pub-\d{16}$/.test(config.publisherId||'')&&/^\d{6,20}$/.test(slot||'');
+const square=placement==='sidebar';
 ---
-{settings.ads.enabled && slot && <aside class="site-ad" data-site-ad aria-label="Publicidad"><span>PUBLICIDAD</span><ins class="adsbygoogle" style="display:block" data-ad-client={settings.ads.publisherId} data-ad-slot={slot} data-ad-format="auto" data-full-width-responsive="true"></ins></aside>}
-<style>.site-ad{margin:1.5rem 0;padding:.5rem;border:1px solid #E6E1D6;border-radius:12px;background:#FAF7F2;max-width:100%;overflow:hidden}.site-ad>span{display:block;text-align:center;font:800 9px/1.5 var(--font-sans,sans-serif);letter-spacing:1.8px;color:#78716C}.site-ad ins{min-height:250px}</style>
+{(enabled||preview)&&<aside class:list={['site-ad',square?'site-ad-square':'site-ad-banner',{'site-ad-preview':preview}]} data-site-ad={!preview||undefined} data-ad-placement={placement} aria-label={preview?'Vista de ejemplo de un espacio publicitario':'Publicidad'} hidden={!preview}>
+  <span class="site-ad-label">{preview?'PUBLICIDAD · VISTA DE EJEMPLO':'PUBLICIDAD'}</span>
+  {preview?<div class="site-ad-example"><strong>Anuncio adaptable</strong><span>{square?'Espacio dentro de la columna del artículo':'Espacio horizontal dentro del contenido'}</span></div>:<ins class="adsbygoogle" style="display:block" data-ad-client={config.publisherId} data-ad-slot={slot} data-ad-format={square?'rectangle':'horizontal'} data-full-width-responsive="false"></ins>}
+</aside>}
+<style>
+.site-ad{box-sizing:border-box;clear:both;min-width:0;max-width:100%;margin:1.5rem 0;padding:8px;border:1px solid #D6D1C4;border-radius:10px;background:#F3EFE6;break-inside:avoid}.site-ad[hidden]{display:none!important}.site-ad-label{display:block;text-align:center;font:800 9px/1.6 var(--font-sans,sans-serif);letter-spacing:1.8px;color:#736D64;margin-bottom:7px}.site-ad ins{width:100%;min-width:0;background:transparent}.site-ad-banner ins{min-height:90px}.site-ad-square ins{min-height:250px}.site-ad-example{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:8px;min-height:105px;padding:16px;border-radius:6px;background:repeating-linear-gradient(135deg,transparent,transparent 10px,#18181b05 10px,#18181b05 11px),#EEEAE1;color:#736D64;text-align:center;font:400 .75rem/1.6 var(--font-sans,sans-serif)}.site-ad-example strong{font-weight:600}.site-ad-square .site-ad-example{min-height:250px}@media(max-width:699px){.site-ad{margin:1.25rem 0}.site-ad-banner ins{min-height:100px}}
+</style>

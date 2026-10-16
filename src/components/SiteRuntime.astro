@@ -5,17 +5,33 @@ import settings from '../data/site-settings.json';
 <script>
   if('serviceWorker' in navigator) window.addEventListener('load',()=>navigator.serviceWorker.register('/sw.js').catch(()=>{}),{once:true});
   const box=document.querySelector<HTMLElement>('#site-ad-preferences');
-  if(box){
+  const placements=[...document.querySelectorAll<HTMLElement>('[data-site-ad]')];
+  if(box&&placements.length){
     let preference=null;try{preference=sessionStorage.getItem('instante-ad-consent');}catch{}
+    function hideAds(){placements.forEach(frame=>frame.hidden=true);}
+    function initializeAds(){
+      placements.forEach(frame=>{
+        const slot=frame.querySelector<HTMLElement>('ins.adsbygoogle');if(!slot||slot.dataset.requested)return;
+        frame.hidden=false;
+        requestAnimationFrame(()=>{
+          if(slot.getBoundingClientRect().width<=0){frame.hidden=true;return;}
+          slot.dataset.requested='true';
+          const observer=new MutationObserver(()=>{const status=slot.dataset.adStatus;if(status==='unfilled'){frame.hidden=true;observer.disconnect();}else if(status==='filled')observer.disconnect();});
+          observer.observe(slot,{attributes:true,attributeFilter:['data-ad-status']});
+          try{((window as any).adsbygoogle=(window as any).adsbygoogle||[]).push({});}catch{frame.hidden=true;observer.disconnect();}
+        });
+      });
+    }
     function enableAds(){
-      if(!box||document.querySelector('[data-ads-loader]'))return;
+      if(!box)return;box.hidden=true;
+      const existing=document.querySelector<HTMLScriptElement>('[data-ads-loader]');
+      if(existing){if(existing.dataset.loaded==='true')initializeAds();return;}
       const script=document.createElement('script');script.async=true;script.crossOrigin='anonymous';script.dataset.adsLoader='true';script.src=`https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=${box.dataset.publisher}`;
-      script.onload=()=>document.querySelectorAll('[data-site-ad] ins').forEach(()=>{try{((window as any).adsbygoogle=(window as any).adsbygoogle||[]).push({});}catch{}});document.head.append(script);box.hidden=true;
+      script.onload=()=>{script.dataset.loaded='true';initializeAds();};script.onerror=hideAds;document.head.append(script);
     }
     if(preference==='yes')enableAds();else if(preference!=='no')box.hidden=false;
     box.querySelector('[data-ads-accept]')?.addEventListener('click',()=>{try{sessionStorage.setItem('instante-ad-consent','yes');}catch{}enableAds();});
-    box.querySelector('[data-ads-decline]')?.addEventListener('click',()=>{try{sessionStorage.setItem('instante-ad-consent','no');}catch{}box.hidden=true;document.querySelectorAll<HTMLElement>('[data-site-ad]').forEach(el=>el.hidden=true);});
-    if(preference==='no')document.querySelectorAll<HTMLElement>('[data-site-ad]').forEach(el=>el.hidden=true);
+    box.querySelector('[data-ads-decline]')?.addEventListener('click',()=>{try{sessionStorage.setItem('instante-ad-consent','no');}catch{}box.hidden=true;hideAds();});
   }
 </script>
 <style>#site-ad-preferences{position:fixed;bottom:1rem;left:50%;transform:translateX(-50%);z-index:1100;width:min(600px,calc(100% - 2rem));padding:1rem;border:1.5px solid #18181B;border-radius:12px;background:#FAF7F2;color:#18181B;box-shadow:0 5px 20px #0002;font-size:.85rem}#site-ad-preferences button{margin:.4rem;padding:.6rem .9rem;border:1px solid #18181B;border-radius:999px;cursor:pointer}#site-ad-preferences [data-ads-accept]{background:#E04F16;color:white}</style>

@@ -10,7 +10,7 @@ function fail(message, status = 400) { const e = new Error(message); e.status = 
 function cleanHtml(html) {
   return sanitizeHtml(String(html || ''), {
     allowedTags: [...sanitizeHtml.defaults.allowedTags, 'img', 'figure', 'figcaption', 'iframe'],
-    allowedAttributes: { ...sanitizeHtml.defaults.allowedAttributes, '*': ['class'], a: ['href', 'title', 'target', 'rel', 'class', 'data-catalog-id'], img: ['src', 'alt', 'title', 'width', 'height', 'data-media-id'], iframe: ['src', 'title', 'allowfullscreen', 'width', 'height'] },
+    allowedAttributes: { ...sanitizeHtml.defaults.allowedAttributes, '*': ['class'], a: ['href', 'title', 'target', 'rel', 'class', 'data-catalog-id', 'data-catalog-format'], img: ['src', 'alt', 'title', 'width', 'height', 'data-media-id'], iframe: ['src', 'title', 'allowfullscreen', 'width', 'height'] },
     allowedIframeHostnames: ['www.youtube.com', 'www.youtube-nocookie.com', 'www.tiktok.com'],
     allowedSchemes: ['http', 'https'], allowProtocolRelative: false
   });

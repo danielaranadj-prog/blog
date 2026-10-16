@@ -51,6 +51,8 @@ const permalink = Astro.url.href;
 const allPosts = await Astro.glob('../pages/posts/*.md');
 const currentPath = decodeURIComponent(Astro.url.pathname).replace(/\/$/, '');
 const currentModule=allPosts.find(p=>decodeURIComponent(p.url||'').replace(/\/$/,'')===currentPath);
+const inlineAffiliateIds=[...String(currentModule?.rawContent?.()||'').matchAll(/data-catalog-id=["']([a-z0-9-]+)["']/g)].map(match=>match[1]);
+const hasInlineAffiliates=(settings.catalog||[]).some(item=>item.enabled&&item.confirmed&&item.type==='affiliate'&&inlineAffiliateIds.includes(item.id));
 const readingMinutes=Math.max(1,Math.ceil(String(currentModule?.rawContent?.()||'').replace(/<[^>]*>/g,' ').split(/\s+/).filter(Boolean).length/220));
 const currentTitle = (post.title || '').trim().toLowerCase();
 const currentTags = (post.tags || []).map((t: string) => t.toLowerCase());
@@ -455,12 +457,14 @@ const schemaData = {
     :global(.prose table) {display:block;max-width:100%;overflow:auto;border-collapse:collapse;margin:1.5rem 0;}
     :global(.prose th),:global(.prose td) {border:1px solid #D6D1C4;padding:.65rem;text-align:left;}
     .prose::after { content: ''; display: block; clear: both; }
+    .article-affiliate-notice {font:400 .75rem/1.7 var(--font-sans);color:#736D64;margin:1rem 0;}
     .article-meta-bar { margin-bottom: 0; padding-bottom: 0; border-bottom: 0; }
     .article-sticky-sidebar { border-left: 1px solid #e5e2dc; padding-left: 1.5rem; }
     @media (min-width: 1024px) {
-      .article-two-cols-layout { grid-template-columns: minmax(0, 1fr) 290px; gap: 2.5rem; }
-      .article-sticky-sidebar { top: 2rem; }
+      .article-two-cols-layout { grid-template-columns: minmax(0, 1fr) 320px; gap: 2rem; }
+      .article-sticky-sidebar { position:static; padding-left:16px; }
     }
+    @media (max-width: 1023px) { .article-sticky-sidebar {border-left:0;padding-left:0;position:static;} }
     @media (max-width: 699px) {
       .post-page-shell { padding: 1.5rem 1rem 3rem; }
       .article-hero-wrap { float: none; width: 100%; margin: 0 0 1.5rem; aspect-ratio: 16 / 9; }
@@ -503,6 +507,7 @@ const schemaData = {
             <span>{readingMinutes} min de lectura</span>
           </div>
 
+      {hasInlineAffiliates&&<p class="article-affiliate-notice">Este artículo contiene enlaces de afiliación. Podemos recibir una comisión si reservas a través de ellos.</p>}
       <SocialShare title={post.title} url={permalink} compact />
     </header>
           <!-- TL;DR TICKET COMPONENT -->
@@ -533,8 +538,8 @@ const schemaData = {
 
 
             <slot />
-            <SiteAds placement="article" />
           </div>
+          <SiteAds placement="article" />
 
           <SocialShare title={post.title} url={permalink} />
 
@@ -589,7 +594,7 @@ const schemaData = {
         </article>
       </main>
 
-      <!-- SIDEBAR DERECHO REALMENTE STICKY (30% / 340px) -->
+      <!-- Columna editorial; se apila debajo del contenido en móvil. -->
       <aside class="article-sticky-sidebar" aria-label="Barra lateral">
         
         <!-- WIDGET A: ÍNDICE DEL VIAJE (TIMELINE VERTICAL CON ACENTO ACTIVO NARANJA) -->
@@ -605,7 +610,7 @@ const schemaData = {
           </ol>
         </div>}
 
-        <!-- WIDGET B: TARJETA NATIVA DE DESCUENTO EN SEGURO DE VIAJE (MOCKUP 2) -->
+        <!-- Publicidad y catálogo dentro de la columna editorial. -->
         <SiteAds placement="sidebar" />
         <Recommendations tags={post.tags}/>
         {settings.sponsor.enabled && settings.sponsor.confirmed && <div class="insurance-card-widget"><span class="eyebrow">ENLACE PATROCINADO</span><h4>{settings.sponsor.title}</h4><p>{settings.sponsor.text}</p><a href={settings.sponsor.url} target="_blank" rel="sponsored nofollow noopener" class="insurance-calc-btn">{settings.sponsor.button}</a></div>}
