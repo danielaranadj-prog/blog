@@ -637,7 +637,7 @@ body[data-editor-theme='dark'] blockquote { background:#242427; }
                         }),
                         write: p => {
                             for (const [id,key] of Object.entries({'post-title':'title','post-desc':'description','post-date':'date','post-hero':'hero','flight-dest':'flightDestination','tour-city':'tourCity'})) document.getElementById(id).value=p[key] || '';
-                            if(p.author) document.getElementById('post-author').value=p.author;
+                            if(p.author){const select=document.getElementById('post-author');select.value=p.author;if(!select.value){const match=[...select.options].find(option=>option.textContent.trim()===p.author);if(match)select.value=match.value;}}
                             tags=p.tags||[]; renderTags();
                             tinymce.activeEditor.setContent(p.html||'');
                             currentPostFilename=null;currentPostSha=null;
