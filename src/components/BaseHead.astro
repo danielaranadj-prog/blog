@@ -9,9 +9,10 @@ export interface Props {
     permalink: string;
     image?: string;
     noindex?: boolean;
+    pageType?: "website" | "article";
 }
 
-const { title, description, permalink, image, noindex = false } = Astro.props;
+const { title, description, permalink, image, noindex = false, pageType = "website" } = Astro.props;
 
 const rawImage = image || settings.assets.socialImage;
 const socialImageUrl = rawImage.startsWith('http') 
@@ -41,7 +42,7 @@ const socialImageUrl = rawImage.startsWith('http')
 <link rel="canonical" href={permalink} />
 
 <!-- Open Graph / Facebook -->
-<meta property="og:type" content="article" />
+<meta property="og:type" content={pageType} />
 <meta property="og:url" content={permalink} />
 <meta property="og:title" content={title} />
 <meta property="og:description" content={description} />

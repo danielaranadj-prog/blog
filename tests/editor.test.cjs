@@ -186,3 +186,27 @@ test('summary survives normalization, Markdown publication and links are validat
 test('versions are recoverable as private drafts without publishing or overwriting other authors',async()=>{
  let calls=0;const {api}=setup(()=>{calls++;throw Error('No network');});const p=await api.save(user,fixture);const updated=await api.save(user,{...p,title:'Versión más reciente del viaje'});const list=await api.history(user,p.id);assert.equal(list.length,1);assert.equal(list[0].version,1);await assert.rejects(api.restoreVersion({uid:'other',admin:false},p.id,1,2),{status:403});await assert.rejects(api.restoreVersion(user,p.id,1,1),{status:409});const restored=await api.restoreVersion(user,p.id,1,updated.version);assert.equal(restored.title,p.title);assert.equal(restored.status,'draft');assert.equal(calls,0);
 });
+
+
+test('editorial fields survive draft, source publication, reload and preserve private question',async()=>{
+ const mock=githubMock(),{api,db}=setup(mock.fetcher);await db.doc('config/main').set({repoOwner:'o',repoName:'r',githubToken:'test-only',branch:'main'});
+ const p=await api.save(user,{...fixture,seoTitle:'Calafate con poco presupuesto',editorialType:'opinion',destination:'El Calafate',budgetLevel:'economico',focusQuestion:'Pregunta privada de trabajo',urlSlug:'calafate-presupuesto',modifiedDate:'2026-10-21'});
+ assert.equal((await api.getPost(user,p.id)).focusQuestion,'Pregunta privada de trabajo');
+ const result=await api.publish(user,p.id,p.version);assert.equal(result.filename,'calafate-presupuesto.md');
+ const file=mock.state.tree.tree.find(x=>x.path.endsWith('.md')).content;const f=require('gray-matter')(file).data;
+ assert.equal(f.seoTitle,p.seoTitle);assert.equal(f.editorialType,'opinion');assert.equal(f.modifiedDate,'2026-10-21');assert(!file.includes(p.focusQuestion));assert(!file.includes('focusQuestion:'));
+ await db.doc(`editor_posts/${p.id}`).update({status:'published'});const reloaded=await api.reloadPublished(user,p.id);assert.equal(reloaded.budgetLevel,'economico');assert.equal(reloaded.focusQuestion,p.focusQuestion);assert.equal(reloaded.urlSlug,p.urlSlug);
+ await assert.rejects(api.save(user,{...reloaded,urlSlug:'otra-direccion'}),{status:409});
+ const legacyClient={...fixture,id:p.id,version:reloaded.version};const compatible=await api.save(user,legacyClient);assert.equal(compatible.seoTitle,p.seoTitle);assert.equal(compatible.urlSlug,p.urlSlug);
+});
+test('editorial validation rejects unsafe slugs and invalid dates without imposing word counts',()=>{
+ for(const urlSlug of ['../admin','con espacios','https://evil.example','a--b'])assert.throws(()=>normalizePost({...fixture,urlSlug}),{status:400});
+ for(const modifiedDate of ['2026-02-30','2026-99-99'])assert.throws(()=>normalizePost({...fixture,modifiedDate}),{status:400});
+ const p=normalizePost({...fixture,title:'Breve',description:'Una descripción.',html:'<p>Una respuesta breve.</p>',tags:[],editorialType:'inventado',budgetLevel:'otro'});assert.deepEqual(validate(p),[]);assert.equal(p.editorialType,'');assert.equal(p.budgetLevel,'');
+ assert(validate({...p,modifiedDate:'2020-01-01'}).some(e=>e.includes('anterior')));
+});
+test('first publication collision never overwrites another article',async()=>{
+ const mock=githubMock(),{api,db}=setup(mock.fetcher);await db.doc('config/main').set({repoOwner:'o',repoName:'r',githubToken:'test-only',branch:'main'});
+ mock.state.file={sha:'existing',content:Buffer.from('---\ntitle: Otro artículo\n---\nTexto').toString('base64')};
+ const p=await api.save(user,{...fixture,urlSlug:'ya-existe'});await assert.rejects(api.publish(user,p.id,p.version),{status:409});assert.equal(mock.log.filter(x=>x.method==='PATCH').length,0);
+});

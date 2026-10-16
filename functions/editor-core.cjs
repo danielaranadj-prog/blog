@@ -1,6 +1,7 @@
 const crypto = require('node:crypto');
 const sanitizeHtml = require('sanitize-html');
 const matter = require('gray-matter');
+const { editorialFields } = require('./editorial-fields.cjs');
 const SITE = 'https://www.instantetrips.com';
 const statuses = new Set(['draft', 'scheduled', 'publishing', 'deploying', 'published', 'error', 'removing', 'removal_error', 'trashed']);
 const safeId = id => typeof id === 'string' && /^[a-zA-Z0-9_-]{1,100}$/.test(id);
@@ -18,6 +19,7 @@ function cleanHtml(html) {
 function normalizePost(input) {
   const text = (key, max) => String(input[key] || '').slice(0, max);
   const post = {
+    ...editorialFields(input),
     title: text('title', 180), description: text('description', 320), html: cleanHtml(text('html', 600000)),
     markdown: text('markdown', 600000), date: text('date', 10), author: text('author', 100), hero: text('hero', 2000),
     quickSummary: Object.fromEntries(['budget','bestSeason','pitfall','ctaText','ctaLink'].map(k=>[k,String(input.quickSummary?.[k]||'').trim().slice(0,k==='ctaLink'?2000:240)])),
@@ -36,18 +38,19 @@ function normalizePost(input) {
 }
 function validate(post) {
   const errors = [];
-  if (post.title.trim().length < 10) errors.push('El título necesita al menos 10 caracteres.');
-  if (post.description.trim().length < 30) errors.push('Añade una descripción de al menos 30 caracteres.');
-  if (post.html.replace(/<[^>]+>/g, '').trim().length < 100) errors.push('El relato necesita al menos 100 caracteres.');
+  if (!post.title.trim()) errors.push('Escribe un título.');
+  if (!post.description.trim()) errors.push('Añade una descripción.');
+  if (!post.html.replace(/<[^>]+>/g, '').trim()) errors.push('Escribe el relato.');
   if (!post.hero) errors.push('Selecciona una portada.');
   if (!post.author) errors.push('Selecciona un autor.');
   if (/\[(?:Completar|Verificar|Añadir|Tu |Pendiente)[^\]]*\]/i.test(post.html)) errors.push('Completa los campos pendientes de la plantilla.');
-  if (!post.tags.length) errors.push('Añade un destino o tema.');
+  if (post.modifiedDate && post.modifiedDate < post.date) errors.push('La actualización no puede ser anterior a la publicación.');
   return errors;
 }
 function yaml(value) { return JSON.stringify(String(value || '')); }
 function markdownFile(post, body, revision) {
   const lines = ['---', `title: ${yaml(post.title)}`, `description: ${yaml(post.description)}`, `publishDate: ${yaml(post.date)}`, `author: ${yaml(post.author)}`, `heroImage: ${yaml(post.hero)}`, `alt: ${yaml(post.heroAlt || post.title)}`, 'layout: "../../layouts/BlogPost.astro"', `tags: ${JSON.stringify(post.tags)}`, `editorRevision: ${yaml(revision)}`];
+  for(const key of ['seoTitle','editorialType','destination','budgetLevel','modifiedDate']) if(post[key]) lines.push(`${key}: ${yaml(post[key])}`);
   if(post.quickSummary) lines.push(`quickSummary: ${JSON.stringify(post.quickSummary)}`);
   if (post.flightDestination) lines.push(`flight_destination: ${yaml(post.flightDestination)}`);
   if (post.tourCity) lines.push(`tour_city: ${yaml(post.tourCity)}`);
@@ -120,6 +123,9 @@ function service({ db, admin, bucket, fetcher = fetch, now = () => Date.now() })
       if (old && !user.admin && old.owner !== user.uid) fail('Sin acceso.', 403);
       if (old && ['publishing', 'deploying', 'removing', 'removal_error', 'trashed'].includes(old.status)) fail('Espera a que termine la publicación.', 409);
       if (old && input.version !== old.version) fail('Hay una versión más reciente. Vuelve a abrir el artículo antes de guardar.', 409);
+      if(old)for(const key of ['seoTitle','editorialType','destination','budgetLevel','focusQuestion','urlSlug','modifiedDate'])if(!(key in input))post[key]=old[key]||'';
+      if(old?.filename && post.urlSlug && post.urlSlug !== (old.urlSlug||'')) fail('La dirección ya está publicada y no puede cambiarse desde el editor.',409);
+      if(old?.filename) post.urlSlug=old.urlSlug||'';
       if(old)tx.set(db.doc(`editor_history/${id}-${old.version}`),{...old,postId:id,savedAt:now()});
       tx.set(ref, { ...post, owner: old?.owner || user.uid, status: mode, scheduledAt: mode === 'scheduled' ? scheduledAt : null, version: (old?.version || 0) + 1, createdAt: old?.createdAt || now(), updatedAt: now(), filename: old?.filename || '', sourceSha: old?.sourceSha || '', publishedUrl: old?.publishedUrl || '', error: '', attempts: 0, nextAttemptAt: 0 }, { merge: true });
     });
@@ -173,7 +179,7 @@ function service({ db, admin, bucket, fetcher = fetch, now = () => Date.now() })
     try {
       const cfg = await config();
       const revision = `${id}-${post.version}`;
-      const filename = post.filename || `${post.date || new Date(now()).toISOString().slice(0,10)}-${slug(post.title)}-${id.slice(0,8)}.md`;
+      const filename = post.filename || `${post.urlSlug || slug(post.title)}.md`;
       const path = `${cfg.path}/${filename}`;
       let current;
       try { current = await gh(`/contents/${encodeURI(path)}?ref=${encodeURIComponent(cfg.branch)}`); } catch(e) { if (e.status !== 404) throw e; }
@@ -279,7 +285,7 @@ function service({ db, admin, bucket, fetcher = fetch, now = () => Date.now() })
       const raw=await gh(`/contents/${encodeURI(`${cfg.path}/${file.name}`)}?ref=${encodeURIComponent(cfg.branch)}`);
       const parsed=matter(Buffer.from(raw.content,'base64').toString()); const f=parsed.data;
       const id=`import-${hash(file.name).slice(0,24)}`;
-      await posts.doc(id).set({owner:user.uid,quickSummary:f.quickSummary||{},title:String(f.title||file.name),description:String(f.description||''),date:f.publishDate instanceof Date?f.publishDate.toISOString().slice(0,10):String(f.publishDate||'').slice(0,10),author:String(f.author||''),hero:String(f.heroImage||''),heroAlt:String(f.alt||''),tags:Array.isArray(f.tags)?f.tags:[],html:'',markdown:parsed.content,filename:file.name,sourceSha:raw.sha,version:1,status:'published',createdAt:now(),updatedAt:now(),publishedUrl:`${SITE}/posts/${file.name.slice(0,-3)}/`,mediaIds:[],timezone:'America/Mazatlan',flightDestination:f.flight_destination||'',tourCity:f.tour_city||'',reviewAt:'',scheduledAt:null}); count++;
+      await posts.doc(id).set({owner:user.uid,...editorialFields(f),quickSummary:f.quickSummary||{},title:String(f.title||file.name),description:String(f.description||''),date:f.publishDate instanceof Date?f.publishDate.toISOString().slice(0,10):String(f.publishDate||'').slice(0,10),author:String(f.author||''),hero:String(f.heroImage||f.heroImageLink||''),heroAlt:String(f.alt||''),tags:Array.isArray(f.tags)?f.tags:[],html:'',markdown:parsed.content,filename:file.name,sourceSha:raw.sha,version:1,status:'published',createdAt:now(),updatedAt:now(),publishedUrl:`${SITE}/posts/${file.name.slice(0,-3)}/`,mediaIds:[],timezone:'America/Mazatlan',flightDestination:f.flight_destination||'',tourCity:f.tour_city||'',reviewAt:'',scheduledAt:null}); count++;
     }
     return {count};
   }
@@ -296,7 +302,7 @@ function service({ db, admin, bucket, fetcher = fetch, now = () => Date.now() })
     const p=await getPost(user,id);if(!p.filename)fail('Este borrador todavía no tiene versión publicada.');
     const cfg=await config(),raw=await gh(`/contents/${encodeURI(`${cfg.path}/${p.filename}`)}?ref=${encodeURIComponent(cfg.branch)}`);
     const parsed=matter(Buffer.from(raw.content,'base64').toString()),f=parsed.data;
-    const updated=normalizePost({...p,quickSummary:f.quickSummary||{},title:f.title,description:f.description,date:f.publishDate instanceof Date?f.publishDate.toISOString().slice(0,10):String(f.publishDate||'').slice(0,10),author:f.author,hero:f.heroImage,heroAlt:f.alt||'',tags:f.tags||[],html:'',markdown:parsed.content,flightDestination:f.flight_destination||'',tourCity:f.tour_city||''});
+    const updated=normalizePost({...p,...editorialFields(f),urlSlug:p.urlSlug||'',focusQuestion:p.focusQuestion||'',quickSummary:f.quickSummary||{},title:f.title,description:f.description,date:f.publishDate instanceof Date?f.publishDate.toISOString().slice(0,10):String(f.publishDate||'').slice(0,10),author:f.author,hero:f.heroImage||f.heroImageLink,heroAlt:f.alt||'',tags:f.tags||[],html:'',markdown:parsed.content,flightDestination:f.flight_destination||'',tourCity:f.tour_city||''});
     await db.runTransaction(async tx=>{
       const ref=posts.doc(id),current=await tx.get(ref);
       if(current.data().version!==p.version||['publishing','deploying','removing','trashed'].includes(current.data().status))fail('La ficha cambió; vuelve a abrirla.',409);

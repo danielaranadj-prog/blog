@@ -68,3 +68,14 @@ Los bloques AdSense se muestran dentro de la portada, al finalizar el relato y d
 El catálogo admite categoría visual (actividad, alojamiento, transporte, seguro o recurso) e imagen opcional https/local. La primera ficha tiene imagen o ilustración y botón; las siguientes usan una presentación compacta. No se utilizan fotos, marcas, descuentos o enlaces ficticios como contenido público.
 
 En el editor, Enlace / recurso permite insertar texto, botón o tarjeta. La selección de texto se conserva antes de abrir el selector. `data-catalog-id` y `data-catalog-format` sobreviven al guardado. En la compilación se resuelven el enlace vigente y, para tarjetas, los datos actuales del catálogo. Al desactivar una ficha, se retira su tarjeta y los enlaces de texto conservan su texto sin destino. Los artículos con enlaces activos del catálogo muestran un aviso de afiliación.
+
+
+## Enfoque editorial y SEO del editor
+
+El editor permite clasificar experiencia, opinión, guía, comparativa, selección o entrevista, lugar principal y presupuesto opcional. La pregunta guía es privada: se guarda y exporta con el borrador, pero no se escribe en Markdown público ni metadatos. La estructura del tipo se añade solo tras confirmación, al final, sin sustituir el texto existente.
+
+El título SEO es opcional; el titular visible sigue independiente. La descripción es el resumen existente. La dirección propuesta se puede editar hasta la primera publicación: se comprueba colisión y no se sobrescribe otro artículo. Las direcciones anteriores se conservan y quedan protegidas. Las pestañas antiguas que guardan sin los campos nuevos no los borran. La fecha de actualización significativa la decide el autor y no cambia con el autoguardado. El sitemap utiliza las fechas del contenido y excluye la búsqueda interna.
+
+La revisión contiene avisos orientativos sobre título, descripción, portada, jerarquía, enlaces y temas. No impone mínimos de palabras ni promete posicionamiento. Solo los errores esenciales impiden publicar. “Enlazar artículo” consulta el índice público de la web y conserva la selección del texto al insertar. No incluye borradores ni fichas retiradas del índice tras el despliegue.
+
+Validación: `npm run build` y `node --test tests/*.test.cjs`. Las comprobaciones de páginas generadas requieren compilar primero.

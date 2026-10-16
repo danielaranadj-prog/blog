@@ -1,3 +1,4 @@
+import { mountEditorialTools, structureHtml, articleTypes } from './editorial-tools.js';
 import { localToUtc, dayKey, escapeHtml, auditContent, templates, blocks, buildTripDraft } from './planner-utils.js';
 const labels={draft:'Borrador',scheduled:'Programado',publishing:'Publicando',deploying:'Actualizando web',published:'Publicado',error:'Error',removing:'Retirando de la web',removal_error:'No se pudo retirar',trashed:'En la papelera'};
 const $=id=>document.getElementById(id);
@@ -29,6 +30,7 @@ export async function initPlanner(bridge) {
   const shortcuts=document.createElement('span');shortcuts.className='planner-writing-shortcuts';document.querySelector('.writing-shortcuts').append(shortcuts);
   shortcuts.innerHTML='<button id="insert-template">Plantilla</button><button id="insert-block">Añadir bloque</button><button id="insert-catalog">Enlace / recurso</button><button id="article-history">Historial</button><button id="open-library">Biblioteca de fotos</button><button id="editor-assistant">Asistente editorial</button>';
   const heroFields=document.createElement('div');$('post-hero').after(heroFields);heroFields.innerHTML='<label class="field-label" for="hero-alt">Descripción de la portada</label><input id="hero-alt" class="input-modern" placeholder="Describe lo que aparece en la foto">';
+  const editorial=mountEditorialTools(bridge);
   const state=$('draft-state');
   function notify(message,error=false){state.textContent=message;state.classList.toggle('planner-error',error);}
   async function api(action,data={}) {
@@ -43,9 +45,9 @@ export async function initPlanner(bridge) {
     const p=bridge.read();const ids=new Set();
     for(const image of new DOMParser().parseFromString(p.html,'text/html').querySelectorAll('[data-media-id]')) ids.add(image.dataset.mediaId);
     if(p.hero.startsWith('media:'))ids.add(p.hero.slice(6));
-    return {...p,quickSummary:Object.fromEntries(['budget','bestSeason','pitfall','ctaText','ctaLink'].map(k=>[k,$('summary-'+k).value])),id:active?.id,version:active?.version,heroAlt:$('hero-alt').value,reviewAt:$('review-date').value,timezone:$('schedule-zone').value,mediaIds:[...ids],tripId:active?.tripId||''};
+    return {...p,...editorial.read(),quickSummary:Object.fromEntries(['budget','bestSeason','pitfall','ctaText','ctaLink'].map(k=>[k,$('summary-'+k).value])),id:active?.id,version:active?.version,heroAlt:$('hero-alt').value,reviewAt:$('review-date').value,timezone:$('schedule-zone').value,mediaIds:[...ids],tripId:active?.tripId||''};
   }
-  function sameContent(a,b){ const fields=['title','description','html','date','author','hero','heroAlt','reviewAt','timezone','flightDestination','tourCity'];return fields.every(k=>(a?.[k]||'')===(b?.[k]||''))&&JSON.stringify(a?.tags||[])===JSON.stringify(b?.tags||[])&&JSON.stringify(a?.quickSummary||{})===JSON.stringify(b?.quickSummary||{}); }
+  function sameContent(a,b){ const fields=['title','description','html','date','author','hero','heroAlt','reviewAt','timezone','flightDestination','tourCity','seoTitle','editorialType','destination','budgetLevel','focusQuestion','urlSlug','modifiedDate'];return fields.every(k=>(a?.[k]||'')===(b?.[k]||''))&&JSON.stringify(a?.tags||[])===JSON.stringify(b?.tags||[])&&JSON.stringify(a?.quickSummary||{})===JSON.stringify(b?.quickSummary||{}); }
   async function save(mode='draft',auto=false){
     if(loading||busy) return null;
     const p=snapshot();
@@ -66,7 +68,7 @@ export async function initPlanner(bridge) {
     }finally{busy=false;}
   }
   function queueSave(){
-    if(loading||!editing||disposed)return;dirty=true;clearTimeout(saveTimer);
+    if(loading||!editing||disposed)return;editorial.refresh();runAudit();dirty=true;clearTimeout(saveTimer);
     recovery('put',{...snapshot(),recoveredAt:Date.now()});
     notify('Cambios pendientes…');saveTimer=setTimeout(()=>protect(()=>save('draft',true))(),1800);
   }
@@ -131,28 +133,28 @@ export async function initPlanner(bridge) {
     try{
       const p=await api('get',{id});if(['trashed','removing','removal_error'].includes(p.status))throw Error('Este artículo está en retirada o en la papelera. Adminístralo desde Artículos o Papelera.');setCurrent(p);
       const html=await hydrate(p.html||bridge.fromMarkdown(p.markdown||''));
-      bridge.write({...p,html});for(const k of ['budget','bestSeason','pitfall','ctaText','ctaLink'])$('summary-'+k).value=p.quickSummary?.[k]||'';$('hero-alt').value=p.heroAlt||'';$('review-date').value=p.reviewAt||'';$('schedule-zone').value=p.timezone||zone;
+      bridge.write({...p,html});editorial.write(p);for(const k of ['budget','bestSeason','pitfall','ctaText','ctaLink'])$('summary-'+k).value=p.quickSummary?.[k]||'';$('hero-alt').value=p.heroAlt||'';$('review-date').value=p.reviewAt||'';$('schedule-zone').value=p.timezone||zone;
       $('schedule-date').value=p.scheduledAt?localInput(p.scheduledAt,p.timezone||zone):`${p.date||dayKey(Date.now(),zone)}T10:00`;
       workspace.hidden=false;panel.hidden=true;editing=true;dirty=false;
       $('cancel-schedule').hidden=p.status!=='scheduled';notify(labels[p.status]+(p.error?` · ${p.error}`:''));
-      await updateHeroPreview();runAudit();
+      editorial.refresh();await updateHeroPreview();runAudit();
     }finally{loading=false;}
   }
   function localInput(ms,tz){const parts=new Intl.DateTimeFormat('sv-SE',{timeZone:tz,year:'numeric',month:'2-digit',day:'2-digit',hour:'2-digit',minute:'2-digit',hourCycle:'h23'}).format(new Date(ms));return parts.replace(' ','T');}
   async function newPost(date=dayKey(Date.now(),zone),data={}){
     if(editing&&!await leave())return;
     loading=true;active=null;for(const k of ['budget','bestSeason','pitfall','ctaText','ctaLink'])$('summary-'+k).value=data.quickSummary?.[k]||'';bridge.write({title:'',description:'',html:'',date,hero:'',tags:[],...data});$('hero-alt').value='';$('review-date').value='';$('schedule-date').value=`${date}T10:00`;$('schedule-zone').value=zone;
-    workspace.hidden=false;panel.hidden=true;editing=true;dirty=false;loading=false;$('cancel-schedule').hidden=true;notify('Nueva historia · El autoguardado empieza al escribir.');
+    editorial.write(data);workspace.hidden=false;panel.hidden=true;editing=true;dirty=false;loading=false;$('cancel-schedule').hidden=true;notify('Nueva historia · El autoguardado empieza al escribir.');
     if(data.title||data.html)queueSave();
-    $('post-title').focus();
+    runAudit();$('post-title').focus();
   }
-  function runAudit(){const findings=auditContent(snapshot());$('post-audit').innerHTML=findings.map(f=>`<li class="${f.level==='error'?'planner-error':''}">${f.level==='error'?'⚠':'○'} ${esc(f.message)}</li>`).join('')||'<li>✓ Ficha lista para revisión final.</li>';return findings;}
+  function runAudit(){editorial.refresh();const findings=auditContent(snapshot());$('post-audit').innerHTML=findings.map(f=>`<li class="${f.level==='error'?'planner-error':''}">${f.level==='error'?'⚠':'○'} ${esc(f.message)}${f.field?` <button type="button" class="text-action" data-audit-field="${esc(f.field)}">Revisar</button>`:''}</li>`).join('')||'<li>✓ Ficha lista para revisión final.</li>';return findings;}
   async function publishNow(){
     const errors=runAudit().filter(x=>x.level==='error');if(errors.length)throw Error('Completa los campos señalados antes de publicar.');
     if(!confirm(`¿Publicar ahora “${bridge.read().title}”?`))return;
     const p=active?.status==='error'&&!dirty?active:await save();if(!p)throw Error('Espera a que termine el guardado.');
     busy=true;$('btn-publish').disabled=true;
-    try{const result=await api('publish',{id:p.id,version:p.version});setCurrent(result);notify('Artículo enviado. Vercel está actualizando la web.');}
+    try{const result=await api('publish',{id:p.id,version:p.version});setCurrent(result);editorial.lock(result);notify('Artículo enviado. Vercel está actualizando la web.');}
     finally{busy=false;$('btn-publish').disabled=false;}
   }
   async function mediaUrl(id){if(urls.has(id))return urls.get(id);const m=await api('mediaGet',{id});const bytes=Uint8Array.from(atob(m.base64),c=>c.charCodeAt(0));const url=URL.createObjectURL(new Blob([bytes],{type:m.mime}));urls.set(id,url);return url;}
@@ -211,6 +213,8 @@ export async function initPlanner(bridge) {
       if(p.id){const latest=await api('get',{id:p.id});if(latest.version===p.version)active=latest;else bridge.toast('Se recuperó como historia nueva para conservar la versión más reciente.');}
       $('hero-alt').value=p.heroAlt||'';$('review-date').value=p.reviewAt||'';await updateHeroPreview();queueSave();return;
     }
+    if(b.dataset.auditField){const target=$(b.dataset.auditField);if(target){let parent=target.parentElement;while(parent){if(parent.tagName==='DETAILS')parent.open=true;parent=parent.parentElement;}target.focus();target.scrollIntoView({block:'center',behavior:'smooth'});}return;}
+    if(b.dataset.relatedArticle){const item=relatedArticles.find(p=>p.url===b.dataset.relatedArticle);if(!item)throw Error('El artículo ya no está disponible.');const text=$('related-link-text').value.trim()||item.title;dialog.close();bridge.restoreSelection?.(catalogSelection);bridge.insert(`<a href="${esc(item.url)}">${esc(text)}</a>`);queueSave();return;}
     if(b.hasAttribute('data-new'))return newPost();
     if(b.dataset.date)return newPost(b.dataset.date);
     if(b.dataset.open)return openPost(b.dataset.open);
@@ -264,7 +268,7 @@ export async function initPlanner(bridge) {
     if(b.dataset.cover){$('post-hero').value=`media:${b.dataset.cover}`;$('hero-alt').value=media.find(m=>m.id===b.dataset.cover)?.alt||'';await updateHeroPreview();queueSave();dialog.close();return;}
     if(b.dataset.meta){const m=media.find(m=>m.id===b.dataset.meta);openForm('Datos de la fotografía',`<label>Descripción de la imagen<input class="input-modern" name="alt" value="${esc(m.alt)}"></label><label>Crédito<input class="input-modern" name="credit" value="${esc(m.credit)}"></label><label>Destino<input class="input-modern" name="destination" value="${esc(m.destination)}"></label>`,async f=>{await api('mediaUpdate',{id:m.id,...Object.fromEntries(f)});await renderMedia(editing);});}
   }
-  nav.addEventListener('click',protect(handle));panel.addEventListener('click',protect(handle));dialog.addEventListener('click',protect(handle));
+  nav.addEventListener('click',protect(handle));panel.addEventListener('click',protect(handle));dialog.addEventListener('click',protect(handle));publicationControls.addEventListener('click',protect(handle));
   workspace.addEventListener('input',queueSave);workspace.addEventListener('change',queueSave);
   bridge.onChange(queueSave);
   $('save-draft').onclick=protect(()=>save());$('schedule-post').onclick=protect(()=>save('scheduled'));$('cancel-schedule').onclick=protect(async()=>{if(confirm('¿Cancelar la programación y conservarlo como borrador?'))await save();});
@@ -274,6 +278,15 @@ export async function initPlanner(bridge) {
     notify('Comprobando enlaces…');
     const results=await api('checkLinks',{links});
     $('post-audit').innerHTML=results.map(r=>`<li class="${r.status==='broken'?'planner-error':''}">${r.status==='ok'?'✓':'⚠'} ${esc(r.message)} · <a href="${esc(r.url)}" target="_blank" rel="noopener noreferrer">${esc(r.url)}</a></li>`).join('');notify('Revisión terminada · máximo 10 enlaces por revisión.');
+  });
+  $('editorial-structure').onclick=protect(()=>{const type=$('editorial-type').value;if(!structureHtml(type))throw Error('Elige un tipo de artículo primero.');if(!confirm(`¿Añadir la estructura de ${articleTypes[type]} al final? Tu texto se conservará.`))return;bridge.append(structureHtml(type));queueSave();});
+  let relatedArticles=[];
+  const relatedButton=document.createElement('button');relatedButton.type='button';relatedButton.textContent='Enlazar artículo';shortcuts.append(relatedButton);
+  relatedButton.onclick=protect(async()=>{
+    catalogSelection=bridge.captureSelection?.();const response=await fetch('/search-index.json',{cache:'no-store'});if(!response.ok)throw Error('No se pudo cargar la lista de artículos publicados.');relatedArticles=(await response.json()).filter(p=>typeof p.url==='string'&&/^\/posts\/[^?#\\]+$/.test(p.url)).map(p=>({...p,tags:Array.isArray(p.tags)?p.tags:[]})).filter(p=>!active?.filename||decodeURIComponent(p.url).replace(/\/$/,'')!=='/posts/'+active.filename.slice(0,-3));
+    dialog.innerHTML='<h2>Enlazar otro artículo</h2><p>Elige una publicación que ayude al lector a seguir explorando. Solo aparecen artículos presentes en el blog.</p><label class="field-label">Buscar por título o lugar<input id="related-search" class="input-modern" type="search"></label><label class="field-label">Texto del enlace<input id="related-link-text" class="input-modern" value="'+esc(catalogSelection?.text||'')+'" placeholder="Se utilizará el título si lo dejas vacío"></label><div id="related-results" class="related-results"></div><footer><button class="planner-button" data-close-dialog>Cerrar</button></footer>';
+    function draw(){const q=$('related-search').value.normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLowerCase();const list=relatedArticles.filter(p=>[p.title,p.destination,...p.tags].join(' ').normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLowerCase().includes(q));$('related-results').innerHTML=list.map(p=>`<button type="button" class="planner-button" data-related-article="${esc(p.url)}">${esc(p.title)}</button>`).join('')||'<p>No hay publicaciones con esta búsqueda.</p>';}
+    $('related-search').oninput=draw;draw();dialog.showModal();
   });
   $('insert-catalog').onclick=protect(async()=>{
     catalogSelection=bridge.captureSelection?.();const catalog=await api('catalog');
@@ -285,12 +298,12 @@ export async function initPlanner(bridge) {
   window.publishCurrentPost=protect(publishNow);window.uploadHeroImage=protect(uploadHero);window.openLoadModal=protect(()=>showView('articles'));window.clearAll=protect(()=>newPost());
   window.plannerUpload=async(file,progress)=>{const m=await uploadFile(file,progress);return {url:m.url,id:m.id};};
   const beforeUnload=e=>{if(dirty){e.preventDefault();e.returnValue='';}};window.addEventListener('beforeunload',beforeUnload);
-  const timer=setInterval(()=>{if(editing&&active?.status==='deploying'&&!busy)protect(async()=>{const p=await api('verify',{id:active.id});setCurrent(p);notify(labels[p.status]+(p.error?` · ${p.error}`:''));})();},30000);
+  const timer=setInterval(()=>{if(editing&&active?.status==='deploying'&&!busy)protect(async()=>{const p=await api('verify',{id:active.id});setCurrent(p);editorial.lock(p);notify(labels[p.status]+(p.error?` · ${p.error}`:''));})();},30000);
   let unsubscribe=()=>{};
   const dispose=()=>{
     if(disposed)return;disposed=true;clearTimeout(saveTimer);clearInterval(timer);
     window.removeEventListener('beforeunload',beforeUnload);workspace.removeEventListener('input',queueSave);workspace.removeEventListener('change',queueSave);
-    urls.forEach(url=>URL.revokeObjectURL(url));nav.remove();panel.remove();dialog.remove();publicationControls.remove();shortcuts.remove();heroFields.remove();unsubscribe();
+    urls.forEach(url=>URL.revokeObjectURL(url));nav.remove();panel.remove();dialog.remove();publicationControls.remove();shortcuts.remove();heroFields.remove();editorial.dispose();unsubscribe();
     if(disposeCurrentPlanner===dispose)disposeCurrentPlanner=null;
   };
   disposeCurrentPlanner=dispose;

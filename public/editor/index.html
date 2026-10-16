@@ -343,7 +343,7 @@
                             </div>
                             <div><label class="field-label" for="post-desc">La historia, en dos líneas</label>
                                 <textarea id="post-desc" rows="2" class="input-modern" placeholder="Qué encontrará el lector y por qué le ayudará en su viaje…" oninput="updateSEO()" aria-describedby="description-help"></textarea>
-                                <p class="field-help" id="description-help">Esta descripción aparece en los buscadores. Entre 50 y 160 caracteres.</p></div>
+                                <p class="field-help" id="description-help">Resumen para lectores y buscadores. Como orientación, entre 50 y 160 caracteres; Google puede mostrar otro fragmento.</p></div>
                             <details class="publication-details">
                                 <summary><span>Portada y datos de publicación</span><small>Foto, firma y etiquetas</small></summary>
                                 <div class="field-stack publication-fields">
@@ -646,6 +646,7 @@ body[data-editor-theme='dark'] blockquote { background:#242427; }
                         captureSelection: () => ({bookmark:tinymce.activeEditor.selection.getBookmark(2,true),text:tinymce.activeEditor.selection.getContent({format:'text'})}),
                         restoreSelection: saved => {if(saved?.bookmark){tinymce.activeEditor.focus();tinymce.activeEditor.selection.moveToBookmark(saved.bookmark);}},
                         insert: html => tinymce.activeEditor.insertContent(html),
+                        append: html => {const editor=tinymce.activeEditor;editor.focus();editor.selection.select(editor.getBody(),true);editor.selection.collapse(false);editor.insertContent(html);},
                         fromMarkdown: md => marked.parse(md),
                         heroPreview: url => { heroPreviewUrl=url; renderLivePreview(); },
                         onChange: fn => tinymce.activeEditor.on('input change undo redo',fn),

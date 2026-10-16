@@ -16,27 +16,37 @@ export function localToUtc(value,zone) {
   return null;
 }
 export function auditContent(p){
-  const findings=[];const add=(level,message)=>findings.push({level,message});
-  if((p.title||'').trim().length<10)add('error','Escribe un título de al menos 10 caracteres.');
-  if((p.description||'').trim().length<30)add('error','Añade una descripción de al menos 30 caracteres.');
-  if(!p.hero)add('error','Selecciona una foto de portada.');
-  if(!p.author)add('error','Selecciona un autor.');
-  if(!p.tags?.length)add('error','Añade al menos un destino o tema.');
-  if((p.html||'').replace(/<[^>]+>/g,'').trim().length<100)add('error','Desarrolla el relato: al menos 100 caracteres.');
-  if(p.title?.length>70)add('warning','El título supera los 70 caracteres; considera acortarlo.');
-  if(p.description?.length>160)add('warning','La descripción supera los 160 caracteres.');
-  if(!p.heroAlt)add('warning','Describe la foto de portada para mejorar la accesibilidad.');
+  const findings=[];const add=(level,message,field)=>findings.push({level,message,field});
+  if(!(p.title||'').trim())add('error','Escribe el título del artículo.','post-title');
+  if(!(p.description||'').trim())add('error','Añade la descripción del artículo.','post-desc');
+  if(!p.hero)add('error','Selecciona una foto de portada.','post-hero');
+  if(!p.author)add('error','Selecciona un autor.','post-author');
+  if(!(p.html||'').replace(/<[^>]+>/g,'').trim())add('error','Escribe el relato.');
+  if(p.urlSlug&&!/^[a-z0-9]+(?:-[a-z0-9]+)*$/.test(p.urlSlug))add('error','La dirección admite minúsculas sin acentos, números y guiones.','seo-slug');
+  if(p.modifiedDate&&p.date&&p.modifiedDate<p.date)add('error','La actualización no puede ser anterior a la publicación.','editorial-modified');
+  const searchTitle=p.seoTitle||p.title||'';
+  if(searchTitle.length>65)add('warning','El título para buscadores es largo; revisa si expresa claramente el tema. No hay un límite fijo de Google.','seo-title');
+  if(p.description&&(p.description.length<50||p.description.length>160))add('warning','Revisa el resumen: entre 50 y 160 caracteres es una orientación, no un requisito.','post-desc');
+  if(!p.heroAlt?.trim())add('warning','Describe la foto de portada para mejorar la accesibilidad.','hero-alt');
+  if(!p.tags?.length&&!p.destination)add('warning','Añade un lugar o tema para conectar esta historia con otras.','editorial-destination');
+  if(!p.editorialType)add('warning','Elige el tipo de artículo si quieres identificar su enfoque.','editorial-type');
+  if(!p.focusQuestion)add('warning','Puedes anotar qué pregunta responde tu historia; esta nota es privada.','editorial-question');
   if(/\[(?:Completar|Verificar|Añadir|Tu |Pendiente)[^\]]*\]/i.test(p.html||''))add('error','Quedan campos de la plantilla por completar.');
   if(typeof DOMParser!=='undefined'){
     const d=new DOMParser().parseFromString(p.html||'','text/html');
     const missing=[...d.images].filter(i=>!i.getAttribute('alt')?.trim()).length;
     if(missing)add('warning',`${missing} fotografías del relato necesitan una descripción.`);
-    for(const a of d.querySelectorAll('a[href]')) {
+    if(d.querySelector('h1'))add('warning','El titular ya es el encabezado principal. Usa subtítulos H2 y H3 en el relato.');
+    if(!d.querySelector('h2'))add('warning','Considera añadir subtítulos para facilitar la lectura.');
+    let previous=1;for(const h of d.querySelectorAll('h2,h3,h4,h5,h6')){const level=Number(h.tagName[1]);if(level>previous+1){add('warning','Revisa la jerarquía de subtítulos: hay niveles saltados.');break;}previous=level;}
+    let internal=false;
+    for(const a of d.querySelectorAll('a[href]')){
       const href=a.getAttribute('href');if(!/^(https?:\/\/|\/[^/]|#|mailto:|tel:)/i.test(href))add('error',`Enlace inválido: ${href.slice(0,80)}`);
+      if(/^\/posts\/|^https:\/\/www\.instantetrips\.com\/posts\//.test(href))internal=true;
     }
-    if(d.querySelectorAll('a[href^="http"]').length)add('warning','Abre los enlaces externos y comprueba que siguen disponibles.');
+    if(!internal)add('warning','Si aporta valor, enlaza otra historia desde “Enlazar artículo”.');
   }
-  if(!p.reviewAt)add('warning','Programa una revisión si incluyes precios, horarios o requisitos.');
+  if(!p.reviewAt)add('warning','Programa una revisión si incluyes precios, horarios o requisitos.','review-date');
   return findings;
 }
 const sections=titles=>titles.map(t=>`<h2>${t}</h2><p>[Completar con tu experiencia y fuentes verificadas]</p>`).join('');

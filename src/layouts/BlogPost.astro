@@ -1,5 +1,6 @@
 ---
 // Component Imports
+import { articleSchema, typeLabels, budgetLabels, jsonLd } from '../utils/article-seo.mjs';
 import BaseHead from '../components/BaseHead.astro';
 import settings from '../data/site-settings.json';
 import SiteAds from '../components/SiteAds.astro';
@@ -22,27 +23,32 @@ const {
    DATOS DEL POST
 ----------------------------- */
 const post = {
+  seoTitle: frontmatter.seoTitle || content.seoTitle,
+  editorialType: frontmatter.editorialType || content.editorialType,
+  destination: frontmatter.destination || content.destination,
+  budgetLevel: frontmatter.budgetLevel || content.budgetLevel,
+  modifiedDate: frontmatter.modifiedDate || content.modifiedDate,
   title: frontmatter.title || content.title,
   description: frontmatter.description || content.description,
   publishDate: frontmatter.publishDate || content.publishDate,
   heroImage: frontmatter.heroImage || content.heroImage,
   heroImageLink: frontmatter.heroImageLink || content.heroImageLink,
-  alt: frontmatter.alt || content.alt || frontmatter.title,
+  alt: frontmatter.alt || content.alt || frontmatter.title || content.title,
   tags: frontmatter.tags || content.tags || [],
   quickSummary: frontmatter.quickSummary || content.quickSummary,
 
   // slug del autor desde markdown
-  authorSlug: frontmatter.author,
+  authorSlug: frontmatter.author || content.author,
 };
 
 /* -----------------------------
    AUTOR (DINÁMICO + FALLBACK)
 ----------------------------- */
 const author: Author =
-  (post.authorSlug && AUTHORS[post.authorSlug]) || DEFAULT_AUTHOR;
+  (post.authorSlug && (AUTHORS[post.authorSlug] || Object.values(AUTHORS).find(a=>a.name===post.authorSlug))) || DEFAULT_AUTHOR;
 
 const finalImage = post.heroImage || post.heroImageLink;
-const permalink = Astro.url.href;
+const permalink = new URL(Astro.url.pathname,Astro.site).href;
 
 
 /* -----------------------------
@@ -55,7 +61,7 @@ const inlineAffiliateIds=[...String(currentModule?.rawContent?.()||'').matchAll(
 const hasInlineAffiliates=(settings.catalog||[]).some(item=>item.enabled&&item.confirmed&&item.type==='affiliate'&&inlineAffiliateIds.includes(item.id));
 const readingMinutes=Math.max(1,Math.ceil(String(currentModule?.rawContent?.()||'').replace(/<[^>]*>/g,' ').split(/\s+/).filter(Boolean).length/220));
 const currentTitle = (post.title || '').trim().toLowerCase();
-const currentTags = (post.tags || []).map((t: string) => t.toLowerCase());
+const currentTags = [...(post.tags || []),...(post.destination?[post.destination]:[])].map((t: string) => t.toLowerCase());
 
 // Filtrar el post actual de manera robusta
 const otherPosts = allPosts.filter((p) => {
@@ -66,7 +72,7 @@ const otherPosts = allPosts.filter((p) => {
 
 // Puntuación de afinidad por país/tags/categoría
 const scoredPosts = otherPosts.map((p) => {
-  const pTags = (p.frontmatter.tags || []).map((t: string) => t.toLowerCase());
+  const pTags = [...(p.frontmatter.tags || []),...(p.frontmatter.destination?[p.frontmatter.destination]:[])].map((t: string) => t.toLowerCase());
   const pTitle = (p.frontmatter.title || '').toLowerCase();
   let score = 0;
 
@@ -106,76 +112,27 @@ const tocHeadings = articleHeadings.filter((h: any) => h.depth === 2 || h.depth 
 /* -----------------------------
    DATOS ESTRUCTURADOS JSON-LD
 ----------------------------- */
-const schemaData = {
-  "@context": "https://schema.org",
-  "@graph": [
-    {
-      "@type": "BlogPosting",
-      "@id": `${permalink}#article`,
-      "isPartOf": {
-        "@type": "WebSite",
-        "@id": "https://www.instantetrips.com/#website",
-        "name": "Instante Trips & Tips",
-        "url": "https://www.instantetrips.com"
-      },
-      "headline": post.title,
-      "description": post.description,
-      "image": finalImage ? [finalImage] : undefined,
-      "datePublished": post.publishDate ? new Date(post.publishDate).toISOString() : new Date().toISOString(),
-      "dateModified": post.publishDate ? new Date(post.publishDate).toISOString() : new Date().toISOString(),
-      "inLanguage": "es-ES",
-      "mainEntityOfPage": permalink,
-      "author": {
-        "@type": "Person",
-        "name": author.name,
-        "url": "https://www.instantetrips.com"
-      },
-      "publisher": {
-        "@type": "Organization",
-        "name": "Instante Trips & Tips",
-        "logo": {
-          "@type": "ImageObject",
-          "url": "https://www.instantetrips.com/logo.svg"
-        }
-      }
-    },
-    {
-      "@type": "BreadcrumbList",
-      "@id": `${permalink}#breadcrumb`,
-      "itemListElement": [
-        {
-          "@type": "ListItem",
-          "position": 1,
-          "name": "Inicio",
-          "item": "https://www.instantetrips.com/"
-        },
-        {
-          "@type": "ListItem",
-          "position": 2,
-          "name": post.title,
-          "item": permalink
-        }
-      ]
-    }
-  ]
-};
+const schemaData = articleSchema({post:{...post,heroImage:finalImage},author,permalink,settings});
 ---
 
 <html lang="es">
 <head>
   <BaseHead
-    title={`${post.title} | Instante Trips`}
+    title={`${post.seoTitle || post.title} | Instante Trips`}
     description={post.description}
     permalink={permalink}
     image={finalImage}
+    pageType="article"
   />
 
   {frontmatter.editorRevision && <meta name="editor-revision" content={frontmatter.editorRevision} />}
 
   <!-- Schema.org JSON-LD para Google Search y Discover -->
-  <script type="application/ld+json" set:html={JSON.stringify(schemaData)} />
+  <script type="application/ld+json" set:html={jsonLd(schemaData)} />
 
   <style>
+    .article-editorial-labels{display:flex;flex-wrap:wrap;gap:.5rem;margin:1rem 0}.article-editorial-labels span{border:1px solid #D6D1C4;border-radius:999px;padding:.3rem .65rem;font-size:.7rem;font-weight:700;background:#F3EFE6;color:#625a51}
+
     .post-page-shell {
       max-width: 1220px;
       margin: 0 auto;
@@ -488,6 +445,7 @@ const schemaData = {
             <span>{post.tags[0] || 'Guías'}</span>
           </nav>
 
+          {(typeLabels[post.editorialType]||post.destination||budgetLabels[post.budgetLevel])&&<div class="article-editorial-labels">{typeLabels[post.editorialType]&&<span>{typeLabels[post.editorialType]}</span>}{post.destination&&<span>{post.destination}</span>}{budgetLabels[post.budgetLevel]&&<span>Presupuesto: {budgetLabels[post.budgetLevel]}</span>}</div>}
           <h1 class="article-headline-serif">{post.title}</h1>
 
           <div class="article-meta-bar">
@@ -505,6 +463,7 @@ const schemaData = {
             </time>
             <span>•</span>
             <span>{readingMinutes} min de lectura</span>
+            {post.modifiedDate&&post.modifiedDate>String(post.publishDate).slice(0,10)&&<span>Actualizado: <time datetime={post.modifiedDate}>{new Date(post.modifiedDate+'T12:00:00Z').toLocaleDateString('es',{year:'numeric',month:'long',day:'numeric',timeZone:'UTC'})}</time></span>}
           </div>
 
       {hasInlineAffiliates&&<p class="article-affiliate-notice">Este artículo contiene enlaces de afiliación. Podemos recibir una comisión si reservas a través de ellos.</p>}
@@ -547,7 +506,7 @@ const schemaData = {
 
 
           <!-- FIRMA EDITORIAL -->
-          <div class="signature-card-box">
+          <div class="signature-card-box" id="autor">
             <img src={author.image} alt={author.name} class="signature-avatar" />
             <div>
               <h4 class="signature-name">Escrito por {author.name}</h4>
