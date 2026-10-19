@@ -19,9 +19,11 @@ export function auditContent(p){
   const findings=[];const add=(level,message,field)=>findings.push({level,message,field});
   if(!(p.title||'').trim())add('error','Escribe el título del artículo.','post-title');
   if(!(p.description||'').trim())add('error','Añade la descripción del artículo.','post-desc');
-  if(!p.hero)add('error','Selecciona una foto de portada.','post-hero');
+  if(!(p.hero||'').trim())add('error','Selecciona una foto de portada.','post-hero');
+  else if(!/^(https:\/\/|\/uploads\/|\/assets\/|media:)/.test(p.hero))add('error','Usa una imagen https o una foto de tu biblioteca para la portada.','post-hero');
+  if(p.quickSummary?.ctaLink&&!/^(https:\/\/|\/(?!\/))[^\s\\]*$/.test(p.quickSummary.ctaLink))add('error','Usa un enlace https o un recurso del sitio.','summary-ctaLink');
   if(!p.author)add('error','Selecciona un autor.','post-author');
-  if(!(p.html||'').replace(/<[^>]+>/g,'').trim())add('error','Escribe el relato.');
+  if(!(p.html||'').replace(/<[^>]+>/g,'').trim())add('error','Escribe el relato.','tiny-editor');
   if(p.urlSlug&&!/^[a-z0-9]+(?:-[a-z0-9]+)*$/.test(p.urlSlug))add('error','La dirección admite minúsculas sin acentos, números y guiones.','seo-slug');
   if(p.modifiedDate&&p.date&&p.modifiedDate<p.date)add('error','La actualización no puede ser anterior a la publicación.','editorial-modified');
   const searchTitle=p.seoTitle||p.title||'';
@@ -31,7 +33,7 @@ export function auditContent(p){
   if(!p.tags?.length&&!p.destination)add('warning','Añade un lugar o tema para conectar esta historia con otras.','editorial-destination');
   if(!p.editorialType)add('warning','Elige el tipo de artículo si quieres identificar su enfoque.','editorial-type');
   if(!p.focusQuestion)add('warning','Puedes anotar qué pregunta responde tu historia; esta nota es privada.','editorial-question');
-  if(/\[(?:Completar|Verificar|Añadir|Tu |Pendiente)[^\]]*\]/i.test(p.html||''))add('error','Quedan campos de la plantilla por completar.');
+  if(/\[(?:Completar|Verificar|Añadir|Tu |Pendiente)[^\]]*\]/i.test(p.html||''))add('error','Quedan campos de la plantilla por completar.','tiny-editor');
   if(typeof DOMParser!=='undefined'){
     const d=new DOMParser().parseFromString(p.html||'','text/html');
     const missing=[...d.images].filter(i=>!i.getAttribute('alt')?.trim()).length;
@@ -41,7 +43,7 @@ export function auditContent(p){
     let previous=1;for(const h of d.querySelectorAll('h2,h3,h4,h5,h6')){const level=Number(h.tagName[1]);if(level>previous+1){add('warning','Revisa la jerarquía de subtítulos: hay niveles saltados.');break;}previous=level;}
     let internal=false;
     for(const a of d.querySelectorAll('a[href]')){
-      const href=a.getAttribute('href');if(!/^(https?:\/\/|\/[^/]|#|mailto:|tel:)/i.test(href))add('error',`Enlace inválido: ${href.slice(0,80)}`);
+      const href=a.getAttribute('href');if(!/^(https?:\/\/|\/[^/]|#|mailto:|tel:)/i.test(href))add('error',`Enlace inválido: ${href.slice(0,80)}`,'tiny-editor');
       if(/^\/posts\/|^https:\/\/www\.instantetrips\.com\/posts\//.test(href))internal=true;
     }
     if(!internal)add('warning','Si aporta valor, enlaza otra historia desde “Enlazar artículo”.');

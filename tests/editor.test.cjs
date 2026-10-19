@@ -134,7 +134,7 @@ function removalSetup({file=true,conflict=false,liveStatus=200,deleteStatus=200}
   const {api,db}=setup(async(url,options={})=>{
     const body=options.body?JSON.parse(options.body):null;log.push({url,method:options.method||'GET',body});
     if(url.startsWith('https://www.instantetrips.com/'))return response('',state.liveStatus);
-    if(options.method==='DELETE'){if(deleteStatus!==200)return response({},deleteStatus);assert.equal(body.sha,'original-sha');state.file=null;return response({commit:{sha:'removal-commit'}});}
+    if(options.method==='DELETE'){if(deleteStatus!==200)return response({},deleteStatus);assert.equal(body.sha,state.file.sha);state.file=null;return response({commit:{sha:'removal-commit'}});}
     return state.file?response(state.file):response({},404);
   });
   async function seed(extra={}){await db.doc('config/main').set({repoOwner:'o',repoName:'r',githubToken:'test-only',branch:'main'});const p=await api.save(user,fixture);await db.doc(`editor_posts/${p.id}`).update({status:'published',filename:'prueba.md',sourceSha:'original-sha',publishedUrl:'https://www.instantetrips.com/posts/prueba/',...extra});return api.getPost(user,p.id);}
@@ -209,4 +209,29 @@ test('first publication collision never overwrites another article',async()=>{
  const mock=githubMock(),{api,db}=setup(mock.fetcher);await db.doc('config/main').set({repoOwner:'o',repoName:'r',githubToken:'test-only',branch:'main'});
  mock.state.file={sha:'existing',content:Buffer.from('---\ntitle: Otro artículo\n---\nTexto').toString('base64')};
  const p=await api.save(user,{...fixture,urlSlug:'ya-existe'});await assert.rejects(api.publish(user,p.id,p.version),{status:409});assert.equal(mock.log.filter(x=>x.method==='PATCH').length,0);
+});
+
+
+test('removal review reads the current public version without changing the private draft',async()=>{
+ const {api,seed,log}=removalSetup({conflict:true});const p=await seed();
+ const review=await api.prepareRemoval(user,p.id);
+ assert.equal(review.sourceSha,'external-sha');assert.equal(review.changed,true);assert.equal(review.title,'Original');assert.equal(review.version,p.version);
+ assert.deepEqual(await api.getPost(user,p.id),p);assert.equal(log.filter(x=>x.method==='DELETE').length,0);
+ await assert.rejects(api.prepareRemoval({uid:user.uid,admin:false},p.id),{status:403});
+});
+test('explicit review allows removal of a changed public version while preserving private content',async()=>{
+ const {api,db,seed,log}=removalSetup({conflict:true});const p=await seed();const review=await api.prepareRemoval(user,p.id);
+ const result=await api.trash(user,p.id,p.version,review.sourceSha);
+ assert.equal(result.status,'removing');assert.equal(result.html,p.html);assert.equal(log.filter(x=>x.method==='DELETE').length,1);
+ assert((await db.doc(`editor_history/${p.id}-removed-${p.version}`).get()).data().publicSource.includes('Contenido público original'));
+});
+test('a public edit after the removal review still prevents deletion',async()=>{
+ const {api,seed,state,log}=removalSetup({conflict:true});const p=await seed();const review=await api.prepareRemoval(user,p.id);state.file.sha='edited-after-review';
+ await assert.rejects(api.trash(user,p.id,p.version,review.sourceSha),{status:409});
+ assert.equal(log.filter(x=>x.method==='DELETE').length,0);assert.equal((await api.getPost(user,p.id)).html,p.html);
+});
+test('a source created after reviewing a missing article cannot be silently removed',async()=>{
+ const {api,seed,state,log}=removalSetup({file:false});const p=await seed();const review=await api.prepareRemoval(user,p.id);assert.equal(review.missing,true);
+ state.file={sha:'new-source',content:Buffer.from('A newly published article').toString('base64')};
+ await assert.rejects(api.trash(user,p.id,p.version,review.sourceSha),{status:409});assert.equal(log.filter(x=>x.method==='DELETE').length,0);
 });

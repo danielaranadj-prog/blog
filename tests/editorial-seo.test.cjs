@@ -10,7 +10,21 @@ test('audit treats editorial recommendations as warnings and missing essentials 
 });
 test('generated public pages distinguish website and article and exclude search from indexing',()=>{
  assert(fs.readFileSync('dist/index.html','utf8').includes('property="og:type" content="website"'));
- const post=fs.readFileSync('dist/posts/vpn-vuelos/index.html','utf8');assert(post.includes('property="og:type" content="article"'));assert(post.includes('id="autor"'));
+ const articles=fs.readdirSync('dist/posts',{withFileTypes:true}).filter(entry=>entry.isDirectory()).map(entry=>'dist/posts/'+entry.name+'/index.html');
+ assert(articles.length>0,'The build must contain at least one article');
+ for(const file of articles){const post=fs.readFileSync(file,'utf8');assert(post.includes('property="og:type" content="article"'),file);assert(post.includes('id="autor"'),file);assert(!post.includes('focusQuestion'),file);}
  assert(fs.readFileSync('dist/buscar/index.html','utf8').includes('noindex, follow'));
- const sitemap=fs.readFileSync('dist/sitemap-0.xml','utf8');assert(!sitemap.includes('/buscar/'));assert(sitemap.includes('<lastmod>'));assert(!post.includes('focusQuestion'));
+ const sitemap=fs.readFileSync('dist/sitemap-0.xml','utf8');assert(!sitemap.includes('/buscar/'));assert(sitemap.includes('<lastmod>'));
+});
+
+test('publication blockers identify their actual fields, including the story and collapsed resources',async()=>{
+ const source=fs.readFileSync('public/editor/planner-utils.js','utf8');const {auditContent}=await import('data:text/javascript;base64,'+Buffer.from(source).toString('base64'));
+ const valid={title:'Una historia',description:'Descripción real.',html:'<p>Mi experiencia.</p>',hero:'/uploads/foto.jpg',author:'daniel'};
+ for(const [key,field] of [['title','post-title'],['description','post-desc'],['html','tiny-editor'],['hero','post-hero'],['author','post-author']]){
+  assert(auditContent({...valid,[key]:''}).some(f=>f.level==='error'&&f.field===field));
+ }
+ assert(auditContent({...valid,html:'<p>[Completar presupuesto]</p>'}).some(f=>f.level==='error'&&f.field==='tiny-editor'));
+ assert(auditContent({...valid,hero:'http://unsafe.test/foto.jpg'}).some(f=>f.level==='error'&&f.field==='post-hero'));
+ assert(auditContent({...valid,quickSummary:{ctaLink:'javascript:alert(1)'}}).some(f=>f.level==='error'&&f.field==='summary-ctaLink'));
+ assert.equal(auditContent({...valid,tags:[],heroAlt:'',editorialType:''}).filter(f=>f.level==='error').length,0);
 });

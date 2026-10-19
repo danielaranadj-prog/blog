@@ -1,3 +1,4 @@
+import { mountPublicationValidation } from './publication-validation.js';
 import { mountEditorialTools, structureHtml, articleTypes } from './editorial-tools.js';
 import { localToUtc, dayKey, escapeHtml, auditContent, templates, blocks, buildTripDraft } from './planner-utils.js';
 const labels={draft:'Borrador',scheduled:'Programado',publishing:'Publicando',deploying:'Actualizando web',published:'Publicado',error:'Error',removing:'Retirando de la web',removal_error:'No se pudo retirar',trashed:'En la papelera'};
@@ -31,6 +32,7 @@ export async function initPlanner(bridge) {
   shortcuts.innerHTML='<button id="insert-template">Plantilla</button><button id="insert-block">Añadir bloque</button><button id="insert-catalog">Enlace / recurso</button><button id="article-history">Historial</button><button id="open-library">Biblioteca de fotos</button><button id="editor-assistant">Asistente editorial</button>';
   const heroFields=document.createElement('div');$('post-hero').after(heroFields);heroFields.innerHTML='<label class="field-label" for="hero-alt">Descripción de la portada</label><input id="hero-alt" class="input-modern" placeholder="Describe lo que aparece en la foto">';
   const editorial=mountEditorialTools(bridge);
+  const validation=mountPublicationValidation({before:$('expedition-card'),focusContent:bridge.focusContent});
   const state=$('draft-state');
   function notify(message,error=false){state.textContent=message;state.classList.toggle('planner-error',error);}
   async function api(action,data={}) {
@@ -56,7 +58,7 @@ export async function initPlanner(bridge) {
     if(mode==='scheduled'){
       p.scheduledAt=localToUtc($('schedule-date').value,p.timezone);
       if(!p.scheduledAt)throw Error('Selecciona fecha, hora y zona horaria.');
-      const errors=auditContent(p).filter(x=>x.level==='error');if(errors.length)throw Error(errors.map(x=>x.message).join('\n'));
+      const findings=runAudit();if(findings.some(x=>x.level==='error')){validation.reveal(findings);throw Error('Completa los campos señalados antes de programar.');}
     }
     busy=true;notify('Guardando…');
     try{
@@ -131,7 +133,7 @@ export async function initPlanner(bridge) {
     if(editing&&!await leave())return;
     loading=true;
     try{
-      const p=await api('get',{id});if(['trashed','removing','removal_error'].includes(p.status))throw Error('Este artículo está en retirada o en la papelera. Adminístralo desde Artículos o Papelera.');setCurrent(p);
+      validation.reset();const p=await api('get',{id});if(['trashed','removing','removal_error'].includes(p.status))throw Error('Este artículo está en retirada o en la papelera. Adminístralo desde Artículos o Papelera.');setCurrent(p);
       const html=await hydrate(p.html||bridge.fromMarkdown(p.markdown||''));
       bridge.write({...p,html});editorial.write(p);for(const k of ['budget','bestSeason','pitfall','ctaText','ctaLink'])$('summary-'+k).value=p.quickSummary?.[k]||'';$('hero-alt').value=p.heroAlt||'';$('review-date').value=p.reviewAt||'';$('schedule-zone').value=p.timezone||zone;
       $('schedule-date').value=p.scheduledAt?localInput(p.scheduledAt,p.timezone||zone):`${p.date||dayKey(Date.now(),zone)}T10:00`;
@@ -143,14 +145,14 @@ export async function initPlanner(bridge) {
   function localInput(ms,tz){const parts=new Intl.DateTimeFormat('sv-SE',{timeZone:tz,year:'numeric',month:'2-digit',day:'2-digit',hour:'2-digit',minute:'2-digit',hourCycle:'h23'}).format(new Date(ms));return parts.replace(' ','T');}
   async function newPost(date=dayKey(Date.now(),zone),data={}){
     if(editing&&!await leave())return;
-    loading=true;active=null;for(const k of ['budget','bestSeason','pitfall','ctaText','ctaLink'])$('summary-'+k).value=data.quickSummary?.[k]||'';bridge.write({title:'',description:'',html:'',date,hero:'',tags:[],...data});$('hero-alt').value='';$('review-date').value='';$('schedule-date').value=`${date}T10:00`;$('schedule-zone').value=zone;
+    validation.reset();loading=true;active=null;for(const k of ['budget','bestSeason','pitfall','ctaText','ctaLink'])$('summary-'+k).value=data.quickSummary?.[k]||'';bridge.write({title:'',description:'',html:'',date,hero:'',tags:[],...data});$('hero-alt').value='';$('review-date').value='';$('schedule-date').value=`${date}T10:00`;$('schedule-zone').value=zone;
     editorial.write(data);workspace.hidden=false;panel.hidden=true;editing=true;dirty=false;loading=false;$('cancel-schedule').hidden=true;notify('Nueva historia · El autoguardado empieza al escribir.');
     if(data.title||data.html)queueSave();
     runAudit();$('post-title').focus();
   }
-  function runAudit(){editorial.refresh();const findings=auditContent(snapshot());$('post-audit').innerHTML=findings.map(f=>`<li class="${f.level==='error'?'planner-error':''}">${f.level==='error'?'⚠':'○'} ${esc(f.message)}${f.field?` <button type="button" class="text-action" data-audit-field="${esc(f.field)}">Revisar</button>`:''}</li>`).join('')||'<li>✓ Ficha lista para revisión final.</li>';return findings;}
+  function runAudit(){editorial.refresh();const findings=auditContent(snapshot());validation.update(findings);$('post-audit').innerHTML=findings.map(f=>`<li class="${f.level==='error'?'planner-error':''}">${f.level==='error'?'⚠':'○'} ${esc(f.message)}${f.field?` <button type="button" class="text-action" data-audit-field="${esc(f.field)}">Revisar</button>`:''}</li>`).join('')||'<li>✓ Ficha lista para revisión final.</li>';return findings;}
   async function publishNow(){
-    const errors=runAudit().filter(x=>x.level==='error');if(errors.length)throw Error('Completa los campos señalados antes de publicar.');
+    const findings=runAudit();const errors=findings.filter(x=>x.level==='error');if(errors.length){validation.reveal(findings);bridge.toast('Te llevamos al primer campo pendiente.','error');return;}
     if(!confirm(`¿Publicar ahora “${bridge.read().title}”?`))return;
     const p=active?.status==='error'&&!dirty?active:await save();if(!p)throw Error('Espera a que termine el guardado.');
     busy=true;$('btn-publish').disabled=true;
@@ -213,7 +215,7 @@ export async function initPlanner(bridge) {
       if(p.id){const latest=await api('get',{id:p.id});if(latest.version===p.version)active=latest;else bridge.toast('Se recuperó como historia nueva para conservar la versión más reciente.');}
       $('hero-alt').value=p.heroAlt||'';$('review-date').value=p.reviewAt||'';await updateHeroPreview();queueSave();return;
     }
-    if(b.dataset.auditField){const target=$(b.dataset.auditField);if(target){let parent=target.parentElement;while(parent){if(parent.tagName==='DETAILS')parent.open=true;parent=parent.parentElement;}target.focus();target.scrollIntoView({block:'center',behavior:'smooth'});}return;}
+    if(b.dataset.auditField){validation.focus(b.dataset.auditField);return;}
     if(b.dataset.relatedArticle){const item=relatedArticles.find(p=>p.url===b.dataset.relatedArticle);if(!item)throw Error('El artículo ya no está disponible.');const text=$('related-link-text').value.trim()||item.title;dialog.close();bridge.restoreSelection?.(catalogSelection);bridge.insert(`<a href="${esc(item.url)}">${esc(text)}</a>`);queueSave();return;}
     if(b.hasAttribute('data-new'))return newPost();
     if(b.dataset.date)return newPost(b.dataset.date);
@@ -239,9 +241,11 @@ export async function initPlanner(bridge) {
     if(b.dataset.reviewed){const p=posts.find(p=>p.id===b.dataset.reviewed);openForm('Registrar revisión',`<p>Confirma que comprobaste los datos del artículo. Esto registra la revisión; los cambios en el texto se publican desde el editor.</p><label>Próxima revisión<input class="input-modern" name="reviewAt" type="date" required></label>`,async f=>{await api('reviewed',{id:p.id,version:p.version,reviewAt:f.get('reviewAt')});await renderReviews();});return;}
     if(b.dataset.trashPost){
       let p=await api('get',{id:b.dataset.trashPost});
-      openForm(p.filename?'Eliminar artículo de la web':'Mover a la papelera',`<p>${p.filename?'Se retirará de la portada, las listas y su dirección pública cuando termine la actualización de la web.':'Se cancelará cualquier programación.'} Conservaremos el contenido en la papelera y las fotografías en tu biblioteca.</p><p><strong>${esc(p.title||'Sin título')}</strong></p><label>Escribe ELIMINAR para confirmar<input class="input-modern" name="confirmation" required autocomplete="off" placeholder="ELIMINAR"></label>`,async f=>{
+      const reviewed=await api('prepareRemoval',{id:p.id});
+      if(reviewed.version!==p.version)throw Error('La ficha cambió. Actualiza la lista antes de eliminar.');
+      openForm(p.filename?'Eliminar artículo de la web':'Mover a la papelera',`<p>${p.filename?'Se retirará de la portada, las listas y su dirección pública cuando termine la actualización de la web.':'Se cancelará cualquier programación.'} Conservaremos el contenido en la papelera y las fotografías en tu biblioteca.</p><p><strong>${esc(reviewed.title||p.title||'Sin título')}</strong></p>${reviewed.changed?'<p class="planner-notice">La versión publicada cambió desde que se cargó esta ficha. Si confirmas, retiraremos la versión actual que acabamos de comprobar. Tu borrador se conservará sin reemplazarlo.</p>':''}${reviewed.missing?'<p>El archivo ya no está en la web de origen. Comprobaremos su retirada y conservaremos tu borrador.</p>':''}<label>Escribe ELIMINAR para confirmar<input class="input-modern" name="confirmation" required autocomplete="off" placeholder="ELIMINAR"></label>`,async f=>{
         if(f.get('confirmation')!=='ELIMINAR')throw Error('Escribe ELIMINAR para confirmar.');
-        try{await api('trash',{id:p.id,version:p.version});bridge.toast(p.filename?'Retirada enviada. La web se está actualizando.':'Artículo movido a la papelera.');await refresh();}
+        try{await api('trash',{id:p.id,version:p.version,sourceSha:reviewed.sourceSha});bridge.toast(p.filename?'Retirada enviada. La web se está actualizando.':'Artículo movido a la papelera.');await refresh();}
         catch(e){p=await api('get',{id:p.id});await refresh();throw e;}
       });
       const submit=dialog.querySelector('[type="submit"]');submit.textContent=p.filename?'Eliminar de la web':'Mover a la papelera';submit.className='planner-button danger';return;
@@ -303,7 +307,7 @@ export async function initPlanner(bridge) {
   const dispose=()=>{
     if(disposed)return;disposed=true;clearTimeout(saveTimer);clearInterval(timer);
     window.removeEventListener('beforeunload',beforeUnload);workspace.removeEventListener('input',queueSave);workspace.removeEventListener('change',queueSave);
-    urls.forEach(url=>URL.revokeObjectURL(url));nav.remove();panel.remove();dialog.remove();publicationControls.remove();shortcuts.remove();heroFields.remove();editorial.dispose();unsubscribe();
+    urls.forEach(url=>URL.revokeObjectURL(url));nav.remove();panel.remove();dialog.remove();publicationControls.remove();shortcuts.remove();heroFields.remove();validation.dispose();editorial.dispose();unsubscribe();
     if(disposeCurrentPlanner===dispose)disposeCurrentPlanner=null;
   };
   disposeCurrentPlanner=dispose;

@@ -647,6 +647,11 @@ body[data-editor-theme='dark'] blockquote { background:#242427; }
                         restoreSelection: saved => {if(saved?.bookmark){tinymce.activeEditor.focus();tinymce.activeEditor.selection.moveToBookmark(saved.bookmark);}},
                         insert: html => tinymce.activeEditor.insertContent(html),
                         append: html => {const editor=tinymce.activeEditor;editor.focus();editor.selection.select(editor.getBody(),true);editor.selection.collapse(false);editor.insertContent(html);},
+                        focusContent: () => {
+                            const editor=tinymce.activeEditor;editor.focus();
+                            const walker=editor.getDoc().createTreeWalker(editor.getBody(),NodeFilter.SHOW_TEXT);
+                            let node;while((node=walker.nextNode())){const match=node.textContent.match(/\[(?:Completar|Verificar|Añadir|Tu |Pendiente)[^\]]*\]/i);if(match){const range=editor.getDoc().createRange();range.setStart(node,match.index);range.setEnd(node,match.index+match[0].length);editor.selection.setRng(range);break;}}
+                        },
                         fromMarkdown: md => marked.parse(md),
                         heroPreview: url => { heroPreviewUrl=url; renderLivePreview(); },
                         onChange: fn => tinymce.activeEditor.on('input change undo redo',fn),

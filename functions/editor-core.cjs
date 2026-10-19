@@ -311,8 +311,18 @@ function service({ db, admin, bucket, fetcher = fetch, now = () => Date.now() })
     });
     return getPost(user,id);
   }
+  async function prepareRemoval(user,id) {
+    if(!user.admin)fail('Solo el administrador puede eliminar artículos.',403);
+    const p=await getPost(user,id);
+    if(!p.filename)return {id,version:p.version,sourceSha:'',title:p.title,changed:false};
+    if(!/^[^/\\?#%\x00-\x1f]+\.md$/.test(p.filename))fail('La ruta del artículo no es válida.');
+    const cfg=await config();let file;
+    try{file=await gh(`/contents/${cfg.path}/${encodeURIComponent(p.filename)}?ref=${encodeURIComponent(cfg.branch)}`);}catch(e){if(e.status!==404)throw e;}
+    const title=file?String(matter(Buffer.from(file.content,'base64').toString()).data.title||p.title).slice(0,180):p.title;
+    return {id,version:p.version,sourceSha:file?.sha||'',title,changed:!!file&&file.sha!==p.sourceSha,missing:!file};
+  }
   // Removal keeps the private article and Git history; only its public source is removed.
-  async function trash(user,id,expectedVersion) {
+  async function trash(user,id,expectedVersion,reviewedSourceSha) {
     if(!user.admin) fail('Solo el administrador puede eliminar artículos.',403);
     await getPost(user,id);
     const ref=posts.doc(id);let p;
@@ -329,7 +339,8 @@ function service({ db, admin, bucket, fetcher = fetch, now = () => Date.now() })
         let file;
         try {file=await gh(`${ep}?ref=${encodeURIComponent(cfg.branch)}`);}catch(e){if(e.status!==404)throw e;}
         if(file) {
-          if(!p.sourceSha || file.sha!==p.sourceSha)fail('El artículo cambió en GitHub. Recarga la versión publicada antes de eliminarlo.',409);
+          const expectedSha=typeof reviewedSourceSha==='string'?reviewedSourceSha:p.sourceSha;
+          if(!expectedSha || file.sha!==expectedSha)fail('La versión pública cambió. Cierra este aviso y vuelve a revisar el artículo antes de confirmar su retirada.',409);
           // Preserve the exact public Markdown as well as the current private working copy.
           await db.doc(`editor_history/${id}-removed-${p.version}`).set({publicSource:Buffer.from(file.content,'base64').toString(),filename:p.filename,removedBy:user.uid,removedAt:now()});
           const result=await gh(ep,'DELETE',{message:`Remove article ${p.filename} [editor:${id}]`,sha:file.sha,branch:cfg.branch});
@@ -372,6 +383,6 @@ function service({ db, admin, bucket, fetcher = fetch, now = () => Date.now() })
     snap.forEach(d=>{const e=d.data(),count=Number(e.count)||0;if(e.type==='page_view'){views+=count;totals[e.path]=(totals[e.path]||0)+count;}else {clicks+=count;if(e.target)targets[e.target]=(targets[e.target]||0)+count;}});
     return {views,clicks,sampled:snap.size===5000,days:30,version:2,pages:Object.entries(totals).sort((a,b)=>b[1]-a[1]).slice(0,20).map(([path,views])=>({path,views})),targets:Object.entries(targets).sort((a,b)=>b[1]-a[1]).map(([id,clicks])=>({id,clicks}))};
   }
-  return {authorized,save,list,getPost,publish,verify,tick,mediaSave,mediaGet,mediaList,library,saveItem,importPosts,stats,archive,reloadPublished,trash,restore,verifyRemoval,history,restoreVersion,repository:{request:gh,config,secureConfig}};
+  return {authorized,save,list,getPost,publish,verify,tick,mediaSave,mediaGet,mediaList,library,saveItem,importPosts,stats,archive,reloadPublished,prepareRemoval,trash,restore,verifyRemoval,history,restoreVersion,repository:{request:gh,config,secureConfig}};
 }
 module.exports={service,normalizePost,validate,markdownFile,cleanHtml,slug,safeId};

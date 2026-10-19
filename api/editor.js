@@ -53,7 +53,8 @@ module.exports=async(req,res)=>{
       case 'history':result=await api.history(user,b.id);break;
       case 'restoreVersion':result=await api.restoreVersion(user,b.id,b.historyVersion,b.version);break;
       case 'catalog':{const cfg=await api.repository.config();const raw=await api.repository.request(`/contents/src/data/site-settings.json?ref=${encodeURIComponent(cfg.branch)}`);const settings=JSON.parse(Buffer.from(raw.content,'base64').toString());result=(settings.catalog||[]).filter(i=>i.enabled&&i.confirmed).map(item=>({...item,presentations:{card:require('../functions/catalog-presentation.cjs').catalogAnchor(item,{format:'card'})}}));break;}
-      case 'trash':result=await api.trash(user,b.id,b.version);break;
+      case 'prepareRemoval':result=await api.prepareRemoval(user,b.id);break;
+      case 'trash':result=await api.trash(user,b.id,b.version,b.sourceSha);break;
       case 'restore':result=await api.restore(user,b.id,b.version);break;
       case 'verifyRemoval':result=await api.verifyRemoval(user,b.id);break;
       case 'archive':result=await api.archive(user,b.id,b.archived);break;
