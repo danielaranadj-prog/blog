@@ -266,16 +266,22 @@ function service({ db, admin, bucket, fetcher = fetch, now = () => Date.now() })
   async function library(user,kind) {
     const c=db.collection(`editor_${kind}`);
     const snap=await (user.admin?c:c.where('owner','==',user.uid)).limit(300).get();
-    return snap.docs.map(s=>({id:s.id,...s.data()})).filter(d=>!d.archived).sort((a,b)=>b.updatedAt-a.updatedAt);
+    return snap.docs.map(s=>({id:s.id,...s.data()})).filter(d=>!d.archived&&!d.trashed).sort((a,b)=>b.updatedAt-a.updatedAt);
   }
   async function saveItem(user,kind,input) {
     if(!['ideas','trips','questions'].includes(kind)) fail('Colección inválida.');
     const id=input.id || crypto.randomUUID(); if(!safeId(id)) fail('Ficha inválida.');
-    const ref=db.doc(`editor_${kind}/${id}`), old=(await ref.get()).data();
-    if(old && !user.admin && old.owner!==user.uid) fail('Sin acceso.',403);
-    const data={owner:old?.owner||user.uid,title:String(input.title||'').slice(0,200),notes:String(input.notes||'').slice(0,80000),destination:String(input.destination||'').slice(0,150),date:String(input.date||'').slice(0,10),budget:String(input.budget||'').slice(0,200),links:String(input.links||'').slice(0,5000),updatedAt:now(),archived:input.archived===true};
-    await ref.set(data,{merge:true}); return {id,...data};
+    const ref=db.doc(`editor_${kind}/${id}`);let data;
+    await db.runTransaction(async tx=>{
+      const old=(await tx.get(ref)).data();
+      if(old&&!user.admin&&old.owner!==user.uid)fail('Sin acceso.',403);
+      if(old?.trashed)fail('La nota está en la papelera. Restáurala antes de editar.',409);
+      if(old&&input.version!==undefined&&input.version!==(old.version||0))fail('La nota cambió. Vuelve a abrirla antes de guardar.',409);
+      data={owner:old?.owner||user.uid,title:String(input.title||'').slice(0,200),notes:String(input.notes||'').slice(0,80000),destination:String(input.destination||'').slice(0,150),date:String(input.date||'').slice(0,10),budget:String(input.budget||'').slice(0,200),links:String(input.links||'').slice(0,5000),updatedAt:now(),archived:input.archived===true,version:(old?.version||0)+1};
+      tx.set(ref,data,{merge:true});
+    });return {id,...data};
   }
+
   async function importPosts(user) {
     if(!user.admin) fail('Solo el administrador puede sincronizar el sitio.',403);
     const cfg=await config(), files=await gh(`/contents/${cfg.path}?ref=${encodeURIComponent(cfg.branch)}`);
@@ -383,6 +389,6 @@ function service({ db, admin, bucket, fetcher = fetch, now = () => Date.now() })
     snap.forEach(d=>{const e=d.data(),count=Number(e.count)||0;if(e.type==='page_view'){views+=count;totals[e.path]=(totals[e.path]||0)+count;}else {clicks+=count;if(e.target)targets[e.target]=(targets[e.target]||0)+count;}});
     return {views,clicks,sampled:snap.size===5000,days:30,version:2,pages:Object.entries(totals).sort((a,b)=>b[1]-a[1]).slice(0,20).map(([path,views])=>({path,views})),targets:Object.entries(targets).sort((a,b)=>b[1]-a[1]).map(([id,clicks])=>({id,clicks}))};
   }
-  return {authorized,save,list,getPost,publish,verify,tick,mediaSave,mediaGet,mediaList,library,saveItem,importPosts,stats,archive,reloadPublished,prepareRemoval,trash,restore,verifyRemoval,history,restoreVersion,repository:{request:gh,config,secureConfig}};
+  return {...require('./editor-bulk.cjs').bulkService({db,getPost,prepareRemoval,config,gh,now,fail,safeId}),authorized,save,list,getPost,publish,verify,tick,mediaSave,mediaGet,mediaList,library,saveItem,importPosts,stats,archive,reloadPublished,prepareRemoval,trash,restore,verifyRemoval,history,restoreVersion,repository:{request:gh,config,secureConfig}};
 }
 module.exports={service,normalizePost,validate,markdownFile,cleanHtml,slug,safeId};

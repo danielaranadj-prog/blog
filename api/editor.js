@@ -44,15 +44,17 @@ module.exports=async(req,res)=>{
       }
       case 'items': if(!['ideas','trips','questions'].includes(b.kind)) throw Error('Tipo inválido.'); result=await api.library(user,b.kind);break;
       case 'saveItem':result=await api.saveItem(user,b.kind,b.item);break;
-      case 'reviewed': {
-        const p=await api.getPost(user,b.id);
-        if(b.version!==p.version) {const e=new Error('La ficha cambió. Vuelve a abrirla.');e.status=409;throw e;}
-        if(!/^\d{4}-\d{2}-\d{2}$/.test(b.reviewAt||'')) {const e=new Error('Selecciona la próxima fecha de revisión.');e.status=400;throw e;}
-        await admin.firestore().doc(`editor_posts/${b.id}`).update({reviewAt:b.reviewAt,lastReviewedAt:Date.now()});result={ok:true};break;
-      }
+      case 'reviewed':result=await api.reviewMany(user,[{id:b.id,version:b.version}],b.reviewAt);break;
       case 'history':result=await api.history(user,b.id);break;
       case 'restoreVersion':result=await api.restoreVersion(user,b.id,b.historyVersion,b.version);break;
       case 'catalog':{const cfg=await api.repository.config();const raw=await api.repository.request(`/contents/src/data/site-settings.json?ref=${encodeURIComponent(cfg.branch)}`);const settings=JSON.parse(Buffer.from(raw.content,'base64').toString());result=(settings.catalog||[]).filter(i=>i.enabled&&i.confirmed).map(item=>({...item,presentations:{card:require('../functions/catalog-presentation.cjs').catalogAnchor(item,{format:'card'})}}));break;}
+      case 'prepareRemovals':result=await api.prepareRemovals(user,b.ids);break;
+      case 'trashMany':result=await api.trashMany(user,b.entries);break;
+      case 'restoreMany':result=await api.restoreMany(user,b.entries);break;
+      case 'trashItems':result=await api.trashItems(user,b.kind,b.entries);break;
+      case 'restoreItems':result=await api.restoreItems(user,b.kind,b.entries);break;
+      case 'trashedItems':result=await api.trashedItems(user);break;
+      case 'reviewMany':result=await api.reviewMany(user,b.entries,b.reviewAt);break;
       case 'prepareRemoval':result=await api.prepareRemoval(user,b.id);break;
       case 'trash':result=await api.trash(user,b.id,b.version,b.sourceSha);break;
       case 'restore':result=await api.restore(user,b.id,b.version);break;
