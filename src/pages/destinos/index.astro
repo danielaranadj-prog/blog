@@ -1,0 +1,286 @@
+---
+import BaseHead from '../../components/BaseHead.astro';
+import BlogHeader from '../../components/BlogHeader.astro';
+import Footer from '../../components/Footer.astro';
+import SiteAds from '../../components/SiteAds.astro';
+import settings from '../../data/site-settings.json';
+import { buildCountryHubs } from '../../utils/country-hubs.mjs';
+import { optimizeImageUrl } from '../../config/affiliates';
+
+const allPosts = await Astro.glob('../posts/*.md');
+const hubs = buildCountryHubs(allPosts);
+const totalGuides = allPosts.length;
+---
+
+<html lang="es">
+  <head>
+    <BaseHead
+      title={`Destinos y Guías por País | ${settings.name}`}
+      description="Explora nuestras guías de viaje organizadas por país: España, Argentina, Bélgica y más destinos con presupuestos honestos, rutas y consejos sin filtros."
+      permalink={`${Astro.site}destinos/`}
+    />
+  </head>
+  <body>
+    <BlogHeader />
+
+    <main class="destinos-index-shell">
+      <a class="back-link" href="/">← Volver al inicio</a>
+
+      <header class="destinos-hero">
+        <span class="eyebrow">INSTANTE TRIPS · HUBS POR PAÍS</span>
+        <h1>Explora Nuestras Guías de Viaje por Destino</h1>
+        <p class="subtitle">
+          Elige el país que estás preparando. En cada Hub encontrarás la ficha práctica del destino (moneda, transporte, enchufes y consejos de ahorro), además de todas nuestras rutas paso a paso ({totalGuides} guías publicadas).
+        </p>
+      </header>
+
+      <!-- Espacio Google AdSense (homeSlot controlado desde /admin -> Publicidad) -->
+      <SiteAds placement="home" />
+
+      <section class="country-hubs-grid" aria-label="Países disponibles">
+        {hubs.map((hub) => {
+          const heroImg = optimizeImageUrl(hub.heroImage, 800);
+          return (
+            <article class="country-hub-card">
+              <a href={`/destinos/${hub.slug}`} class="country-card-media">
+                <img src={heroImg} alt={`Guías de viaje a ${hub.name}`} loading="lazy" width="800" height="460" />
+                <span class="country-region-pill">{hub.flag} {hub.region}</span>
+                <span class="country-count-pill">{hub.count} {hub.count === 1 ? 'guía' : 'guías'}</span>
+              </a>
+
+              <div class="country-card-body">
+                <div class="country-title-row">
+                  <h2>
+                    <a href={`/destinos/${hub.slug}`}>{hub.flag} {hub.name}</a>
+                  </h2>
+                </div>
+                <p class="country-tagline">{hub.tagline}</p>
+
+                <ul class="country-sample-posts">
+                  {hub.posts.slice(0, 3).map((p: any) => (
+                    <li>
+                      <a href={p.url}>→ {p.frontmatter.title}</a>
+                    </li>
+                  ))}
+                </ul>
+
+                <a href={`/destinos/${hub.slug}`} class="country-cta-btn">
+                  Entrar al Hub de {hub.name} ({hub.count}) →
+                </a>
+              </div>
+            </article>
+          );
+        })}
+      </section>
+    </main>
+
+    <Footer />
+
+    <style>
+      .destinos-index-shell {
+        max-width: 1220px;
+        margin: 0 auto;
+        padding: 2rem 1.5rem 5rem;
+        font-family: var(--font-sans, sans-serif);
+      }
+
+      .back-link {
+        color: #18181B;
+        font-weight: 700;
+        text-decoration: none;
+        display: inline-block;
+        margin-bottom: 1rem;
+      }
+
+      .back-link:hover {
+        color: #E04F16;
+      }
+
+      .destinos-hero {
+        padding: 1rem 0 2rem;
+        border-bottom: 1.5px solid #E6E1D6;
+        margin-bottom: 2.25rem;
+      }
+
+      .eyebrow {
+        font-size: 0.74rem;
+        font-weight: 800;
+        letter-spacing: 0.09em;
+        color: #E04F16;
+        text-transform: uppercase;
+        display: block;
+        margin-bottom: 0.5rem;
+      }
+
+      .destinos-hero h1 {
+        font-family: var(--font-serif, "Playfair Display", serif);
+        font-size: clamp(2rem, 4vw, 3.1rem);
+        font-weight: 900;
+        line-height: 1.12;
+        margin: 0 0 0.85rem;
+        color: #18181B;
+      }
+
+      .subtitle {
+        font-size: 1.05rem;
+        color: #52525B;
+        max-width: 780px;
+        line-height: 1.65;
+        margin: 0;
+      }
+
+      .country-hubs-grid {
+        display: grid;
+        grid-template-columns: 1fr;
+        gap: 2rem;
+        margin-top: 2rem;
+      }
+
+      @media (min-width: 768px) {
+        .country-hubs-grid {
+          grid-template-columns: repeat(2, 1fr);
+        }
+      }
+
+      @media (min-width: 1100px) {
+        .country-hubs-grid {
+          grid-template-columns: repeat(3, 1fr);
+        }
+      }
+
+      .country-hub-card {
+        background: #FFFFFF;
+        border: 1.5px solid #18181B;
+        border-radius: 18px;
+        overflow: hidden;
+        display: flex;
+        flex-direction: column;
+        box-shadow: 0 6px 22px rgba(24, 24, 27, 0.05);
+        transition: transform 0.2s ease, box-shadow 0.2s ease;
+      }
+
+      .country-hub-card:hover {
+        transform: translateY(-4px);
+        box-shadow: 0 14px 30px rgba(24, 24, 27, 0.1);
+      }
+
+      .country-card-media {
+        position: relative;
+        display: block;
+        height: 220px;
+        background: #E6E1D6;
+        overflow: hidden;
+      }
+
+      .country-card-media img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        display: block;
+        transition: transform 0.35s ease;
+      }
+
+      .country-hub-card:hover .country-card-media img {
+        transform: scale(1.04);
+      }
+
+      .country-region-pill {
+        position: absolute;
+        top: 12px;
+        left: 12px;
+        background: rgba(24, 24, 27, 0.85);
+        color: #FFFFFF;
+        font-size: 0.7rem;
+        font-weight: 800;
+        padding: 0.3rem 0.7rem;
+        border-radius: 999px;
+        letter-spacing: 0.05em;
+        text-transform: uppercase;
+      }
+
+      .country-count-pill {
+        position: absolute;
+        bottom: 12px;
+        right: 12px;
+        background: #E04F16;
+        color: #FFFFFF;
+        font-size: 0.74rem;
+        font-weight: 800;
+        padding: 0.3rem 0.75rem;
+        border-radius: 999px;
+      }
+
+      .country-card-body {
+        padding: 1.5rem;
+        display: flex;
+        flex-direction: column;
+        flex-grow: 1;
+      }
+
+      .country-title-row h2 {
+        font-family: var(--font-serif, "Playfair Display", serif);
+        font-size: 1.65rem;
+        font-weight: 900;
+        margin: 0 0 0.5rem;
+      }
+
+      .country-title-row h2 a {
+        color: #18181B;
+        text-decoration: none;
+      }
+
+      .country-title-row h2 a:hover {
+        color: #E04F16;
+      }
+
+      .country-tagline {
+        font-size: 0.92rem;
+        line-height: 1.6;
+        color: #52525B;
+        margin: 0 0 1.15rem;
+      }
+
+      .country-sample-posts {
+        list-style: none;
+        padding: 0.9rem 0 0;
+        margin: 0 0 1.4rem;
+        border-top: 1px dashed #E6E1D6;
+        display: flex;
+        flex-direction: column;
+        gap: 0.55rem;
+        flex-grow: 1;
+      }
+
+      .country-sample-posts li a {
+        font-size: 0.83rem;
+        font-weight: 700;
+        color: #27272A;
+        text-decoration: none;
+        line-height: 1.4;
+        display: block;
+      }
+
+      .country-sample-posts li a:hover {
+        color: #E04F16;
+      }
+
+      .country-cta-btn {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        background: #18181B;
+        color: #FFFFFF;
+        font-size: 0.82rem;
+        font-weight: 800;
+        text-decoration: none;
+        padding: 0.8rem 1.1rem;
+        border-radius: 999px;
+        transition: background 0.15s ease;
+      }
+
+      .country-cta-btn:hover {
+        background: #E04F16;
+      }
+    </style>
+  </body>
+</html>

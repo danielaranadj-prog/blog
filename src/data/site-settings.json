@@ -22,6 +22,11 @@
   },
   "navigation": [
     {
+      "label": "Destinos",
+      "url": "/destinos",
+      "enabled": true
+    },
+    {
       "label": "Guías",
       "url": "/#explorar",
       "enabled": true
@@ -49,8 +54,8 @@
       "enabled": true
     },
     {
-      "label": "Guías y categorías",
-      "url": "/#explorar",
+      "label": "Destinos por país",
+      "url": "/destinos",
       "enabled": true
     },
     {
@@ -106,8 +111,8 @@
       "text": "Compara OUIGO, Iryo y Renfe AVE en segundos sin comisiones ocultas.",
       "button": "Buscar horarios y precios",
       "url": "https://www.omio.com/trenes/espana?utm_source=instantetrips&utm_medium=affiliate&utm_campaign=sidebar-catalog",
-      "tags": "españa, madrid, barcelona, segovia, valladolid, tren, transporte, bruselas, brujas",
-      "placement": "auto",
+      "tags": "tren, alta velocidad, ouigo, iryo, ave, renfe",
+      "placement": "sidebar",
       "enabled": true,
       "confirmed": true
     },
@@ -121,7 +126,7 @@
       "button": "Ver actividades disponibles",
       "url": "https://www.civitatis.com/es/?aid=104521&cmp=sidebar-catalog",
       "tags": "",
-      "placement": "auto",
+      "placement": "sidebar",
       "enabled": true,
       "confirmed": true
     },
@@ -135,7 +140,7 @@
       "button": "Ver planes eSIM (-5% dto)",
       "url": "https://esim.holafly.com/?ref=instantetrips",
       "tags": "",
-      "placement": "auto",
+      "placement": "sidebar",
       "enabled": true,
       "confirmed": true
     }

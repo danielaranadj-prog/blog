@@ -1,0 +1,358 @@
+import { mountPublicationValidation } from './publication-validation.js';
+import { mountEditorialTools, structureHtml, articleTypes, getShortShareUrl } from './editorial-tools.js';
+import { localToUtc, dayKey, escapeHtml, auditContent, templates, blocks, buildTripDraft } from './planner-utils.js';
+const labels={draft:'Borrador',scheduled:'Programado',publishing:'Publicando',deploying:'Actualizando web',published:'Publicado',error:'Error',removing:'Retirando de la web',removal_error:'No se pudo retirar',trashed:'En la papelera'};
+const $=id=>document.getElementById(id);
+const esc=escapeHtml;
+let disposeCurrentPlanner=null;
+export async function initPlanner(bridge) {
+  if(disposeCurrentPlanner)disposeCurrentPlanner();
+  let posts=[],active=null,view='calendar',month=new Date(),zone='America/Mazatlan',saveTimer,dirty=false,editing=false,loading=false,items=[],media=[],busy=false,disposed=false;
+  const selected=new Set();let deletedNotes=[];
+  const urls=new Map(),mediaMetadata=new Map();
+  const auth=bridge.auth;
+  const sessionUid=auth.currentUser.uid;
+  let recovered=null,aiReady=false,aiOutput='',catalogSelection=null;
+  async function recovery(op,value){
+    try {
+      const database=await new Promise((resolve,reject)=>{const r=indexedDB.open('instante-editor-recovery',1);r.onupgradeneeded=()=>r.result.createObjectStore('pending');r.onsuccess=()=>resolve(r.result);r.onerror=()=>reject(r.error);});
+      const result=await new Promise((resolve,reject)=>{const tx=database.transaction('pending',op==='get'?'readonly':'readwrite');const store=tx.objectStore('pending');const r=op==='get'?store.get(sessionUid):op==='put'?store.put(value,sessionUid):store.delete(sessionUid);r.onsuccess=()=>resolve(r.result);r.onerror=()=>reject(r.error);});database.close();return result;
+    }catch{return null;}
+  }
+  const workspace=document.querySelector('#app-section .workspace');
+  const nav=document.createElement('nav'); nav.className='planner-nav';nav.setAttribute('aria-label','Redacción');
+  nav.innerHTML=[['calendar','Calendario'],['articles','Artículos'],['trash','Papelera'],['backup','Respaldos'],['reviews','Revisiones'],['ideas','Ideas'],['trips','Mi viaje'],['questions','Preguntas'],['media','Fotografías'],['stats','Resultados']].map(([key,title])=>`<button data-view="${key}" aria-current="false">${title}</button>`).join('');
+  workspace.before(nav);
+  const panel=document.createElement('main');panel.className='planner-panel';workspace.before(panel);
+  const dialog=document.createElement('dialog');dialog.className='planner-dialog';dialog.setAttribute('aria-label','Herramientas de contenido');document.body.append(dialog);
+  const publication=$('publish-card');
+  const publicationControls=document.createElement('div');publicationControls.id='planner-publication-controls';publication.append(publicationControls);
+  publicationControls.innerHTML=`<details><summary>Resumen y recurso del artículo</summary><p>Solo se muestran los campos que completes con datos comprobados.</p>${[['budget','Presupuesto real'],['bestSeason','Mejor época'],['pitfall','Error a evitar'],['ctaText','Texto del botón'],['ctaLink','Enlace del recurso (https o /ruta)']].map(([key,label])=>`<label class="field-label">${label}<input class="input-modern" id="summary-${key}"></label>`).join('')}</details><div class="schedule-fields"><label>Fecha y hora programada<input id="schedule-date" type="datetime-local" class="input-modern"></label><label>Zona horaria<select id="schedule-zone" class="input-modern">${['America/Mazatlan','America/Mexico_City','America/Cancun','America/Argentina/Buenos_Aires','Europe/Madrid','UTC'].map(z=>`<option>${z}</option>`).join('')}</select></label><label>Revisar información el<input id="review-date" type="date" class="input-modern"></label></div><div class="planner-publish-actions"><button id="save-draft" class="planner-button">Guardar borrador</button><button id="schedule-post" class="planner-button primary">Programar</button><button id="cancel-schedule" class="planner-button" hidden>Cancelar programación</button></div><p id="draft-state" role="status" aria-live="polite"></p><button id="audit-post" class="text-action">Revisar artículo y enlaces</button><button id="check-links" class="text-action">Comprobar enlaces del relato</button><ul id="post-audit" class="planner-audit"></ul>`;
+  $('btn-publish').textContent='Publicar ahora';
+  const shortcuts=document.createElement('span');shortcuts.className='planner-writing-shortcuts';document.querySelector('.writing-shortcuts').append(shortcuts);
+  shortcuts.innerHTML='<button id="insert-template">Plantilla</button><button id="insert-block">Añadir bloque</button><button id="insert-catalog">Enlace / recurso</button><button id="article-history">Historial</button><button id="open-library">Biblioteca de fotos</button><button id="editor-assistant">Asistente editorial</button>';
+  const heroFields=document.createElement('div');$('post-hero').after(heroFields);heroFields.innerHTML='<label class="field-label" for="hero-alt">Descripción de la portada</label><input id="hero-alt" class="input-modern" placeholder="Describe lo que aparece en la foto">';
+  const editorial=mountEditorialTools(bridge);
+  const validation=mountPublicationValidation({before:$('expedition-card'),focusContent:bridge.focusContent});
+  function selectBox(id,title){return `<label class="planner-select"><input type="checkbox" data-select-record="${esc(id)}" aria-label="Seleccionar ${esc(title||'Sin título')}"> Seleccionar</label>`;}
+  function selectionBar(mode){const text={notes:'Borrar selección',remove:'Retirar selección',restore:'Restaurar selección',review:'Registrar revisión de la selección'}[mode];return `<div class="planner-selection"><label><input type="checkbox" data-select-all> Seleccionar visibles (máx. 20)</label><span role="status" data-selection-count>0 seleccionados</span><button class="planner-button ${mode==='notes'||mode==='remove'?'danger':''}" data-bulk-action="${mode}" disabled>${text}</button><button class="text-action" data-clear-selection>Limpiar selección</button></div>`;}
+  function updateSelection(){
+    const boxes=[...panel.querySelectorAll('[data-select-record]')];
+    boxes.forEach(box=>box.checked=selected.has(box.dataset.selectRecord));
+    const all=panel.querySelector('[data-select-all]');if(all){all.checked=boxes.length>0&&boxes.every(box=>box.checked);all.indeterminate=selected.size>0&&!all.checked;}
+    panel.querySelectorAll('[data-selection-count]').forEach(el=>el.textContent=`${selected.size} seleccionados`);
+    panel.querySelectorAll('[data-bulk-action]').forEach(el=>el.disabled=selected.size===0);
+  }
+  panel.addEventListener('change',event=>{
+    const box=event.target;
+    if(box.hasAttribute('data-select-all')){selected.clear();if(box.checked)[...panel.querySelectorAll('[data-select-record]')].slice(0,20).forEach(b=>selected.add(b.dataset.selectRecord));updateSelection();}
+    else if(box.dataset.selectRecord){if(box.checked&&selected.size>=20){box.checked=false;bridge.toast('Puedes seleccionar hasta 20 elementos por operación.','error');return;}box.checked?selected.add(box.dataset.selectRecord):selected.delete(box.dataset.selectRecord);updateSelection();}
+  });
+  function noteTrashMarkup(){return `<section class="planner-note-trash"><h2>Ideas, viajes y preguntas eliminadas</h2><div class="planner-cards">${deletedNotes.map(i=>`<article class="planner-card">${bridge.isAdmin?selectBox(`note:${i.kind}:${i.id}`,i.title):''}<span class="eyebrow">${{ideas:'Idea',trips:'Viaje',questions:'Pregunta'}[i.kind]}</span><h3>${esc(i.title||'Sin título')}</h3><p>Se conserva aquí. Restaurar no publica nada.</p><button class="planner-button" data-restore-note="${i.id}" data-kind="${i.kind}">Restaurar nota</button></article>`).join('')||'<p>No hay notas en la papelera.</p>'}</div></section>`;}
+  async function confirmNotes(list){
+    const kind=view;
+    openForm(`Borrar ${list.length===1?'nota':list.length+' notas'}`,`<p>Las moveremos a la papelera. Podrás recuperarlas desde allí; no se borrará ningún artículo ni habrá un despliegue.</p><ul>${list.map(i=>`<li>${esc(i.title||'Sin título')}</li>`).join('')}</ul>`,async()=>{await api('trashItems',{kind,entries:list.map(i=>({id:i.id,version:i.version||0}))});selected.clear();await renderItems(kind);bridge.toast('Notas movidas a la papelera.');});
+    dialog.querySelector('[type="submit"]').textContent='Mover a la papelera';
+  }
+  async function bulkAction(mode){
+    let list=(mode==='notes'?items:posts).filter(p=>selected.has(p.id));if(mode==='restore')list=list.concat(deletedNotes.filter(i=>selected.has(`note:${i.kind}:${i.id}`)));if(!list.length)return;
+    if(mode==='notes')return confirmNotes(list);
+    if(mode==='remove'){
+      const reviewed=await api('prepareRemovals',{ids:list.map(p=>p.id)});
+      openForm(`Retirar ${list.length} artículos`,`<p>Los artículos publicados se retirarán juntos en una sola actualización de la web. Conservaremos el contenido en la papelera; los borradores privados no generan despliegue.</p><ul>${reviewed.map(p=>`<li>${esc(p.title||'Sin título')}${p.changed?' · versión pública actualizada':''}</li>`).join('')}</ul><label>Escribe ELIMINAR para confirmar<input name="confirmation" class="input-modern" required autocomplete="off"></label>`,async f=>{if(f.get('confirmation')!=='ELIMINAR')throw Error('Escribe ELIMINAR para confirmar.');const result=await api('trashMany',{entries:reviewed.map(p=>({id:p.id,version:p.version,sourceSha:p.sourceSha}))});selected.clear();await refresh();bridge.toast(result.publicCount?`${result.publicCount} artículos enviados en una sola actualización de la web.`:'Borradores movidos a la papelera.');});
+      dialog.querySelector('[type="submit"]').textContent='Retirar selección';return;
+    }
+    if(mode==='restore'){
+      openForm('Restaurar selección',`<p>Las notas volverán a su sección y los artículos se recuperarán como borradores privados. No se publicará nada.</p><ul>${list.map(p=>`<li>${esc(p.title||'Sin título')}</li>`).join('')}</ul>`,async()=>{await api('restoreMany',{entries:list.map(p=>({id:p.id,version:p.version||0,...(p.kind?{kind:p.kind}:{})}))});selected.clear();await refresh();bridge.toast('Selección restaurada. Los artículos siguen como borradores.');});dialog.querySelector('[type="submit"]').textContent='Restaurar selección';return;
+    }
+    if(mode==='review')openForm('Registrar revisión de la selección',`<p>Hazlo después de comprobar los datos de estos ${list.length} artículos.</p><label>Próxima revisión<input type="date" name="reviewAt" class="input-modern" required></label>`,async f=>{await api('reviewMany',{entries:list.map(p=>({id:p.id,version:p.version})),reviewAt:f.get('reviewAt')});selected.clear();await renderReviews();});
+  }
+  const state=$('draft-state');
+  function notify(message,error=false){state.textContent=message;state.classList.toggle('planner-error',error);}
+  async function api(action,data={}) {
+    if(!auth.currentUser||auth.currentUser.uid!==sessionUid) throw Error('Tu sesión cambió. Vuelve a abrir el editor para guardar.');
+    const token=await auth.currentUser.getIdToken();
+    const res=await fetch('/api/editor',{method:'POST',headers:{'Content-Type':'application/json',Authorization:`Bearer ${token}`},body:JSON.stringify({action,...data})});
+    const result=await res.json();if(!res.ok) {const e=Error(result.error||'No se pudo completar la operación.');e.status=res.status;throw e;} return result;
+  }
+  const protect=fn=>async(...args)=>{try{return await fn(...args);}catch(e){notify(e.message,true);bridge.toast(e.message,'error');}};
+  function setCurrent(p){active=p;posts=posts.filter(x=>x.id!==p.id);posts.push(p);}
+  function snapshot(){
+    const p=bridge.read();const ids=new Set();
+    for(const image of new DOMParser().parseFromString(p.html,'text/html').querySelectorAll('[data-media-id]')) ids.add(image.dataset.mediaId);
+    if(p.hero.startsWith('media:'))ids.add(p.hero.slice(6));
+    return {...p,...editorial.read(),quickSummary:Object.fromEntries(['budget','bestSeason','pitfall','ctaText','ctaLink'].map(k=>[k,$('summary-'+k).value])),id:active?.id,version:active?.version,heroAlt:$('hero-alt').value,reviewAt:$('review-date').value,timezone:$('schedule-zone').value,mediaIds:[...ids],tripId:active?.tripId||''};
+  }
+  function sameContent(a,b){ const fields=['title','description','html','date','author','hero','heroAlt','reviewAt','timezone','flightDestination','tourCity','seoTitle','editorialType','destination','budgetLevel','focusQuestion','urlSlug','modifiedDate'];return fields.every(k=>(a?.[k]||'')===(b?.[k]||''))&&JSON.stringify(a?.tags||[])===JSON.stringify(b?.tags||[])&&JSON.stringify(a?.quickSummary||{})===JSON.stringify(b?.quickSummary||{}); }
+  async function save(mode='draft',auto=false){
+    if(loading||busy) return null;
+    const p=snapshot();
+    if(!p.title.trim()&&!p.html.trim()&&!p.hero)return null;
+    if(auto && active && ['published','scheduled','publishing','deploying'].includes(active.status)) {notify('Cambios sin guardar. Guarda el borrador o vuelve a programarlo.');return null;}
+    if(mode==='scheduled'){
+      p.scheduledAt=localToUtc($('schedule-date').value,p.timezone);
+      if(!p.scheduledAt)throw Error('Selecciona fecha, hora y zona horaria.');
+      const findings=runAudit();if(findings.some(x=>x.level==='error')){validation.reveal(findings);throw Error('Completa los campos señalados antes de programar.');}
+    }
+    busy=true;notify('Guardando…');
+    try{
+      const result=await api(mode==='scheduled'?'schedule':'save',{post:p});setCurrent(result);
+      dirty=!sameContent(snapshot(),p);
+      notify(`${labels[result.status]} guardado · ${new Date().toLocaleTimeString('es',{hour:'2-digit',minute:'2-digit'})}${dirty?' · Hay cambios nuevos pendientes.':''}`);
+      $('cancel-schedule').hidden=result.status!=='scheduled';
+      if(dirty)queueSave();else {await recovery('delete');recovered=null;}return result;
+    }finally{busy=false;}
+  }
+  function queueSave(){
+    if(loading||!editing||disposed)return;editorial.refresh();runAudit();dirty=true;clearTimeout(saveTimer);
+    recovery('put',{...snapshot(),recoveredAt:Date.now()});
+    notify('Cambios pendientes…');saveTimer=setTimeout(()=>protect(()=>save('draft',true))(),1800);
+  }
+  async function leave(){if(dirty){if(active&&['scheduled','published'].includes(active.status)&&!confirm('¿Guardar los cambios como borrador? Si estaba programado, se cancelará su programación; la versión pública seguirá disponible.'))return false;const r=await save();if(!r||dirty)return false;}editing=false;clearTimeout(saveTimer);return true;}
+  async function showView(next){
+    if(editing&&!await leave())return;
+    selected.clear();view=next;workspace.hidden=true;panel.hidden=false;
+    nav.querySelectorAll('button').forEach(b=>b.setAttribute('aria-current',String(b.dataset.view===next)));
+    panel.innerHTML='<div class="planner-wrap"><p role="status">Cargando…</p></div>';
+    try{
+      if(['calendar','articles','trash'].includes(next))await refresh();
+      else if(['ideas','trips','questions'].includes(next))await renderItems(next);
+      else if(next==='backup'){const {mountBackup}=await import('./backup.js');await mountBackup(panel,api,bridge.toast);}
+      else if(next==='reviews')await renderReviews();
+      else if(next==='media')await renderMedia();
+      else if(next==='stats')await renderStats();
+    }catch(e){panel.innerHTML=`<div class="planner-wrap"><h1>No se pudo cargar esta sección</h1><p role="alert">${esc(e.message)}</p><button class="planner-button" data-retry>Reintentar</button><button class="planner-button" data-new>Escribir un artículo</button></div>`;}
+  }
+  async function refresh(){
+    selected.clear();deletedNotes=view==='trash'?await api('trashedItems'):[];
+    const data=await api('list');posts=data.posts;for(const p of posts.filter(p=>p.status==='removing'&&p.removalReady).slice(0,5)){try{const updated=await api('verifyRemoval',{id:p.id});posts=posts.map(x=>x.id===p.id?updated:x);}catch{}}aiReady=data.aiReady===true;
+    if(!posts.length&&bridge.isAdmin){await api('import');posts=(await api('list')).posts;}
+    const ready=data.scheduler&&Date.now()-data.scheduler<180000;
+    $('schedule-post').disabled=!ready;
+    $('schedule-post').textContent=ready?'Programar':'Programar · pendiente de activación';
+    $('schedule-post').title=ready?'Publicar automáticamente en la fecha elegida':'Pendiente de activar el servicio automático';
+    renderMain(ready);
+  }
+  function matches(p,q,filter){return (!q||`${p.title} ${(p.tags||[]).join(' ')} ${p.author}`.toLowerCase().includes(q.toLowerCase()))&&(filter==='archived'?p.archived:!p.archived&&(!filter||p.status===filter));}
+  function entries(){const q=$('planner-search')?.value||'',filter=$('planner-filter')?.value||'';return posts.filter(p=>(view==='trash'?p.status==='trashed':p.status!=='trashed')&&matches(p,q,filter));}
+  function postDay(p){return p.status==='scheduled'&&p.scheduledAt?dayKey(p.scheduledAt,zone):(p.date||dayKey(p.updatedAt,zone));}
+  function card(p){
+    const removed=p.status==='trashed',removing=p.status==='removing',failed=p.status==='removal_error',stalled=removing&&!p.removalReady&&Date.now()-p.updatedAt>=600000,locked=removed||removing||failed;
+    const shortUrl=getShortShareUrl({filename:p.filename,urlSlug:p.urlSlug,title:p.title});
+    return `<article class="planner-card state-${p.status}">${bridge.isAdmin&&((view==='trash'&&removed)||(view==='articles'&&!['trashed','removing','publishing','deploying'].includes(p.status)))?selectBox(p.id,p.title):''}<span class="state-label">${esc(labels[p.status]||p.status)}</span><h2>${esc(p.title||'Sin título')}</h2><p>${esc(postDay(p))} · ${esc((p.tags||[]).join(' · '))}</p>${!locked&&p.reviewAt&&p.reviewAt<=dayKey(Date.now(),zone)?'<p class="planner-review">Pendiente de revisar información</p>':''}${p.error?`<p class="planner-error">${esc(p.error)}</p>`:''}${locked?'':`<button class="planner-button" data-open="${p.id}">Abrir</button>`}${p.publishedUrl&&!removed?`<a class="text-action" href="${esc(p.publishedUrl)}" target="_blank" rel="noopener">Ver artículo ↗</a><button type="button" class="text-action" data-copy-short="${esc(shortUrl)}">🔗 Copiar link corto</button>`:''}${p.status==='deploying'?`<button class="planner-button" data-verify="${p.id}">Comprobar publicación</button>`:''}${removing?`<p>La web se está actualizando. El artículo puede seguir visible durante unos minutos.</p><button class="planner-button" data-verify-removal="${p.id}">Comprobar retirada</button>`:''}${removed?`<p>El contenido sigue guardado aquí. Restaurarlo no lo publica.</p>${bridge.isAdmin?`<button class="planner-button" data-restore-post="${p.id}">Restaurar como borrador</button>`:''}`:''}${!locked&&!['publishing','deploying'].includes(p.status)?`<button class="text-action" data-archive-post="${p.id}" data-restore="${p.archived?'true':'false'}">${p.archived?'Mostrar ficha':'Ocultar ficha (no elimina)'}</button>`:''}${bridge.isAdmin&&!removed&&(!removing||stalled)&&!['publishing','deploying'].includes(p.status)?`<button class="planner-button danger" data-trash-post="${p.id}">${failed||stalled?'Reintentar retirada':p.filename?'Eliminar de la web':'Mover a la papelera'}</button>`:''}${p.filename&&['error','removal_error'].includes(p.status)?`<button class="planner-button" data-reload-post="${p.id}">Recargar versión publicada</button>`:''}</article>`;
+  }
+  function renderMain(ready){
+    const monthName=month.toLocaleDateString('es',{month:'long',year:'numeric'});
+    panel.innerHTML=`<div class="planner-wrap"><div class="planner-heading"><div><span class="eyebrow">Tu mesa de trabajo</span><h1>${view==='calendar'?'Calendario editorial':view==='trash'?'Papelera':'Todos tus artículos'}</h1><p class="planner-subtitle">${view==='trash'?'Los artículos retirados se conservan aquí. Puedes recuperarlos como borrador.':'Organiza las historias que vienen. Zona del calendario: '+esc(zone)+'.'}</p></div><div class="planner-tools"><button class="planner-button" data-import>Sincronizar publicados</button><button class="planner-button primary" data-new>+ Nueva historia</button></div></div>${!ready?'<p class="planner-notice">La publicación automática está pendiente de activación. Ya puedes escribir y guardar borradores privados.</p>':''}${recovered?'<p class="planner-notice">Encontramos cambios locales que no terminaron de guardarse. <button class="planner-button" data-recover>Recuperar trabajo</button></p>':''}<div class="planner-tools"><input id="planner-search" class="input-modern planner-search" placeholder="Buscar título, destino o autor" aria-label="Buscar artículos"><select id="planner-filter" class="input-modern" aria-label="Filtrar estado"><option value="">Todos los estados</option>${Object.entries(labels).filter(([k])=>k!=='trashed').map(([k,l])=>`<option value="${k}">${l}</option>`).join('')}<option value="archived">Archivados</option></select>${view==='calendar'?`<button class="planner-button" data-month="-1" aria-label="Mes anterior">←</button><strong>${esc(monthName)}</strong><button class="planner-button" data-month="1" aria-label="Mes siguiente">→</button><button class="planner-button" data-today>Hoy</button>`:''}</div>${bridge.isAdmin&&(view==='articles'||view==='trash')?selectionBar(view==='trash'?'restore':'remove'):''}<div id="planner-content"></div></div>`;
+    drawContent();
+    $('planner-search').addEventListener('input',()=>{selected.clear();drawContent();});$('planner-filter').addEventListener('change',()=>{selected.clear();drawContent();});
+  }
+  function drawContent(){
+    const filtered=entries();
+    if(view==='articles'||view==='trash'){$('planner-content').innerHTML=(filtered.length?`<div class="planner-cards">${filtered.sort((a,b)=>b.updatedAt-a.updatedAt).map(card).join('')}</div>`:'<p class="planner-empty">No hay artículos con este filtro.</p>')+(view==='trash'?noteTrashMarkup():'');updateSelection();return;}
+    const first=new Date(month.getFullYear(),month.getMonth(),1,12),start=new Date(first);start.setDate(1-((first.getDay()+6)%7));
+    let grid='<div class="calendar-weekdays" style="display:grid;grid-template-columns:repeat(7,1fr)">'+['Lun','Mar','Mié','Jue','Vie','Sáb','Dom'].map(d=>`<span class="calendar-weekday">${d}</span>`).join('')+'</div><div class="calendar-grid">';
+    for(let i=0;i<42;i++){
+      const d=new Date(start);d.setDate(start.getDate()+i);const key=`${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
+      grid+=`<section class="calendar-day ${d.getMonth()!==month.getMonth()?'outside':''} ${key===dayKey(Date.now(),zone)?'today':''}"><button class="calendar-add" data-date="${key}" aria-label="Crear artículo el ${key}">${d.getDate()} +</button>${filtered.filter(p=>postDay(p)===key).map(p=>`<button class="calendar-entry state-${p.status}" data-open="${p.id}"><small>${labels[p.status]}</small><strong>${esc(p.title||'Sin título')}</strong>${p.status==='scheduled'?`<small>${new Date(p.scheduledAt).toLocaleTimeString('es',{timeZone:zone,hour:'2-digit',minute:'2-digit'})}</small>`:''}</button>`).join('')}</section>`;
+    }
+    const monthKey=`${month.getFullYear()}-${String(month.getMonth()+1).padStart(2,'0')}`;
+    const agenda=filtered.filter(p=>postDay(p).startsWith(monthKey)).sort((a,b)=>postDay(a).localeCompare(postDay(b)));
+    $('planner-content').innerHTML=grid+'</div>'+`<div class="planner-agenda"><p class="planner-subtitle">Agenda del mes · Usa “Nueva historia” para elegir una fecha.</p>${agenda.length?agenda.map(card).join(''):'<p class="planner-empty">Este mes está listo para nuevas historias.</p>'}</div>`;
+  }
+  async function hydrate(html){
+    const doc=new DOMParser().parseFromString(html,'text/html');
+    for(const image of doc.querySelectorAll('[data-media-id]')) {try{image.src=await mediaUrl(image.dataset.mediaId);}catch{image.removeAttribute('src');}}
+    return doc.body.innerHTML;
+  }
+  async function openPost(id){
+    if(editing&&!await leave())return;
+    loading=true;
+    try{
+      validation.reset();const p=await api('get',{id});if(['trashed','removing','removal_error'].includes(p.status))throw Error('Este artículo está en retirada o en la papelera. Adminístralo desde Artículos o Papelera.');setCurrent(p);
+      const html=await hydrate(p.html||bridge.fromMarkdown(p.markdown||''));
+      bridge.write({...p,html});editorial.write(p);for(const k of ['budget','bestSeason','pitfall','ctaText','ctaLink'])$('summary-'+k).value=p.quickSummary?.[k]||'';$('hero-alt').value=p.heroAlt||'';$('review-date').value=p.reviewAt||'';$('schedule-zone').value=p.timezone||zone;
+      $('schedule-date').value=p.scheduledAt?localInput(p.scheduledAt,p.timezone||zone):`${p.date||dayKey(Date.now(),zone)}T10:00`;
+      workspace.hidden=false;panel.hidden=true;editing=true;dirty=false;
+      $('cancel-schedule').hidden=p.status!=='scheduled';notify(labels[p.status]+(p.error?` · ${p.error}`:''));
+      editorial.refresh();await updateHeroPreview();runAudit();
+    }finally{loading=false;}
+  }
+  function localInput(ms,tz){const parts=new Intl.DateTimeFormat('sv-SE',{timeZone:tz,year:'numeric',month:'2-digit',day:'2-digit',hour:'2-digit',minute:'2-digit',hourCycle:'h23'}).format(new Date(ms));return parts.replace(' ','T');}
+  async function newPost(date=dayKey(Date.now(),zone),data={}){
+    if(editing&&!await leave())return;
+    validation.reset();loading=true;active=null;for(const k of ['budget','bestSeason','pitfall','ctaText','ctaLink'])$('summary-'+k).value=data.quickSummary?.[k]||'';bridge.write({title:'',description:'',html:'',date,hero:'',tags:[],...data});$('hero-alt').value='';$('review-date').value='';$('schedule-date').value=`${date}T10:00`;$('schedule-zone').value=zone;
+    editorial.write(data);workspace.hidden=false;panel.hidden=true;editing=true;dirty=false;loading=false;$('cancel-schedule').hidden=true;notify('Nueva historia · El autoguardado empieza al escribir.');
+    if(data.title||data.html)queueSave();
+    runAudit();$('post-title').focus();
+  }
+  function runAudit(){editorial.refresh();const findings=auditContent(snapshot());validation.update(findings);$('post-audit').innerHTML=findings.map(f=>`<li class="${f.level==='error'?'planner-error':''}">${f.level==='error'?'⚠':'○'} ${esc(f.message)}${f.field?` <button type="button" class="text-action" data-audit-field="${esc(f.field)}">Revisar</button>`:''}</li>`).join('')||'<li>✓ Ficha lista para revisión final.</li>';return findings;}
+  async function publishNow(){
+    const findings=runAudit();const errors=findings.filter(x=>x.level==='error');if(errors.length){validation.reveal(findings);bridge.toast('Te llevamos al primer campo pendiente.','error');return;}
+    if(!confirm(`¿Publicar ahora “${bridge.read().title}”?`))return;
+    const p=active?.status==='error'&&!dirty?active:await save();if(!p)throw Error('Espera a que termine el guardado.');
+    busy=true;$('btn-publish').disabled=true;
+    try{const result=await api('publish',{id:p.id,version:p.version});setCurrent(result);editorial.lock(result);notify('Artículo enviado. Vercel está actualizando la web.');}
+    finally{busy=false;$('btn-publish').disabled=false;}
+  }
+  async function mediaUrl(id){if(urls.has(id))return urls.get(id);const m=await api('mediaGet',{id});const bytes=Uint8Array.from(atob(m.base64),c=>c.charCodeAt(0));const url=URL.createObjectURL(new Blob([bytes],{type:m.mime}));urls.set(id,url);return url;}
+  async function uploadFile(file,progress=()=>{}){
+    if(!/^image\/(jpeg|png|webp)$/.test(file.type))throw Error('Selecciona una foto JPG, PNG o WebP.');
+    progress(10);
+    const compressed=await imageCompression(file,{maxSizeMB:.42,maxWidthOrHeight:2200,useWebWorker:true,libURL:'/vendor/browser-image-compression/2.0.2/browser-image-compression.js'});progress(50);
+    const base64=await new Promise((resolve,reject)=>{const r=new FileReader();r.onload=()=>resolve(r.result.split(',')[1]);r.onerror=reject;r.readAsDataURL(compressed);});
+    const m=await api('mediaSave',{media:{name:file.name,base64,destination:bridge.read().tags[0]||''}});mediaMetadata.set(m.id,m);const url=await mediaUrl(m.id);progress(100);return {...m,url};
+  }
+  async function updateHeroPreview(){const hero=bridge.read().hero;if(hero.startsWith('media:'))bridge.heroPreview(await mediaUrl(hero.slice(6)));else bridge.heroPreview(hero);}
+  async function uploadHero(input){if(!input.files[0])return;const m=await uploadFile(input.files[0],n=>notify(`Subiendo portada… ${n}%`));$('post-hero').value=`media:${m.id}`;await updateHeroPreview();queueSave();notify('Portada añadida a la biblioteca privada.');input.value='';}
+  async function insertMedia(id){const m=media.find(m=>m.id===id)||mediaMetadata.get(id)||{};const url=await mediaUrl(id);bridge.insert(`<figure><img src="${esc(url)}" data-media-id="${id}" alt="${esc(m.alt||'')}">${m.credit?`<figcaption>${esc(m.credit)}</figcaption>`:''}</figure><p></p>`);queueSave();}
+  async function renderMedia(inDialog=false){
+    media=await api('mediaList');
+    const markup=`<div class="planner-heading"><div><h1>Biblioteca de fotografías</h1><p class="planner-subtitle">Fotos privadas y comprimidas · JPG, PNG o WebP. Añade descripción y crédito.</p></div><label class="planner-button primary">Subir fotografías<input id="library-upload" type="file" accept="image/jpeg,image/png,image/webp" multiple hidden></label></div><input id="media-search" class="input-modern" placeholder="Buscar por nombre o destino" aria-label="Buscar fotografías"><span id="media-progress" class="photo-progress" role="status"></span><div class="planner-cards" id="media-cards"></div>`;
+    const root=inDialog?dialog:panel;
+    root.innerHTML=inDialog?markup+'<footer><button class="planner-button" data-close-dialog>Cerrar</button></footer>':`<div class="planner-wrap">${markup}</div>`;
+    if(inDialog&&!dialog.open)dialog.showModal();
+    async function draw(){const q=$('media-search').value.toLowerCase();const list=media.filter(m=>`${m.name} ${m.destination}`.toLowerCase().includes(q));$('media-cards').innerHTML=list.map(m=>`<article class="planner-card"><img data-thumb="${m.id}" alt="${esc(m.alt||m.name)}"><p>${esc(m.name)}<br>${esc(m.destination||'Sin destino')}</p><button class="planner-button" data-meta="${m.id}">Descripción y crédito</button>${editing?`<button class="planner-button" data-photo="${m.id}">Insertar</button><button class="planner-button" data-cover="${m.id}">Usar de portada</button>`:''}</article>`).join('')||'<p class="planner-empty">Todavía no hay fotografías.</p>';for(const m of list){try{const url=await mediaUrl(m.id);const img=root.querySelector(`[data-thumb="${m.id}"]`);if(img)img.src=url;}catch(e){$('media-progress').textContent=e.message;}}}
+    $('media-search').oninput=protect(draw);await draw();
+    $('library-upload').onchange=protect(async event=>{const files=[...event.target.files];let count=0;for(const f of files){$('media-progress').textContent=`${count+1}/${files.length} · ${f.name}`;await uploadFile(f);count++;}await renderMedia(inDialog);$('media-progress').textContent=`${count} fotografías guardadas.`;});
+  }
+  function openForm(title,fields,submit){
+    dialog.innerHTML=`<h2>${esc(title)}</h2><form class="planner-form">${fields}<footer><button type="button" class="planner-button" data-close-dialog>Cancelar</button><button type="submit" class="planner-button primary">Guardar</button></footer><p id="dialog-error" role="alert"></p></form>`;
+    if(!dialog.open)dialog.showModal();
+    dialog.querySelector('form').onsubmit=async e=>{e.preventDefault();const btn=e.submitter;btn.disabled=true;try{await submit(new FormData(e.target));dialog.close();}catch(error){$('dialog-error').textContent=error.message;}finally{btn.disabled=false;}};
+  }
+  function itemForm(kind,item={}){
+    const title={ideas:'Idea para un artículo',trips:'Cuaderno de viaje',questions:'Pregunta de un viajero'}[kind];
+    const fields=`<label>Título<input name="title" class="input-modern" value="${esc(item.title||'')}" required maxlength="200"></label><label>Destino<input name="destination" class="input-modern" value="${esc(item.destination||'')}"></label>${kind==='trips'?`<div class="planner-grid-two"><label>Fecha del viaje<input name="date" type="date" class="input-modern" value="${esc(item.date||'')}"></label><label>Presupuesto y moneda<input name="budget" class="input-modern" value="${esc(item.budget||'')}" placeholder="Ej. 300 EUR · 3 días"></label></div>`:''}<label>${kind==='questions'?'Contexto y respuesta pendiente':'Notas, experiencias y datos por verificar'}<textarea name="notes" class="input-modern">${esc(item.notes||'')}</textarea></label><label>Enlaces de referencia<textarea name="links" class="input-modern" placeholder="Un enlace por línea">${esc(item.links||'')}</textarea></label>`;
+    openForm(title,fields,async f=>{await api('saveItem',{kind,item:{...item,...Object.fromEntries(f)}});await renderItems(kind);});
+  }
+  async function renderItems(kind){
+    selected.clear();items=await api('items',{kind});const title={ideas:'Bandeja de ideas',trips:'Mi viaje',questions:'Preguntas de viajeros'}[kind];
+    panel.innerHTML=`<div class="planner-wrap"><div class="planner-heading"><div><h1>${title}</h1><p class="planner-subtitle">Captura hoy lo que después se convertirá en una historia.</p></div><button class="planner-button primary" data-add-item="${kind}">+ Añadir</button></div>${selectionBar('notes')}<div class="planner-cards">${items.map(i=>`<article class="planner-card">${selectBox(i.id,i.title)}<span class="eyebrow">${esc(i.destination)}</span><h2>${esc(i.title)}</h2><p>${esc(i.notes.slice(0,400))}</p><button class="planner-button" data-edit-item="${i.id}">Editar</button><button class="planner-button" data-convert="${i.id}">${kind==='trips'?'Preparar artículo':'Convertir en borrador'}</button><button class="text-action" data-archive="${i.id}">Archivar</button><button class="planner-button danger" data-delete-item="${i.id}">Borrar</button></article>`).join('')||'<p class="planner-empty">Guarda aquí tu primera nota.</p>'}</div></div>`;
+  }
+  async function renderReviews(){
+    selected.clear();posts=(await api('list')).posts;const today=dayKey(Date.now(),zone);
+    const pending=posts.filter(p=>!p.archived&&!['trashed','removing','removal_error'].includes(p.status)&&p.reviewAt).sort((a,b)=>a.reviewAt.localeCompare(b.reviewAt));
+    panel.innerHTML=`<div class="planner-wrap"><h1>Revisar y mantener al día</h1><p class="planner-subtitle">Precios, horarios y requisitos cambian. Abre cada artículo, comprueba las fuentes y actualiza la próxima revisión.</p>${selectionBar('review')}<div class="planner-cards">${pending.map(p=>`<article class="planner-card">${selectBox(p.id,p.title)}<span class="${p.reviewAt<=today?'planner-review':'planner-pending'}">${p.reviewAt<=today?'Revisión pendiente':'Próxima revisión'} · ${esc(p.reviewAt)}</span><h2>${esc(p.title)}</h2><button class="planner-button" data-open="${p.id}">Abrir artículo</button><button class="planner-button" data-reviewed="${p.id}">Registrar revisión</button></article>`).join('')||'<p class="planner-empty">Añade una fecha de revisión desde la ficha de un artículo.</p>'}</div></div>`;
+  }
+  async function renderStats(){const s=await api('stats');panel.innerHTML=`<div class="planner-wrap"><h1>Resultados del blog</h1><p class="planner-subtitle">Últimos ${s.days} días · Medición nueva, con permiso del lector. No representa visitantes únicos ni comisiones.${s.sampled?' Muestra limitada a 5.000 grupos diarios.':''}</p><div class="planner-cards"><article class="planner-card"><h2>${s.views}</h2><p>Visitas registradas</p></article><article class="planner-card"><h2>${s.clicks}</h2><p>Clics registrados</p></article></div><h2>Páginas más consultadas</h2>${s.pages.length?s.pages.map(p=>`<p><a href="${esc(p.path.startsWith('/')?p.path:'/')}" target="_blank" rel="noopener">${esc(p.path==='/'?'Portada del blog':posts.find(article=>article.publishedUrl?.replace(/\/$/,'').endsWith(p.path.replace(/\/$/,'')))?.title||p.path)}</a> · ${p.views}</p>`).join(''):'<p class="planner-empty">Todavía no hay visitas registradas en este período.</p>'}</div>`;}
+  function chooseTemplate(){dialog.innerHTML=`<h2>Empezar con una plantilla</h2><p>Se añadirá al final del relato para conservar lo que ya escribiste.</p><div class="planner-cards">${Object.entries(templates).map(([k,t])=>`<button class="planner-button" data-template="${k}">${t.name}</button>`).join('')}</div><footer><button class="planner-button" data-close-dialog>Cerrar</button></footer>`;dialog.showModal();}
+  function chooseBlock(){dialog.innerHTML=`<h2>Añadir un bloque</h2><div class="planner-cards">${Object.entries(blocks).map(([k,t])=>`<button class="planner-button" data-block="${k}">${t.name}</button>`).join('')}</div><footer><button class="planner-button" data-close-dialog>Cerrar</button></footer>`;dialog.showModal();}
+  function assistant(){
+    const p=snapshot(),words=p.html.replace(/<[^>]+>/g,' ').split(/\s+/).filter(Boolean).length;
+    dialog.innerHTML=`<h2>Asistente editorial</h2><p class="planner-subtitle">Herramientas basadas en tu contenido. Las sugerencias no verifican precios, horarios ni experiencias.</p><div class="assistant-output">${esc(`Tu artículo tiene ${words} palabras (${Math.max(1,Math.ceil(words/220))} min de lectura).\n\nPosibles enfoques para “${p.tags[0]||'este destino'}”:\n• Qué debes saber antes de viajar\n• Mi presupuesto y los gastos que no esperaba\n• Lo que haría diferente en mi próxima visita\n\nAntes de publicarlo:\n${auditContent(p).map(f=>'• '+f.message).join('\n')||'• Haz una última lectura y verifica tus fuentes.'}`)}</div><p class="planner-subtitle">${aiReady?'Gemini está conectado. Solo se envía el texto cuando lo confirmas; revisa la propuesta antes de insertarla.':'Conexión con IA pendiente. Puedes usar las plantillas y la revisión editorial mientras tanto.'}</p>${aiReady?'<label class="field-label">Tarea<select id="ai-mode" class="input-modern"><option value="outline">Ordenar notas</option><option value="titles">Sugerir títulos</option><option value="draft">Preparar un borrador</option></select></label><label><input type="checkbox" id="ai-consent"> Autorizo enviar el título y el relato actual a Gemini para preparar una propuesta.</label><button class="planner-button primary" data-generate>Generar propuesta</button><p id="ai-status" role="status"></p><div id="ai-output" class="assistant-output" hidden></div><button class="planner-button" data-insert-ai hidden>Insertar propuesta al final del relato</button>':''}<footer><button class="planner-button" data-close-dialog>Cerrar</button></footer>`;dialog.showModal();
+  }
+  async function handle(e){
+    const b=e.target.closest('button,[data-close-dialog]');if(!b)return;
+    if(b.dataset.copyShort){try{await navigator.clipboard.writeText(b.dataset.copyShort);bridge.toast(`Link corto copiado: ${b.dataset.copyShort}`);}catch{prompt('Copia el link corto:',b.dataset.copyShort);}return;}
+    if(b.hasAttribute('data-clear-selection')){selected.clear();updateSelection();return;}
+    if(b.dataset.bulkAction)return bulkAction(b.dataset.bulkAction);
+    if(b.dataset.deleteItem)return confirmNotes(items.filter(i=>i.id===b.dataset.deleteItem));
+    if(b.dataset.restoreNote){const note=deletedNotes.find(i=>i.id===b.dataset.restoreNote&&i.kind===b.dataset.kind);if(!note)return;await api('restoreItems',{kind:note.kind,entries:[{id:note.id,version:note.version||0}]});return refresh();}
+    if(b.dataset.view)return showView(b.dataset.view);
+    if(b.hasAttribute('data-close-dialog'))return dialog.close();
+    if(b.hasAttribute('data-recover')){
+      const p=recovered;await newPost(p.date,{...p,html:await hydrate(p.html)});
+      if(p.id){const latest=await api('get',{id:p.id});if(latest.version===p.version)active=latest;else bridge.toast('Se recuperó como historia nueva para conservar la versión más reciente.');}
+      $('hero-alt').value=p.heroAlt||'';$('review-date').value=p.reviewAt||'';await updateHeroPreview();queueSave();return;
+    }
+    if(b.dataset.auditField){validation.focus(b.dataset.auditField);return;}
+    if(b.dataset.relatedArticle){const item=relatedArticles.find(p=>p.url===b.dataset.relatedArticle);if(!item)throw Error('El artículo ya no está disponible.');const text=$('related-link-text').value.trim()||item.title;dialog.close();bridge.restoreSelection?.(catalogSelection);bridge.insert(`<a href="${esc(item.url)}">${esc(text)}</a>`);queueSave();return;}
+    if(b.hasAttribute('data-new'))return newPost();
+    if(b.dataset.date)return newPost(b.dataset.date);
+    if(b.dataset.open)return openPost(b.dataset.open);
+    if(b.dataset.month){month=new Date(month.getFullYear(),month.getMonth()+Number(b.dataset.month),1,12);return refresh();}
+    if(b.hasAttribute('data-today')){month=new Date();return refresh();}
+    if(b.hasAttribute('data-retry'))return showView(view);
+    if(b.hasAttribute('data-import')){b.disabled=true;try{const r=await api('import');bridge.toast(`${r.count} artículos incorporados al calendario.`);await refresh();}finally{b.disabled=false;}return;}
+    if(b.hasAttribute('data-generate')){
+      if(!$('ai-consent').checked)throw Error('Confirma el envío del texto a Gemini.');
+      b.disabled=true;$('ai-status').textContent='Preparando propuesta…';
+      try{const p=snapshot(),plain=new DOMParser().parseFromString(p.html,'text/html').body.textContent;const r=await api('generate',{consent:true,mode:$('ai-mode').value,text:p.title+'\n'+plain});aiOutput=r.text;$('ai-output').textContent=aiOutput;$('ai-output').hidden=false;dialog.querySelector('[data-insert-ai]').hidden=false;$('ai-status').textContent='Propuesta lista para tu revisión.';}finally{b.disabled=false;}return;
+    }
+    if(b.hasAttribute('data-insert-ai')){bridge.insert('<h2>Propuesta para revisar</h2>'+aiOutput.split(/\n\n+/).map(p=>'<p>'+esc(p).replace(/\n/g,'<br>')+'</p>').join(''));queueSave();dialog.close();return;}
+    if(b.dataset.catalog){
+      const item=(await api('catalog')).find(i=>i.id===b.dataset.catalog);if(!item)throw Error('La ficha ya no está disponible.');
+      const format=$('catalog-format').value,text=$('catalog-link-text').value.trim()||item.button||item.title;
+      if(format==='card'&&!item.presentations?.card)throw Error('Recarga el editor para insertar esta tarjeta.');
+      const html=format==='card'?item.presentations.card:`<a href="${esc(item.url)}" data-catalog-id="${esc(item.id)}" data-catalog-format="${format}" ${format==='button'?'class="catalog-inline-button"':''} target="_blank" rel="${item.type==='affiliate'?'sponsored nofollow noopener':'noopener'}">${esc(text)}${format==='button'?' →':''}</a>`;
+      dialog.close();bridge.restoreSelection?.(catalogSelection);bridge.insert(format==='card'?'<p>'+html+'</p><p></p>':html);queueSave();return;
+    }
+    if(b.dataset.history){if(dirty)throw Error('Guarda los cambios actuales antes de recuperar una versión.');if(!confirm('¿Recuperar esta versión como borrador? La versión pública seguirá igual.'))return;const result=await api('restoreVersion',{id:active.id,version:active.version,historyVersion:Number(b.dataset.history)});setCurrent(result);dialog.close();return openPost(result.id);}
+    if(b.dataset.reviewed){const p=posts.find(p=>p.id===b.dataset.reviewed);openForm('Registrar revisión',`<p>Confirma que comprobaste los datos del artículo. Esto registra la revisión; los cambios en el texto se publican desde el editor.</p><label>Próxima revisión<input class="input-modern" name="reviewAt" type="date" required></label>`,async f=>{await api('reviewed',{id:p.id,version:p.version,reviewAt:f.get('reviewAt')});await renderReviews();});return;}
+    if(b.dataset.trashPost){
+      let p=await api('get',{id:b.dataset.trashPost});
+      const reviewed=await api('prepareRemoval',{id:p.id});
+      if(reviewed.version!==p.version)throw Error('La ficha cambió. Actualiza la lista antes de eliminar.');
+      openForm(p.filename?'Eliminar artículo de la web':'Mover a la papelera',`<p>${p.filename?'Se retirará de la portada, las listas y su dirección pública cuando termine la actualización de la web.':'Se cancelará cualquier programación.'} Conservaremos el contenido en la papelera y las fotografías en tu biblioteca.</p><p><strong>${esc(reviewed.title||p.title||'Sin título')}</strong></p>${reviewed.changed?'<p class="planner-notice">La versión publicada cambió desde que se cargó esta ficha. Si confirmas, retiraremos la versión actual que acabamos de comprobar. Tu borrador se conservará sin reemplazarlo.</p>':''}${reviewed.missing?'<p>El archivo ya no está en la web de origen. Comprobaremos su retirada y conservaremos tu borrador.</p>':''}<label>Escribe ELIMINAR para confirmar<input class="input-modern" name="confirmation" required autocomplete="off" placeholder="ELIMINAR"></label>`,async f=>{
+        if(f.get('confirmation')!=='ELIMINAR')throw Error('Escribe ELIMINAR para confirmar.');
+        try{await api('trash',{id:p.id,version:p.version,sourceSha:reviewed.sourceSha});bridge.toast(p.filename?'Retirada enviada. La web se está actualizando.':'Artículo movido a la papelera.');await refresh();}
+        catch(e){p=await api('get',{id:p.id});await refresh();throw e;}
+      });
+      const submit=dialog.querySelector('[type="submit"]');submit.textContent=p.filename?'Eliminar de la web':'Mover a la papelera';submit.className='planner-button danger';return;
+    }
+    if(b.dataset.restorePost){const p=await api('get',{id:b.dataset.restorePost});await api('restore',{id:p.id,version:p.version});bridge.toast('Restaurado como borrador privado.');return refresh();}
+    if(b.dataset.verifyRemoval){b.disabled=true;try{const p=await api('verifyRemoval',{id:b.dataset.verifyRemoval});bridge.toast(p.status==='trashed'?'Artículo retirado de la web.':'La retirada sigue pendiente. Vuelve a comprobarla en unos minutos.');return await refresh();}finally{b.disabled=false;}}
+    if(b.dataset.archivePost){
+      const restoring=b.dataset.restore==='true';
+      if(!restoring&&!confirm('¿Archivar esta ficha? Se cancelará su programación si la tiene. Si el artículo ya está publicado, seguirá visible en el blog.'))return;
+      await api('archive',{id:b.dataset.archivePost,archived:!restoring});return refresh();
+    }
+    if(b.dataset.reloadPost){if(confirm('¿Recargar la versión de GitHub? Se conservará una copia del trabajo actual en el historial privado.')){await api('reloadPublished',{id:b.dataset.reloadPost});return openPost(b.dataset.reloadPost);}return;}
+    if(b.dataset.verify){const p=await api('verify',{id:b.dataset.verify});setCurrent(p);return refresh();}
+    if(b.dataset.addItem)return itemForm(b.dataset.addItem);
+    if(b.dataset.editItem)return itemForm(view,items.find(i=>i.id===b.dataset.editItem));
+    if(b.dataset.archive){await api('saveItem',{kind:view,item:{...items.find(i=>i.id===b.dataset.archive),archived:true}});return renderItems(view);}
+    if(b.dataset.convert){const item=items.find(i=>i.id===b.dataset.convert);if(view==='trips'){
+      dialog.innerHTML=`<h2>Crear a partir del viaje</h2><p>Las notas se conservarán como material de trabajo.</p>${['guia','itinerario','presupuesto','transporte','experiencia'].map(k=>`<button class="planner-button" data-trip="${item.id}" data-focus="${k}">${templates[k].name}</button>`).join('')}<footer><button class="planner-button" data-close-dialog>Cerrar</button></footer>`;dialog.showModal();return;
+    }return newPost(undefined,{title:item.title,html:`<h2>Notas para desarrollar</h2><p>${esc(item.notes).replace(/\n/g,'<br>')}</p>`,tags:item.destination?[item.destination]:[]});}
+    if(b.dataset.trip){const item=items.find(i=>i.id===b.dataset.trip);dialog.close();await newPost(undefined,buildTripDraft(item,b.dataset.focus));active={tripId:item.id};return;}
+    if(b.dataset.template){bridge.insert(templates[b.dataset.template].html);dialog.close();queueSave();return;}
+    if(b.dataset.block){const block=blocks[b.dataset.block];dialog.close();if(block.fields){openForm(block.name,block.fields,async f=>{bridge.insert(block.build(Object.fromEntries(f)));queueSave();});}else{bridge.insert(block.html);queueSave();}return;}
+    if(b.dataset.photo){await insertMedia(b.dataset.photo);dialog.close();return;}
+    if(b.dataset.cover){$('post-hero').value=`media:${b.dataset.cover}`;$('hero-alt').value=media.find(m=>m.id===b.dataset.cover)?.alt||'';await updateHeroPreview();queueSave();dialog.close();return;}
+    if(b.dataset.meta){const m=media.find(m=>m.id===b.dataset.meta);openForm('Datos de la fotografía',`<label>Descripción de la imagen<input class="input-modern" name="alt" value="${esc(m.alt)}"></label><label>Crédito<input class="input-modern" name="credit" value="${esc(m.credit)}"></label><label>Destino<input class="input-modern" name="destination" value="${esc(m.destination)}"></label>`,async f=>{await api('mediaUpdate',{id:m.id,...Object.fromEntries(f)});await renderMedia(editing);});}
+  }
+  nav.addEventListener('click',protect(handle));panel.addEventListener('click',protect(handle));dialog.addEventListener('click',protect(handle));publicationControls.addEventListener('click',protect(handle));
+  workspace.addEventListener('input',queueSave);workspace.addEventListener('change',queueSave);
+  bridge.onChange(queueSave);
+  $('save-draft').onclick=protect(()=>save());$('schedule-post').onclick=protect(()=>save('scheduled'));$('cancel-schedule').onclick=protect(async()=>{if(confirm('¿Cancelar la programación y conservarlo como borrador?'))await save();});
+  $('check-links').onclick=protect(async()=>{
+    const links=[...new DOMParser().parseFromString(snapshot().html,'text/html').querySelectorAll('a[href]')].map(a=>a.getAttribute('href')).filter(h=>/^https:\/\/|^\/[^/]/.test(h));
+    if(!links.length){notify('No hay enlaces https para comprobar.');return;}
+    notify('Comprobando enlaces…');
+    const results=await api('checkLinks',{links});
+    $('post-audit').innerHTML=results.map(r=>`<li class="${r.status==='broken'?'planner-error':''}">${r.status==='ok'?'✓':'⚠'} ${esc(r.message)} · <a href="${esc(r.url)}" target="_blank" rel="noopener noreferrer">${esc(r.url)}</a></li>`).join('');notify('Revisión terminada · máximo 10 enlaces por revisión.');
+  });
+  $('editorial-structure').onclick=protect(()=>{const type=$('editorial-type').value;if(!structureHtml(type))throw Error('Elige un tipo de artículo primero.');if(!confirm(`¿Añadir la estructura de ${articleTypes[type]} al final? Tu texto se conservará.`))return;bridge.append(structureHtml(type));queueSave();});
+  let relatedArticles=[];
+  const relatedButton=document.createElement('button');relatedButton.type='button';relatedButton.textContent='Enlazar artículo';shortcuts.append(relatedButton);
+  relatedButton.onclick=protect(async()=>{
+    catalogSelection=bridge.captureSelection?.();const response=await fetch('/search-index.json',{cache:'no-store'});if(!response.ok)throw Error('No se pudo cargar la lista de artículos publicados.');relatedArticles=(await response.json()).filter(p=>typeof p.url==='string'&&/^\/posts\/[^?#\\]+$/.test(p.url)).map(p=>({...p,tags:Array.isArray(p.tags)?p.tags:[]})).filter(p=>!active?.filename||decodeURIComponent(p.url).replace(/\/$/,'')!=='/posts/'+active.filename.slice(0,-3));
+    dialog.innerHTML='<h2>Enlazar otro artículo</h2><p>Elige una publicación que ayude al lector a seguir explorando. Solo aparecen artículos presentes en el blog.</p><label class="field-label">Buscar por título o lugar<input id="related-search" class="input-modern" type="search"></label><label class="field-label">Texto del enlace<input id="related-link-text" class="input-modern" value="'+esc(catalogSelection?.text||'')+'" placeholder="Se utilizará el título si lo dejas vacío"></label><div id="related-results" class="related-results"></div><footer><button class="planner-button" data-close-dialog>Cerrar</button></footer>';
+    function draw(){const q=$('related-search').value.normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLowerCase();const list=relatedArticles.filter(p=>[p.title,p.destination,...p.tags].join(' ').normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLowerCase().includes(q));$('related-results').innerHTML=list.map(p=>`<button type="button" class="planner-button" data-related-article="${esc(p.url)}">${esc(p.title)}</button>`).join('')||'<p>No hay publicaciones con esta búsqueda.</p>';}
+    $('related-search').oninput=draw;draw();dialog.showModal();
+  });
+  $('insert-catalog').onclick=protect(async()=>{
+    catalogSelection=bridge.captureSelection?.();const catalog=await api('catalog');
+    dialog.innerHTML='<h2>Insertar recomendación o recurso</h2><p>El catálogo del admin controla los enlaces. Elige cómo mostrar esta recomendación.</p><label class="field-label">Presentación<select id="catalog-format" class="input-modern"><option value="text">Enlace dentro del texto</option><option value="button">Botón</option><option value="card">Tarjeta editorial</option></select></label><label class="field-label">Texto del enlace o botón<input id="catalog-link-text" class="input-modern" placeholder="Se usará el texto de la ficha si lo dejas vacío" value="'+esc(catalogSelection?.text||'')+'"></label><p>La tarjeta utiliza el título, la descripción y el botón de la ficha.</p>'+catalog.map(i=>`<button class="planner-button" data-catalog="${esc(i.id)}">${esc(i.title)}</button>`).join('')+'<footer><button class="planner-button" data-close-dialog>Cerrar</button></footer>';if(!catalog.length)dialog.insertAdjacentHTML('beforeend','<p>Aún no tienes fichas activas en el catálogo.</p>');dialog.showModal();
+  });
+  $('article-history').onclick=protect(async()=>{if(!active?.id)throw Error('Guarda primero el artículo.');const history=await api('history',{id:active.id});dialog.innerHTML='<h2>Versiones guardadas</h2><p>Recuperar crea un borrador. La versión pública no cambia hasta que publiques.</p>'+history.map(h=>`<p>Versión ${h.version} · ${esc(new Date(h.savedAt).toLocaleString('es'))} <button class="planner-button" data-history="${h.version}">Recuperar</button></p>`).join('')+'<footer><button class="planner-button" data-close-dialog>Cerrar</button></footer>';if(!history.length)dialog.insertAdjacentHTML('beforeend','<p>Las versiones se conservan desde esta actualización, cada vez que guardas cambios.</p>');dialog.showModal();});
+  $('audit-post').onclick=runAudit;$('insert-template').onclick=chooseTemplate;$('insert-block').onclick=chooseBlock;$('open-library').onclick=protect(()=>renderMedia(true));$('editor-assistant').onclick=assistant;
+  $('schedule-zone').onchange=()=>{zone=$('schedule-zone').value;};
+  window.publishCurrentPost=protect(publishNow);window.uploadHeroImage=protect(uploadHero);window.openLoadModal=protect(()=>showView('articles'));window.clearAll=protect(()=>newPost());
+  window.plannerUpload=async(file,progress)=>{const m=await uploadFile(file,progress);return {url:m.url,id:m.id};};
+  const beforeUnload=e=>{if(dirty){e.preventDefault();e.returnValue='';}};window.addEventListener('beforeunload',beforeUnload);
+  const timer=setInterval(()=>{if(editing&&active?.status==='deploying'&&!busy)protect(async()=>{const p=await api('verify',{id:active.id});setCurrent(p);editorial.lock(p);notify(labels[p.status]+(p.error?` · ${p.error}`:''));})();},30000);
+  let unsubscribe=()=>{};
+  const dispose=()=>{
+    if(disposed)return;disposed=true;clearTimeout(saveTimer);clearInterval(timer);
+    window.removeEventListener('beforeunload',beforeUnload);workspace.removeEventListener('input',queueSave);workspace.removeEventListener('change',queueSave);
+    urls.forEach(url=>URL.revokeObjectURL(url));nav.remove();panel.remove();dialog.remove();publicationControls.remove();shortcuts.remove();heroFields.remove();validation.dispose();editorial.dispose();unsubscribe();
+    if(disposeCurrentPlanner===dispose)disposeCurrentPlanner=null;
+  };
+  disposeCurrentPlanner=dispose;
+  unsubscribe=auth.onAuthStateChanged(user=>{if(!user)dispose();});
+  recovered=await recovery('get');
+  await showView('calendar');
+}

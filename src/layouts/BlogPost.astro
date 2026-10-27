@@ -112,9 +112,13 @@ scoredPosts.sort((a, b) => b.score - a.score || new Date(b.post.frontmatter.publ
 const relatedPosts = scoredPosts.slice(0, 3).map((item) => item.post);
 const primaryNextPost = relatedPosts[0];
 
-const searchableContext = `${currentTitle} ${currentTags.join(' ')}`;
-const showTransportCalculator = ['tren', 'avión', 'avion', 'vuelo', 'transporte', 'aeropuerto', 'barajas', 'ouigo', 'iryo', 'ave'].some((kw) => searchableContext.includes(kw));
-const showBudgetCalculator = ['días', 'dias', 'itinerario', 'guía', 'guia', 'presupuesto', 'barato', 'gratis', 'buenos aires', 'ushuaia', 'madrid', 'barcelona', 'brujas'].some((kw) => searchableContext.includes(kw));
+const showTransportCalculator =
+  Boolean(frontmatter.showTransportCalculator || content.showTransportCalculator) ||
+  currentTags.includes('calculadora-tren');
+const showBudgetCalculator =
+  Boolean(frontmatter.showBudgetCalculator || content.showBudgetCalculator) ||
+  currentTags.includes('calculadora-presupuesto');
+const showLeadMagnet = Boolean(settings.audience?.newsletterUrl);
 
 /* -----------------------------
    HEADINGS PARA ÍNDICE DEL VIAJE
@@ -553,8 +557,15 @@ const schemaData = articleSchema({post:{...post,heroImage:finalImage},author,per
 
           <SocialShare title={post.title} url={permalink} shortUrl={shortShareUrl} />
 
-          <!-- LEAD MAGNET IN-CONTENT -->
-          <LeadMagnetInContent destination={post.destination || post.tags[0] || 'España y Argentina'} />
+          <!-- LEAD MAGNET IN-CONTENT (Controlado desde /admin -> Audiencia) -->
+          {showLeadMagnet && (
+            <LeadMagnetInContent
+              destination={post.destination || post.tags[0] || 'España y Argentina'}
+              leadTitle={settings.audience.newsletterTitle || undefined}
+              leadDescription={settings.audience.newsletterText || undefined}
+              pdfDownloadUrl={settings.audience.newsletterUrl}
+            />
+          )}
 
 
           <!-- FIRMA EDITORIAL -->
@@ -624,7 +635,7 @@ const schemaData = articleSchema({post:{...post,heroImage:finalImage},author,per
 
         <!-- Publicidad y catálogo dentro de la columna editorial. -->
         <SiteAds placement="sidebar" />
-        <Recommendations tags={post.tags}/>
+        <Recommendations tags={currentTags}/>
         {settings.sponsor.enabled && settings.sponsor.confirmed && <div class="insurance-card-widget"><span class="eyebrow">ENLACE PATROCINADO</span><h4>{settings.sponsor.title}</h4><p>{settings.sponsor.text}</p><a href={settings.sponsor.url} target="_blank" rel="sponsored nofollow noopener" class="insurance-calc-btn">{settings.sponsor.button}</a></div>}
 
       </aside>

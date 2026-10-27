@@ -2,48 +2,47 @@
 import BaseHead from '../components/BaseHead.astro';
 import BlogHeader from '../components/BlogHeader.astro';
 import Footer from '../components/Footer.astro';
+import SiteAds from '../components/SiteAds.astro';
 import TransportCalculator from '../components/TransportCalculator.astro';
 import BudgetCalculator from '../components/BudgetCalculator.astro';
 import LeadMagnetInContent from '../components/LeadMagnetInContent.astro';
-import { AFFILIATE_CONFIG, buildAffiliateUrl } from '../config/affiliates';
 import settings from '../data/site-settings.json';
 
 const items = (settings.catalog || []).filter((i: any) => i.enabled && i.confirmed && i.type === 'download');
+const affiliateCatalog = (settings.catalog || []).filter((i: any) => i.enabled && i.confirmed && i.type === 'affiliate');
+const categoryLabels: Record<string, string> = {
+  transport: 'TRANSPORTE Y TRENES',
+  activity: 'TOURS, EXCURSIONES Y TRASLADOS',
+  stay: 'ALOJAMIENTO RECOMENDADO',
+  insurance: 'SEGURO MÉDICO INTERNACIONAL',
+  resource: 'CONECTIVIDAD Y RECURSOS',
+};
 
 const toolsCatalog = [
-  {
-    category: "TRENES Y AUTOBUSES EN EUROPA",
-    badge: "Ahorra hasta 70%",
-    title: "Omio / Comparador de Alta Velocidad",
-    description: "Compara en una sola pantalla OUIGO, Iryo, Renfe AVE y autobuses ALSA. Es donde cazamos los billetes de Madrid a Barcelona y Valladolid desde 7€ y 9€.",
-    ctaText: "Buscar billetes de tren baratos →",
-    url: buildAffiliateUrl("https://www.omio.com/trenes/espana", "recursos-omio"),
-  },
-  {
-    category: "FREE TOURS, EXCURSIONES Y TRASLADOS",
-    badge: "Reserva en Español",
-    title: "Civitatis (Tours Oficiales y Traslados)",
-    description: "Nuestra plataforma de cabecera para reservar Free Tours sin sorpresas, entradas sin colas al Bernabéu y traslados privados desde el aeropuerto cuando llegas de noche.",
-    ctaText: "Explorar actividades y Free Tours →",
-    url: buildAffiliateUrl("https://www.civitatis.com/es/", "recursos-civitatis"),
-  },
-  {
-    category: "SEGURO MÉDICO INTERNACIONAL",
-    badge: `${AFFILIATE_CONFIG.insurance.discountPercent}% Descuento Lector`,
-    title: `${AFFILIATE_CONFIG.insurance.providerName} (Sin Franquicia)`,
-    description: "Asistencia 24/7 en tu idioma, cobertura médica completa en Europa y Sudamérica, y protección ante robo o demora de equipaje.",
-    ctaText: `Activar mi ${AFFILIATE_CONFIG.insurance.discountPercent}% de descuento →`,
-    url: AFFILIATE_CONFIG.insurance.affiliateUrl,
-  },
-  {
-    category: "INTERNET SIN ROAMING (eSIM)",
-    badge: `Código: ${AFFILIATE_CONFIG.esim.discountCode}`,
-    title: "Holafly / Airalo eSIM Internacional",
-    description: "Aterriza en Madrid, Buenos Aires o Bruselas con datos móviles activos desde el primer minuto para pedir Uber, usar Google Maps y llevar tus billetes en el móvil.",
-    ctaText: "Ver planes de datos ilimitados →",
-    url: AFFILIATE_CONFIG.esim.affiliateUrl,
-  },
+  ...affiliateCatalog.map((item: any) => ({
+    id: item.id,
+    category: categoryLabels[item.category] || 'HERRAMIENTA DE VIAJE',
+    badge: item.provider || 'Recomendado',
+    title: item.title,
+    description: item.text || 'Plataforma verificada por el equipo editorial de Instante Trips.',
+    ctaText: `${item.button || 'Consultar disponibilidad'} →`,
+    url: item.url,
+  })),
+  ...(settings.sponsor?.enabled && settings.sponsor?.confirmed
+    ? [
+        {
+          id: 'sponsor-card',
+          category: 'SEGURO MÉDICO INTERNACIONAL',
+          badge: 'Enlace Patrocinado',
+          title: settings.sponsor.title,
+          description: settings.sponsor.text,
+          ctaText: settings.sponsor.button || 'Ver descuento →',
+          url: settings.sponsor.url,
+        },
+      ]
+    : []),
 ];
+const showLeadMagnet = Boolean(settings.audience?.newsletterUrl);
 ---
 <html lang="es">
   <head>
@@ -79,32 +78,37 @@ const toolsCatalog = [
       <!-- 2. CALCULADORA DE PRESUPUESTO DIARIO -->
       <BudgetCalculator />
 
-      <!-- 3. DIRECTORIO DE PLATAFORMAS PROBADAS (MONETIZACIÓN DE AFILIADOS) -->
-      <section id="herramientas-probadas" class="tools-directory-section">
-        <span class="eyebrow">PROBADAS EN EL TERRENO</span>
-        <h2>Las 4 plataformas que usamos en todos nuestros viajes</h2>
-        <div class="tools-cards-grid">
-          {toolsCatalog.map((tool) => (
-            <article class="tool-resource-card">
-              <div class="tool-card-top">
-                <span class="tool-category">{tool.category}</span>
-                <span class="tool-discount-badge">{tool.badge}</span>
-              </div>
-              <h3>{tool.title}</h3>
-              <p>{tool.description}</p>
-              <a
-                href={tool.url}
-                target="_blank"
-                rel="sponsored nofollow noopener"
-                class="tool-cta-link"
-                data-track="affiliate_click"
-              >
-                {tool.ctaText}
-              </a>
-            </article>
-          ))}
-        </div>
-      </section>
+      <SiteAds placement="home" />
+
+      <!-- 3. DIRECTORIO DE PLATAFORMAS PROBADAS (CONECTADO A /ADMIN) -->
+      {toolsCatalog.length > 0 && (
+        <section id="herramientas-probadas" class="tools-directory-section">
+          <span class="eyebrow">PROBADAS EN EL TERRENO</span>
+          <h2>Plataformas y descuentos que usamos en nuestros viajes</h2>
+          <div class="tools-cards-grid">
+            {toolsCatalog.map((tool) => (
+              <article class="tool-resource-card">
+                <div class="tool-card-top">
+                  <span class="tool-category">{tool.category}</span>
+                  <span class="tool-discount-badge">{tool.badge}</span>
+                </div>
+                <h3>{tool.title}</h3>
+                <p>{tool.description}</p>
+                <a
+                  href={tool.url}
+                  target="_blank"
+                  rel="sponsored nofollow noopener"
+                  class="tool-cta-link"
+                  data-track="affiliate_click"
+                  data-catalog-id={tool.id}
+                >
+                  {tool.ctaText}
+                </a>
+              </article>
+            ))}
+          </div>
+        </section>
+      )}
 
       <!-- 4. RECURSOS DESCARGABLES CONFIGURADOS EN EL PANEL ADMIN -->
       {items.length > 0 && (
@@ -130,13 +134,16 @@ const toolsCatalog = [
       )}
 
       <!-- 5. DESCARGA DE MAPAS Y CHECKLISTS PDF -->
-      <section id="descargas">
-        <LeadMagnetInContent
-          destination="España, Bélgica y Argentina"
-          leadTitle="Descarga el Pack Completo de Mapas Privados y Checklists de Equipaje"
-          leadDescription="Accede gratis a nuestros mapas de Google Maps con restaurantes locales, paradas seguras de metro y plantillas de presupuesto."
-        />
-      </section>
+      {showLeadMagnet && (
+        <section id="descargas">
+          <LeadMagnetInContent
+            destination="España, Bélgica y Argentina"
+            leadTitle={settings.audience.newsletterTitle || "Descarga el Pack Completo de Mapas Privados y Checklists de Equipaje"}
+            leadDescription={settings.audience.newsletterText || "Accede gratis a nuestros mapas de Google Maps con restaurantes locales, paradas seguras de metro y plantillas de presupuesto."}
+            pdfDownloadUrl={settings.audience.newsletterUrl}
+          />
+        </section>
+      )}
     </main>
     <Footer />
 

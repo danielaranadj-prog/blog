@@ -1,0 +1,442 @@
+---
+import BaseHead from '../../components/BaseHead.astro';
+import BlogHeader from '../../components/BlogHeader.astro';
+import Footer from '../../components/Footer.astro';
+import BlogPostPreview from '../../components/BlogPostPreview.astro';
+import SiteAds from '../../components/SiteAds.astro';
+import Recommendations from '../../components/Recommendations.astro';
+import LeadMagnetInContent from '../../components/LeadMagnetInContent.astro';
+import settings from '../../data/site-settings.json';
+import { buildCountryHubs } from '../../utils/country-hubs.mjs';
+import { optimizeImageUrl } from '../../config/affiliates';
+import { jsonLd } from '../../utils/article-seo.mjs';
+
+export async function getStaticPaths() {
+  const allPosts = await Astro.glob('../posts/*.md');
+  const hubs = buildCountryHubs(allPosts);
+
+  return hubs.map((hub) => ({
+    params: { pais: hub.slug },
+    props: {
+      hub,
+      otherHubs: hubs.filter((h) => h.slug !== hub.slug),
+    },
+  }));
+}
+
+const { hub, otherHubs = [] } = Astro.props;
+const permalink = new URL(`/destinos/${hub.slug}/`, Astro.site || 'https://www.instantetrips.com').href;
+const heroImg = optimizeImageUrl(hub.heroImage, 1200);
+const showLeadMagnet = Boolean(settings.audience?.newsletterUrl);
+
+const hubSchema = {
+  '@context': 'https://schema.org',
+  '@type': 'CollectionPage',
+  name: `Guías de Viaje a ${hub.name} | ${settings.name}`,
+  description: hub.description,
+  url: permalink,
+  isPartOf: {
+    '@type': 'WebSite',
+    name: settings.name,
+    url: 'https://www.instantetrips.com/',
+  },
+  breadcrumb: {
+    '@type': 'BreadcrumbList',
+    itemListElement: [
+      { '@type': 'ListItem', position: 1, name: 'Inicio', item: 'https://www.instantetrips.com/' },
+      { '@type': 'ListItem', position: 2, name: 'Destinos', item: 'https://www.instantetrips.com/destinos/' },
+      { '@type': 'ListItem', position: 3, name: hub.name, item: permalink },
+    ],
+  },
+};
+---
+
+<html lang="es">
+  <head>
+    <BaseHead
+      title={`Viajar a ${hub.name}: Guías, Rutas y Presupuesto Real | ${settings.name}`}
+      description={hub.description}
+      permalink={permalink}
+      image={heroImg}
+    />
+    <script type="application/ld+json" set:html={jsonLd(hubSchema)} />
+  </head>
+  <body>
+    <BlogHeader />
+
+    <main class="country-hub-shell">
+      <nav class="hub-breadcrumbs" aria-label="Migas de pan">
+        <a href="/">Inicio</a>
+        <span>/</span>
+        <a href="/destinos">Destinos</a>
+        <span>/</span>
+        <strong>{hub.flag} {hub.name}</strong>
+      </nav>
+
+      <!-- HERO EDITORIAL DEL PAÍS -->
+      <header class="hub-hero-banner">
+        <div class="hub-hero-copy">
+          <span class="hub-eyebrow">{hub.eyebrow} · {hub.count} {hub.count === 1 ? 'GUÍA PUBLICADA' : 'GUÍAS PUBLICADAS'}</span>
+          <h1>{hub.flag} Guía para Viajar a {hub.name} sin Filtros</h1>
+          <p class="hub-description">{hub.description}</p>
+        </div>
+        <div class="hub-hero-media">
+          <img src={heroImg} alt={`Viajar a ${hub.name}`} loading="eager" fetchpriority="high" width="720" height="440" />
+        </div>
+      </header>
+
+      <!-- FICHA RÁPIDA DEL PAÍS (DATOS PRÁCTICOS) -->
+      {hub.facts && hub.facts.length > 0 && (
+        <section class="hub-facts-bar" aria-label={`Datos prácticos de ${hub.name}`}>
+          {hub.facts.map((fact: any) => (
+            <div class="hub-fact-item">
+              <span class="fact-label">{fact.label}</span>
+              <strong class="fact-value">{fact.value}</strong>
+            </div>
+          ))}
+        </section>
+      )}
+
+      <!-- ESPACIO ADSENSE 1: Banner Horizontal Superior (Controlado desde /admin -> Publicidad -> homeSlot) -->
+      <SiteAds placement="home" />
+
+      <!-- LAYOUT 2 COLUMNAS: GUÍAS DEL PAÍS + BARRA LATERAL CONECTADA A /ADMIN -->
+      <div class="hub-two-cols">
+        <div class="hub-main-column">
+          <div class="hub-section-header">
+            <span class="hub-eyebrow">RUTAS Y DECISIONES INTELIGENTES</span>
+            <h2>Todas las guías de {hub.name} ({hub.count})</h2>
+          </div>
+
+          <div class="hub-posts-grid">
+            {hub.posts.map((post: any) => (
+              <BlogPostPreview post={post} />
+            ))}
+          </div>
+
+          <!-- ESPACIO ADSENSE 2: Banner Final de Contenido (Controlado desde /admin -> Publicidad -> articleSlot) -->
+          <SiteAds placement="article" />
+
+          <!-- LEAD MAGNET CONECTADO A /ADMIN -> AUDIENCIA -->
+          {showLeadMagnet && (
+            <LeadMagnetInContent
+              destination={hub.name}
+              leadTitle={settings.audience.newsletterTitle || undefined}
+              leadDescription={settings.audience.newsletterText || undefined}
+              pdfDownloadUrl={settings.audience.newsletterUrl}
+            />
+          )}
+        </div>
+
+        <!-- BARRA LATERAL DEL PAÍS: ADSENSE SIDEBAR + AFILIADOS FILTRADOS POR PAÍS + SPONSOR -->
+        <aside class="hub-sticky-sidebar" aria-label={`Recursos para viajar a ${hub.name}`}>
+          <!-- ESPACIO ADSENSE 3: Anuncio Cuadrado en Barra Lateral (Controlado desde /admin -> Publicidad -> sidebarSlot) -->
+          <SiteAds placement="sidebar" />
+
+          <!-- CATÁLOGO DE AFILIADOS Y RECURSOS FILTRADO POR ETIQUETAS DEL PAÍS (Controlado desde /admin -> Afiliados y recursos) -->
+          <Recommendations tags={hub.recommendationTags} />
+
+          <!-- TARJETA PATROCINADA (Controlada desde /admin -> Publicidad -> Tarjeta patrocinada) -->
+          {settings.sponsor?.enabled && settings.sponsor?.confirmed && (
+            <div class="hub-sponsor-widget">
+              <span class="eyebrow">ENLACE PATROCINADO</span>
+              <h4>{settings.sponsor.title}</h4>
+              <p>{settings.sponsor.text}</p>
+              <a href={settings.sponsor.url} target="_blank" rel="sponsored nofollow noopener" class="hub-sponsor-btn">
+                {settings.sponsor.button}
+              </a>
+            </div>
+          )}
+
+          {otherHubs.length > 0 && (
+            <div class="other-hubs-widget">
+              <span class="eyebrow">OTROS PAÍSES</span>
+              <h4>Explora más destinos</h4>
+              <ul>
+                {otherHubs.map((other: any) => (
+                  <li>
+                    <a href={`/destinos/${other.slug}`}>
+                      <span>{other.flag} {other.name}</span>
+                      <small>{other.count} guías →</small>
+                    </a>
+                  </li>
+                ))}
+              </ul>
+            </div>
+          )}
+        </aside>
+      </div>
+    </main>
+
+    <Footer />
+
+    <style>
+      .country-hub-shell {
+        max-width: 1220px;
+        margin: 0 auto;
+        padding: 1.5rem 1.5rem 5rem;
+        font-family: var(--font-sans, sans-serif);
+      }
+
+      .hub-breadcrumbs {
+        display: flex;
+        flex-wrap: wrap;
+        align-items: center;
+        gap: 0.5rem;
+        font-size: 0.82rem;
+        color: #71717A;
+        margin-bottom: 1.5rem;
+      }
+
+      .hub-breadcrumbs a {
+        color: #18181B;
+        text-decoration: none;
+        font-weight: 700;
+      }
+
+      .hub-breadcrumbs a:hover {
+        color: #E04F16;
+      }
+
+      .hub-hero-banner {
+        display: grid;
+        grid-template-columns: 1fr;
+        gap: 2rem;
+        align-items: center;
+        background: #FFFFFF;
+        border: 1.5px solid #18181B;
+        border-radius: 20px;
+        padding: 1.75rem;
+        margin-bottom: 1.5rem;
+        box-shadow: 0 8px 26px rgba(24, 24, 27, 0.05);
+      }
+
+      @media (min-width: 900px) {
+        .hub-hero-banner {
+          grid-template-columns: 1.15fr 0.85fr;
+          padding: 2.5rem;
+        }
+      }
+
+      .hub-eyebrow {
+        font-size: 0.72rem;
+        font-weight: 800;
+        letter-spacing: 0.09em;
+        color: #E04F16;
+        text-transform: uppercase;
+        display: block;
+        margin-bottom: 0.5rem;
+      }
+
+      .hub-hero-copy h1 {
+        font-family: var(--font-serif, "Playfair Display", serif);
+        font-size: clamp(2rem, 3.8vw, 3rem);
+        font-weight: 900;
+        line-height: 1.12;
+        color: #18181B;
+        margin: 0 0 1rem;
+      }
+
+      .hub-description {
+        font-size: 1.02rem;
+        line-height: 1.65;
+        color: #52525B;
+        margin: 0;
+      }
+
+      .hub-hero-media {
+        border-radius: 14px;
+        overflow: hidden;
+        height: 260px;
+        background: #E6E1D6;
+      }
+
+      @media (min-width: 900px) {
+        .hub-hero-media {
+          height: 300px;
+        }
+      }
+
+      .hub-hero-media img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        display: block;
+      }
+
+      .hub-facts-bar {
+        display: grid;
+        grid-template-columns: 1fr;
+        gap: 1rem;
+        background: #FAF7F2;
+        border: 1.5px solid #D6D1C4;
+        border-radius: 16px;
+        padding: 1.25rem 1.5rem;
+        margin-bottom: 2rem;
+      }
+
+      @media (min-width: 680px) {
+        .hub-facts-bar {
+          grid-template-columns: repeat(2, 1fr);
+        }
+      }
+
+      @media (min-width: 1024px) {
+        .hub-facts-bar {
+          grid-template-columns: repeat(4, 1fr);
+        }
+      }
+
+      .hub-fact-item {
+        display: flex;
+        flex-direction: column;
+        gap: 0.25rem;
+      }
+
+      .fact-label {
+        font-size: 0.68rem;
+        font-weight: 800;
+        text-transform: uppercase;
+        letter-spacing: 0.08em;
+        color: #E04F16;
+      }
+
+      .fact-value {
+        font-size: 0.85rem;
+        line-height: 1.45;
+        color: #18181B;
+      }
+
+      .hub-two-cols {
+        display: grid;
+        grid-template-columns: 1fr;
+        gap: 2.5rem;
+        margin-top: 2rem;
+      }
+
+      @media (min-width: 1024px) {
+        .hub-two-cols {
+          grid-template-columns: minmax(0, 1fr) 340px;
+          align-items: start;
+          gap: 3rem;
+        }
+      }
+
+      .hub-section-header h2 {
+        font-family: var(--font-serif, "Playfair Display", serif);
+        font-size: clamp(1.6rem, 2.8vw, 2.2rem);
+        font-weight: 900;
+        margin: 0 0 1.5rem;
+        color: #18181B;
+      }
+
+      .hub-posts-grid {
+        display: grid;
+        grid-template-columns: 1fr;
+        gap: 1.75rem;
+      }
+
+      @media (min-width: 680px) {
+        .hub-posts-grid {
+          grid-template-columns: repeat(2, 1fr);
+        }
+      }
+
+      .hub-sticky-sidebar {
+        display: flex;
+        flex-direction: column;
+        gap: 1.5rem;
+      }
+
+      @media (min-width: 1024px) {
+        .hub-sticky-sidebar {
+          position: sticky;
+          top: 6rem;
+        }
+      }
+
+      .hub-sponsor-widget,
+      .other-hubs-widget {
+        background: #FFFFFF;
+        border: 1.5px solid #18181B;
+        border-radius: 14px;
+        padding: 1.35rem;
+      }
+
+      .hub-sponsor-widget .eyebrow,
+      .other-hubs-widget .eyebrow {
+        font-size: 0.65rem;
+        font-weight: 800;
+        letter-spacing: 0.08em;
+        color: #E04F16;
+        display: block;
+        margin-bottom: 0.4rem;
+      }
+
+      .hub-sponsor-widget h4,
+      .other-hubs-widget h4 {
+        font-family: var(--font-serif, "Playfair Display", serif);
+        font-size: 1.25rem;
+        margin: 0 0 0.5rem;
+        color: #18181B;
+      }
+
+      .hub-sponsor-widget p {
+        font-size: 0.83rem;
+        line-height: 1.6;
+        color: #52525B;
+        margin: 0 0 1rem;
+      }
+
+      .hub-sponsor-btn {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        background: #18181B;
+        color: #FFFFFF;
+        text-decoration: none;
+        font-size: 0.78rem;
+        font-weight: 800;
+        padding: 0.75rem 1rem;
+        border-radius: 999px;
+      }
+
+      .hub-sponsor-btn:hover {
+        background: #E04F16;
+      }
+
+      .other-hubs-widget ul {
+        list-style: none;
+        padding: 0;
+        margin: 0.75rem 0 0;
+        display: flex;
+        flex-direction: column;
+        gap: 0.6rem;
+      }
+
+      .other-hubs-widget li a {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 0.65rem 0.85rem;
+        border-radius: 10px;
+        background: #FAF7F2;
+        border: 1px solid #E6E1D6;
+        color: #18181B;
+        text-decoration: none;
+        font-weight: 700;
+        font-size: 0.86rem;
+      }
+
+      .other-hubs-widget li a:hover {
+        border-color: #E04F16;
+        color: #E04F16;
+      }
+
+      .other-hubs-widget small {
+        font-size: 0.75rem;
+        color: #71717A;
+      }
+    </style>
+  </body>
+</html>

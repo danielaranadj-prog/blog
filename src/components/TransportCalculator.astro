@@ -4,10 +4,11 @@
  * Micro-herramienta interactiva: "¿Tren de Alta Velocidad o Avión Puerta a Puerta?"
  * Retiene al lector de 2 a 4 minutos y dirige el clic hacia el enlace de afiliado ganador.
  */
-import { buildAffiliateUrl } from "../config/affiliates";
+import settings from "../data/site-settings.json";
 
-const trainAffiliateUrl = buildAffiliateUrl("https://www.omio.com/trenes/espana", "calc-tren-vs-avion");
-const transferAffiliateUrl = buildAffiliateUrl("https://www.civitatis.com/es/madrid/traslados-madrid/", "calc-traslados");
+const catalog = settings.catalog || [];
+const trainItem = catalog.find((i: any) => i.enabled && i.confirmed && i.type === "affiliate" && i.category === "transport");
+const transferItem = catalog.find((i: any) => i.enabled && i.confirmed && i.type === "affiliate" && i.category === "activity");
 ---
 
 <section class="calc-tool-card" id="calculadora-transporte" aria-label="Calculadora interactiva Tren vs Avión">
@@ -72,16 +73,18 @@ const transferAffiliateUrl = buildAffiliateUrl("https://www.civitatis.com/es/mad
         <li>🌱 <strong>Huella de CO₂:</strong> <span>14 kg (84% menos emisiones)</span></li>
       </ul>
 
-      <a
-        href={trainAffiliateUrl}
-        target="_blank"
-        rel="sponsored nofollow noopener"
-        class="calc-cta-btn calc-cta-primary"
-        data-track="affiliate_click"
-        data-catalog-id="calc-train-cta"
-      >
-        Buscar billetes desde 9€ →
-      </a>
+      {trainItem && (
+        <a
+          href={trainItem.url}
+          target="_blank"
+          rel="sponsored nofollow noopener"
+          class="calc-cta-btn calc-cta-primary"
+          data-track="affiliate_click"
+          data-catalog-id={trainItem.id}
+        >
+          {trainItem.button || "Buscar billetes desde 9€"} →
+        </a>
+      )}
     </div>
 
     <!-- TARJETA AVIÓN -->
@@ -100,16 +103,18 @@ const transferAffiliateUrl = buildAffiliateUrl("https://www.civitatis.com/es/mad
         <li>⏳ <strong>Tiempo muerto en control y embarque:</strong> <span>2h 15m</span></li>
       </ul>
 
-      <a
-        href={transferAffiliateUrl}
-        target="_blank"
-        rel="sponsored nofollow noopener"
-        class="calc-cta-btn calc-cta-secondary"
-        data-track="affiliate_click"
-        data-catalog-id="calc-transfer-cta"
-      >
-        ¿Ya tienes vuelo? Reserva traslado privado →
-      </a>
+      {transferItem && (
+        <a
+          href={transferItem.url}
+          target="_blank"
+          rel="sponsored nofollow noopener"
+          class="calc-cta-btn calc-cta-secondary"
+          data-track="affiliate_click"
+          data-catalog-id={transferItem.id}
+        >
+          {transferItem.button || "¿Ya tienes vuelo? Reserva traslado privado"} →
+        </a>
+      )}
     </div>
   </div>
 </section>

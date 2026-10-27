@@ -118,16 +118,6 @@
       "permanent": true
     },
     {
-      "source": "/destinos",
-      "destination": "/#explorar",
-      "permanent": true
-    },
-    {
-      "source": "/destinos/",
-      "destination": "/#explorar",
-      "permanent": true
-    },
-    {
       "source": "/sitemap.xml",
       "destination": "/sitemap-index.xml",
       "permanent": true
