@@ -5,7 +5,7 @@ function validateEvent(input){
  if(!input||!TYPES.has(input.type))fail('Evento inválido.');
  let path=String(input.path||'');try{path=decodeURIComponent(path);}catch{fail('Ruta inválida.');}
  path=path.replace(/\/+$/,'')||'/';
- if(path.length>240||!/^\/(?:posts\/[^/?#\\\s]+|legal\/(?:privacidad|terminos)|(?:\d+|sobre-mi|manifiesto|cookies|recursos|buscar))?$/.test(path))fail('Ruta inválida.');
+ if(path.length>240||!/^\/(?:posts\/[^/?#\\\s]+|ir\/[^/?#\\\s]+|legal\/(?:privacidad|terminos)|(?:\d+|sobre-mi|manifiesto|cookies|recursos|mi-ruta|buscar))?$/.test(path))fail('Ruta inválida.');
  if(!/^[a-zA-Z0-9_-]{16,80}$/.test(input.id||''))fail('Identificador inválido.');
  const target=String(input.target||'');if(target&&!/^[a-zA-Z0-9._-]{1,100}$/.test(target))fail('Referencia inválida.');
  return {type:input.type,path,id:input.id,target};

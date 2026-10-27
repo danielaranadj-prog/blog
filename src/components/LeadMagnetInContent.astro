@@ -306,7 +306,7 @@ const {
             id: crypto.randomUUID(),
             type: "download_click",
             path: location.pathname,
-            target: `lead_capture:${form.dataset.destination || "general"}`,
+            target: `lead_capture_${(form.dataset.destination || "general").replace(/[^a-zA-Z0-9._-]/g, "_")}`.slice(0, 80),
           }),
         });
       } catch {}
