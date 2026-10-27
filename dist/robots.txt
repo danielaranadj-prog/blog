@@ -1,6 +1,0 @@
-User-agent: *
-Allow: /
-Disallow: /admin
-Disallow: /editor
-
-Sitemap: https://www.instantetrips.com/sitemap-index.xml
