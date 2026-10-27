@@ -9,6 +9,11 @@ import Footer from '../components/Footer.astro';
 import QuickSummaryBox from '../components/QuickSummaryBox.astro';
 import Recommendations from '../components/Recommendations.astro';
 import SocialShare from '../components/SocialShare.astro';
+import RetentionSystem from '../components/RetentionSystem.astro';
+import LeadMagnetInContent from '../components/LeadMagnetInContent.astro';
+import TransportCalculator from '../components/TransportCalculator.astro';
+import BudgetCalculator from '../components/BudgetCalculator.astro';
+import { optimizeImageUrl } from '../config/affiliates';
 
 import type { Author } from '../data/authors';
 import { AUTHORS, DEFAULT_AUTHOR } from '../data/authors';
@@ -47,7 +52,8 @@ const post = {
 const author: Author =
   (post.authorSlug && (AUTHORS[post.authorSlug] || Object.values(AUTHORS).find(a=>a.name===post.authorSlug))) || DEFAULT_AUTHOR;
 
-const finalImage = post.heroImage || post.heroImageLink;
+const rawHeroImage = post.heroImage || post.heroImageLink;
+const finalImage = rawHeroImage ? optimizeImageUrl(rawHeroImage, 1200) : undefined;
 const permalink = new URL(Astro.url.pathname,Astro.site).href;
 
 
@@ -102,6 +108,11 @@ const scoredPosts = otherPosts.map((p) => {
 
 scoredPosts.sort((a, b) => b.score - a.score || new Date(b.post.frontmatter.publishDate).valueOf() - new Date(a.post.frontmatter.publishDate).valueOf());
 const relatedPosts = scoredPosts.slice(0, 3).map((item) => item.post);
+const primaryNextPost = relatedPosts[0];
+
+const searchableContext = `${currentTitle} ${currentTags.join(' ')}`;
+const showTransportCalculator = ['tren', 'avión', 'avion', 'vuelo', 'transporte', 'aeropuerto', 'barajas', 'ouigo', 'iryo', 'ave'].some((kw) => searchableContext.includes(kw));
+const showBudgetCalculator = ['días', 'dias', 'itinerario', 'guía', 'guia', 'presupuesto', 'barato', 'gratis', 'buenos aires', 'ushuaia', 'madrid', 'barcelona', 'brujas'].some((kw) => searchableContext.includes(kw));
 
 /* -----------------------------
    HEADINGS PARA ÍNDICE DEL VIAJE
@@ -406,7 +417,7 @@ const schemaData = articleSchema({post:{...post,heroImage:finalImage},author,per
     .article-two-cols-layout { margin-top: 2rem; }
     .article-main-surface { min-width: 0; background: transparent; border: 0; border-radius: 0; box-shadow: none; overflow: visible; }
     .article-inner-padding { padding: 0; }
-    .article-hero-wrap { float: left; width: 48%; height: auto; aspect-ratio: 1.45; margin: 0 1.5rem 1rem 0; border-radius: 10px; }
+    .article-hero-wrap { float: none; width: 100%; height: auto; aspect-ratio: 16 / 9; margin: 0 0 2rem 0; border-radius: 14px; overflow: hidden; box-shadow: 0 6px 24px rgba(0, 0, 0, 0.06); }
     :global(.prose .cta-destination-card) {display:block;margin:2rem 0;padding:1.5rem;background:#F3EFE6;border:1.5px solid #18181B;border-radius:14px;color:#18181B;text-decoration:none;}
     :global(.prose .cta-destination-card strong) {display:block;font-size:1.6rem;line-height:1.3;margin:.7rem 0;}
     :global(.prose .editor-link-button) {display:inline-block;background:#E04F16;color:white;border-radius:999px;padding:.7rem 1.2rem;text-decoration:none;font-weight:700;}
@@ -417,9 +428,16 @@ const schemaData = articleSchema({post:{...post,heroImage:finalImage},author,per
     .article-affiliate-notice {font:400 .75rem/1.7 var(--font-sans);color:#736D64;margin:1rem 0;}
     .article-meta-bar { margin-bottom: 0; padding-bottom: 0; border-bottom: 0; }
     .article-sticky-sidebar { border-left: 1px solid #e5e2dc; padding-left: 1.5rem; }
+    .mobile-toc-accordion { display: block; margin: 1.25rem 0 1.75rem; background: #FAF7F2; border: 1.5px solid #18181B; border-radius: 12px; padding: 0.9rem 1.15rem; box-shadow: 0 3px 0 rgba(24, 24, 27, 0.08); }
+    .mobile-toc-summary { font-family: var(--font-sans); font-size: 0.85rem; font-weight: 800; color: #18181B; cursor: pointer; display: flex; align-items: center; justify-content: space-between; list-style: none; }
+    .mobile-toc-summary::-webkit-details-marker { display: none; }
+    .mobile-toc-list { margin: 0.85rem 0 0; padding: 0.75rem 0 0 1.1rem; border-top: 1px dashed #D6D1C4; display: flex; flex-direction: column; gap: 0.6rem; }
+    .mobile-toc-list a { color: #27272A; text-decoration: none; font-size: 0.85rem; font-weight: 600; line-height: 1.4; }
+    .mobile-toc-list a:hover { color: #E04F16; }
     @media (min-width: 1024px) {
-      .article-two-cols-layout { grid-template-columns: minmax(0, 1fr) 320px; gap: 2rem; }
-      .article-sticky-sidebar { position:static; padding-left:16px; }
+      .article-two-cols-layout { grid-template-columns: minmax(0, 1fr) 340px; align-items: start; gap: 2.75rem; }
+      .article-sticky-sidebar { position: sticky; top: 5.5rem; z-index: 20; max-height: calc(100vh - 6.5rem); overflow-y: auto; scrollbar-width: thin; padding-left: 1.5rem; }
+      .mobile-toc-accordion { display: none; }
     }
     @media (max-width: 1023px) { .article-sticky-sidebar {border-left:0;padding-left:0;position:static;} }
     @media (max-width: 699px) {
@@ -472,6 +490,33 @@ const schemaData = articleSchema({post:{...post,heroImage:finalImage},author,per
           <!-- TL;DR TICKET COMPONENT -->
           {post.quickSummary && Object.values(post.quickSummary).some(Boolean) && <QuickSummaryBox {...post.quickSummary} />}
 
+          <!-- SISTEMA DE RETENCIÓN: BARRA DE PROGRESO, GUARDAR EN MI RUTA (OFFLINE) Y DRAWER 65% -->
+          <RetentionSystem
+            articleTitle={post.title}
+            articleUrl={Astro.url.pathname}
+            articleCategory={post.destination || post.tags[0] || 'Viajes'}
+            nextPostTitle={primaryNextPost?.frontmatter?.title}
+            nextPostUrl={primaryNextPost?.url}
+            nextPostHook={primaryNextPost?.frontmatter?.description}
+          />
+
+          <!-- ÍNDICE DEL VIAJE COLAPSABLE SUPERIOR PARA MÓVIL -->
+          {tocHeadings.length > 0 && (
+            <details class="mobile-toc-accordion">
+              <summary class="mobile-toc-summary">
+                <span>🧭 Índice del viaje ({tocHeadings.length} paradas)</span>
+                <span aria-hidden="true">▾</span>
+              </summary>
+              <ol class="mobile-toc-list">
+                {tocHeadings.map((h: any, idx: number) => (
+                  <li>
+                    <a href={`#${h.slug}`}>{idx + 1}. {h.text.replace(/^\d+[.)]\s*/, '')}</a>
+                  </li>
+                ))}
+              </ol>
+            </details>
+          )}
+
 
 
     <div class="article-two-cols-layout">
@@ -498,11 +543,16 @@ const schemaData = articleSchema({post:{...post,heroImage:finalImage},author,per
 
             <slot />
           </div>
+
+          {showTransportCalculator && <TransportCalculator />}
+          {showBudgetCalculator && !showTransportCalculator && <BudgetCalculator />}
+
           <SiteAds placement="article" />
 
           <SocialShare title={post.title} url={permalink} />
 
           <!-- LEAD MAGNET IN-CONTENT -->
+          <LeadMagnetInContent destination={post.destination || post.tags[0] || 'España y Argentina'} />
 
 
           <!-- FIRMA EDITORIAL -->
@@ -521,7 +571,8 @@ const schemaData = articleSchema({post:{...post,heroImage:finalImage},author,per
               <h3 class="related-heading-serif">Guías que te van a ahorrar dinero y tiempo</h3>
               <div class="related-cards-grid">
                 {relatedPosts.map((r) => {
-                  const rImg = r.frontmatter.heroImage || r.frontmatter.heroImageLink;
+                  const rawRelatedImg = r.frontmatter.heroImage || r.frontmatter.heroImageLink;
+                  const rImg = rawRelatedImg ? optimizeImageUrl(rawRelatedImg, 400) : undefined;
                   return (
                     <a href={r.url} class="related-mini-card">
                       {rImg && (

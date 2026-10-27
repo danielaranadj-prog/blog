@@ -1,6 +1,329 @@
 ---
-import EditorialPage from '../layouts/EditorialPage.astro';
+import BaseHead from '../components/BaseHead.astro';
+import BlogHeader from '../components/BlogHeader.astro';
+import Footer from '../components/Footer.astro';
+import TransportCalculator from '../components/TransportCalculator.astro';
+import BudgetCalculator from '../components/BudgetCalculator.astro';
+import LeadMagnetInContent from '../components/LeadMagnetInContent.astro';
+import { AFFILIATE_CONFIG, buildAffiliateUrl } from '../config/affiliates';
 import settings from '../data/site-settings.json';
-const items=settings.catalog.filter(i=>i.enabled&&i.confirmed&&i.type==='download');
+
+const items = (settings.catalog || []).filter((i: any) => i.enabled && i.confirmed && i.type === 'download');
+
+const toolsCatalog = [
+  {
+    category: "TRENES Y AUTOBUSES EN EUROPA",
+    badge: "Ahorra hasta 70%",
+    title: "Omio / Comparador de Alta Velocidad",
+    description: "Compara en una sola pantalla OUIGO, Iryo, Renfe AVE y autobuses ALSA. Es donde cazamos los billetes de Madrid a Barcelona y Valladolid desde 7€ y 9€.",
+    ctaText: "Buscar billetes de tren baratos →",
+    url: buildAffiliateUrl("https://www.omio.com/trenes/espana", "recursos-omio"),
+  },
+  {
+    category: "FREE TOURS, EXCURSIONES Y TRASLADOS",
+    badge: "Reserva en Español",
+    title: "Civitatis (Tours Oficiales y Traslados)",
+    description: "Nuestra plataforma de cabecera para reservar Free Tours sin sorpresas, entradas sin colas al Bernabéu y traslados privados desde el aeropuerto cuando llegas de noche.",
+    ctaText: "Explorar actividades y Free Tours →",
+    url: buildAffiliateUrl("https://www.civitatis.com/es/", "recursos-civitatis"),
+  },
+  {
+    category: "SEGURO MÉDICO INTERNACIONAL",
+    badge: `${AFFILIATE_CONFIG.insurance.discountPercent}% Descuento Lector`,
+    title: `${AFFILIATE_CONFIG.insurance.providerName} (Sin Franquicia)`,
+    description: "Asistencia 24/7 en tu idioma, cobertura médica completa en Europa y Sudamérica, y protección ante robo o demora de equipaje.",
+    ctaText: `Activar mi ${AFFILIATE_CONFIG.insurance.discountPercent}% de descuento →`,
+    url: AFFILIATE_CONFIG.insurance.affiliateUrl,
+  },
+  {
+    category: "INTERNET SIN ROAMING (eSIM)",
+    badge: `Código: ${AFFILIATE_CONFIG.esim.discountCode}`,
+    title: "Holafly / Airalo eSIM Internacional",
+    description: "Aterriza en Madrid, Buenos Aires o Bruselas con datos móviles activos desde el primer minuto para pedir Uber, usar Google Maps y llevar tus billetes en el móvil.",
+    ctaText: "Ver planes de datos ilimitados →",
+    url: AFFILIATE_CONFIG.esim.affiliateUrl,
+  },
+];
 ---
-<EditorialPage title="Recursos para viajar" description="Itinerarios y recursos descargables de Instante Trips." eyebrow="Prepara tu próxima historia"><p>Materiales para llevar contigo en el próximo viaje.</p>{items.length?items.map(i=><section><h2>{i.title}</h2><p>{i.text}</p><a href={i.url} data-track="download_click" data-catalog-id={i.id}>{i.button||'Descargar PDF'} →</a></section>):<p>Estamos preparando los primeros recursos. Mientras tanto, <a href="/#explorar">explora nuestras guías</a>.</p>}</EditorialPage>
+<html lang="es">
+  <head>
+    <BaseHead
+      title={`Recursos, Calculadoras y Herramientas de Viaje | ${settings.name}`}
+      description="Calculadoras interactivas de transporte (Tren vs Avión) y presupuesto diario real, descuentos de viaje y checklists descargables de Instante Trips."
+      permalink={`${Astro.site}recursos/`}
+    />
+  </head>
+  <body>
+    <BlogHeader />
+    <main class="recursos-hub-page">
+      <a class="back-link" href="/">← Volver a las historias</a>
+
+      <header class="recursos-hero">
+        <span class="eyebrow">INSTANTE TRIPS · CAJA DE HERRAMIENTAS DEL VIAJERO</span>
+        <h1>Recursos, Calculadoras y Descuentos para Viajar sin Pagar de Más</h1>
+        <p class="summary">
+          Aquí no hay rellenos ni patrocinios falsos: estas son las calculadoras interactivas y las plataformas exactas que usamos en cada ruta para ahorrar cientos de euros en trenes, vuelos, cambio de divisa y entradas.
+        </p>
+
+        <div class="quick-jump-pills">
+          <a href="#calculadora-transporte">🚄 Calculadora Tren vs Avión</a>
+          <a href="#calculadora-presupuesto">💰 Calculadora de Presupuesto</a>
+          <a href="#herramientas-probadas">🛠️ Plataformas y Descuentos</a>
+          <a href="#descargas">🗺️ Mapas y Checklists PDF</a>
+        </div>
+      </header>
+
+      <!-- 1. CALCULADORA INTERACTIVA TREN VS AVIÓN -->
+      <TransportCalculator />
+
+      <!-- 2. CALCULADORA DE PRESUPUESTO DIARIO -->
+      <BudgetCalculator />
+
+      <!-- 3. DIRECTORIO DE PLATAFORMAS PROBADAS (MONETIZACIÓN DE AFILIADOS) -->
+      <section id="herramientas-probadas" class="tools-directory-section">
+        <span class="eyebrow">PROBADAS EN EL TERRENO</span>
+        <h2>Las 4 plataformas que usamos en todos nuestros viajes</h2>
+        <div class="tools-cards-grid">
+          {toolsCatalog.map((tool) => (
+            <article class="tool-resource-card">
+              <div class="tool-card-top">
+                <span class="tool-category">{tool.category}</span>
+                <span class="tool-discount-badge">{tool.badge}</span>
+              </div>
+              <h3>{tool.title}</h3>
+              <p>{tool.description}</p>
+              <a
+                href={tool.url}
+                target="_blank"
+                rel="sponsored nofollow noopener"
+                class="tool-cta-link"
+                data-track="affiliate_click"
+              >
+                {tool.ctaText}
+              </a>
+            </article>
+          ))}
+        </div>
+      </section>
+
+      <!-- 4. RECURSOS DESCARGABLES CONFIGURADOS EN EL PANEL ADMIN -->
+      {items.length > 0 && (
+        <section class="cms-downloads-section" aria-label="Archivos descargables">
+          <span class="eyebrow">DESCARGAS DIRECTAS</span>
+          <h2>Guías y hojas de ruta en PDF</h2>
+          <div class="resources-grid">
+            {items.map((item: any) => (
+              <article class="resource-card">
+                {item.image && <img src={item.image} alt="" loading="lazy" width="640" height="360" />}
+                <div>
+                  <span class="eyebrow">PDF · {item.tags || 'Viajes'}</span>
+                  <h3>{item.title}</h3>
+                  {item.text && <p>{item.text}</p>}
+                  <a href={item.url} data-catalog-id={item.id} data-track="download_click" target="_blank" rel="noopener" class="tool-cta-link">
+                    {item.button || 'Descargar PDF'} →
+                  </a>
+                </div>
+              </article>
+            ))}
+          </div>
+        </section>
+      )}
+
+      <!-- 5. DESCARGA DE MAPAS Y CHECKLISTS PDF -->
+      <section id="descargas">
+        <LeadMagnetInContent
+          destination="España, Bélgica y Argentina"
+          leadTitle="Descarga el Pack Completo de Mapas Privados y Checklists de Equipaje"
+          leadDescription="Accede gratis a nuestros mapas de Google Maps con restaurantes locales, paradas seguras de metro y plantillas de presupuesto."
+        />
+      </section>
+    </main>
+    <Footer />
+
+    <style>
+      .recursos-hub-page {
+        max-width: 1180px;
+        margin: 0 auto;
+        padding: 2rem 1.5rem 5rem;
+        font-family: var(--font-sans, sans-serif);
+      }
+
+      .back-link {
+        color: #18181B;
+        font-weight: 700;
+        text-decoration: none;
+        display: inline-block;
+        margin-bottom: 1rem;
+      }
+
+      .back-link:hover {
+        color: #E04F16;
+      }
+
+      .recursos-hero {
+        padding: 1.5rem 0 2rem;
+        border-bottom: 1.5px solid #E6E1D6;
+        margin-bottom: 2rem;
+      }
+
+      .eyebrow {
+        font-size: 0.74rem;
+        font-weight: 800;
+        letter-spacing: 0.09em;
+        color: #E04F16;
+        text-transform: uppercase;
+        display: block;
+        margin-bottom: 0.5rem;
+      }
+
+      .recursos-hero h1 {
+        font-family: var(--font-serif, "Playfair Display", serif);
+        font-size: clamp(2rem, 4vw, 3.1rem);
+        font-weight: 900;
+        line-height: 1.12;
+        margin: 0 0 1rem;
+        color: #18181B;
+      }
+
+      .summary {
+        font-size: 1.08rem;
+        color: #52525B;
+        max-width: 780px;
+        line-height: 1.65;
+        margin-bottom: 1.5rem;
+      }
+
+      .quick-jump-pills {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 0.65rem;
+      }
+
+      .quick-jump-pills a {
+        background: #FFFFFF;
+        border: 1.5px solid #18181B;
+        border-radius: 999px;
+        padding: 0.55rem 1rem;
+        font-size: 0.8rem;
+        font-weight: 800;
+        color: #18181B;
+        text-decoration: none;
+        transition: all 0.15s ease;
+      }
+
+      .quick-jump-pills a:hover {
+        background: #E04F16;
+        border-color: #E04F16;
+        color: #FFFFFF;
+      }
+
+      .tools-directory-section,
+      .cms-downloads-section {
+        margin: 3.5rem 0;
+      }
+
+      .tools-directory-section h2,
+      .cms-downloads-section h2 {
+        font-family: var(--font-serif, "Playfair Display", serif);
+        font-size: clamp(1.6rem, 2.8vw, 2.2rem);
+        font-weight: 900;
+        margin: 0 0 1.5rem;
+        color: #18181B;
+      }
+
+      .tools-cards-grid,
+      .resources-grid {
+        display: grid;
+        grid-template-columns: 1fr;
+        gap: 1.25rem;
+      }
+
+      @media (min-width: 720px) {
+        .tools-cards-grid,
+        .resources-grid {
+          grid-template-columns: repeat(2, 1fr);
+        }
+      }
+
+      .tool-resource-card,
+      .resource-card {
+        background: #FFFFFF;
+        border: 1.5px solid #18181B;
+        border-radius: 16px;
+        padding: 1.6rem;
+        display: flex;
+        flex-direction: column;
+        justify-content: space-between;
+        box-shadow: 0 4px 0 rgba(24, 24, 27, 0.08);
+      }
+
+      .resource-card img {
+        width: 100%;
+        height: 200px;
+        object-fit: cover;
+        border-radius: 10px;
+        margin-bottom: 1rem;
+      }
+
+      .tool-card-top {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 0.5rem;
+        margin-bottom: 0.75rem;
+      }
+
+      .tool-category {
+        font-size: 0.68rem;
+        font-weight: 800;
+        color: #71717A;
+        letter-spacing: 0.06em;
+      }
+
+      .tool-discount-badge {
+        background: #DCFCE7;
+        color: #15803D;
+        font-size: 0.68rem;
+        font-weight: 800;
+        padding: 0.2rem 0.6rem;
+        border-radius: 999px;
+      }
+
+      .tool-resource-card h3,
+      .resource-card h3 {
+        font-family: var(--font-serif, "Playfair Display", serif);
+        font-size: 1.35rem;
+        font-weight: 800;
+        margin: 0 0 0.6rem;
+        color: #18181B;
+      }
+
+      .tool-resource-card p,
+      .resource-card p {
+        font-size: 0.9rem;
+        line-height: 1.6;
+        color: #52525B;
+        margin: 0 0 1.25rem;
+      }
+
+      .tool-cta-link {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        background: #E04F16;
+        color: #FFFFFF !important;
+        text-decoration: none !important;
+        padding: 0.75rem 1.15rem;
+        border-radius: 999px;
+        border: 1.5px solid #18181B;
+        font-size: 0.82rem;
+        font-weight: 800;
+        transition: background 0.15s ease;
+      }
+
+      .tool-cta-link:hover {
+        background: #C23E0B;
+      }
+    </style>
+  </body>
+</html>

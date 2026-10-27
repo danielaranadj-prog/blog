@@ -16,7 +16,7 @@ quickSummary:
   bestSeason: "Todo el año (Tren C-1 activo de 06:00 a 23:30)"
   pitfall: "Comprar metro con suplemento de 3€ si aterrizas en la T4"
   ctaText: "Ver Traslados Privados Barajas - Madrid"
-  ctaLink: "https://www.civitatis.com/es/madrid/traslados-madrid/"
+  ctaLink: "https://www.civitatis.com/es/madrid/traslados-madrid/?aid=104521&cmp=madrid-quickbox"
   badge: "FICHA LOGÍSTICA // MADRID BARAJAS"
 ---
 
@@ -42,7 +42,7 @@ Aquí te dejo las 5 opciones reales probadas en el terreno, de la más económic
       <span class="comp-col-duration">⏱️ 20 min</span>
     </div>
   </div>
-  <a href="https://www.civitatis.com/es/madrid/traslados-madrid/" target="_blank" rel="sponsored nofollow noopener" class="transport-terracotta-button">
+  <a href="https://www.civitatis.com/es/madrid/traslados-madrid/?aid=104521&cmp=madrid-card" target="_blank" rel="sponsored nofollow noopener" data-track="affiliate_click" class="transport-terracotta-button">
     <span>Reservar Traslado Privado Puerta a Puerta</span>
     <span class="btn-arrow" aria-hidden="true">→</span>
   </a>
@@ -99,7 +99,7 @@ Una vez instalado en Madrid, no cometas el error de pagar entradas infladas en t
         <span class="price-label">Precio oficial</span>
         <strong class="price-tag">Desde 25€</strong>
       </div>
-      <a href="https://www.civitatis.com/es/madrid/tour-bernabeu/" target="_blank" rel="sponsored nofollow noopener" class="activity-cta-btn">
+      <a href="https://www.civitatis.com/es/madrid/tour-bernabeu/?aid=104521&cmp=madrid-bernabeu" target="_blank" rel="sponsored nofollow noopener" data-track="affiliate_click" class="activity-cta-btn">
         <span>Reservar Entrada Oficial →</span>
       </a>
     </div>

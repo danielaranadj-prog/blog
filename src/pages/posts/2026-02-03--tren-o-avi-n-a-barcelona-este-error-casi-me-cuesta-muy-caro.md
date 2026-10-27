@@ -13,7 +13,7 @@ quickSummary:
   bestSeason: "Reserva con 3-4 meses de antelación"
   pitfall: "Metro de noche con maletas (blanco fácil carteristas)"
   ctaText: "Consultar horarios y precios actuales"
-  ctaLink: "https://www.omio.com"
+  ctaLink: "https://www.omio.com/trenes/espana?utm_source=instantetrips&utm_medium=affiliate&utm_campaign=bcn-quickbox"
 ---
 
 Barcelona tiene una magia especial, un aire mediterráneo que te atrapa desde que llegas. Pero ojo, que este 2026 las cosas han cambiado un poco para llegar allá. Ya no es solo buscar "lo más barato", sino saber elegir bien para que el viaje no se vuelva una pesadilla.
@@ -24,7 +24,7 @@ Después de vivirlo en carne propia y de comparar precios, aquí te cuento mi ex
 
 ## 1\. El mundo de los trenes: ¿Cuál elegir?
 
-![](/uploads/1769930384622-17302209623037-webp)
+![Tren de alta velocidad rumbo a Barcelona](https://images.unsplash.com/photo-1544620347-c4fd4a3d5957?auto=format&fit=crop&w=800&q=80)
 
 Si estás buscando el **Avlo** (ese tren morado de Renfe), ¡ni le busques! Ya no opera en esta ruta. Ahora la cosa está repartida entre tres opciones y aquí te digo cuál te conviene según tu plan:
 
@@ -69,7 +69,7 @@ Si estás buscando el **Avlo** (ese tren morado de Renfe), ¡ni le busques! Ya n
       </tr>
     </tbody>
   </table>
-  <a href="https://www.omio.com" target="_blank" rel="sponsored nofollow noopener" class="ticket-btn" style="width: 100%; display: block; text-align: center; text-decoration: none; margin-top: 1rem;">
+  <a href="https://www.omio.com/trenes/espana?utm_source=instantetrips&utm_medium=affiliate&utm_campaign=bcn-table" target="_blank" rel="sponsored nofollow noopener" class="ticket-btn" data-track="affiliate_click" style="width: 100%; display: block; text-align: center; text-decoration: none; margin-top: 1rem;">
     Buscar billetes de tren desde 9€ →
   </a>
 </div>
@@ -128,4 +128,4 @@ Por suerte no pasó de un susto y no me quitaron nada, pero no se lo deseo a nad
     -   **Bus:** 5€ (si pescas oferta) o 15€ normal.
         
     
-    🔗 **¿Ya estás en tu hotel?** "Ahora sí, a disfrutar. Mañana te cuento cómo conocer lo mejor de la ciudad sin gastar ni un peso. **¡Tengo 5 planes de lujo en Barcelona que son GRATIS! \[Haz clic aquí y sorpréndete\]**"
+    🔗 **¿Ya estás en tu hotel?** "Ahora sí, a disfrutar. Descubre también cómo moverte en alta velocidad por toda España gastando lo mínimo: **[¡Viajé por 7€! Haz clic aquí y descubre el truco paso a paso](/posts/2026-02-01--viaj-por-7-mi-secreto-para-usar-la-alta-velocidad-en-espa-a/)**"

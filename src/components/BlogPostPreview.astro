@@ -1,12 +1,15 @@
 ---
+import { optimizeImageUrl } from '../config/affiliates';
+
 export interface Props {
 	post: any;
 }
 
 const { post } = Astro.props;
 
-// Imagen de portada
-const portada = post.frontmatter.heroImage || post.frontmatter.heroImageLink;
+// Imagen de portada optimizada (Cloudinary f_auto,q_auto y Unsplash sin &#38;)
+const rawPortada = post.frontmatter.heroImage || post.frontmatter.heroImageLink;
+const portada = rawPortada ? optimizeImageUrl(rawPortada, 600) : undefined;
 
 // Tags y Categoría
 const tags = post.frontmatter.tags || [];

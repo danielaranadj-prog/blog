@@ -1,0 +1,320 @@
+---
+/**
+ * Componente: LeadMagnetInContent.astro
+ * Reemplaza el comentario vacío <!-- LEAD MAGNET IN-CONTENT --> en los artículos.
+ * Desbloquea el Kit de Viaje (Checklists + Mapas de Pines) y registra la conversión.
+ */
+interface Props {
+  destination?: string;
+  leadTitle?: string;
+  leadDescription?: string;
+  pdfDownloadUrl?: string;
+  mapEmbedUrl?: string;
+}
+
+const {
+  destination = "España y Argentina",
+  leadTitle = `Descarga el Kit de Supervivencia de ${destination} (PDF + Mapa de Pines)`,
+  leadDescription = "Lleva esta guía en tu celular sin gastar datos: incluye nuestro mapa privado de Google Maps con restaurantes reales, precios actualizados de transporte y los errores que debes evitar.",
+  pdfDownloadUrl = "/recursos#calculadora-presupuesto",
+  mapEmbedUrl = "https://www.google.com/maps/search/restaurantes+y+transporte+local",
+} = Astro.props;
+---
+
+<aside class="lead-magnet-card" aria-label="Descargar guía en PDF y mapa de viaje">
+  <div class="lead-magnet-badge-row">
+    <span class="lead-pill-tag">🎁 RECURSO GRATUITO DE VIAJE</span>
+    <span class="lead-offline-tag">📲 Ideal para llevar en modo avión</span>
+  </div>
+
+  <div class="lead-magnet-grid">
+    <div class="lead-magnet-copy">
+      <h3 class="lead-magnet-heading">{leadTitle}</h3>
+      <p class="lead-magnet-desc">{leadDescription}</p>
+
+      <ul class="lead-magnet-perks">
+        <li>✅ <strong>Mapa interactivo de Google Maps</strong> con paradas exactas y horarios</li>
+        <li>✅ <strong>Hoja de presupuesto real</strong> para no pagar precios de turista</li>
+        <li>✅ <strong>Checklist de equipaje</strong> adaptado a aerolíneas y trenes low-cost</li>
+      </ul>
+    </div>
+
+    <div class="lead-magnet-form-box">
+      <form class="lead-capture-form" data-lead-form data-destination={destination} data-pdf={pdfDownloadUrl}>
+        <label for="lead-email-input" class="lead-form-label">¿A qué correo te enviamos el mapa y el PDF?</label>
+        <input
+          type="email"
+          id="lead-email-input"
+          name="email"
+          required
+          placeholder="tu@correo.com"
+          class="lead-email-input"
+          autocomplete="email"
+        />
+        <button type="submit" class="lead-submit-btn">
+          <span>Desbloquear mi Kit de Viaje Gratis</span>
+          <span aria-hidden="true">→</span>
+        </button>
+        <small class="lead-privacy-note">
+          Cero spam. Solo rutas probadas en persona. Puedes darte de baja con 1 clic.
+        </small>
+      </form>
+
+      <div class="lead-success-state" data-lead-success hidden>
+        <span class="success-icon">🎉</span>
+        <h4>¡Listo! Ya tienes acceso directo a tu Kit</h4>
+        <p>También hemos guardado el acceso en tu navegador para que puedas consultarlo cuando quieras:</p>
+        <div class="lead-unlock-actions">
+          <a href={pdfDownloadUrl} class="unlock-btn-primary" data-track="download_click">
+            📄 Abrir Planificador y Presupuesto
+          </a>
+          <a href={mapEmbedUrl} target="_blank" rel="noopener noreferrer" class="unlock-btn-secondary" data-track="outbound_click">
+            📍 Abrir Mapa con Pines en Google Maps
+          </a>
+        </div>
+      </div>
+    </div>
+  </div>
+</aside>
+
+<style>
+  .lead-magnet-card {
+    margin: 3rem 0;
+    padding: 2rem;
+    background: linear-gradient(135deg, #1C1F26 0%, #272B35 100%);
+    color: #FFFFFF;
+    border: 2px solid #E04F16;
+    border-radius: 18px;
+    box-shadow: 0 12px 32px rgba(24, 24, 27, 0.14);
+    position: relative;
+    overflow: hidden;
+  }
+
+  .lead-magnet-badge-row {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 0.65rem;
+    margin-bottom: 1.15rem;
+  }
+
+  .lead-pill-tag {
+    background: #E04F16;
+    color: #FFFFFF;
+    font-family: var(--font-sans, "Montserrat", sans-serif);
+    font-size: 0.7rem;
+    font-weight: 800;
+    letter-spacing: 0.08em;
+    padding: 0.3rem 0.75rem;
+    border-radius: 999px;
+    text-transform: uppercase;
+  }
+
+  .lead-offline-tag {
+    background: rgba(255, 255, 255, 0.1);
+    color: #E4E4E7;
+    font-size: 0.72rem;
+    font-weight: 600;
+    padding: 0.3rem 0.75rem;
+    border-radius: 999px;
+  }
+
+  .lead-magnet-grid {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 1.75rem;
+    align-items: center;
+  }
+
+  @media (min-width: 768px) {
+    .lead-magnet-grid {
+      grid-template-columns: 1.2fr 1fr;
+      gap: 2rem;
+    }
+  }
+
+  .lead-magnet-heading {
+    font-family: var(--font-serif, "Playfair Display", serif);
+    font-size: clamp(1.45rem, 2.5vw, 1.85rem);
+    font-weight: 800;
+    color: #FFFFFF !important;
+    margin: 0 0 0.75rem !important;
+    line-height: 1.22;
+    border: none !important;
+    padding: 0 !important;
+  }
+
+  .lead-magnet-desc {
+    font-size: 0.94rem;
+    line-height: 1.65;
+    color: #D4D4D8 !important;
+    margin: 0 0 1.1rem !important;
+  }
+
+  .lead-magnet-perks {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+    font-size: 0.85rem;
+    color: #F4F4F5;
+  }
+
+  .lead-magnet-form-box {
+    background: #FAF7F2;
+    color: #18181B;
+    padding: 1.5rem;
+    border-radius: 14px;
+    border: 1.5px solid #18181B;
+  }
+
+  .lead-form-label {
+    display: block;
+    font-size: 0.82rem;
+    font-weight: 800;
+    color: #18181B;
+    margin-bottom: 0.6rem;
+  }
+
+  .lead-email-input {
+    width: 100%;
+    padding: 0.8rem 1rem;
+    border: 1.5px solid #D6D1C4;
+    border-radius: 10px;
+    font-size: 0.92rem;
+    font-family: inherit;
+    background: #FFFFFF;
+    color: #18181B;
+    margin-bottom: 0.75rem;
+    box-sizing: border-box;
+  }
+
+  .lead-email-input:focus {
+    outline: none;
+    border-color: #E04F16;
+    box-shadow: 0 0 0 3px rgba(224, 79, 22, 0.18);
+  }
+
+  .lead-submit-btn {
+    width: 100%;
+    background: #E04F16;
+    color: #FFFFFF;
+    border: 1.5px solid #18181B;
+    border-radius: 10px;
+    padding: 0.85rem 1.2rem;
+    font-size: 0.9rem;
+    font-weight: 800;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    transition: background 0.15s ease, transform 0.15s ease;
+  }
+
+  .lead-submit-btn:hover {
+    background: #C23E0B;
+    transform: translateY(-1px);
+  }
+
+  .lead-privacy-note {
+    display: block;
+    margin-top: 0.65rem;
+    font-size: 0.7rem;
+    color: #71717A;
+    text-align: center;
+    line-height: 1.4;
+  }
+
+  .lead-success-state {
+    text-align: center;
+  }
+
+  .lead-success-state h4 {
+    margin: 0.4rem 0;
+    font-size: 1.1rem;
+    font-weight: 800;
+    color: #18181B;
+  }
+
+  .lead-success-state p {
+    font-size: 0.82rem;
+    color: #52525B;
+    margin-bottom: 1rem;
+  }
+
+  .lead-unlock-actions {
+    display: flex;
+    flex-direction: column;
+    gap: 0.55rem;
+  }
+
+  .unlock-btn-primary,
+  .unlock-btn-secondary {
+    display: block;
+    padding: 0.7rem 1rem;
+    border-radius: 8px;
+    font-size: 0.82rem;
+    font-weight: 800;
+    text-decoration: none !important;
+  }
+
+  .unlock-btn-primary {
+    background: #18181B;
+    color: #FFFFFF !important;
+  }
+
+  .unlock-btn-secondary {
+    background: #FFFFFF;
+    color: #E04F16 !important;
+    border: 1.5px solid #E04F16;
+  }
+</style>
+
+<script>
+  document.querySelectorAll("[data-lead-form]").forEach((formEl) => {
+    const form = formEl as HTMLFormElement;
+    const wrapper = form.parentElement;
+    const successBox = wrapper?.querySelector("[data-lead-success]") as HTMLElement | null;
+
+    try {
+      if (localStorage.getItem("instante-lead-unlocked") === "true" && successBox) {
+        form.hidden = true;
+        successBox.hidden = false;
+      }
+    } catch {}
+
+    form.addEventListener("submit", async (e) => {
+      e.preventDefault();
+      const emailInput = form.querySelector("input[type='email']") as HTMLInputElement;
+      const email = emailInput?.value.trim();
+      if (!email) return;
+
+      try {
+        localStorage.setItem("instante-lead-unlocked", "true");
+        localStorage.setItem("instante-lead-email", email);
+      } catch {}
+
+      try {
+        await fetch("/api/analytics", {
+          method: "POST",
+          keepalive: true,
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            id: crypto.randomUUID(),
+            type: "download_click",
+            path: location.pathname,
+            target: `lead_capture:${form.dataset.destination || "general"}`,
+          }),
+        });
+      } catch {}
+
+      if (successBox) {
+        form.hidden = true;
+        successBox.hidden = false;
+      }
+    });
+  });
+</script>

@@ -7,6 +7,7 @@ import Footer from '../components/Footer.astro';
 import { SITE } from '../config';
 import settings from '../data/site-settings.json';
 import SiteAds from '../components/SiteAds.astro';
+import { optimizeImageUrl } from '../config/affiliates';
 
 // --- MAGIA DE PAGINACIÓN (Astro) ---
 export async function getStaticPaths({ paginate }) {
@@ -37,7 +38,8 @@ const title = settings.homeTitle;
 const description = settings.description;
 const permalink = Astro.url.href;
 
-const featuredHeroImage = featuredPost?.frontmatter.heroImage || featuredPost?.frontmatter.heroImageLink || 'https://res.cloudinary.com/dbwdmu9k2/image/upload/v1769926152/DSCF3740_ava5eg.jpg';
+const rawFeaturedHeroImage = featuredPost?.frontmatter.heroImage || featuredPost?.frontmatter.heroImageLink || 'https://res.cloudinary.com/dbwdmu9k2/image/upload/v1769926152/DSCF3740_ava5eg.jpg';
+const featuredHeroImage = optimizeImageUrl(rawFeaturedHeroImage, 1200);
 const featuredData = `${featuredPost?.frontmatter.title||''} ${(featuredPost?.frontmatter.tags || []).join(' ')}`;
 const featuredTag = /vallarta|oaxaca|méxico/i.test(featuredData) ? 'MÉXICO'
   : /argentina|patagonia|ushuaia|mendoza|buenos aires/i.test(featuredData) ? 'ARGENTINA'
@@ -53,7 +55,7 @@ const featuredSearch = `${featuredData} ${featuredPost?.frontmatter.description 
         <style>
             .home-shell { max-width: 1440px; margin: auto; padding: 0 2rem 4rem; box-sizing: border-box; }
             .subbar-container { display: flex; align-items: center; gap: 2rem; padding: 1.35rem 0; }
-            .subbar-tagline { font-size: .9rem; line-height: 1.5; margin: 0; color: var(--text-main); flex-shrink: 0; }
+            .subbar-tagline { font: 600 .9rem/1.5 var(--font-sans); margin: 0; color: var(--text-main); flex-shrink: 0; }
             .categories-pills-row { display: flex; gap: .5rem; min-width: 0; overflow-x: auto; scrollbar-width: none; padding: 3px 0; }
             .categories-pills-row::-webkit-scrollbar { display: none; }
             .cat-pill { border: 0; border-radius: 50px; padding: .65rem 1.1rem; background: #e7e5e1; color: var(--text-main); font: 500 .85rem var(--font-sans); white-space: nowrap; cursor: pointer; min-height: 44px; }
@@ -107,7 +109,7 @@ const featuredSearch = `${featuredData} ${featuredPost?.frontmatter.description 
             
             <!-- SUB-HEADER CON TAGLINE Y PÍLDORAS DE CATEGORÍA -->
             <section class="subbar-container" id="explorar" aria-label="Filtro de categorías">
-                <p class="subbar-tagline">{settings.tagline}</p>
+                <h1 class="subbar-tagline">{settings.tagline}</h1>
                 
                 <div class="categories-pills-row">
                     <button class="cat-pill active" aria-pressed="true" data-category="all" onclick="filterPosts('all', this)">Todo</button>
@@ -141,9 +143,9 @@ const featuredSearch = `${featuredData} ${featuredPost?.frontmatter.description 
                         <div class="hero-content-wrap">
                             <span class="hero-badge-pill">RECIENTE • {featuredTag}</span>
                             
-                            <h1 class="hero-title-serif">
+                            <h2 class="hero-title-serif">
                                 <a href={featuredPost.url}>{featuredPost.frontmatter.title}</a>
-                            </h1>
+                            </h2>
 
                             <p class="hero-description-text">{featuredPost.frontmatter.description}</p>
 
@@ -226,7 +228,7 @@ const featuredSearch = `${featuredData} ${featuredPost?.frontmatter.description 
                         (currentFilter === 'argentina' && (data.includes('argentina') || data.includes('patagonia') || data.includes('chalten') || data.includes('pampa') || data.includes('ushuaia') || data.includes('buenos aires'))) ||
                         (currentFilter === 'transporte' && (data.includes('tren') || data.includes('vuelo') || data.includes('metro') || data.includes('transporte') || data.includes('autobus') || data.includes('avion'))) ||
                         (currentFilter === 'futbol' && (data.includes('futbol') || data.includes('bernabeu') || data.includes('estadio') || data.includes('real madrid'))) ||
-                        (currentFilter === 'hacks' && (data.includes('hack') || data.includes('mochila') || data.includes('maleta') || data.includes('vpn') || data.includes('gratis') || data.includes('consejos')));
+                        (currentFilter === 'hacks' && (data.includes('hack') || data.includes('mochila') || data.includes('maleta') || data.includes('vpn') || data.includes('gratis') || data.includes('consejos') || data.includes('secreto') || data.includes('barato') || data.includes('ahorr') || data.includes('error') || data.includes('supervivencia') || data.includes('7€') || data.includes('9€') || data.includes('skyscanner')));
 
                     if (matchesQuery && matchesCategory) {
                         card.hidden = false;

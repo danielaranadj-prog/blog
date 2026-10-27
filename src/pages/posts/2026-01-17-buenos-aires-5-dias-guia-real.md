@@ -10,8 +10,8 @@ quickSummary:
   budget: "35$ - 55$ / día (Dólar Blue)"
   bestSeason: "Octubre a Diciembre / Marzo a Mayo"
   pitfall: "Pagar con tarjeta internacional o cambiar en bancos (usa Dólar Blue)"
-  ctaText: "Descargar mapa privado de Buenos Aires"
-  ctaLink: "https://maps.google.com"
+  ctaText: "Descargar mapa y presupuesto de Buenos Aires"
+  ctaLink: "/recursos#calculadora-presupuesto"
 ---
 
 ## La ciudad que no duerme (y tú tampoco vas a querer)

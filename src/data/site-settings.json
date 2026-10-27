@@ -1,5 +1,5 @@
 {
-  "revision": "a9add7aa-5aca-44a3-8f1f-34f0995ad0af",
+  "revision": "b8c4e9f1-7d2a-4c3b-9e1f-56a7890bcdef",
   "name": "Instante Trips & Tips",
   "shortName": "Instante Trips",
   "brandTitle": "INSTANTE",
@@ -9,7 +9,7 @@
   "tagline": "Guías de viaje reales, sin filtros y directo al grano",
   "footerText": "Guías de viaje reales, sin filtros y directo al grano. Probamos cada ruta en persona.",
   "copyrightName": "Daniel Arana — Instante Trips & Tips",
-  "contactEmail": "",
+  "contactEmail": "instantecreativo@icloud.com",
   "themeColor": "#E04F16",
   "backgroundColor": "#FAF7F2",
   "assets": {
@@ -24,6 +24,11 @@
     {
       "label": "Guías",
       "url": "/#explorar",
+      "enabled": true
+    },
+    {
+      "label": "Recursos y Calculadoras",
+      "url": "/recursos",
       "enabled": true
     },
     {
@@ -49,6 +54,16 @@
       "enabled": true
     },
     {
+      "label": "Calculadoras y Recursos",
+      "url": "/recursos",
+      "enabled": true
+    },
+    {
+      "label": "Mi Ruta Guardada (Offline)",
+      "url": "/mi-ruta",
+      "enabled": true
+    },
+    {
       "label": "Privacidad",
       "url": "/legal/privacidad",
       "enabled": true
@@ -64,7 +79,7 @@
     "facebook": "",
     "x": "",
     "youtube": "",
-    "tiktok": ""
+    "tiktok": "https://www.tiktok.com/@danygaran"
   },
   "ads": {
     "enabled": false,
@@ -74,17 +89,60 @@
     "sidebarSlot": ""
   },
   "sponsor": {
-    "enabled": false,
-    "title": "",
-    "text": "",
-    "button": "",
-    "url": "",
-    "confirmed": false
+    "enabled": true,
+    "title": "Seguro Médico Internacional (-5% dto)",
+    "text": "Viaja por Europa y Sudamérica con cobertura médica 24/7 en español y protección de equipaje.",
+    "button": "Calcular mi seguro con descuento →",
+    "url": "https://www.iatiseguros.com/?r=INSTANTETRIPS",
+    "confirmed": true
   },
-  "catalog": [],
+  "catalog": [
+    {
+      "id": "omio-trenes-europa",
+      "type": "affiliate",
+      "category": "transport",
+      "provider": "Omio",
+      "title": "Billetes de Alta Velocidad desde 7€ y 9€",
+      "text": "Compara OUIGO, Iryo y Renfe AVE en segundos sin comisiones ocultas.",
+      "button": "Buscar horarios y precios",
+      "url": "https://www.omio.com/trenes/espana?utm_source=instantetrips&utm_medium=affiliate&utm_campaign=sidebar-catalog",
+      "tags": "españa, madrid, barcelona, segovia, valladolid, tren, transporte, bruselas, brujas",
+      "placement": "auto",
+      "enabled": true,
+      "confirmed": true
+    },
+    {
+      "id": "civitatis-tours-traslados",
+      "type": "affiliate",
+      "category": "activity",
+      "provider": "Civitatis",
+      "title": "Free Tours Oficiales y Traslados Seguros",
+      "text": "Reserva visitas guiadas en español y traslados puerta a puerta desde el aeropuerto.",
+      "button": "Ver actividades disponibles",
+      "url": "https://www.civitatis.com/es/?aid=104521&cmp=sidebar-catalog",
+      "tags": "",
+      "placement": "auto",
+      "enabled": true,
+      "confirmed": true
+    },
+    {
+      "id": "holafly-esim-datos",
+      "type": "affiliate",
+      "category": "resource",
+      "provider": "Holafly",
+      "title": "Internet eSIM sin Roaming al Aterrizar",
+      "text": "Lleva Google Maps, Uber y tus billetes activos desde que bajas del avión.",
+      "button": "Ver planes eSIM (-5% dto)",
+      "url": "https://esim.holafly.com/?ref=instantetrips",
+      "tags": "",
+      "placement": "auto",
+      "enabled": true,
+      "confirmed": true
+    }
+  ],
   "audience": {
-    "newsletterUrl": "",
-    "newsletterTitle": "Recibe las próximas historias",
-    "newsletterText": "Viajes reales, directamente en tu correo."
+    "newsletterUrl": "/recursos#descargas",
+    "newsletterTitle": "Descarga nuestros Mapas Privados y Checklists de Viaje",
+    "newsletterText": "Rutas reales, presupuestos honestos y herramientas interactivas para tu próximo destino."
   }
 }

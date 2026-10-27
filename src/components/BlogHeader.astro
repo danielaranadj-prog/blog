@@ -34,6 +34,11 @@ import SiteSocialLinks from './SiteSocialLinks.astro';
         {settings.navigation.filter(link => link.enabled).map(link => <a href={link.url} class="nav-item">{link.label}</a>)}
       </nav>
 
+      <a href="/mi-ruta" class="my-route-pill-btn" aria-label="Ver guías guardadas en Mi Ruta">
+        <span>🎒 Mi Ruta</span>
+        <span class="my-route-count-badge" id="headerRouteCount">0</span>
+      </a>
+
       <div class="header-social-icons"><SiteSocialLinks />
       </div>
     </div>
@@ -49,11 +54,43 @@ import SiteSocialLinks from './SiteSocialLinks.astro';
     background-color: var(--bg-page);
     border-bottom: 1px solid var(--card-border);
     padding: 1rem 0;
-    position: relative;
+    position: sticky;
     top: 0;
-    z-index: 100;
-    backdrop-filter: blur(8px);
+    z-index: 1000;
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
     background-color: rgba(250, 247, 242, 0.95);
+  }
+
+  .my-route-pill-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    background: #FAF7F2;
+    border: 1.5px solid #18181B;
+    border-radius: 999px;
+    padding: 0.42rem 0.85rem;
+    font-family: var(--font-sans);
+    font-size: 0.76rem;
+    font-weight: 800;
+    color: #18181B;
+    text-decoration: none;
+    transition: all 0.15s ease;
+    flex-shrink: 0;
+  }
+
+  .my-route-pill-btn:hover {
+    background: #18181B;
+    color: #FFFFFF;
+  }
+
+  .my-route-count-badge {
+    background: #E04F16;
+    color: #FFFFFF;
+    border-radius: 999px;
+    padding: 0.05rem 0.45rem;
+    font-size: 0.68rem;
+    font-weight: 800;
   }
 
   .header-inner {
@@ -239,8 +276,9 @@ import SiteSocialLinks from './SiteSocialLinks.astro';
 </style>
 <script>
  const input=document.querySelector<HTMLInputElement>('#globalSearchInput'),results=document.querySelector<HTMLElement>('#global-search-results');
+ try{const saved=JSON.parse(localStorage.getItem('instante-saved-route-v1')||'[]');const badge=document.getElementById('headerRouteCount');if(badge&&Array.isArray(saved))badge.textContent=String(saved.length);}catch{}
  let indexPromise;let sequence=0,timer;
  const normal=s=>String(s).normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLowerCase();
- if(input&&results){input.addEventListener('input',()=>{clearTimeout(timer);const version=++sequence;timer=setTimeout(async()=>{const q=normal(input.value.trim());results.replaceChildren();results.hidden=!q;if(!q)return;try{indexPromise??=fetch('/search-index.json').then(r=>{if(!r.ok)throw Error();return r.json();}).catch(e=>{indexPromise=null;throw e;});const list=await indexPromise;if(version!==sequence)return;const matches=list.filter(p=>q.split(/\s+/).every(w=>normal([p.title,p.description,...p.tags,p.text].join(' ')).includes(w))).slice(0,5);for(const p of matches){const a=document.createElement('a');a.href=p.url;a.textContent=p.title;results.append(a);}const a=document.createElement('a');a.href='/buscar?q='+encodeURIComponent(input.value);a.textContent=matches.length?'Ver todos los resultados →':'No encontramos esa historia. Probar otra búsqueda →';results.append(a);}catch{results.textContent='No se pudo cargar la búsqueda. Inténtalo otra vez.';}},180);});input.addEventListener('keydown',e=>{if(e.key==='Escape'){++sequence;clearTimeout(timer);results.hidden=true;input.value='';}});document.addEventListener('click',e=>{if(e.target instanceof Node&&!input.parentElement?.parentElement?.contains(e.target))results.hidden=true;});}
+ if(input&&results){input.addEventListener('input',()=>{if(typeof (window as any).searchPosts==='function')(window as any).searchPosts();clearTimeout(timer);const version=++sequence;timer=setTimeout(async()=>{const q=normal(input.value.trim());results.replaceChildren();results.hidden=!q;if(!q)return;try{indexPromise??=fetch('/search-index.json').then(r=>{if(!r.ok)throw Error();return r.json();}).catch(e=>{indexPromise=null;throw e;});const list=await indexPromise;if(version!==sequence)return;const matches=list.filter(p=>q.split(/\s+/).every(w=>normal([p.title,p.description,...p.tags,p.text].join(' ')).includes(w))).slice(0,5);for(const p of matches){const a=document.createElement('a');a.href=p.url;a.textContent=p.title;results.append(a);}const a=document.createElement('a');a.href='/buscar?q='+encodeURIComponent(input.value);a.textContent=matches.length?'Ver todos los resultados →':'No encontramos esa historia. Probar otra búsqueda →';results.append(a);}catch{results.textContent='No se pudo cargar la búsqueda. Inténtalo otra vez.';}},180);});input.addEventListener('keydown',e=>{if(e.key==='Escape'){++sequence;clearTimeout(timer);results.hidden=true;input.value='';if(typeof (window as any).searchPosts==='function')(window as any).searchPosts();}});document.addEventListener('click',e=>{if(e.target instanceof Node&&!input.parentElement?.parentElement?.contains(e.target))results.hidden=true;});}
 </script>
 <style>.header-search-wrap{position:relative}#global-search-results{position:absolute;top:100%;left:0;right:0;min-width:240px;background:#FAF7F2;border:1.5px solid #18181B;border-radius:12px;box-shadow:0 6px 20px #18181b20;padding:.6rem;z-index:120}#global-search-results[hidden]{display:none}#global-search-results a{display:block;padding:.8rem;color:#18181B;text-decoration:none;font-size:.8rem;line-height:1.5}#global-search-results a:hover,#global-search-results a:focus{background:#F3EFE6}.search-input-pill button{border:0;background:transparent;color:#C23E0B;font-weight:800;cursor:pointer;min-height:32px}</style>
