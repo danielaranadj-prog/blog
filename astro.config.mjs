@@ -18,7 +18,10 @@ export default defineConfig({
 
   integrations: [
     sitemap({
-      filter: url => !['/buscar','/404'].includes(new URL(url).pathname.replace(/\/$/,'')),
+      filter: url => {
+        const p = new URL(url).pathname.replace(/\/$/, '');
+        return !['/buscar', '/404', '/mi-ruta'].includes(p) && !p.startsWith('/ir/');
+      },
       serialize: item => {
         const pathname=decodeURIComponent(new URL(item.url).pathname).replace(/\/$/,'');
         if(pathname.startsWith('/posts/')){

@@ -1,0 +1,72 @@
+---
+import BaseHead from '../../components/BaseHead.astro';
+import { getShortAlias, smartShortSlug } from '../../utils/short-links.mjs';
+import { optimizeImageUrl } from '../../config/affiliates';
+
+export async function getStaticPaths() {
+  const allPosts = await Astro.glob('../posts/*.md');
+  const routeMap = new Map();
+
+  const registerAlias = (alias, post) => {
+    const clean = String(alias || '').trim().toLowerCase();
+    if (!clean || !/^[a-z0-9-]+$/.test(clean)) return;
+    if (!routeMap.has(clean)) {
+      routeMap.set(clean, post);
+    }
+  };
+
+  for (const post of allPosts) {
+    const rawSlug = decodeURIComponent(post.url || '')
+      .replace(/^\/+|\/+$/g, '')
+      .replace(/^posts\//, '');
+    const title = post.frontmatter?.title || '';
+
+    // 1. Alias corto principal (ej. real-madrid, tren-barcelona, o 3 palabras clave en posts nuevos)
+    registerAlias(getShortAlias({ filename: rawSlug, title }), post);
+
+    // 2. Slug ultracorto de 3 palabras clave del título
+    registerAlias(smartShortSlug(title, { maxWords: 3, maxLength: 26 }), post);
+
+    // 3. Slug estándar de 5 palabras clave del título
+    registerAlias(smartShortSlug(title, { maxWords: 5, maxLength: 42 }), post);
+
+    // 4. Slug limpio del archivo si es ASCII
+    if (/^[a-z0-9-]+$/.test(rawSlug) && rawSlug.length <= 50) {
+      registerAlias(rawSlug, post);
+    }
+  }
+
+  return Array.from(routeMap.entries()).map(([slug, post]) => ({
+    params: { slug },
+    props: { post },
+  }));
+}
+
+const { post } = Astro.props;
+const targetPath = post.url;
+const canonicalUrl = new URL(targetPath, Astro.site || 'https://www.instantetrips.com').href;
+const rawImg = post.frontmatter?.heroImage || post.frontmatter?.heroImageLink;
+const socialImg = rawImg ? optimizeImageUrl(rawImg, 1200) : undefined;
+---
+<!DOCTYPE html>
+<html lang="es">
+  <head>
+    <BaseHead
+      title={`${post.frontmatter.title} | Instante Trips`}
+      description={post.frontmatter.description || ''}
+      permalink={canonicalUrl}
+      image={socialImg}
+      noindex={true}
+      pageType="article"
+    />
+    <meta http-equiv="refresh" content={`0;url=${targetPath}`} />
+    <script is:inline define:vars={{ targetPath }}>
+      window.location.replace(targetPath + window.location.search + window.location.hash);
+    </script>
+  </head>
+  <body style="font-family: sans-serif; background: #FAF7F2; color: #18181B; display: grid; place-items: center; min-height: 100vh; margin: 0;">
+    <p style="font-size: 0.95rem;">
+      Abriendo guía: <a href={targetPath} style="color: #E04F16; font-weight: 700;">{post.frontmatter.title} →</a>
+    </p>
+  </body>
+</html>

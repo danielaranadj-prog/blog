@@ -1,8 +1,9 @@
 ---
-interface Props { title: string; url: string; compact?: boolean; }
-const {title,url,compact=false}=Astro.props;
-const encodedUrl=encodeURIComponent(url);
-const whatsappText=encodeURIComponent(`${title}\n${url}`);
+interface Props { title: string; url: string; shortUrl?: string; compact?: boolean; }
+const {title,url,shortUrl,compact=false}=Astro.props;
+const shareTarget=shortUrl||url;
+const encodedUrl=encodeURIComponent(shareTarget);
+const whatsappText=encodeURIComponent(`${title}\n${shareTarget}`);
 ---
 <section class:list={['social-share',{'compact':compact}]} aria-label="Compartir artículo">
   <div class="share-heading"><span>COMPARTE EL VIAJE</span>{!compact&&<h2>¿A quién le vendría bien esta guía?</h2>}</div>
@@ -13,13 +14,13 @@ const whatsappText=encodeURIComponent(`${title}\n${url}`);
     <a href={`https://www.facebook.com/sharer/sharer.php?u=${encodedUrl}`} target="_blank" rel="noopener noreferrer" class="share-btn" aria-label="Compartir en Facebook"><svg aria-hidden="true" width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
         <path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"/>
       </svg><span>Facebook</span></a>
-    <button type="button" class="share-btn copy-link" data-url={url} aria-label="Copiar enlace"><svg aria-hidden="true" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+    <button type="button" class="share-btn copy-link" data-url={shareTarget} aria-label="Copiar link corto"><svg aria-hidden="true" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
         <path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/>
         <path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/>
-      </svg><span data-copy-label>Copiar enlace</span></button>
+      </svg><span data-copy-label>Copiar link corto</span></button>
   </div>
   <p class="share-status" role="status" aria-live="polite"></p>
-  <label class="copy-fallback" hidden>Selecciona y copia el enlace<input type="url" value={url} readonly aria-label="Enlace del artículo"/></label>
+  <label class="copy-fallback" hidden>Selecciona y copia el enlace corto<input type="url" value={shareTarget} readonly aria-label="Enlace corto del artículo"/></label>
 </section>
 <script>
   function initSocialShare(){
@@ -34,9 +35,9 @@ const whatsappText=encodeURIComponent(`${title}\n${url}`);
         button.disabled=true;
         try{
           await navigator.clipboard.writeText(url);
-          fallback.hidden=true;label.textContent='¡Copiado!';status.textContent='Enlace copiado. Ya puedes compartirlo.';
+          fallback.hidden=true;label.textContent='¡Link corto copiado!';status.textContent=`Link corto copiado: ${url}`;
           button.classList.add('copied');
-          setTimeout(()=>{label.textContent='Copiar enlace';status.textContent='';button.classList.remove('copied');},2500);
+          setTimeout(()=>{label.textContent='Copiar link corto';status.textContent='';button.classList.remove('copied');},2500);
         }catch{
           status.textContent='No se pudo copiar automáticamente. Puedes copiarlo desde este campo.';
           fallback.hidden=false;const input=fallback.querySelector('input')!;input.focus();input.select();

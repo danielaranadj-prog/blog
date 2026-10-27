@@ -141,7 +141,7 @@
     }
   ],
   "audience": {
-    "newsletterUrl": "/recursos#descargas",
+    "newsletterUrl": "https://www.instantetrips.com/recursos#descargas",
     "newsletterTitle": "Descarga nuestros Mapas Privados y Checklists de Viaje",
     "newsletterText": "Rutas reales, presupuestos honestos y herramientas interactivas para tu próximo destino."
   }

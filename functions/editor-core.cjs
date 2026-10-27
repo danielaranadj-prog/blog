@@ -5,7 +5,24 @@ const { editorialFields } = require('./editorial-fields.cjs');
 const SITE = 'https://www.instantetrips.com';
 const statuses = new Set(['draft', 'scheduled', 'publishing', 'deploying', 'published', 'error', 'removing', 'removal_error', 'trashed']);
 const safeId = id => typeof id === 'string' && /^[a-zA-Z0-9_-]{1,100}$/.test(id);
-const slug = value => String(value).normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '').slice(0, 100) || 'historia';
+const STOPWORDS = new Set(['el','la','los','las','un','una','unos','unas','de','del','al','a','en','con','sin','por','para','como','que','cual','cuales','mi','mis','tu','tus','su','sus','este','esta','esto','estos','estas','ese','esa','muy','mas','pero','si','no','ya','casi','me','te','se','lo','le','les','nos','fue','son','es','era','o','u','y','e','ni','sobre','entre','hasta','desde','hacia','donde','cuando','quien','porque','todo','toda','todos','todas','otro','otra','otros','otras','mismo','misma','tan','tanto','tanta','algo','nada','poco','mucho','mucha','hacer','hice','hacerlo','ir','ver','usar']);
+const slug = (value, maxWords = 5, maxLen = 42) => {
+  const norm = String(value || '').normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLowerCase().replace(/^\d{4}-\d{2}-\d{2}-+/, '');
+  const tokens = norm.match(/[a-z0-9]+/g) || [];
+  if (!tokens.length) return 'historia';
+  const raw = tokens.join('-');
+  if (tokens.length <= 3 && raw.length <= 30) return raw;
+  const meaningful = tokens.filter(w => !STOPWORDS.has(w) && (w.length > 1 || /\d/.test(w)));
+  const pool = meaningful.length >= 2 ? meaningful : tokens;
+  const out = []; let len = 0;
+  for (const w of pool) {
+    if (out.length >= maxWords) break;
+    const next = len === 0 ? w.length : len + 1 + w.length;
+    if (next > maxLen && out.length >= 2) break;
+    out.push(w); len = next;
+  }
+  return out.join('-').replace(/^-|-$/g, '') || 'historia';
+};
 const hash = value => crypto.createHash('sha256').update(value).digest('hex');
 function fail(message, status = 400) { const e = new Error(message); e.status = status; throw e; }
 function cleanHtml(html) {
