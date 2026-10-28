@@ -23,8 +23,12 @@ function validateSettings(input){
  value.social={};for(const key of Object.keys(DEFAULT.social)){const url=safeUrl(input.social?.[key]);if(url&&!url.startsWith('https:'))fail('Las redes sociales necesitan un enlace https.');value.social[key]=url;}
  const ads=input.ads||{};value.ads={enabled:ads.enabled===true,publisherId:String(ads.publisherId||'').trim()};
  if(value.ads.publisherId&&!/^ca-pub-\d{16}$/.test(value.ads.publisherId))fail('El identificador AdSense debe tener formato ca-pub- y 16 dígitos.');
- for(const name of ['homeSlot','articleSlot','sidebarSlot']){value.ads[name]=String(ads[name]||'').trim();if(value.ads[name]&&!/^\d{6,20}$/.test(value.ads[name]))fail('El identificador de cada bloque debe contener solo números.');}
- if(value.ads.enabled&&(!value.ads.publisherId||!['homeSlot','articleSlot','sidebarSlot'].some(k=>value.ads[k])))fail('Añade el editor y al menos un bloque antes de activar AdSense.');
+ for(const name of ['homeSlot','articleSlot','sidebarSlot','feedSlot']){value.ads[name]=String(ads[name]||'').trim();if(value.ads[name]&&!/^\d{6,20}$/.test(value.ads[name]))fail('El identificador de cada bloque debe contener solo números.');}
+ for(const placement of ['home','article','sidebar','feed']){const key=`${placement}Enabled`;if(ads[key]!==undefined&&typeof ads[key]!=='boolean')fail('Usa los interruptores para activar o desactivar los anuncios.');value.ads[key]=placement==='feed'?ads[key]===true:ads[key]!==false;}
+ value.ads.feedLayoutKey=String(ads.feedLayoutKey||'').trim();value.ads.feedLayout=String(ads.feedLayout||'').trim();
+ if(value.ads.feedLayoutKey&&!/^[a-zA-Z0-9_+-]{1,200}$/.test(value.ads.feedLayoutKey)||value.ads.feedLayout&&!/^[a-zA-Z0-9_-]{1,80}$/.test(value.ads.feedLayout))fail('El diseño in-feed no es válido. Copia el código generado por AdSense.');
+ if(value.ads.feedEnabled&&(!value.ads.publisherId||!value.ads.feedSlot||!value.ads.feedLayoutKey))fail('Para activar la tarjeta entre artículos vincula el editor, el bloque y la clave de diseño in-feed.');
+ if(value.ads.enabled&&(!value.ads.publisherId||!['home','article','sidebar','feed'].some(p=>value.ads[`${p}Enabled`]&&value.ads[`${p}Slot`])))fail('Añade el editor y al menos un bloque activo antes de activar AdSense.');
  const sponsor=input.sponsor||{};value.sponsor={confirmed:sponsor.confirmed===true,enabled:sponsor.enabled===true,title:String(sponsor.title||'').slice(0,180),text:String(sponsor.text||'').slice(0,600),button:String(sponsor.button||'').slice(0,80),url:safeUrl(sponsor.url)};
  if(value.sponsor.enabled&&!value.sponsor.confirmed)fail('Confirma las condiciones y el enlace de la tarjeta patrocinada.');
  if(value.sponsor.enabled&&(!value.sponsor.title||!value.sponsor.button||!value.sponsor.url?.startsWith('https:')))fail('Completa el título, botón y enlace https de la tarjeta patrocinada.');
@@ -38,8 +42,10 @@ function validateSettings(input){
   return {id,type,title,url,provider,image,category:['activity','stay','transport','insurance','resource'].includes(item.category)?item.category:(type==='download'?'resource':'activity'),partnerId:String(item.partnerId||'').slice(0,150),text:String(item.text||'').slice(0,600),button:String(item.button||'').slice(0,100),tags:String(item.tags||'').slice(0,300),placement:item.placement==='manual'?'manual':'sidebar',enabled,confirmed};
  });
  if(new Set(value.catalog.map(x=>x.id)).size!==value.catalog.length)fail('Los identificadores del catálogo no pueden repetirse.');
+ value.tools={};for(const key of ['savedRoutes']){if(input.tools?.[key]!==undefined&&typeof input.tools[key]!=='boolean')fail('Usa los interruptores para activar o desactivar las herramientas.');value.tools[key]=input.tools?.[key]!==false;}
  const audience=input.audience||{};value.audience={newsletterUrl:safeUrl(audience.newsletterUrl),newsletterTitle:String(audience.newsletterTitle||'Recibe las próximas historias').slice(0,180),newsletterText:String(audience.newsletterText||'').slice(0,400)};
  if(value.audience.newsletterUrl&&!value.audience.newsletterUrl.startsWith('https:'))fail('Usa el enlace https de tu formulario de suscripción.');
+ if(value.audience.newsletterUrl){const u=new URL(value.audience.newsletterUrl);if(['instantetrips.com','www.instantetrips.com'].includes(u.hostname)&&['/','/recursos','/recursos/'].includes(u.pathname))fail('Añade el enlace real del formulario de suscripción; la portada y Recursos no suscriben al lector.');}
  return value;
 }
 function manifest(s){return {id:'/',name:s.name,short_name:s.shortName,description:s.description,start_url:'/',scope:'/',display:'standalone',background_color:s.backgroundColor,theme_color:s.themeColor,lang:'es',icons:[{src:s.assets.icon192,sizes:'192x192',type:'image/png',purpose:'any'},{src:s.assets.icon512,sizes:'512x512',type:'image/png',purpose:'any'},{src:s.assets.appleTouchIcon,sizes:'180x180',type:'image/png',purpose:'any'}]};}

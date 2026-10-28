@@ -11,17 +11,23 @@ import settings from '../data/site-settings.json';
     function hideAds(){placements.forEach(frame=>frame.hidden=true);}
     function initializeAds(){
       placements.forEach(frame=>{
-        const slot=frame.querySelector<HTMLElement>('ins.adsbygoogle');if(!slot||slot.dataset.requested)return;
+        if(frame.dataset?.feedVisible==='false'||frame.dataset?.adFailed==='true'){frame.hidden=true;return;}
+        const slot=frame.querySelector<HTMLElement>('ins.adsbygoogle');if(!slot)return;
+        if(slot.dataset.requested){frame.hidden=slot.dataset.adStatus==='unfilled';return;}
         frame.hidden=false;
         requestAnimationFrame(()=>{
-          if(slot.getBoundingClientRect().width<=0){frame.hidden=true;return;}
+          if(slot.dataset.requested)return;
+          if(frame.dataset?.feedVisible==='false'||slot.getBoundingClientRect().width<(frame.dataset?.adPlacement==='feed'?250:1)){frame.hidden=true;return;}
           slot.dataset.requested='true';
           const observer=new MutationObserver(()=>{const status=slot.dataset.adStatus;if(status==='unfilled'){frame.hidden=true;observer.disconnect();}else if(status==='filled')observer.disconnect();});
           observer.observe(slot,{attributes:true,attributeFilter:['data-ad-status']});
-          try{((window as any).adsbygoogle=(window as any).adsbygoogle||[]).push({});}catch{frame.hidden=true;observer.disconnect();}
+          try{((window as any).adsbygoogle=(window as any).adsbygoogle||[]).push({});}catch{frame.hidden=true;frame.dataset.adFailed='true';observer.disconnect();}
         });
       });
     }
+    function retryVisibleSlots(){const script=document.querySelector<HTMLScriptElement>('[data-ads-loader]');if(script?.dataset.loaded==='true')initializeAds();}
+    window.addEventListener('instante-feed-visibility',retryVisibleSlots);
+    window.addEventListener('resize',retryVisibleSlots);
     function enableAds(){
       if(!box)return;box.hidden=true;
       const existing=document.querySelector<HTMLScriptElement>('[data-ads-loader]');

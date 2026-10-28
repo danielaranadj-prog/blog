@@ -2,292 +2,38 @@
 import BaseHead from '../components/BaseHead.astro';
 import BlogHeader from '../components/BlogHeader.astro';
 import Footer from '../components/Footer.astro';
+import TravelIcon from '../components/TravelIcon.astro';
 import settings from '../data/site-settings.json';
+const enabled=settings.tools?.savedRoutes!==false;
 ---
-<html lang="es">
-  <head>
-    <BaseHead
-      title={`Mi Ruta de Viaje Guardada (Modo Offline) | ${settings.name}`}
-      description="Consulta las guías de viaje que has guardado en tu mochila para leer sin conexión a internet durante tu vuelo o tren."
-      permalink={`${Astro.site}mi-ruta/`}
-    />
-  </head>
-  <body>
-    <BlogHeader />
-    <main class="mi-ruta-page">
-      <a class="back-link" href="/">← Volver a las historias</a>
-
-      <header class="ruta-hero">
-        <span class="eyebrow">🎒 MODO AVIÓN Y LECTURA SIN CONEXIÓN</span>
-        <h1>Mi Ruta de Viaje Guardada</h1>
-        <p class="summary">
-          Todas las guías que guardas con el botón <strong>"🎒 Guardar en Mi Ruta"</strong> se almacenan en la memoria de tu dispositivo para que puedas abrirlas en pleno vuelo, en el tren o sin gastar roaming.
-        </p>
-      </header>
-
-      <section id="savedRouteContainer" class="saved-route-section" aria-live="polite">
-        <div id="emptyRouteState" class="empty-route-box">
-          <span class="empty-icon">🧭</span>
-          <h2>Aún no has guardado guías en tu mochila</h2>
-          <p>
-            Entra a cualquier artículo del blog y pulsa el botón <strong>"🎒 Guardar guía en Mi Ruta"</strong> para tenerla siempre a mano, incluso sin internet.
-          </p>
-          <div class="empty-actions">
-            <a href="/#explorar" class="btn-primary">Explorar Guías de Viaje →</a>
-            <a href="/recursos" class="btn-secondary">Usar Calculadoras de Viaje →</a>
-          </div>
-        </div>
-
-        <div id="savedRouteGrid" class="saved-route-grid" hidden></div>
-      </section>
-    </main>
-    <Footer />
-
-    <script>
-      const ROUTE_STORAGE_KEY = "instante-saved-route-v1";
-      const grid = document.getElementById("savedRouteGrid");
-      const emptyBox = document.getElementById("emptyRouteState");
-
-      function getSavedRoute(): Array<{ title: string; url: string; category: string; savedAt: number }> {
-        try {
-          const raw = localStorage.getItem(ROUTE_STORAGE_KEY);
-          return raw ? JSON.parse(raw) : [];
-        } catch {
-          return [];
-        }
-      }
-
-      function renderRoute() {
-        const items = getSavedRoute();
-        const badge = document.getElementById("headerRouteCount");
-        if (badge) badge.textContent = String(items.length);
-
-        if (!grid || !emptyBox) return;
-
-        if (items.length === 0) {
-          emptyBox.hidden = false;
-          grid.hidden = true;
-          grid.innerHTML = "";
-          return;
-        }
-
-        emptyBox.hidden = true;
-        grid.hidden = false;
-        grid.innerHTML = items
-          .map(
-            (item, idx) => `
-          <article class="saved-guide-card">
-            <div>
-              <span class="saved-cat-pill">✅ DISPONIBLE OFFLINE · ${(item.category || "VIAJES").toUpperCase()}</span>
-              <h3><a href="${item.url}">${item.title}</a></h3>
-            </div>
-            <div class="saved-card-actions">
-              <a href="${item.url}" class="read-saved-btn">Abrir guía →</a>
-              <button type="button" class="remove-saved-btn" data-remove-idx="${idx}" aria-label="Quitar de Mi Ruta">Quitar ✕</button>
-            </div>
-          </article>
-        `
-          )
-          .join("");
-
-        grid.querySelectorAll("[data-remove-idx]").forEach((btn) => {
-          btn.addEventListener("click", () => {
-            const index = Number((btn as HTMLElement).dataset.removeIdx);
-            const current = getSavedRoute();
-            current.splice(index, 1);
-            try {
-              localStorage.setItem(ROUTE_STORAGE_KEY, JSON.stringify(current));
-            } catch {}
-            renderRoute();
-          });
-        });
-      }
-
-      renderRoute();
-    </script>
-
-    <style>
-      .mi-ruta-page {
-        max-width: 1040px;
-        margin: 0 auto;
-        padding: 2rem 1.5rem 5rem;
-        font-family: var(--font-sans, sans-serif);
-      }
-
-      .back-link {
-        color: #18181B;
-        font-weight: 700;
-        text-decoration: none;
-        display: inline-block;
-        margin-bottom: 1rem;
-      }
-
-      .ruta-hero {
-        padding: 1.5rem 0 2rem;
-        border-bottom: 1.5px solid #E6E1D6;
-        margin-bottom: 2.5rem;
-      }
-
-      .eyebrow {
-        font-size: 0.74rem;
-        font-weight: 800;
-        letter-spacing: 0.09em;
-        color: #E04F16;
-        text-transform: uppercase;
-        display: block;
-        margin-bottom: 0.5rem;
-      }
-
-      .ruta-hero h1 {
-        font-family: var(--font-serif, "Playfair Display", serif);
-        font-size: clamp(2rem, 4vw, 3rem);
-        font-weight: 900;
-        margin: 0 0 0.75rem;
-        color: #18181B;
-      }
-
-      .summary {
-        font-size: 1.05rem;
-        color: #52525B;
-        max-width: 720px;
-        line-height: 1.65;
-        margin: 0;
-      }
-
-      .empty-route-box {
-        background: #FFFFFF;
-        border: 1.5px solid #18181B;
-        border-radius: 18px;
-        padding: 3rem 2rem;
-        text-align: center;
-        box-shadow: 0 4px 0 rgba(24, 24, 27, 0.06);
-      }
-
-      .empty-icon {
-        font-size: 2.5rem;
-        display: block;
-        margin-bottom: 0.75rem;
-      }
-
-      .empty-route-box h2 {
-        font-family: var(--font-serif, "Playfair Display", serif);
-        font-size: 1.6rem;
-        margin: 0 0 0.75rem;
-      }
-
-      .empty-route-box p {
-        color: #52525B;
-        max-width: 520px;
-        margin: 0 auto 1.75rem;
-        line-height: 1.6;
-      }
-
-      .empty-actions {
-        display: flex;
-        flex-wrap: wrap;
-        justify-content: center;
-        gap: 0.85rem;
-      }
-
-      .btn-primary,
-      .btn-secondary {
-        padding: 0.8rem 1.4rem;
-        border-radius: 999px;
-        font-size: 0.85rem;
-        font-weight: 800;
-        text-decoration: none;
-        border: 1.5px solid #18181B;
-      }
-
-      .btn-primary {
-        background: #E04F16;
-        color: #FFFFFF;
-      }
-
-      .btn-secondary {
-        background: #FAF7F2;
-        color: #18181B;
-      }
-
-      .saved-route-grid {
-        display: grid;
-        grid-template-columns: 1fr;
-        gap: 1.25rem;
-      }
-
-      @media (min-width: 720px) {
-        .saved-route-grid {
-          grid-template-columns: repeat(2, 1fr);
-        }
-      }
-
-      :global(.saved-guide-card) {
-        background: #FFFFFF;
-        border: 1.5px solid #18181B;
-        border-radius: 16px;
-        padding: 1.5rem;
-        display: flex;
-        flex-direction: column;
-        justify-content: space-between;
-        gap: 1.25rem;
-        box-shadow: 0 4px 0 rgba(24, 24, 27, 0.07);
-      }
-
-      :global(.saved-cat-pill) {
-        display: inline-block;
-        background: #DCFCE7;
-        color: #15803D;
-        font-size: 0.68rem;
-        font-weight: 800;
-        padding: 0.25rem 0.65rem;
-        border-radius: 999px;
-        margin-bottom: 0.65rem;
-      }
-
-      :global(.saved-guide-card h3) {
-        font-family: var(--font-serif, "Playfair Display", serif);
-        font-size: 1.35rem;
-        margin: 0;
-        line-height: 1.25;
-      }
-
-      :global(.saved-guide-card h3 a) {
-        color: #18181B;
-        text-decoration: none;
-      }
-
-      :global(.saved-guide-card h3 a:hover) {
-        color: #E04F16;
-      }
-
-      :global(.saved-card-actions) {
-        display: flex;
-        align-items: center;
-        justify-content: space-between;
-        border-top: 1px solid #E6E1D6;
-        padding-top: 0.9rem;
-      }
-
-      :global(.read-saved-btn) {
-        background: #E04F16;
-        color: #FFFFFF;
-        text-decoration: none;
-        padding: 0.5rem 1rem;
-        border-radius: 999px;
-        font-size: 0.8rem;
-        font-weight: 800;
-      }
-
-      :global(.remove-saved-btn) {
-        background: transparent;
-        border: 1px solid #D6D1C4;
-        color: #71717A;
-        padding: 0.4rem 0.75rem;
-        border-radius: 999px;
-        font-size: 0.75rem;
-        font-weight: 700;
-        cursor: pointer;
-      }
-    </style>
-  </body>
-</html>
+<html lang="es"><head><BaseHead title={`Mi Ruta | ${settings.name}`} description="Reúne tus guías favoritas de Instante Trips y vuelve a ellas cuando prepares tu viaje." permalink={new URL('/mi-ruta/',Astro.site).href} noindex={true}/></head><body><BlogHeader/>
+<main class="travel-shell"><a class="travel-back" href="/">← Volver a las historias</a><header class="travel-heading"><span class="travel-kicker">Instante / Tu próxima escapada</span><h1>Tu viaje empieza<br/>con una idea.</h1><p class="travel-intro">Reúne aquí las guías que quieres volver a leer. Tu lista se guarda en este navegador y dispositivo.</p></header>
+{enabled?<section id="savedRouteContainer" aria-label="Mis guías guardadas"><div id="emptyRouteState" class="travel-empty"><TravelIcon name="map"/><h2>Tu ruta está por escribir.</h2><p>Abre una historia y pulsa “Guardar en Mi Ruta”. La tendrás a mano para seguir preparando tu viaje.</p><a class="travel-button travel-button-primary" href="/#explorar">Encontrar mi próxima guía →</a></div><div id="savedRouteGrid" class="travel-card-grid" hidden></div><p id="route-status" role="status" class="travel-note"></p><noscript><p>Activa JavaScript para consultar las guías guardadas en tu navegador.</p></noscript></section>:<p class="travel-intro">La lista de guías está desactivada por el momento.</p>}
+</main><Footer/>
+<script>
+import {readSavedRoutes,writeSavedRoutes} from '../utils/saved-routes.mjs';
+const grid=document.querySelector('#savedRouteGrid'),empty=document.querySelector<HTMLElement>('#emptyRouteState'),status=document.querySelector('#route-status');
+const getItems=()=>{try{return readSavedRoutes(localStorage);}catch{return [];}};
+function render(){
+  if(!grid||!empty)return;const items=getItems();grid.replaceChildren();empty.hidden=items.length>0;(grid as HTMLElement).hidden=items.length===0;
+  for(const item of items){
+    const card=document.createElement('article');card.className='travel-resource';
+    const label=document.createElement('span');label.className='travel-kicker';label.textContent=item.category;
+    const heading=document.createElement('h2'),title=document.createElement('a');title.href=item.url;title.textContent=item.title;heading.append(title);
+    const actions=document.createElement('div');actions.className='saved-card-actions';
+    const link=document.createElement('a');link.href=item.url;link.className='travel-button travel-button-primary';link.textContent='Abrir guía →';
+    const remove=document.createElement('button');remove.type='button';remove.className='travel-button';remove.textContent='Quitar';remove.setAttribute('aria-label',`Quitar ${item.title} de Mi Ruta`);
+    remove.addEventListener('click',()=>{
+      let ok=false;try{ok=writeSavedRoutes(localStorage,getItems().filter(saved=>saved.url!==item.url));}catch{}
+      if(status)status.textContent=ok?'Guía quitada de tu lista.':'No se pudo actualizar la lista. Comprueba el almacenamiento del navegador.';
+      if(ok){window.dispatchEvent(new Event('instante-route-change'));render();(grid.querySelector('button')||empty.querySelector('a'))?.focus();}
+    });
+    actions.append(link,remove);card.append(label,heading,actions);grid.append(card);
+  }
+}
+render();window.addEventListener('storage',render);
+</script>
+<style is:global>
+#savedRouteGrid{grid-template-columns:repeat(2,minmax(0,1fr))}#savedRouteGrid h2{font:800 1.6rem/1.25 var(--font-serif);margin:.8rem 0 1.5rem}#savedRouteGrid h2 a{color:var(--text-main);text-decoration:none}.saved-card-actions{margin-top:auto;display:flex;flex-wrap:wrap;gap:.5rem;justify-content:space-between}.saved-card-actions .travel-button{font-size:.7rem}@media(max-width:650px){#savedRouteGrid{grid-template-columns:minmax(0,1fr)}}
+</style>
+</body></html>

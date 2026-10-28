@@ -1,9 +1,10 @@
 ---
 import settings from '../data/site-settings.json';
+import {adPlacementEnabled} from '../utils/ad-placements.mjs';
 const {placement='article',preview=false,config=settings.ads}=Astro.props;
 const validPlacement=['home','article','sidebar'].includes(placement);
 const slot=validPlacement?config[`${placement}Slot`]:'';
-const enabled=validPlacement&&config.enabled&&/^ca-pub-\d{16}$/.test(config.publisherId||'')&&/^\d{6,20}$/.test(slot||'');
+const enabled=validPlacement&&adPlacementEnabled(config,placement);
 const square=placement==='sidebar';
 ---
 {(enabled||preview)&&<aside class:list={['site-ad',square?'site-ad-square':'site-ad-banner',{'site-ad-preview':preview}]} data-site-ad={!preview||undefined} data-ad-placement={placement} aria-label={preview?'Vista de ejemplo de un espacio publicitario':'Publicidad'} hidden={!preview}>

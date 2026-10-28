@@ -7,14 +7,19 @@ export async function getStaticPaths() {
   const allPosts = await Astro.glob('../posts/*.md');
   const routeMap = new Map();
 
-  const registerAlias = (alias, post) => {
+  const registerAlias = (alias, post, required = false) => {
     const clean = String(alias || '').trim().toLowerCase();
     if (!clean || !/^[a-z0-9-]+$/.test(clean)) return;
+    if(required && routeMap.has(clean) && routeMap.get(clean).url!==post.url) throw new Error(`Enlace corto duplicado: ${clean}. Revisa las direcciones de los artículos antes de publicar.`);
     if (!routeMap.has(clean)) {
       routeMap.set(clean, post);
     }
   };
 
+  for(const post of allPosts){
+    const filename=decodeURIComponent(post.url||'').replace(/^\/+|\/+$/g,'').replace(/^posts\//,'');
+    registerAlias(getShortAlias({filename,title:post.frontmatter?.title||''}),post,true);
+  }
   for (const post of allPosts) {
     const rawSlug = decodeURIComponent(post.url || '')
       .replace(/^\/+|\/+$/g, '')
@@ -22,7 +27,7 @@ export async function getStaticPaths() {
     const title = post.frontmatter?.title || '';
 
     // 1. Alias corto principal (ej. real-madrid, tren-barcelona, o 3 palabras clave en posts nuevos)
-    registerAlias(getShortAlias({ filename: rawSlug, title }), post);
+    registerAlias(getShortAlias({ filename: rawSlug, title }), post, true);
 
     // 2. Slug ultracorto de 3 palabras clave del título
     registerAlias(smartShortSlug(title, { maxWords: 3, maxLength: 26 }), post);
@@ -64,9 +69,11 @@ const socialImg = rawImg ? optimizeImageUrl(rawImg, 1200) : undefined;
       window.location.replace(targetPath + window.location.search + window.location.hash);
     </script>
   </head>
-  <body style="font-family: sans-serif; background: #FAF7F2; color: #18181B; display: grid; place-items: center; min-height: 100vh; margin: 0;">
-    <p style="font-size: 0.95rem;">
-      Abriendo guía: <a href={targetPath} style="color: #E04F16; font-weight: 700;">{post.frontmatter.title} →</a>
+  <body class="shortlink-fallback">
+    <p>
+      Abriendo guía: <a href={targetPath}>{post.frontmatter.title} →</a>
     </p>
   </body>
 </html>
+
+<style>.shortlink-fallback{display:grid;place-items:center;min-height:100vh;padding:24px}.shortlink-fallback p{max-width:600px;font-size:.95rem}.shortlink-fallback a{color:var(--accent-ink);font-weight:700;text-underline-offset:4px}</style>

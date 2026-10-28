@@ -2,7 +2,7 @@
 <script>
  let consent=false,sent=false;const panel=document.querySelector<HTMLElement>('#measurement-choice'),status=document.querySelector('#measurement-status');
  const storageKey='instante-measurement-v1';let choice=null;try{choice=localStorage.getItem(storageKey);}catch{}
- const optedOut=navigator.doNotTrack==='1';consent=choice!=='no'&&!optedOut;
+ const optedOut=navigator.doNotTrack==='1';consent=choice==='yes'&&!optedOut;
  if(choice===null&&!optedOut)panel.hidden=true;
  async function send(type,path,target=''){if(!consent||navigator.webdriver||optedOut)return;try{const id=crypto.randomUUID();await fetch('/api/analytics',{method:'POST',keepalive:true,headers:{'Content-Type':'application/json'},body:JSON.stringify({id,type,path,target})});}catch{}}
  function page(){if(!sent&&consent){sent=true;send('page_view',location.pathname);}}

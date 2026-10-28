@@ -7,6 +7,8 @@ import Footer from '../components/Footer.astro';
 import { SITE } from '../config';
 import settings from '../data/site-settings.json';
 import SiteAds from '../components/SiteAds.astro';
+import InFeedAd from '../components/InFeedAd.astro';
+import {showInFeedInGrid} from '../utils/ad-placements.mjs';
 import { optimizeImageUrl } from '../config/affiliates';
 
 // --- MAGIA DE PAGINACIÓN (Astro) ---
@@ -33,6 +35,7 @@ const isFirstPage = page.currentPage === 1;
 const gridPosts = isFirstPage 
   ? page.data.filter((p) => p.url !== featuredPost.url)
   : page.data;
+const hasInFeedAd=showInFeedInGrid(settings.ads,gridPosts.length);
 
 const title = settings.homeTitle;
 const description = settings.description;
@@ -118,7 +121,7 @@ const featuredSearch = `${featuredData} ${featuredPost?.frontmatter.description 
                     <button class="cat-pill" aria-pressed="false" data-category="transporte" onclick="filterPosts('transporte', this)">Trenes y Vuelos</button>
                     <button class="cat-pill" aria-pressed="false" data-category="futbol" onclick="filterPosts('futbol', this)">Fútbol</button>
                     <button class="cat-pill" aria-pressed="false" data-category="hacks" onclick="filterPosts('hacks', this)">Hacks</button>
-                    <a href="/destinos" class="cat-pill" style="text-decoration:none;border-color:#E04F16;color:#E04F16;font-weight:800;">🌍 Hubs por País →</a>
+                    <a href="/destinos" class="cat-pill" style="text-decoration:none;border-color:#E04F16;color:#E04F16;font-weight:800;">Ver destinos →</a>
                 </div>
             </section>
 
@@ -160,7 +163,7 @@ const featuredSearch = `${featuredData} ${featuredPost?.frontmatter.description 
             )}
 
             <!-- GRID INFERIOR DE 4 COLUMNAS (PROPOSAL) -->
-            <SiteAds placement="home" />
+            {!hasInFeedAd&&<SiteAds placement="home" />}
             <main class="posts-grid-4cols" id="postsGrid" aria-label="Listado de guías y crónicas">
                 
                 {gridPosts.map((p, index) => {
@@ -170,8 +173,9 @@ const featuredSearch = `${featuredData} ${featuredPost?.frontmatter.description 
                         <div class="post-grid-item-wrap" data-search={searchData}>
                             <BlogPostPreview post={p} />
                         </div>
+                        {hasInFeedAd&&index===1&&<InFeedAd/>}
                 <!-- TARJETA EDITORIAL DE AUTORIDAD ("NO SOMOS GURÚS") -->
-                {isFirstPage && index === 0 && (
+                {isFirstPage && index === (hasInFeedAd?2:0) && (
                     <div class="post-grid-item-wrap statement-grid-item" data-editorial="true">
                         <div class="statement-card-dark">
                             <div class="statement-icon-top" aria-hidden="true">✌️</div>
@@ -241,6 +245,14 @@ const featuredSearch = `${featuredData} ${featuredPost?.frontmatter.description 
 
                 const editorial = document.querySelector('[data-editorial]');
                 if (editorial) editorial.hidden = query !== '' || currentFilter !== 'all';
+                // Keep the same ad node; filtering never creates another impression request.
+                const feedAd=document.querySelector('[data-feed-ad]');
+                if(feedAd){
+                    const visible=query===''&&currentFilter==='all';
+                    feedAd.dataset.feedVisible=String(visible);
+                    if(!visible)feedAd.hidden=true;
+                    window.dispatchEvent(new Event('instante-feed-visibility'));
+                }
 
                 if (noResults) {
                     if (visibleCount === 0) {

@@ -1,3 +1,4 @@
+import {getShortUrl} from './short-links.mjs';
 import { escapeHtml as esc } from './planner-utils.js';
 export const articleTypes={experiencia:'Experiencia',opinion:'Opinión',guia:'Guía práctica',comparativa:'Comparativa',seleccion:'Listas y recomendaciones',entrevista:'Entrevista'};
 export const budgetLevels={gratis:'Gratis',economico:'Económico',intermedio:'Intermedio',premium:'Premium',mixto:'Mixto'};
@@ -10,19 +11,6 @@ export const editorialStructures={
  entrevista:['Quién es la persona entrevistada','Contexto y fecha de la conversación','Preguntas y respuestas','Lo que aprendí','Referencias y agradecimientos']
 };
 const STOPWORDS=new Set(['el','la','los','las','un','una','unos','unas','de','del','al','a','en','con','sin','por','para','como','que','cual','cuales','mi','mis','tu','tus','su','sus','este','esta','esto','estos','estas','ese','esa','muy','mas','pero','si','no','ya','casi','me','te','se','lo','le','les','nos','fue','son','es','era','o','u','y','e','ni','sobre','entre','hasta','desde','hacia','donde','cuando','quien','porque','todo','toda','todos','todas','otro','otra','otros','otras','mismo','misma','tan','tanto','tanta','algo','nada','poco','mucho','mucha','hacer','hice','hacerlo','ir','ver','usar']);
-const LEGACY_ALIASES={
- '2026-01-23--misi-n-imposible-c-mo-consegu-mi-entrada-para-ver-al-real-madrid-y-por-qu-madrugar-vali-la-pena-':'real-madrid',
- '2026-02-01--viaj-por-7-mi-secreto-para-usar-la-alta-velocidad-en-espa-a':'trenes-7e',
- '2026-02-03--tren-o-avi-n-a-barcelona-este-error-casi-me-cuesta-muy-caro':'tren-barcelona',
- '2026-01-17-el-vuelo-barato-existe-nom-s-hay-que-saber-buscarle-':'vuelos-baratos',
- 'barcelona-10-minutos-de-terror-y-lo-único-que-me-salvó':'barcelona-seguro',
- 'barcelona-10-minutos-de-terror-y-lo-unico-que-me-salvo':'barcelona-seguro',
- '2026-01-17-buenos-aires-5-dias-guia-real':'buenos-aires',
- '2026-01-17-ushuaia-guia-fin-del-mundo':'ushuaia',
- 'madrid-traslados':'barajas-madrid',
- 'bruselas-brujas':'bruselas-brujas',
- 'segovia':'segovia'
-};
 export function cleanSlug(value, maxWords=4, maxLen=36){
  const norm=String(value||'').normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLowerCase().replace(/^\d{4}-\d{2}-\d{2}-+/,'');
  const tokens=norm.match(/[a-z0-9]+/g)||[];
@@ -40,24 +28,19 @@ export function cleanSlug(value, maxWords=4, maxLen=36){
  }
  return out.join('-').replace(/^-|-$/g,'');
 }
-export function getShortShareUrl({filename='',urlSlug='',title=''}={}){
- const rawFile=String(filename||'').replace(/\.md$/i,'').replace(/^\/+|\/+$/g,'').replace(/^posts\//,'');
- let decoded=rawFile;try{decoded=decodeURIComponent(rawFile);}catch{}
- const alias=LEGACY_ALIASES[decoded]||LEGACY_ALIASES[rawFile]||(urlSlug?cleanSlug(urlSlug,3,24):'')||cleanSlug(title||decoded,3,24)||'guia';
- return `https://www.instantetrips.com/ir/${alias}`;
-}
+export function getShortShareUrl(info={}){return getShortUrl(info);}
 export function structureHtml(type){return (editorialStructures[type]||[]).map(title=>`<h2>${esc(title)}</h2><p>[Completar con tu experiencia o fuentes verificadas]</p>`).join('');}
 const fields={editorialType:'editorial-type',destination:'editorial-destination',budgetLevel:'editorial-budget',focusQuestion:'editorial-question',seoTitle:'seo-title',urlSlug:'seo-slug',modifiedDate:'editorial-modified'};
 export function mountEditorialTools(bridge){
  const root=document.createElement('section');root.className='editorial-tools';root.setAttribute('aria-label','Enfoque editorial y buscadores');
  const options=values=>Object.entries(values).map(([key,label])=>`<option value="${key}">${label}</option>`).join('');
  root.innerHTML=`
- <div class="shortlink-box" style="border:1.5px solid #18181B;border-radius:12px;padding:1rem 1.15rem;background:#FAF7F2;margin-bottom:1.25rem;">
-  <div style="display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:.5rem;margin-bottom:.55rem;">
-   <label for="seo-slug" class="field-label" style="margin:0;">🔗 Link corto del artículo (URL limpia)</label>
-   <div style="display:flex;flex-wrap:wrap;gap:.45rem;">
-    <button type="button" id="btn-shorten-slug" class="planner-button" style="padding:.3rem .7rem;font-size:.7rem;">✂️ Acortar a 3 palabras</button>
-    <button type="button" id="btn-copy-shortlink" class="planner-button primary" style="padding:.3rem .75rem;font-size:.7rem;">📋 Copiar link corto (/ir/...)</button>
+ <div class="shortlink-box">
+  <div class="shortlink-heading">
+   <label for="seo-slug" class="field-label">Dirección y enlace para compartir</label>
+   <div class="shortlink-actions">
+    <button type="button" id="btn-shorten-slug" class="planner-button">Acortar dirección</button>
+    <button type="button" id="btn-copy-shortlink" class="planner-button primary">Copiar enlace corto</button>
    </div>
   </div>
   <input id="seo-slug" class="input-modern" maxlength="100" placeholder="Se genera corto automáticamente desde el título" pattern="[a-z0-9]+(-[a-z0-9]+)*">
@@ -82,7 +65,7 @@ export function mountEditorialTools(bridge){
   const slug=filename?filename.slice(0,-3):$('seo-slug').value||cleanSlug(p.title,4,36);
   const shortShare=getShortShareUrl({filename,urlSlug:$('seo-slug').value,title:p.title});
   $('seo-preview-url').textContent='www.instantetrips.com/posts/'+(slug||'tu-historia')+'/';
-  if($('shortlink-live-badge'))$('shortlink-live-badge').textContent=`⚡ Link ultracorto para redes: ${shortShare.replace('https://www.','')}`;
+  if($('shortlink-live-badge'))$('shortlink-live-badge').textContent=`Enlace para compartir: ${shortShare.replace('https://www.','')}`;
   $('seo-preview-title').textContent=($('seo-title').value.trim()||p.title||'El título de tu historia')+' | Instante Trips';
   $('seo-preview-description').textContent=p.description||'Aquí aparecerá la descripción de tu artículo.';
   $('social-preview-title').textContent=$('seo-preview-title').textContent;
@@ -93,8 +76,9 @@ export function mountEditorialTools(bridge){
   for(const [key,id] of Object.entries(fields))$(id).value=p[key]||'';
   $('seo-slug').disabled=!!filename;
   if($('btn-shorten-slug'))$('btn-shorten-slug').disabled=!!filename;
+  if($('btn-copy-shortlink')){$('btn-copy-shortlink').disabled=!filename;$('btn-copy-shortlink').title=filename?'Copiar el enlace del artículo':'Publica el artículo para disponer de un enlace activo';}
   if(filename)$('seo-slug').value=filename.slice(0,-3);
-  $('seo-slug-help').textContent=filename?'Dirección publicada protegida. Usa el botón “Copiar link corto (/ir/...)” para compartir la versión corta en redes.':'Se genera corto automáticamente quitando conectores. Puedes editarlo o pulsar “Acortar a 3 palabras” antes de publicar.';
+  $('seo-slug-help').textContent=filename?'Dirección publicada protegida. Usa el botón “Copiar enlace corto” para compartir la versión corta en redes.':'Se genera corto automáticamente quitando conectores. Puedes editarlo o pulsar “Acortar dirección” antes de publicar.';
   refresh();
  }
  $('seo-slug').addEventListener('input',()=>{manual=!!$('seo-slug').value;refresh();});

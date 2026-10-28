@@ -1,6 +1,8 @@
 ---
 import settings from '../data/site-settings.json';
+import {getNewsletterUrl} from '../utils/newsletter.mjs';
 const a=settings.audience;
+const newsletterUrl=getNewsletterUrl(a?.newsletterUrl);
 ---
-<section class="audience"><a href="/recursos">Recursos para tu próximo viaje →</a><a href="/rss.xml">Seguir las historias por RSS →</a>{a?.newsletterUrl&&<div><h2>{a.newsletterTitle}</h2><p>{a.newsletterText}</p><a href={a.newsletterUrl} target="_blank" rel="noopener">Suscribirme →</a><small>La suscripción se completa en el servicio de correo que hemos elegido.</small></div>}</section>
+<section class="audience"><a href="/recursos">Recursos para tu próximo viaje →</a><a href="/rss.xml">Seguir las historias por RSS →</a>{newsletterUrl&&<div><h2>{a.newsletterTitle}</h2><p>{a.newsletterText}</p><a href={newsletterUrl} target="_blank" rel="noopener">Suscribirme →</a><small>La suscripción se completa en el servicio de correo que hemos elegido.</small></div>}</section>
 <style>.audience{max-width:1180px;padding:2rem 20px;margin:2rem auto;display:flex;flex-wrap:wrap;gap:1.5rem;border-top:1px solid #D6D1C4;font-family:var(--font-sans)}.audience a{color:#C23E0B;font-weight:700}.audience small{display:block;margin-top:1rem}.audience div{flex-basis:100%}</style>

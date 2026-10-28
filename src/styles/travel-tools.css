@@ -1,0 +1,27 @@
+/* Extensions of the public editorial identity. Keep new surfaces on these tokens. */
+:root{--surface-paper:#FDFBF7;--surface-muted:#F3EFE6;--border-ink:1.5px solid var(--text-main);--radius-card:14px;--text-secondary:#625D55;--accent-soft:#FBECE2;--accent-ink:#B63B0E}
+.travel-shell{max-width:1180px;margin:auto;padding:2rem 24px 4rem;min-width:0}
+.travel-back{font-size:.75rem;font-weight:700;color:var(--text-secondary);text-decoration:none}
+.travel-heading{padding:2.5rem 0 2rem;border-bottom:var(--border-ink);margin-bottom:2rem}
+.travel-kicker{display:block;font:800 .65rem/1.6 var(--font-sans);letter-spacing:.13em;text-transform:uppercase;color:var(--accent-ink)}
+.travel-heading h1{font:900 clamp(2.5rem,5vw,4.25rem)/1.08 var(--font-serif);letter-spacing:-.045em;margin:.7rem 0 1rem;max-width:850px}
+.travel-intro{max-width:710px;font-size:1rem;line-height:1.8;color:var(--text-secondary);margin:0}
+.travel-nav{display:flex;flex-wrap:wrap;gap:.6rem;margin-top:1.75rem}
+.travel-nav a,.travel-button{display:inline-flex;align-items:center;justify-content:center;gap:.6rem;min-height:44px;border:var(--border-ink);border-radius:999px;padding:.7rem 1.1rem;font:700 .75rem/1.5 var(--font-sans);text-decoration:none;cursor:pointer;background:var(--bg-page);color:var(--text-main)}
+.travel-nav a:hover{background:var(--surface-muted)}
+.travel-button-primary{background:var(--accent-terracotta);color:white}
+.travel-button-primary:hover{background:var(--accent-terracotta-hover);color:white}
+.travel-icon{width:20px;height:20px;flex-shrink:0;vertical-align:middle}
+.travel-note{font-size:.72rem;line-height:1.8;color:var(--text-secondary);margin:.8rem 0 0}
+.travel-directory{margin-top:3rem;scroll-margin-top:160px}
+.travel-card-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:1.25rem;margin-top:1.5rem}
+.travel-resource{border:var(--border-ink);border-radius:var(--radius-card);background:var(--surface-paper);padding:1.5rem;display:flex;flex-direction:column;min-width:0}
+.travel-resource h3{font:700 1.45rem/1.2 var(--font-serif);letter-spacing:-.025em;margin:.8rem 0}
+.travel-resource p{font-size:.81rem;line-height:1.85;color:var(--text-secondary);margin:0 0 1.25rem}
+.travel-resource>a{margin-top:auto;color:var(--accent-ink);font-size:.75rem;font-weight:800;text-underline-offset:4px}
+.travel-resource img{width:100%;height:auto;aspect-ratio:16/9;object-fit:cover;border-radius:8px;margin-bottom:1rem}
+.travel-empty{border:var(--border-ink);border-radius:var(--radius-card);background:var(--surface-paper);padding:clamp(1.5rem,5vw,4rem);text-align:center}
+.travel-empty h2{font:800 1.8rem/1.2 var(--font-serif);margin:1rem 0}.travel-empty p{font-size:.9rem;line-height:1.8;color:var(--text-secondary);max-width:520px;margin:0 auto 1.5rem}
+@media(max-width:900px){.travel-card-grid{grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media(max-width:560px){.travel-shell{padding:1.5rem 16px 3rem}.travel-heading{padding:1.75rem 0}.travel-heading h1{font-size:2.6rem}.travel-intro{font-size:.9rem}.travel-card-grid{grid-template-columns:minmax(0,1fr)}.travel-nav a{font-size:.7rem}}
+@media(prefers-reduced-motion:reduce){html{scroll-behavior:auto}*,*::before,*::after{animation-duration:.01ms!important;transition-duration:.01ms!important}}

@@ -9,10 +9,9 @@ import Footer from '../components/Footer.astro';
 import QuickSummaryBox from '../components/QuickSummaryBox.astro';
 import Recommendations from '../components/Recommendations.astro';
 import SocialShare from '../components/SocialShare.astro';
+import {getNewsletterUrl} from '../utils/newsletter.mjs';
 import RetentionSystem from '../components/RetentionSystem.astro';
 import LeadMagnetInContent from '../components/LeadMagnetInContent.astro';
-import TransportCalculator from '../components/TransportCalculator.astro';
-import BudgetCalculator from '../components/BudgetCalculator.astro';
 import { optimizeImageUrl } from '../config/affiliates';
 import { getShortUrl } from '../utils/short-links.mjs';
 
@@ -110,15 +109,9 @@ const scoredPosts = otherPosts.map((p) => {
 
 scoredPosts.sort((a, b) => b.score - a.score || new Date(b.post.frontmatter.publishDate).valueOf() - new Date(a.post.frontmatter.publishDate).valueOf());
 const relatedPosts = scoredPosts.slice(0, 3).map((item) => item.post);
-const primaryNextPost = relatedPosts[0];
 
-const showTransportCalculator =
-  Boolean(frontmatter.showTransportCalculator || content.showTransportCalculator) ||
-  currentTags.includes('calculadora-tren');
-const showBudgetCalculator =
-  Boolean(frontmatter.showBudgetCalculator || content.showBudgetCalculator) ||
-  currentTags.includes('calculadora-presupuesto');
-const showLeadMagnet = Boolean(settings.audience?.newsletterUrl);
+
+const showLeadMagnet = Boolean(getNewsletterUrl(settings.audience?.newsletterUrl));
 
 /* -----------------------------
    HEADINGS PARA ÍNDICE DEL VIAJE
@@ -496,14 +489,11 @@ const schemaData = articleSchema({post:{...post,heroImage:finalImage},author,per
           <!-- TL;DR TICKET COMPONENT -->
           {post.quickSummary && Object.values(post.quickSummary).some(Boolean) && <QuickSummaryBox {...post.quickSummary} />}
 
-          <!-- SISTEMA DE RETENCIÓN: BARRA DE PROGRESO, GUARDAR EN MI RUTA (OFFLINE) Y DRAWER 65% -->
+          <!-- Progreso de lectura y lista de guías del dispositivo. -->
           <RetentionSystem
             articleTitle={post.title}
             articleUrl={Astro.url.pathname}
             articleCategory={post.destination || post.tags[0] || 'Viajes'}
-            nextPostTitle={primaryNextPost?.frontmatter?.title}
-            nextPostUrl={primaryNextPost?.url}
-            nextPostHook={primaryNextPost?.frontmatter?.description}
           />
 
           <!-- ÍNDICE DEL VIAJE COLAPSABLE SUPERIOR PARA MÓVIL -->
@@ -550,8 +540,6 @@ const schemaData = articleSchema({post:{...post,heroImage:finalImage},author,per
             <slot />
           </div>
 
-          {showTransportCalculator && <TransportCalculator />}
-          {showBudgetCalculator && !showTransportCalculator && <BudgetCalculator />}
 
           <SiteAds placement="article" />
 

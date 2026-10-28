@@ -1,356 +1,44 @@
 ---
-/**
- * Componente: RetentionSystem.astro
- * Sistema integral para evitar el rebote y hacer que el lector regrese:
- * 1. Barra de progreso de lectura superior (#readingProgressBar).
- * 2. Botón "🎒 Guardar en Mi Ruta (Offline)" que persiste en localStorage y fuerza el caché en /sw.js.
- * 3. Cajón deslizante al 65% del scroll con el "Siguiente paso lógico de tu viaje".
- */
-interface Props {
-  articleTitle?: string;
-  articleUrl?: string;
-  articleCategory?: string;
-  nextPostTitle?: string;
-  nextPostUrl?: string;
-  nextPostHook?: string;
-  nextPostReadTime?: string;
-}
-
-const {
-  articleTitle = "Guía de Supervivencia: 5 formas de ir de Barajas al centro de Madrid",
-  articleUrl = "/posts/madrid-traslados/",
-  articleCategory = "España",
-  nextPostTitle = "¡Viajé por 7€! Mi secreto para usar la Alta Velocidad en España",
-  nextPostUrl = "/posts/2026-02-01--viaj-por-7-mi-secreto-para-usar-la-alta-velocidad-en-espa-a/",
-  nextPostHook = "Ya tienes esta parte resuelta. Continúa con la siguiente guía probada en ruta para ahorrar tiempo y dinero en tu viaje.",
-  nextPostReadTime = "4 min lectura",
-} = Astro.props;
+import settings from '../data/site-settings.json';
+import TravelIcon from './TravelIcon.astro';
+const {articleTitle='',articleUrl='',articleCategory='Viajes'}=Astro.props;
 ---
-
-<!-- 1. BARRA DE PROGRESO DE LECTURA SUPERIOR -->
-<div class="reading-progress-container" aria-hidden="true">
-  <div class="reading-progress-bar" id="readingProgressBar"></div>
-</div>
-
-<!-- 2. BARRA DE GUARDADO EN "MI RUTA" (OFFLINE) -->
-<div class="save-route-action-bar">
-  <button
-    type="button"
-    class="save-route-btn"
-    id="saveToRouteBtn"
-    data-title={articleTitle}
-    data-url={articleUrl}
-    data-category={articleCategory}
-  >
-    <span class="save-icon" data-save-icon>🎒</span>
-    <span data-save-text>Guardar guía en Mi Ruta (Leer sin internet)</span>
-  </button>
-  <a href="/mi-ruta" class="view-route-link">Ver mi ruta guardada →</a>
-</div>
-
-<!-- 3. CAJÓN DESLIZANTE DE CONTINUIDAD AL 65% DEL SCROLL -->
-<aside
-  class="next-stop-floating-drawer"
-  id="nextStopDrawer"
-  aria-label="Siguiente lectura recomendada"
-  hidden
->
-  <button
-    type="button"
-    class="next-stop-drawer-close"
-    id="closeNextStopDrawer"
-    aria-label="Cerrar recomendación"
-  >
-    ✕
-  </button>
-
-  <span class="next-stop-eyebrow">➡️ SIGUIENTE PARADA EN TU RUTA ({articleCategory.toUpperCase()})</span>
-  <h4 class="next-stop-title">
-    <a href={nextPostUrl}>{nextPostTitle}</a>
-  </h4>
-  <p class="next-stop-hook">{nextPostHook}</p>
-  <div class="next-stop-footer">
-    <span class="next-stop-time">⏱️ {nextPostReadTime}</span>
-    <a href={nextPostUrl} class="next-stop-cta">
-      Leer ahora →
-    </a>
-  </div>
-</aside>
-
-<style>
-  .reading-progress-container {
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 4px;
-    background: rgba(24, 24, 27, 0.06);
-    z-index: 1100;
-    pointer-events: none;
-  }
-
-  .reading-progress-bar {
-    height: 100%;
-    width: 0%;
-    background: linear-gradient(90deg, #E04F16 0%, #F59E0B 100%);
-    transition: width 0.12s ease-out;
-  }
-
-  .save-route-action-bar {
-    margin: 1.5rem 0;
-    display: flex;
-    flex-wrap: wrap;
-    align-items: center;
-    gap: 0.85rem;
-  }
-
-  .save-route-btn {
-    display: inline-flex;
-    align-items: center;
-    gap: 0.6rem;
-    background: #FAF7F2;
-    border: 1.5px solid #18181B;
-    border-radius: 999px;
-    padding: 0.65rem 1.2rem;
-    font-family: var(--font-sans, "Montserrat", sans-serif);
-    font-size: 0.8rem;
-    font-weight: 800;
-    color: #18181B;
-    cursor: pointer;
-    box-shadow: 0 3px 0 rgba(24, 24, 27, 0.1);
-    transition: all 0.15s ease;
-  }
-
-  .save-route-btn:hover {
-    border-color: #E04F16;
-    color: #E04F16;
-    transform: translateY(-1px);
-  }
-
-  .save-route-btn.is-saved {
-    background: #18181B;
-    color: #FFFFFF;
-    border-color: #18181B;
-  }
-
-  .view-route-link {
-    font-family: var(--font-sans, "Montserrat", sans-serif);
-    font-size: 0.78rem;
-    font-weight: 800;
-    color: #E04F16;
-    text-decoration: underline;
-    text-underline-offset: 3px;
-  }
-
-  .next-stop-floating-drawer {
-    position: fixed;
-    bottom: 1.25rem;
-    right: 1.25rem;
-    width: min(370px, calc(100vw - 2rem));
-    background: #1C1F26;
-    color: #FFFFFF;
-    border: 1.5px solid #E04F16;
-    border-radius: 16px;
-    padding: 1.15rem;
-    box-shadow: 0 16px 40px rgba(0, 0, 0, 0.28);
-    z-index: 990;
-    transform: translateY(140%);
-    opacity: 0;
-    transition: transform 0.35s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.25s ease;
-  }
-
-  .next-stop-floating-drawer.is-visible {
-    transform: translateY(0);
-    opacity: 1;
-  }
-
-  .next-stop-drawer-close {
-    position: absolute;
-    top: 0.65rem;
-    right: 0.65rem;
-    background: rgba(255, 255, 255, 0.1);
-    border: none;
-    color: #A1A1AA;
-    width: 26px;
-    height: 26px;
-    border-radius: 50%;
-    cursor: pointer;
-    font-size: 0.85rem;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-  }
-
-  .next-stop-drawer-close:hover {
-    background: #E04F16;
-    color: #FFFFFF;
-  }
-
-  .next-stop-eyebrow {
-    display: block;
-    font-size: 0.66rem;
-    font-weight: 800;
-    letter-spacing: 0.08em;
-    color: #E04F16;
-    margin-bottom: 0.35rem;
-    padding-right: 1.5rem;
-  }
-
-  .next-stop-title {
-    font-family: var(--font-serif, "Playfair Display", serif);
-    font-size: 1.1rem;
-    font-weight: 800;
-    margin: 0 0 0.45rem;
-    line-height: 1.28;
-  }
-
-  .next-stop-title a {
-    color: #FFFFFF;
-    text-decoration: none;
-  }
-
-  .next-stop-title a:hover {
-    color: #E04F16;
-  }
-
-  .next-stop-hook {
-    font-size: 0.8rem;
-    line-height: 1.5;
-    color: #D4D4D8;
-    margin: 0 0 0.85rem;
-  }
-
-  .next-stop-footer {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    border-top: 1px solid rgba(255, 255, 255, 0.12);
-    padding-top: 0.7rem;
-  }
-
-  .next-stop-time {
-    font-size: 0.74rem;
-    color: #A1A1AA;
-    font-weight: 600;
-  }
-
-  .next-stop-cta {
-    background: #E04F16;
-    color: #FFFFFF !important;
-    text-decoration: none !important;
-    font-size: 0.78rem;
-    font-weight: 800;
-    padding: 0.45rem 0.95rem;
-    border-radius: 999px;
-    transition: background 0.15s ease;
-  }
-
-  .next-stop-cta:hover {
-    background: #C23E0B;
-  }
-</style>
-
+<div class="reading-progress-container" aria-hidden="true"><div class="reading-progress-bar" id="readingProgressBar"></div></div>
+{settings.tools?.savedRoutes!==false&&<div class="save-route-action-bar"><button type="button" class="travel-button" id="saveToRouteBtn" data-title={articleTitle} data-url={articleUrl} data-category={articleCategory} aria-pressed="false" disabled><TravelIcon/><span data-save-text>Guardar en Mi Ruta</span></button><a href="/mi-ruta" class="view-route-link">Ver mis guías →</a><span id="save-route-status" role="status"></span></div>}
 <script>
-  const ROUTE_STORAGE_KEY = "instante-saved-route-v1";
-  const SW_CACHE_NAME = "instante-public-v4";
-
-  function getSavedRoute(): Array<{ title: string; url: string; category: string; savedAt: number }> {
-    try {
-      const raw = localStorage.getItem(ROUTE_STORAGE_KEY);
-      return raw ? JSON.parse(raw) : [];
-    } catch {
-      return [];
-    }
-  }
-
-  function updateHeaderCounter() {
-    const badge = document.getElementById("headerRouteCount");
-    if (badge) {
-      badge.textContent = String(getSavedRoute().length);
-    }
-  }
-
-  const saveBtn = document.getElementById("saveToRouteBtn") as HTMLButtonElement | null;
-  if (saveBtn) {
-    const url = saveBtn.dataset.url || location.pathname;
-    const title = saveBtn.dataset.title || document.title;
-    const category = saveBtn.dataset.category || "Viajes";
-    const textSpan = saveBtn.querySelector("[data-save-text]");
-    const iconSpan = saveBtn.querySelector("[data-save-icon]");
-
-    const syncButtonUI = () => {
-      const list = getSavedRoute();
-      const exists = list.some((item) => item.url === url);
-      saveBtn.classList.toggle("is-saved", exists);
-      if (textSpan) {
-        textSpan.textContent = exists
-          ? "Guardada en Mi Ruta (Disponible sin internet)"
-          : "Guardar guía en Mi Ruta (Leer sin internet)";
-      }
-      if (iconSpan) {
-        iconSpan.textContent = exists ? "✅" : "🎒";
-      }
-      updateHeaderCounter();
-    };
-
-    syncButtonUI();
-
-    saveBtn.addEventListener("click", async () => {
-      const list = getSavedRoute();
-      const idx = list.findIndex((item) => item.url === url);
-
-      if (idx >= 0) {
-        list.splice(idx, 1);
-      } else {
-        list.push({ title, url, category, savedAt: Date.now() });
-        if ("caches" in window) {
-          try {
-            const cache = await caches.open(SW_CACHE_NAME);
-            await cache.add(url);
-          } catch {}
-        }
-      }
-
-      try {
-        localStorage.setItem(ROUTE_STORAGE_KEY, JSON.stringify(list));
-      } catch {}
-      syncButtonUI();
-    });
-  }
-
-  const progressBar = document.getElementById("readingProgressBar");
-  const drawer = document.getElementById("nextStopDrawer");
-  const closeDrawerBtn = document.getElementById("closeNextStopDrawer");
-  let drawerDismissed = false;
-
-  closeDrawerBtn?.addEventListener("click", () => {
-    drawerDismissed = true;
-    drawer?.classList.remove("is-visible");
-    setTimeout(() => {
-      if (drawer) drawer.hidden = true;
-    }, 300);
+import {readSavedRoutes,writeSavedRoutes,normalizeRoute} from '../utils/saved-routes.mjs';
+const button=document.querySelector<HTMLButtonElement>('#saveToRouteBtn');
+const getList=()=>{try{return readSavedRoutes(localStorage);}catch{return [];}};
+const sync=()=>{
+  const saved=getList().some(item=>item.url===button?.dataset.url?.replace(/\/$/,''));
+  button?.setAttribute('aria-pressed',String(saved));
+  const text=button?.querySelector('[data-save-text]');if(text)text.textContent=saved?'Guardada en Mi Ruta':'Guardar en Mi Ruta';
+};
+if(button){
+  button.disabled=false;sync();
+  button.addEventListener('click',()=>{
+    const items=getList(),route=normalizeRoute({url:button.dataset.url,title:button.dataset.title,category:button.dataset.category,savedAt:Date.now()});
+    if(!route)return;
+    const exists=items.some(item=>item.url===route.url);
+    const next=exists?items.filter(item=>item.url!==route.url):[...items,route];
+    let ok=false;try{ok=next.length<=200&&writeSavedRoutes(localStorage,next);}catch{}
+    const status=document.querySelector('#save-route-status');
+    if(status)status.textContent=ok?(exists?'Guía quitada de tu lista.':'Guía guardada en este navegador.'):'No se pudo guardar. Comprueba el almacenamiento del navegador o libera espacio en tu lista.';
+    sync();window.dispatchEvent(new Event('instante-route-change'));
   });
-
-  window.addEventListener(
-    "scroll",
-    () => {
-      const docHeight = document.documentElement.scrollHeight - window.innerHeight;
-      if (docHeight <= 0) return;
-      const pct = Math.min(100, Math.max(0, (window.scrollY / docHeight) * 100));
-
-      if (progressBar) {
-        progressBar.style.width = `${pct}%`;
-      }
-
-      if (drawer && !drawerDismissed) {
-        if (pct >= 62) {
-          drawer.hidden = false;
-          requestAnimationFrame(() => drawer.classList.add("is-visible"));
-        } else {
-          drawer.classList.remove("is-visible");
-        }
-      }
-    },
-    { passive: true }
-  );
+  window.addEventListener('storage',sync);
+}
+const bar=document.querySelector<HTMLElement>('#readingProgressBar'),prose=document.querySelector<HTMLElement>('.prose');
+let pending=false;
+function progress(){
+  pending=false;if(!bar||!prose)return;
+  const start=prose.getBoundingClientRect().top+window.scrollY;
+  const distance=Math.max(1,prose.offsetHeight-window.innerHeight+160);
+  bar.style.width=`${Math.max(0,Math.min(100,(window.scrollY-start+160)/distance*100))}%`;
+}
+window.addEventListener('scroll',()=>{if(!pending){pending=true;requestAnimationFrame(progress);}},{passive:true});
+window.addEventListener('resize',progress);progress();
 </script>
+<style>
+.reading-progress-container{position:fixed;top:0;left:0;width:100%;height:3px;z-index:1100;pointer-events:none}.reading-progress-bar{height:100%;width:0;background:var(--accent-terracotta)}.save-route-action-bar{display:flex;flex-wrap:wrap;align-items:center;gap:.8rem 1rem;margin:1.5rem 0}.save-route-action-bar button[aria-pressed=true]{background:var(--surface-muted);color:var(--accent-ink)}.save-route-action-bar button:disabled{opacity:.5}.view-route-link{font-size:.75rem;font-weight:700;color:var(--text-secondary);text-underline-offset:4px}#save-route-status{flex-basis:100%;font-size:.7rem;color:var(--text-secondary);line-height:1.6}#save-route-status:empty{display:none}
+</style>

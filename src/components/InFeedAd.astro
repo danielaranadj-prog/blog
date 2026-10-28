@@ -1,0 +1,18 @@
+---
+import settings from '../data/site-settings.json';
+import {adPlacementEnabled} from '../utils/ad-placements.mjs';
+const {config=settings.ads,preview=false}=Astro.props;
+const enabled=adPlacementEnabled(config,'feed');
+---
+{(enabled||preview)&&<aside class:list={['site-infeed-card',{'site-infeed-preview':preview}]} data-site-ad={!preview||undefined} data-ad-placement="feed" data-feed-ad data-feed-visible="true" aria-label={preview?'Publicidad: vista de ejemplo':'Publicidad'} hidden={!preview}>
+  <span class="site-infeed-label">PUBLICIDAD{preview?' · VISTA DE EJEMPLO':''}</span>
+  {preview?<div class="site-infeed-example"><span>Espacio para tu bloque in-feed</span><p>El anuncio real lo proporciona Google AdSense.</p></div>:<ins class="adsbygoogle" style="display:block" data-ad-format="fluid" data-ad-client={config.publisherId} data-ad-slot={config.feedSlot} data-ad-layout-key={config.feedLayoutKey} data-ad-layout={config.feedLayout||undefined}></ins>}
+</aside>}
+<style>
+.site-infeed-card{box-sizing:border-box;width:100%;min-width:0;max-width:100%;margin:0;padding:8px;border:1.5px solid var(--text-main);border-radius:12px;background:var(--surface-paper,#FDFBF7);align-self:stretch;overflow:visible}
+.site-infeed-card[hidden]{display:none!important}
+.site-infeed-label{display:block;font:800 10px/1.6 var(--font-sans,sans-serif);letter-spacing:.13em;color:var(--text-secondary,#625D55);padding:7px 8px 12px}
+.site-infeed-card ins{display:block;width:100%;min-width:0}
+.site-infeed-example{min-height:280px;padding:24px 12px;display:flex;flex-direction:column;justify-content:center;background:var(--surface-muted,#F3EFE6);color:var(--text-secondary,#625D55);text-align:center;font:700 .85rem/1.6 var(--font-sans,sans-serif);border-radius:6px}
+.site-infeed-example p{font:400 .75rem/1.7 var(--font-sans,sans-serif);color:inherit;margin:12px 0 0}
+</style>

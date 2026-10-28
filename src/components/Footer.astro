@@ -20,7 +20,7 @@ const today = new Date();
         <div class="footer-col">
             <h4 class="footer-title">Explorar</h4>
             <ul class="footer-links">
-                {settings.footerLinks.filter(link => link.enabled).map(link => <li><a href={link.url}>{link.label}</a></li>)}
+                {settings.footerLinks.filter(link => link.enabled && (settings.tools?.savedRoutes!==false || link.url.replace(/\/$/,'')!=='/mi-ruta')).map(link => <li><a href={link.url}>{link.label}</a></li>)}
             </ul>
         </div>
 

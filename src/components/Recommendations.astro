@@ -2,8 +2,8 @@
 import settings from '../data/site-settings.json';
 const {tags=[],catalog=settings.catalog}=Astro.props;
 const normalize=value=>String(value).normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLowerCase();
-const normalized=normalize(tags.join(' '));
-const items=(catalog||[]).filter(i=>i.enabled&&i.confirmed&&i.placement!=='manual'&&(!i.tags||i.tags.split(',').some(t=>t.trim()&&normalized.includes(normalize(t.trim()))))).slice(0,3);
+const normalized=' '+normalize(tags.join(' ')).replace(/[^a-z0-9]+/g,' ')+' ';
+const items=(catalog||[]).filter(i=>i.enabled&&i.confirmed&&i.placement!=='manual'&&(!i.tags||i.tags.split(',').some(t=>t.trim()&&normalized.includes(' '+normalize(t.trim()).replace(/[^a-z0-9]+/g,' ')+' ')))).slice(0,3);
 const iconPaths={activity:'M12 21s-7-4.5-7-11a7 7 0 1 1 14 0c0 6.5-7 11-7 11z M9 10a3 3 0 1 0 6 0a3 3 0 1 0-6 0',stay:'M3 18V7 M21 18V7 M3 13h18 M3 18h18 M7 13V9h4v4 M13 13V9h4v4',transport:'M6 17h12V5H6z M8 9h8 M9 17l-2 4 M15 17l2 4 M8 13h1 M15 13h1',insurance:'M12 3l8 3v6c0 5-8 9-8 9s-8-4-8-9V6z M8 12l3 3 5-6',resource:'M6 3h8l4 4v14H6z M14 3v5h4 M9 12h6 M9 16h6'};
 ---
 {items.length>0&&<section class="recommendations" aria-label="Recursos y recomendaciones"><h3 class="recommendations-heading">Para preparar tu viaje</h3>

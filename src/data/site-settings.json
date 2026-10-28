@@ -32,7 +32,7 @@
       "enabled": true
     },
     {
-      "label": "Recursos y Calculadoras",
+      "label": "Recursos",
       "url": "/recursos",
       "enabled": true
     },
@@ -59,12 +59,12 @@
       "enabled": true
     },
     {
-      "label": "Calculadoras y Recursos",
+      "label": "Recursos de viaje",
       "url": "/recursos",
       "enabled": true
     },
     {
-      "label": "Mi Ruta Guardada (Offline)",
+      "label": "Mi Ruta",
       "url": "/mi-ruta",
       "enabled": true
     },
@@ -91,13 +91,20 @@
     "publisherId": "ca-pub-5650296070135561",
     "homeSlot": "",
     "articleSlot": "",
-    "sidebarSlot": ""
+    "sidebarSlot": "",
+    "homeEnabled": true,
+    "articleEnabled": true,
+    "sidebarEnabled": true,
+    "feedEnabled": false,
+    "feedSlot": "",
+    "feedLayoutKey": "",
+    "feedLayout": ""
   },
   "sponsor": {
     "enabled": true,
-    "title": "Seguro Médico Internacional (-5% dto)",
+    "title": "Seguro de viaje",
     "text": "Viaja por Europa y Sudamérica con cobertura médica 24/7 en español y protección de equipaje.",
-    "button": "Calcular mi seguro con descuento →",
+    "button": "Consultar cobertura y precio",
     "url": "https://www.iatiseguros.com/?r=INSTANTETRIPS",
     "confirmed": true
   },
@@ -107,8 +114,8 @@
       "type": "affiliate",
       "category": "transport",
       "provider": "Omio",
-      "title": "Billetes de Alta Velocidad desde 7€ y 9€",
-      "text": "Compara OUIGO, Iryo y Renfe AVE en segundos sin comisiones ocultas.",
+      "title": "Compara tus opciones de tren",
+      "text": "Consulta los horarios, las tarifas y las condiciones de equipaje de cada operador.",
       "button": "Buscar horarios y precios",
       "url": "https://www.omio.com/trenes/espana?utm_source=instantetrips&utm_medium=affiliate&utm_campaign=sidebar-catalog",
       "tags": "tren, alta velocidad, ouigo, iryo, ave, renfe",
@@ -137,7 +144,7 @@
       "provider": "Holafly",
       "title": "Internet eSIM sin Roaming al Aterrizar",
       "text": "Lleva Google Maps, Uber y tus billetes activos desde que bajas del avión.",
-      "button": "Ver planes eSIM (-5% dto)",
+      "button": "Consultar planes eSIM",
       "url": "https://esim.holafly.com/?ref=instantetrips",
       "tags": "",
       "placement": "sidebar",
@@ -146,8 +153,11 @@
     }
   ],
   "audience": {
-    "newsletterUrl": "https://www.instantetrips.com/recursos#descargas",
-    "newsletterTitle": "Descarga nuestros Mapas Privados y Checklists de Viaje",
-    "newsletterText": "Rutas reales, presupuestos honestos y herramientas interactivas para tu próximo destino."
+    "newsletterUrl": "",
+    "newsletterTitle": "Recibe las próximas historias",
+    "newsletterText": "Ideas, rutas y nuevas historias de Instante Trips."
+  },
+  "tools": {
+    "savedRoutes": true
   }
 }

@@ -4,7 +4,7 @@ title: "Brujas desde Bruselas: Guía express sin tours aburridos"
 publishDate: 2026-01-12T03:59:39.184Z
 author: daniel-arana
 description: ¿Tren o autobús? Te explico cómo llegar a la joya medieval por tu cuenta, rápido y ahorrando con el ticket de fin de semana.
-heroImageLink: https://abruselas.com/wp-content/uploads/2017/10/brujas-belgica.jpg
+heroImageLink: https://images.unsplash.com/photo-1769369117276-9a6d717c8363?auto=format&fit=crop&w=1200&q=80
 tags:
     - Trenes
     - Transporte
