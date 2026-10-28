@@ -1,5 +1,5 @@
 {
-  "revision": "b8c4e9f1-7d2a-4c3b-9e1f-56a7890bcdef",
+  "revision": "f341a5dc-8673-4b54-9be6-e049dbfca8f7",
   "name": "Instante Trips & Tips",
   "shortName": "Instante Trips",
   "brandTitle": "INSTANTE",
@@ -92,32 +92,34 @@
     "homeSlot": "",
     "articleSlot": "",
     "sidebarSlot": "",
+    "feedSlot": "",
     "homeEnabled": true,
     "articleEnabled": true,
     "sidebarEnabled": true,
     "feedEnabled": false,
-    "feedSlot": "",
     "feedLayoutKey": "",
     "feedLayout": ""
   },
   "sponsor": {
+    "confirmed": true,
     "enabled": true,
     "title": "Seguro de viaje",
     "text": "Viaja por Europa y Sudamérica con cobertura médica 24/7 en español y protección de equipaje.",
     "button": "Consultar cobertura y precio",
-    "url": "https://www.iatiseguros.com/?r=INSTANTETRIPS",
-    "confirmed": true
+    "url": "https://www.iatiseguros.com/?r=INSTANTETRIPS"
   },
   "catalog": [
     {
       "id": "omio-trenes-europa",
       "type": "affiliate",
-      "category": "transport",
-      "provider": "Omio",
       "title": "Compara tus opciones de tren",
+      "url": "https://www.omio.com/trenes/espana?utm_source=instantetrips&utm_medium=affiliate&utm_campaign=sidebar-catalog",
+      "provider": "Omio",
+      "image": "",
+      "category": "transport",
+      "partnerId": "",
       "text": "Consulta los horarios, las tarifas y las condiciones de equipaje de cada operador.",
       "button": "Buscar horarios y precios",
-      "url": "https://www.omio.com/trenes/espana?utm_source=instantetrips&utm_medium=affiliate&utm_campaign=sidebar-catalog",
       "tags": "tren, alta velocidad, ouigo, iryo, ave, renfe",
       "placement": "sidebar",
       "enabled": true,
@@ -126,12 +128,14 @@
     {
       "id": "civitatis-tours-traslados",
       "type": "affiliate",
-      "category": "activity",
-      "provider": "Civitatis",
       "title": "Free Tours Oficiales y Traslados Seguros",
+      "url": "https://www.civitatis.com/es/?aid=104521&cmp=sidebar-catalog",
+      "provider": "Civitatis",
+      "image": "",
+      "category": "activity",
+      "partnerId": "",
       "text": "Reserva visitas guiadas en español y traslados puerta a puerta desde el aeropuerto.",
       "button": "Ver actividades disponibles",
-      "url": "https://www.civitatis.com/es/?aid=104521&cmp=sidebar-catalog",
       "tags": "",
       "placement": "sidebar",
       "enabled": true,
@@ -140,24 +144,26 @@
     {
       "id": "holafly-esim-datos",
       "type": "affiliate",
-      "category": "resource",
-      "provider": "Holafly",
       "title": "Internet eSIM sin Roaming al Aterrizar",
+      "url": "https://esim.holafly.com/?ref=instantetrips",
+      "provider": "Holafly",
+      "image": "",
+      "category": "resource",
+      "partnerId": "",
       "text": "Lleva Google Maps, Uber y tus billetes activos desde que bajas del avión.",
       "button": "Consultar planes eSIM",
-      "url": "https://esim.holafly.com/?ref=instantetrips",
       "tags": "",
       "placement": "sidebar",
       "enabled": true,
       "confirmed": true
     }
   ],
+  "tools": {
+    "savedRoutes": false
+  },
   "audience": {
     "newsletterUrl": "",
     "newsletterTitle": "Recibe las próximas historias",
     "newsletterText": "Ideas, rutas y nuevas historias de Instante Trips."
-  },
-  "tools": {
-    "savedRoutes": true
   }
 }
