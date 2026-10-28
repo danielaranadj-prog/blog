@@ -4,6 +4,7 @@ import { defineConfig } from 'astro/config';
 import sitemap from '@astrojs/sitemap';
 import { remarkCatalog } from './src/plugins/remark-catalog.mjs';
 import { remarkVideo } from './src/plugins/remark-video.mjs';
+import publicTools from './src/integrations/public-tools.mjs';
 
 export default defineConfig({
   // 1. Tu dominio está perfecto
@@ -17,6 +18,7 @@ export default defineConfig({
   },
 
   integrations: [
+    publicTools(),
     sitemap({
       filter: url => {
         const p = new URL(url).pathname.replace(/\/$/, '');
